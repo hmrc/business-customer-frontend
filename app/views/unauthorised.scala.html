@@ -1,0 +1,9 @@
+@()(implicit request: Request[_], messages: Messages)
+
+@import uk.gov.hmrc.play.views.html._
+
+@bcMain(title = Messages("bc.unauthorised.title"), supportLinkEnabled = false) {
+
+  <h1>@Messages("bc.unauthorised.heading")</h1>
+  
+}

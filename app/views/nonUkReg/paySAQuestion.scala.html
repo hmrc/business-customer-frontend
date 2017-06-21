@@ -1,0 +1,36 @@
+@(paySAQuestionForm: Form[models.PaySAQuestion], service: String, backLink: Option[String])(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import views.html.helpers._
+@import utils.BCUtils
+
+@implicitFormInstance = @{ Some(paySAQuestionForm) }
+
+@bcMain(title = Messages("bc.nonuk.paySA.title"), service = service) {
+    @pageHeadersAndError(backLink, "paySa-subheader", Messages("bc.nonuk.paySA.subheader", service.toUpperCase),
+        Some(bcErrorSummary(paySAQuestionForm, "bc.nonuk.paySA.error.general")))
+<h1 class="heading-xlarge" id="paySa-header"> @Messages("bc.nonuk.paySA.header")</h1>
+
+
+
+@form(action = controllers.nonUKReg.routes.PaySAQuestionController.continue(service)) {
+
+<div class="form-group" id="paySA">
+    @bcInputRadioGroup(
+        paySAQuestionForm("paySA"),
+        Seq("true" -> Messages("bc.radio.yes.label"),
+        "false" -> Messages("bc.radio.no.label")),
+        '_groupClass -> "inline",
+        '_legend -> Messages("bc.nonuk.paySA.title"),
+        '_legendClass -> "visuallyhidden",
+        '_labelClass -> "block-label",
+        '_labelAfter -> true,
+        '_trackGA -> true
+    )
+</div>
+
+<button class="button" id="submit" type="submit"> @Messages("bc.continue") </button>
+
+}
+
+}

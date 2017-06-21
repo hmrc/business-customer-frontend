@@ -1,0 +1,32 @@
+@(form: Form[_], errorMessageFieldPrefix: String, formErrorMessage: Option[String] = None)(implicit lang: Lang, messages: Messages)
+
+<script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/error-summary.js")'></script>
+
+@if(form.hasGlobalErrors || form.hasErrors) {
+
+  <div id="errors" tabindex="-1" role="group" aria-labelledby="form-error-heading" class="validation-summary">
+    <h1 class="heading-medium" id="form-error-heading">@Messages("bc.business-verification-error.summaryHeader")</h1>
+    <ul class="error-summary-list">
+      @form.errors.map { error =>
+        @defining(
+          error.args.nonEmpty match {
+            case true => {
+              if (error.key.nonEmpty) {
+                error.key + (error.args.fold("") { _ + "." + _ })
+              } else {
+                error.args.head.toString
+              }
+            }
+          case _ => { error.key }
+          }
+        )  { anchor:String =>
+             <li class="validation-message" role="tooltip" data-journey="search-page:error:@error.key" id='@anchor.replaceAll("""[\.\[\]]""", "-")-error'>
+               <a href="#@anchor" class="error-list" data-focuses="@error.key">
+                 @Messages(s"$errorMessageFieldPrefix.$anchor")
+               </a>
+             </li>
+           }
+      }
+    </ul>
+  </div>
+}

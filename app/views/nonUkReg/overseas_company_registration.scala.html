@@ -1,0 +1,93 @@
+@(overseasCompanyForm: Form[models.OverseasCompany],
+  service: String,
+  displayDetails: OverseasCompanyDisplayDetails,
+  countryList: List[(String, String)],
+  redirectUrl: Option[String],
+  backLink: Option[String])(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import views.html.helpers._
+@import config.ApplicationConfig
+@implicitFormInstance = @{ Some(overseasCompanyForm) }
+
+@pageScripts = {
+<script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/business-customer-country-auto-complete.js")'></script>
+<script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/overseas-company-registration.js")'></script>
+<script>
+    $(document).ready(function() {
+      countryCodeAutoComplete("#issuingCountry")
+      var classOfSelect2 = $('#issuingCountry_').attr('class');
+      $("#issuingCountry").addClass(classOfSelect2)
+      var labelText2 = $("#issuingCountry_field").text();
+      var divId2 = "issuingCountry_div"
+      var fieldId2 = "issuingCountry_"
+      createLabelForHiddenSelect(divId2, fieldId2, labelText2);
+
+      showHideIdentifiersSection();
+    });
+  </script>
+}
+
+@bcMain(title = displayDetails.title, service = service, pageScripts = Some(pageScripts)) {
+
+<div class="form-group">
+  @pageHeadersAndError(backLink, "overseas-subheader", displayDetails.subHeader,
+    Some(bcErrorSummary(overseasCompanyForm, "bc.non-uk-reg-error.general")))
+  <h1 class="heading-xlarge" id="overseas-header">@displayDetails.header</h1>
+
+@form(action = controllers.nonUKReg.routes.OverseasCompanyRegController.register(service, displayDetails.addClient, redirectUrl)) {
+</div>
+
+  <div id="non-uk-reg-form">
+
+    <div class="form-group" id="hasBusinessUniqueId">
+
+      @bcInputRadioGroup(overseasCompanyForm("hasBusinessUniqueId"),
+        Seq("true" -> Messages("bc.radio.yes.label"),
+        "false" -> Messages("bc.radio.no.label")),
+        '_groupClass -> "inline",
+        '_legend -> Messages("bc.nonuk.overseas.title"),
+        '_legendClass -> "screen-reader-text",
+        '_labelClass -> "block-label",
+        '_labelAfter -> true,
+       '_trackGA -> true
+      )
+    </div>
+
+    <div class="form-group">
+
+      <div id="hidden-identifiers" class="panel-indent">
+
+        @bcInput(overseasCompanyForm("businessUniqueId"),
+        '_label ->  Html(Messages("bc.non-uk-reg.businessUniqueId")),
+        '_labelClass -> "form-label-bold",
+      '_id -> "businessUniqueId",
+        '_showConstraints -> false)
+
+        @bcDropdown(overseasCompanyForm("issuingCountry"),
+        elementOptions = countryList,
+        displayEmptyValue = true,
+        '_id -> "issuingCountry",
+        '_emptyValueText -> Messages("bc.non-uk-reg.country.select"),
+        '_labelClass -> "form-label-bold",
+        '_label -> Html(Messages("bc.non-uk-reg.issuingCountry")))
+
+        @bcInput(overseasCompanyForm("issuingInstitution"),
+        '_label ->  Html(Messages("bc.non-uk-reg.issuingInstitution")),
+         '_labelClass -> "form-label-bold",
+        '_id -> "issuingInstitution",
+        '_hintText -> Messages("bc.non-uk-reg.issuingInstitution.hint"),
+        '_showConstraints -> false)
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <button class="button" id="submit" type="submit">@Messages("bc.continue")</button>
+
+
+}
+
+}

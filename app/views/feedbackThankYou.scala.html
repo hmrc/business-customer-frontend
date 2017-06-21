@@ -1,0 +1,16 @@
+@(service: String)(implicit request : Request[_], messages: Messages)
+@import controllers.auth._
+
+@bcMain(title = Messages("label.thanks_for_your_feedback"), userLoggedIn = false) {
+
+  <div class="grid-row start-page">
+
+    <h1 class="heading-xlarge">@Messages("label.thanks_for_your_feedback")</h1>
+
+    <a href="@ExternalUrls.serviceWelcomePath(service)" data-journey-click="business-customer:click:external-urls-welcome-link">@Messages("feedback.redirect-startpage")</a>
+
+    <p><a href="http://www.gov.uk" data-journey-click="business-customer:click:gov-uk2-link">@Messages("label.explore_gov_uk")</a></p>
+
+  </div>
+
+}

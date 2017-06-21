@@ -1,0 +1,43 @@
+@(title: String,
+  userLoggedIn: Boolean = true,
+  supportLinkEnabled: Boolean = true,
+  service: String = "",
+  pageScripts: Option[Html] = None,
+  sidebarLinks: Option[Html] = None,
+  sidebarClass: Option[String] = None
+)(mainContent: Html)(implicit request: Request[_], messages: Messages)
+
+@import uk.gov.hmrc.play.views.html.layouts
+
+@scriptElement = {
+  <script type="text/javascript" src='@controllers.routes.AssetsController.at("jquery/jquery-ui.min.js")'></script>
+  <script type="text/javascript" src='@controllers.routes.AssetsController.at("jquery/jquery-ui-1.12.1.min.js")'></script>
+  <script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/timeout-dialog.js")'></script>
+  <script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/details.polyfill.js")'></script>
+  @pageScripts
+  <script type="text/javascript" charset="utf-8">
+    @if(userLoggedIn) {
+        $.timeoutDialog({timeout: @config.ApplicationConfig.defaultTimeoutSeconds, countdown: @config.ApplicationConfig.timeoutCountdown, keep_alive_url: '@controllers.routes.ApplicationController.keepAlive', logout_url: '@controllers.routes.ApplicationController.logout(service)', logout_redirect_url: '@controllers.routes.ApplicationController.logout(service)', restart_on_yes: true, background_no_scroll: true});
+        var dialogOpen;
+    }
+  </script>
+}
+
+@linkElement = {
+  <link rel="stylesheet" href='@controllers.routes.AssetsController.at("stylesheets/business-customer.css")'/>
+  <link rel="stylesheet" href='@controllers.routes.AssetsController.at("jquery/jquery-ui.min.css")'/>
+  <link rel="stylesheet" href='@controllers.routes.AssetsController.at("jquery/jquery-ui.structure.min.css")'/>
+}
+
+@main(
+  applicationConfig = config.ApplicationConfig,
+  supportLinkEnabled = supportLinkEnabled,
+  title = title,
+  service = service,
+  sidebarLinks = sidebarLinks,
+  sidebarClass = sidebarClass,
+  userLoggedIn = userLoggedIn,
+  scriptElement = Some(scriptElement),
+  linkElement = Some(linkElement)) {
+    @mainContent
+  }

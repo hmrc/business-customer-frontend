@@ -1,0 +1,36 @@
+@(nrlQuestionForm: Form[models.NRLQuestion], service: String, backLink: Option[String])(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import views.html.helpers._
+@import utils.BCUtils
+
+@implicitFormInstance = @{ Some(nrlQuestionForm) }
+
+@bcMain(title = Messages("bc.nrl.title"), service = service) {
+
+  @form(action = controllers.nonUKReg.routes.NRLQuestionController.continue(service)) {
+    @pageHeadersAndError(backLink, "client-appoint-subheader", Messages("bc.nrl.subheader", service.toUpperCase),
+      Some(bcErrorSummary(nrlQuestionForm, "bc.nrl-error.general")))
+
+    <h1 class="heading-xlarge" id="nrl-question-header"> @Messages("bc.nrl.header")</h1>
+
+    <div class="form-group" id="paysSA">
+
+      @bcInputRadioGroup(
+        nrlQuestionForm("paysSA"),
+        Seq("true" -> Messages("bc.radio.yes.label"),
+        "false" -> Messages("bc.radio.no.label")),
+        '_labelClass -> "block-label",
+        '_legend -> Messages("bc.nrl.header"),
+        '_legendClass -> "visuallyhidden",
+        '_labelAfter -> true,
+        '_groupClass -> "inline",
+       '_trackGA -> true
+      )
+
+    </div>
+
+    <button class="button" id="submit" type="submit"> @Messages("bc.continue") </button>
+
+  }
+}

@@ -1,0 +1,52 @@
+@(businessTypeForm: Form[forms.BusinessType],
+ isAgent: Boolean,
+ service: String,
+ isSaAccount : Boolean,
+ isOrgAccount: Boolean,
+ backLink: Option[String])(implicit request: Request[_], messages: Messages)
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import views.html.helpers._
+@import utils.BCUtils
+@import config.ApplicationConfig
+
+@implicitFormInstance = @{ Some(businessTypeForm) }
+
+@bcMain(title = if(isAgent) {Messages("bc.business-verification.agent.header")} else {Messages("bc.business-verification.user.header")}, service = service) {
+
+  @if(isAgent) {
+    @pageHeadersAndError(backLink, "business-verification-agent-text", Messages("bc.business-verification.agent.text", service.toUpperCase),
+      Some(bcErrorSummary(businessTypeForm, "bc.business-verification-error.general")))
+    <h1 class="heading-xlarge" id="business-verification-agent-header" aria-level="1" role="heading"> @Html(Messages("bc.business-verification.agent.header")) </h1>
+  } else {
+    @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.client.text", service.toUpperCase),
+      Some(bcErrorSummary(businessTypeForm, "bc.business-verification-error.general")))
+    <h1 class="heading-xlarge" id="business-verification-header" aria-level="1" role="heading"> @Html(Messages("bc.business-verification.user.header")) </h1>
+  }
+
+
+
+  @form(action = controllers.routes.BusinessVerificationController.continue(service)) {
+
+    <div class="form-group" id="businessType">
+
+      <input type="hidden" name="isSaAccount" value="@{isSaAccount}">
+      <input type="hidden" name="isOrgAccount" value="@{isOrgAccount}">
+
+      @bcInputRadioGroup(
+        businessTypeForm("businessType"),
+        BCUtils.businessTypeMap(service, isAgent),
+        '_labelClass -> "block-label",
+        '_legend -> Messages("bc.business-verification.user.header"),
+        '_legendClass -> "visuallyhidden",
+        '_labelAfter -> true,
+        '_trackGA -> true
+      )
+
+    </div>
+
+    <button class="button" id="submit" type="submit"> @Messages("bc.business-verification.submit") </button>
+  }
+
+}

@@ -1,0 +1,64 @@
+@(ordinaryBusinessPartnershipForm: Form[forms.OrdinaryBusinessPartnershipMatch],
+ isAgent: Boolean,
+ service: String,
+ businessType: String,
+ backLink: Option[String])(implicit request: Request[_], messages: Messages)
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import views.html.helpers._
+
+@implicitFormInstance = @{ Some(ordinaryBusinessPartnershipForm) }
+
+@bcMain(title = if(isAgent) {Messages("bc.business-verification-selected-agent-header")} else {Messages("bc.business-verification-selected-user-header")}, service = service) {
+
+  @if(isAgent) {
+    @pageHeadersAndError(backLink, "business-verification-agent-text", Messages("bc.business-verification.agent.text", service.toUpperCase),
+      Some(bcErrorSummary(ordinaryBusinessPartnershipForm, "bc.business-verification-error.general.obp")))
+    <h1 class="heading-xlarge" id="business-type-agent-header"> @Messages("bc.business-verification-selected-agent-header") </h1>
+  } else {
+    @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.client.text", service.toUpperCase),
+      Some(bcErrorSummary(ordinaryBusinessPartnershipForm, "bc.business-verification-error.general.obp")))
+    <h1 class="heading-xlarge" id="business-type-header"> @Messages("bc.business-verification-selected-user-header") </h1>
+  }
+
+  <p id="business-type-paragraph"> @Messages("bc.business-verification-lede") </p>
+
+  @form(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
+
+
+      <fieldset id="business-type-obp-form">
+          <legend>
+              @if(isAgent) {
+                @Messages("bc.business-verification-selected-agent-header")
+              } else {
+                @Messages("bc.business-verification-selected-user-header")
+              }
+          </legend>
+
+        @bcInput(ordinaryBusinessPartnershipForm("businessName"),
+          '_label -> Html(Messages("bc.business-verification.partnerNameField")),
+          '_labelClass -> "form-label-bold",
+          '_hintText -> Messages("bc.business-verification.partnerNameHint"),
+          '_id -> "businessName",
+          '_showConstraints -> false)
+
+        @bcInput(ordinaryBusinessPartnershipForm("psaUTR"),
+          '_label -> Html(Messages("bc.business-verification.partnerUTRField")),
+          '_labelClass -> "form-label-bold",
+          '_hintText -> Messages("bc.business-verification.utr.hint"),
+          '_id -> "psaUTR",
+          '_type -> "text",
+          '_fieldsetAttributesHelpQuestion -> "utr-help-question",
+          '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
+          '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
+          '_showConstraints -> false)
+
+      </fieldset>
+
+      <button class="button" id="submit" type="submit">@Messages("bc.business-registration.submit")</button>
+
+
+  }
+
+}

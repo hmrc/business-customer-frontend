@@ -1,0 +1,119 @@
+@(service: String, isAgent: Boolean, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import utils._
+@import views.html.helpers._
+
+@bcMain(title = if (isAgent) { Messages("business-review.agent.title", service) } else {Messages("business-review.user.title", service) }, service = service) {
+
+  @if(isAgent){
+    @pageHeadersAndError(backLink, "bc.business-registration-agent.text", Messages("bc.business-registration.text.agent", service.toUpperCase))
+    <h1 class="heading-xlarge" aria-level="1" role="heading">@Html(Messages("business-review.agent.title"))</h1>
+  } else {
+    @pageHeadersAndError(backLink, "bc.business-registration.text", Messages("bc.business-registration.text.client", service.toUpperCase))
+    <h1 class="heading-xlarge" aria-level="1" role="heading">@Html(Messages("business-review.user.title"))</h1>
+  }
+
+  <div class="form-group">
+
+    <p id="business-name"><span class="heading-medium">@businessDetails.businessName</span></p>
+
+    <ul id="business-address">
+      <li id="registered-address-line-1">@businessDetails.businessAddress.line_1</li>
+      <li id="registered-address-line-2">@businessDetails.businessAddress.line_2</li>
+      @businessDetails.businessAddress.line_3.map {line_3 =>
+        <li id="registered-address-line-3">@line_3</li>
+      }
+      @businessDetails.businessAddress.line_4.map {line_4 =>
+        <li id="registered-address-line-4">@line_4</li>
+      }
+      @businessDetails.businessAddress.postcode.map {postcode =>
+        <li id="registered-postcode">@postcode</li>
+      }
+      <li id="registered-country">@BCUtils.getSelectedCountry(businessDetails.businessAddress.country)</li>
+    </ul>
+
+    @if(businessDetails.businessAddress.country.toUpperCase == "GB") {
+
+    @if(isAgent){
+
+      <details>
+        <summary>
+          <span id="wrong-account-title-agent" class="summary">
+            @if(businessDetails.directMatch){
+              @Messages("business-review.invalid-business.header")
+            } else {
+              @Messages("business-review.invalid-address.header")
+            }
+          </span>
+        </summary>
+
+        <div class="panel-indent">
+          <p id="wrong-account-text-agent">
+          @if(businessDetails.directMatch){
+            @Messages("business-review.invalid-business.text")
+          <p><span class="heading-small">@Messages("business-review.invalid-business.address-header")</span></p>
+          } else {
+            @Messages("business-review.invalid-address.text-agent")
+          }
+          <ul class="list-bullet">
+            <li id="wrong-account-text-agent-item-1">@Html(Messages("business-review.registered-with-companies-house.text"))</li>
+            <li id="wrong-account-text-agent-item-2">@Html(Messages("business-review.sole-trader.text"))</li>
+          </ul>
+        </div>
+      </details>
+
+    } else {
+
+      <details>
+
+        <summary>
+          <span id="wrong-account-title" class="summary">
+            @if(businessDetails.directMatch) {
+              @Messages("business-review.invalid-business.header")
+            } else {
+              @Messages("business-review.invalid-address.header")
+            }
+          </span>
+        </summary>
+
+        <div class="panel-indent">
+
+          <p id="wrong-account-text">
+          @if(businessDetails.directMatch){
+            @Messages("business-review.invalid-business.text")
+          <p><span class="heading-small">@Messages("business-review.invalid-business.address-header")</span></p>
+          } else {
+            @Messages("business-review.invalid-address.text",service.toUpperCase)
+          }
+
+          <ul class="list-bullet">
+            <li id="wrong-account-text-item-1">@Html(Messages("business-review.registered-with-companies-house.text"))</li>
+            <li id="wrong-account-text-item-2">@Html(Messages("business-review.sole-trader.text"))</li>
+          </ul>
+
+        </div>
+
+      </details>
+    }
+    }
+
+  </div>
+
+  @if(isAgent){
+    <div class="form-group">
+      <div class="confirmation-notice">
+        <div class="icon-important"></div>
+        <div class="ated-icon-important-text" id="check-agency-details"><strong>@Messages("business-review.check-agency.text")</strong></div>
+      </div>
+    </div>
+  }
+  <div class="form-group">
+    @form(action = controllers.routes.ReviewDetailsController.continue(service)) {
+      <button class="button" id="submit" type="submit" @if(isAgent){onclick="ga('send', 'event', 'Agent - registration - end', 'button clicked')"}>
+        @Messages("business-review.registration-button")
+      </button>
+    }
+  </div>
+}
+

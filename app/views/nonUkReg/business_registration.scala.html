@@ -1,0 +1,104 @@
+@(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String], isAgent: Boolean)(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import views.html.helpers._
+
+@implicitFormInstance = @{ Some(businessRegistrationForm) }
+
+@pageScripts = {
+  <script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/business-customer-country-auto-complete.js")'></script>
+  <script>
+    $(document).ready(function() {
+      countryCodeAutoComplete("#businessAddress\\.country")
+      var classOfSelect1 = $('#businessAddress\\.country_').attr('class');
+      $("#businessAddress\\.country").addClass(classOfSelect1)
+      var labelText1 = $("#businessAddress\\.country_field").text();
+      var divId1 = "businessAddress\\.country_div"
+      var fieldId1 = "businessAddress.country_"
+      createLabelForHiddenSelect(divId1, fieldId1, labelText1);
+    });
+  </script>
+}
+
+@bcMain(title = displayDetails.businessRegHeader, service = service, pageScripts = Some(pageScripts)) {
+
+  @pageHeadersAndError(backLink, "business-verification-text", displayDetails.businessRegSubHeader,
+    Some(bcErrorSummary(businessRegistrationForm, "bc.business-registration-error.general")))
+
+  <h1 class="heading-xlarge" id="business-registration-header" aria-level="1" role="heading"> @Html(displayDetails.businessRegHeader)</h1>
+
+  <div class="form-group">
+    @displayDetails.businessRegLede.map { businessRegLede =>
+      <p class="paragraph" id="business-registration-lede">@Html(businessRegLede)</p>
+    }
+  </div>
+
+  @form(action = controllers.nonUKReg.routes.BusinessRegController.send(service, displayDetails.businessType)) {
+
+
+      <div id="business-registration-form">
+
+        @bcInput(businessRegistrationForm("businessName"),
+          '_label ->  Html(Messages("bc.business-registration.businessName")),
+          '_labelClass -> "form-label-bold",
+          '_id -> "businessName",
+          '_showConstraints -> false)
+
+        @bcInput(businessRegistrationForm("businessAddress.line_1"),
+          '_label ->  Html(Messages("bc.business-registration.address")),
+          '_labelClass -> "form-label-bold",
+          '_id -> "businessAddress.line_1",
+          '_showConstraints -> false)
+
+        @bcInput(businessRegistrationForm("businessAddress.line_2"),
+          '_label ->  Html(Messages("bc.business-registration.line_2")),
+          '_labelClass -> "visuallyhidden",
+          '_id -> "businessAddress.line_2",
+          '_showConstraints -> false)
+
+        @bcInput(businessRegistrationForm("businessAddress.line_3"),
+          '_label ->  Html(Messages("bc.business-registration.line_3")),
+          '_labelClass -> "visuallyhidden",
+          '_id -> "businessAddress.line_3",
+          '_showConstraints -> false)
+
+        @bcInput(businessRegistrationForm("businessAddress.line_4"),
+          '_label ->  Html(Messages("bc.business-registration.line_4")),
+          '_labelClass -> "visuallyhidden",
+          '_id -> "businessAddress.line_4",
+          '_showConstraints -> false)
+
+        @if(!isAgent) {
+          @bcInput(businessRegistrationForm("businessAddress.postcode"),
+          '_label ->  Html(Messages("bc.non-uk-reg.postcode")),
+          '_labelClass -> "form-label-bold",
+          '_id -> "businessAddress.postcode",
+          '_inputClass -> "input--small",
+          '_maxLength -> 10,
+          '_showConstraints -> false)
+
+          <details role="group">
+            <summary role="button" aria-controls="details-content-0" tabindex="0">
+              <span class="summary" id="email-risk-question" data-journey-click="ated-subscription:click:email-risk-question">@Messages("bc.non-uk-reg.postcode.help.question")</span>
+            </summary>
+            <div id="details-content-0" class="panel-indent font-xsmall">
+              <p id="email-risk-ans">@Html(Messages("bc.non-uk-reg.postcode.help.answer"))</p>
+            </div>
+          </details>
+        }
+
+        @bcDropdown(businessRegistrationForm("businessAddress.country"),
+          elementOptions = displayDetails.listOfIsoCode,
+          displayEmptyValue = true,
+          '_id -> "businessAddress.country",
+          '_emptyValueText -> Messages("bc.business-registration.country.select"),
+          '_labelClass -> "form-label-bold",
+          '_label -> Html(Messages("bc.business-registration.country")))
+
+      </div>
+
+      <button class="button" id="submit" type="submit">@Messages("bc.business-registration.submit")</button>
+
+  }
+
+}
