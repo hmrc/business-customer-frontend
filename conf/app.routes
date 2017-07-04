@@ -44,15 +44,15 @@ POST        /send                                                               
 GET         /agent/register/non-uk-client/:service                              controllers.nonUKReg.AgentRegisterNonUKClientController.view(service: String, backLinkUrl: Option[String] ?= None)
 POST        /agent/register/non-uk-client/:service                              controllers.nonUKReg.AgentRegisterNonUKClientController.submit(service: String)
 
-GET         /register/non-uk-client/overseas-company/:service/:addClient        controllers.nonUKReg.OverseasCompanyRegController.view(service: String, addClient: Boolean, redirectUrl : Option[String] ?= None)
-POST        /register/non-uk-client/overseas-company/:service/:addClient        controllers.nonUKReg.OverseasCompanyRegController.register(service: String, addClient: Boolean, redirectUrl : Option[String] ?= None)
+GET         /register/non-uk-client/overseas-company/:service/:addClient        controllers.nonUKReg.OverseasCompanyRegController.view(service: String, addClient: Boolean, redirectUrl : Option[uk.gov.hmrc.play.binders.ContinueUrl] ?= None)
+POST        /register/non-uk-client/overseas-company/:service/:addClient        controllers.nonUKReg.OverseasCompanyRegController.register(service: String, addClient: Boolean, redirectUrl : Option[uk.gov.hmrc.play.binders.ContinueUrl] ?= None)
 
-GET         /register/non-uk-client/edit-overseas-company/:service/:addClient   controllers.nonUKReg.UpdateOverseasCompanyRegController.viewForUpdate(service: String, addClient: Boolean, redirectUrl : Option[String] ?= None)
-POST        /register/non-uk-client/edit-overseas-company/:service/:addClient   controllers.nonUKReg.UpdateOverseasCompanyRegController.update(service: String, addClient: Boolean, redirectUrl : Option[String] ?= None)
+GET         /register/non-uk-client/edit-overseas-company/:service/:addClient   controllers.nonUKReg.UpdateOverseasCompanyRegController.viewForUpdate(service: String, addClient: Boolean, redirectUrl : Option[uk.gov.hmrc.play.binders.ContinueUrl] ?= None)
+POST        /register/non-uk-client/edit-overseas-company/:service/:addClient   controllers.nonUKReg.UpdateOverseasCompanyRegController.update(service: String, addClient: Boolean, redirectUrl : Option[uk.gov.hmrc.play.binders.ContinueUrl] ?= None)
 
 GET         /agent/register/non-uk-client/:service/edit                         controllers.nonUKReg.UpdateNonUKBusinessRegistrationController.editAgent(service: String)
-GET         /register/non-uk-client/:service/edit                               controllers.nonUKReg.UpdateNonUKBusinessRegistrationController.edit(service: String, redirectUrl : Option[String] ?= None)
-POST        /register/non-uk-client/:service/edit/:isRegisterClient             controllers.nonUKReg.UpdateNonUKBusinessRegistrationController.update(service: String, redirectUrl : Option[String] ?= None, isRegisterClient : Boolean)
+GET         /register/non-uk-client/:service/edit                               controllers.nonUKReg.UpdateNonUKBusinessRegistrationController.edit(service: String, redirectUrl : Option[uk.gov.hmrc.play.binders.ContinueUrl] ?= None)
+POST        /register/non-uk-client/:service/edit/:isRegisterClient             controllers.nonUKReg.UpdateNonUKBusinessRegistrationController.update(service: String, redirectUrl : Option[uk.gov.hmrc.play.binders.ContinueUrl] ?= None, isRegisterClient : Boolean)
 
 GET         /clear-cache/:service                                               controllers.BusinessCustomerController.clearCache(service: String)
 GET         /fetch-review-details/:service                                      controllers.BusinessCustomerController.getReviewDetails(service: String)

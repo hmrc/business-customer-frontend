@@ -20,12 +20,13 @@ import config.{ApplicationConfig, FrontendAuthConnector}
 import controllers.BaseController
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
-import models.{OverseasCompany, BusinessCustomerContext, BusinessRegistrationDisplayDetails}
+import models.{BusinessCustomerContext, BusinessRegistrationDisplayDetails, OverseasCompany}
 import play.api.Logger
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import play.api.i18n.Messages
 import services.BusinessRegistrationService
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import utils.BCUtils
@@ -62,60 +63,67 @@ trait UpdateNonUKBusinessRegistrationController extends BaseController with RunM
     }
   }
 
-  def edit(service: String, redirectUrl : Option[String]) = AuthAction(service).async { implicit bcContext =>
-    businessRegistrationService.getDetails.map{
-      businessDetails =>
-        businessDetails match {
-          case Some(detailsTuple) =>
-            Ok(views.html.nonUkReg.update_business_registration(businessRegistrationForm.fill(detailsTuple._2),
-              service,
-              displayDetails(service, true),
-              redirectUrl,
-              true,
-              getBackLink(service, redirectUrl),
-              bcContext.user.isAgent))
-          case _ =>
-            Logger.warn(s"[UpdateNonUKBusinessRegistrationController][edit] - No registration details found to edit")
-            throw new RuntimeException(Messages("bc.agent-service.error.no-registration-details"))
-        }
-    }
-
-  }
-
-  def update(service: String, redirectUrl : Option[String], isRegisterClient: Boolean) = AuthAction(service).async { implicit bcContext =>
-    BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, bcContext.user.isAgent).fold(
-      formWithErrors => {
-        Future.successful(BadRequest(views.html.nonUkReg.update_business_registration(formWithErrors,
-          service,
-          displayDetails(service, isRegisterClient),
-          redirectUrl,
-          isRegisterClient,
-          getBackLink(service, redirectUrl),
-          bcContext.user.isAgent)))
-      },
-      registerData => {
-        businessRegistrationService.getDetails.flatMap{
+  def edit(service: String, redirectUrl : Option[ContinueUrl]) = AuthAction(service).async { implicit bcContext =>
+    redirectUrl match {
+      case Some(x) if !x.isRelativeOrDev(ApplicationConfig.env) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
+      case _ =>
+        businessRegistrationService.getDetails.map {
           businessDetails =>
             businessDetails match {
               case Some(detailsTuple) =>
-                businessRegistrationService.updateRegisterBusiness(registerData, detailsTuple._3, isGroup = false, isNonUKClientRegisteredByAgent = true, service, isBusinessDetailsEditable = true).map { response =>
-                  redirectUrl match {
-                    case Some(serviceUrl) => Redirect(serviceUrl)
-                    case _ => Redirect(controllers.routes.ReviewDetailsController.businessDetails(service))
-                  }
-                }
+                Ok(views.html.nonUkReg.update_business_registration(businessRegistrationForm.fill(detailsTuple._2),
+                  service,
+                  displayDetails(service, true),
+                  redirectUrl,
+                  true,
+                  getBackLink(service, redirectUrl),
+                  bcContext.user.isAgent))
               case _ =>
-                Logger.warn(s"[UpdateNonUKBusinessRegistrationController][update] - No registration details found to edit")
+                Logger.warn(s"[UpdateNonUKBusinessRegistrationController][edit] - No registration details found to edit")
                 throw new RuntimeException(Messages("bc.agent-service.error.no-registration-details"))
             }
         }
-      }
-    )
+    }
   }
 
-  private def getBackLink(service: String, redirectUrl: Option[String]) = {
+  def update(service: String, redirectUrl : Option[ContinueUrl], isRegisterClient: Boolean) = AuthAction(service).async { implicit bcContext =>
     redirectUrl match {
-      case Some(x) => redirectUrl
+      case Some(x) if !x.isRelativeOrDev(ApplicationConfig.env) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
+      case _ =>
+        BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, bcContext.user.isAgent).fold(
+          formWithErrors => {
+            Future.successful(BadRequest(views.html.nonUkReg.update_business_registration(formWithErrors,
+              service,
+              displayDetails(service, isRegisterClient),
+              redirectUrl,
+              isRegisterClient,
+              getBackLink(service, redirectUrl),
+              bcContext.user.isAgent)))
+          },
+          registerData => {
+            businessRegistrationService.getDetails.flatMap {
+              businessDetails =>
+                businessDetails match {
+                  case Some(detailsTuple) =>
+                    businessRegistrationService.updateRegisterBusiness(registerData, detailsTuple._3, isGroup = false, isNonUKClientRegisteredByAgent = true, service, isBusinessDetailsEditable = true).map { response =>
+                      redirectUrl match {
+                        case Some(serviceUrl) => Redirect(serviceUrl.url)
+                        case _ => Redirect(controllers.routes.ReviewDetailsController.businessDetails(service))
+                      }
+                    }
+                  case _ =>
+                    Logger.warn(s"[UpdateNonUKBusinessRegistrationController][update] - No registration details found to edit")
+                    throw new RuntimeException(Messages("bc.agent-service.error.no-registration-details"))
+                }
+            }
+          }
+        )
+    }
+  }
+
+  private def getBackLink(service: String, redirectUrl: Option[ContinueUrl]) = {
+    redirectUrl match {
+      case Some(x) => Some(x.url)
       case None => Some(controllers.routes.ReviewDetailsController.businessDetails(service).url)
     }
   }

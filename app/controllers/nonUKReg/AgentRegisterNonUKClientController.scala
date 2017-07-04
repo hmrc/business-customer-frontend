@@ -27,6 +27,7 @@ import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import play.api.i18n.Messages
 import services.BusinessRegistrationService
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import utils.BCUtils
@@ -81,7 +82,7 @@ trait AgentRegisterNonUKClientController extends BackLinkController with RunMode
             serviceRedirectUrl match {
               case Some(redirectUrl) =>
                 RedirectWithBackLink(OverseasCompanyRegController.controllerId,
-                  controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, true, serviceRedirectUrl),
+                  controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, true, Some(ContinueUrl(redirectUrl))),
                   Some(controllers.nonUKReg.routes.AgentRegisterNonUKClientController.view(service).url)
                 )
               case _ =>

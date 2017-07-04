@@ -1,7 +1,8 @@
+@import uk.gov.hmrc.play.binders.ContinueUrl
 @(businessRegistrationForm: Form[models.BusinessRegistration],
   service: String,
   displayDetails: models.BusinessRegistrationDisplayDetails,
-  redirectUrl: Option[String],
+  redirectUrl: Option[uk.gov.hmrc.play.binders.ContinueUrl],
   isRegisterClient: Boolean,
   backLink: Option[String],
   isAgent: Boolean)(implicit request: Request[_], messages: Messages)
