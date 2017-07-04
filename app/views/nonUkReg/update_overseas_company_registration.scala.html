@@ -1,8 +1,9 @@
+@import uk.gov.hmrc.play.binders.ContinueUrl
 @(overseasCompanyForm: Form[models.OverseasCompany],
   service: String,
   displayDetails: OverseasCompanyDisplayDetails,
   countryList: List[(String, String)],
-  redirectUrl: Option[String],
+  redirectUrl: Option[ContinueUrl],
   backLink: Option[String])(implicit request: Request[_], messages: Messages)
 @import uk.gov.hmrc.play.views.html._
 @import uk.gov.hmrc.play.views.html.helpers._

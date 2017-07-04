@@ -31,6 +31,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
 
@@ -81,6 +82,13 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("Do you have an overseas company registration number?")
+        }
+      }
+
+      "redirect url is invalid format" in {
+        implicit val hc: HeaderCarrier = HeaderCarrier()
+        viewWithAuthorisedUser(serviceName, Some(ContinueUrl("http://website.com"))) { result =>
+          status(result) must be(BAD_REQUEST)
         }
       }
 
@@ -175,9 +183,17 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
         "If registration details entered are valid, continue button must redirect with to next page if no redirectUrl" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
-          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(businessReg),overseasDetails, reviewDetails, Some("http://redirectHere")) { result =>
+          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(businessReg),overseasDetails, reviewDetails, Some(ContinueUrl("/api/anywhere"))) { result =>
             status(result) must be(SEE_OTHER)
-            redirectLocation(result) must be(Some("http://redirectHere"))
+            redirectLocation(result) must be(Some("/api/anywhere"))
+          }
+        }
+
+        "redirect url is invalid format" in {
+          implicit val hc: HeaderCarrier = HeaderCarrier()
+          val inputJson = createJson()
+          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(businessReg),overseasDetails, reviewDetails, Some(ContinueUrl("http://website.com"))) { result =>
+            status(result) must be(BAD_REQUEST)
           }
         }
       }
@@ -236,7 +252,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
   }
 
 
-  def viewWithAuthorisedUser(service: String)(test: Future[Result] => Any) {
+  def viewWithAuthorisedUser(service: String, redirectUrl: Option[ContinueUrl] = None)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -246,7 +262,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](Matchers.any())
       (Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
 
-    val result = TestController.view(service, true).apply(FakeRequest().withSession(
+    val result = TestController.view(service, true, redirectUrl).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId))
@@ -259,7 +275,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
                                     busRegCache : Option[BusinessRegistration] = None,
                                     overseasSave : OverseasCompany,
                                     reviewDetails : ReviewDetails,
-                                    redirectUrl: Option[String] = None)(test: Future[Result] => Any) {
+                                    redirectUrl: Option[ContinueUrl] = None)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -275,21 +291,6 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
     when(mockBusinessRegistrationService.registerBusiness(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(reviewDetails))
 
     val result = TestController.register(service, true, redirectUrl).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
-
-    test(result)
-  }
-
-  def registerWithAuthorisedUserFailure(fakeRequest: FakeRequest[AnyContentAsJson], redirectUrl: Option[String] = Some("http://"))(test: Future[Result] => Any) {
-    val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
-
-    builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-
-    val result = TestController.register(service, true).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId))
