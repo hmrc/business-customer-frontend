@@ -99,7 +99,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
           document.getElementById("businessAddress.line_3_field").text() must be("Address line 3 (optional)")
           document.getElementById("businessAddress.line_4_field").text() must be("Address line 4 (optional)")
           document.getElementById("businessAddress.country_field").text() must include("Country")
-          document.getElementById("submit").text() must be("Continue")
+          document.getElementById("submit").text() must be("Register your agency")
         }
       }
 
@@ -117,7 +117,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
           document.getElementById("businessName").`val`() must be("ACME")
           document.getElementById("businessAddress.line_1").`val`() must be("line 1")
           document.getElementById("businessAddress.line_2").`val`() must be("line 2")
-          document.getElementById("submit").text() must be("Continue")
+          document.getElementById("submit").text() must be("Register your agency")
         }
       }
 
@@ -137,7 +137,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
           document.getElementById("businessAddress.line_3_field").text() must be("Address line 3 (optional)")
           document.getElementById("businessAddress.line_4_field").text() must be("Address line 4 (optional)")
           document.getElementById("businessAddress.country_field").text() must include("Country")
-          document.getElementById("submit").text() must be("Continue")
+          document.getElementById("submit").text() must be("Register your agency")
         }
       }
     }

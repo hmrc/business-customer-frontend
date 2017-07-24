@@ -54,8 +54,8 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with OneServerPerSuite with M
       assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
       assert(document.getElementById("wrong-account-title").text === ("Not the right details?"))
       assert(document.getElementById("wrong-account-text").text === ("If this is not the right business, you should sign out and change to another account"))
-      assert(document.getElementById("wrong-account-text-item-1").text().startsWith("If you registered with Companies House you need to inform") === true)
-      assert(document.getElementById("wrong-account-text-item-2").text().startsWith("If you are not registered with Companies House you need to inform") === true)
+      assert(document.getElementById("wrong-account-text-item-1").text().startsWith("registered with Companies House you need to inform") === true)
+      assert(document.getElementById("wrong-account-text-item-2").text().startsWith("are not registered with Companies House you need to inform") === true)
       assert(document.getElementById("check-agency-details") === null)
 
       assert(document.select(".button").text === ("Confirm"))
@@ -83,9 +83,9 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with OneServerPerSuite with M
       assert(document.getElementById("business-name").text === ("ACME"))
       assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
       assert(document.getElementById("wrong-account-title").text === ("Not the right address?"))
-      assert(document.getElementById("wrong-account-text").text === ("You can still register but you will need to update your information outside of this service."))
-      assert(document.getElementById("wrong-account-text-item-1").text().startsWith("If you registered with Companies House you need to inform") === true)
-      assert(document.getElementById("wrong-account-text-item-2").text().startsWith("If you are not registered with Companies House you need to inform") === true)
+      assert(document.getElementById("wrong-account-text").text === ("You will need to update your information outside of this service. If you;"))
+      assert(document.getElementById("wrong-account-text-item-1").text().startsWith("registered with Companies House you need to inform") === true)
+      assert(document.getElementById("wrong-account-text-item-2").text().startsWith("are not registered with Companies House you need to inform") === true)
       assert(document.getElementById("check-agency-details") === null)
 
       assert(document.select(".button").text === ("Confirm"))
@@ -106,15 +106,14 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with OneServerPerSuite with M
       And("The submit button is - Confirm and continue")
       assert(document.getElementById("submit").text() === "Confirm")
 
-      Then("The title should match - Check this is the agency you want to set up")
-      assert(document.select("h1").text === ("Check this is the agency you want to set up"))
+      Then("The title should match - Confirm your agency's details")
+      assert(document.select("h1").text === ("Confirm your agency's details"))
 
       assert(document.getElementById("wrong-account-title-agent").text === ("Not the right details?"))
       assert(document.getElementById("bc.business-registration-agent.text").text() === ("ATED agency set up"))
       assert(document.getElementById("business-name").text === ("ACME"))
       assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
       assert(document.getElementById("wrong-account-title") === null)
-      assert(document.getElementById("check-agency-details").text ===("You are setting up your agency. These should be your company details not your clients."))
       assert(document.select(".button").text === ("Confirm"))
       assert(document.getElementById("bus-reg-edit") === null)
 

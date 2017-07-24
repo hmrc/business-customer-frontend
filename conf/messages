@@ -11,7 +11,7 @@ bc.amls.serviceName = Anti Money Laundering Supervision
 bc.investment-tax-relief.serviceName = Apply for Enterprise Investment Scheme
 
 business-review.user.title = Check this is the business you want to register
-business-review.agent.title = Check this is the agency you want to set up
+business-review.agent.title = Confirm your agency''s details
 business-review.agent-editable.title = Check your agency details
 bc.business-review.title = Welcome to {0} subscription
 
@@ -27,14 +27,14 @@ business-review.cancel-subscription = Cancel
 business-review.subscribe-banner = Confirm that your details are correct. You only need to do this process once to cover all your {0} clients.
 business-review.subscribe-banner2 = Confirm your details are correct.
 business-review.invalid-address.header = Not the right address?
-business-review.invalid-address.text-agent = You can still register but you will need to update your information outside of this service.
-business-review.invalid-address.text = You can still register but you will need to update your information outside of this service.
+business-review.invalid-address.text-agent = You will need to update your information outside of this service. If you;
+business-review.invalid-address.text = You will need to update your information outside of this service. If you;
 business-review.invalid-business.address-header = Not the right address
 business-review.invalid-business.header = Not the right details?
 business-review.invalid-business.text = If this is not the right business, you should sign out and change to another account
 business-review.registration-button = Confirm
-business-review.registered-with-companies-house.text = If you registered with Companies House you need to inform <a href="https://www.gov.uk/file-changes-to-a-company-with-companies-house" data-journey-click="business-customer:click:companies-house-link">Companies House</a>
-business-review.sole-trader.text =  If you are not registered with Companies House you need to inform <a href="https://www.gov.uk/tell-hmrc-change-of-details/change-name-or-address" data-journey-click="business-customer:click:not-registered-link">HMRC</a>.
+business-review.registered-with-companies-house.text = registered with Companies House you need to inform <a href="https://www.gov.uk/file-changes-to-a-company-with-companies-house" data-journey-click="business-customer:click:companies-house-link">Companies House</a>
+business-review.sole-trader.text =  are not registered with Companies House you need to inform <a href="https://www.gov.uk/tell-hmrc-change-of-details/change-name-or-address" data-journey-click="business-customer:click:not-registered-link">HMRC</a>
 business-review.check-agency.text =  You are setting up your agency. These should be your company details not your clients.
 
 bc.business-review.error.not-found = We could not find your details. Check and try again.
@@ -164,7 +164,7 @@ bc.business-registration.businessUniqueId.hint = For example, the number on the 
 bc.business-registration.issuingInstitution = Institution of issue
 bc.business-registration.issuingInstitution.hint = For example, an overseas tax department
 bc.business-registration.issuingCountry = Country of issue
-bc.business-registration.submit= Continue
+bc.business-registration.submit= Register your agency
 bc.business-registration.cancel= Cancel
 bc.business-registration.back= Back
 bc.business-registration.search= Match
