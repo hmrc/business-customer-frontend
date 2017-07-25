@@ -54,7 +54,7 @@ bc.business-verification-selected-user-SOP-header=What are your Self Assessment 
 bc.business-verification-selected-user-NRL-header=What are your Self Assessment details?
 bc.business-verification-selected-agent-header=What are your agency details?
 bc.business-verification-lede= We will attempt to match your details against information we currently hold.
-bc.business-verification-lede.nrl= As a non-resident landlord you pay tax through Self Assessment. Enter your Self Assessment details and we will attempt to match them against information we currently hold.
+bc.business-verification-lede.nrl= Enter your Self Assessment details and we will attempt to match them against information we currently hold.
 bc.business-verification.NUK=I have an overseas company without a UK Unique Taxpayer Reference
 bc.business-verification.agent.NUK=I have an overseas company
 bc.business-verification.PRT=Business partnership
@@ -88,7 +88,9 @@ bc.business-verification.partnerUTRField=Partnership Self Assessment Unique Taxp
 bc.business-verification.registered-name.hint=This is the registered name on your incorporation certificate.
 bc.business-verification.utr.hint=It can usually be found in the header of any letter issued by HMRC next to headings such as ''Tax Reference'', ''UTR'' or ''Official Use''.
 bc.business-verification.utr.help.question = Where to find your UTR
+bc.business-verification.utr.help.answer.agent = <p>It is issued by HMRC when you register your business or for Self Assessment.</p><p>Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10.</p>
 bc.business-verification.utr.help.answer = <p>It is issued by HMRC when you register your business or for Self Assessment.</p><p>Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10.</p><p>Your accountant or tax manager would normally have your UTR.</p>
+
 bc.business-verification.back=Back
 bc.business-verification.submit=Continue
 
@@ -301,8 +303,10 @@ feedback.redirect-startpage= Please return to start page
 
 ## non-resident landlord
 bc.nrl.subheader = {0} registration
-bc.nrl.header = Do you live outside of the UK for 6 months or more a year and receive rental income from the property?
-bc.nrl.title = Do you live outside of the UK for 6 months or more a year and receive rental income from the property?
+bc.nrl.header = Are you a non-resident landlord?
+bc.nrl.title = Are you a non-resident landlord?
+bc.nrl-question = What is a non-resident landlord?
+bc.nrl-answer = A non resident landlord (NRL) is someone who lives outside of the UK for 6 months or more a year and receives rental income from a property or properties. 
 bc.nrl-error.general.paysSA = There is a problem with the non-resident landlord question
 bc.nrl.paysSA.not-selected.error = You must select an option
 

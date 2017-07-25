@@ -46,16 +46,31 @@
           '_id -> "businessName",
           '_showConstraints -> false)
 
-        @bcInput(limitedCompanyForm("cotaxUTR"),
-          '_label -> Html(Messages("bc.business-verification.coUTRField")),
-          '_labelClass -> "form-label-bold",
-          '_hintText -> Messages("bc.business-verification.utr.hint"),
-          '_id -> "cotaxUTR",
-          '_type -> "text",
-          '_fieldsetAttributesHelpQuestion -> "utr-help-question",
-          '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
-          '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
-          '_showConstraints -> false)
+          @if(isAgent) {
+          @bcInput(limitedCompanyForm("cotaxUTR"),
+              '_label -> Html(Messages("bc.business-verification.coUTRField")),
+              '_labelClass -> "form-label-bold",
+              '_hintText -> Messages("bc.business-verification.utr.hint"),
+              '_id -> "cotaxUTR",
+              '_type -> "text",
+              '_fieldsetAttributesHelpQuestion -> "utr-help-question",
+              '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
+              '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer.agent")),
+              '_showConstraints -> false)
+          } else {
+              @bcInput(limitedCompanyForm("cotaxUTR"),
+                  '_label -> Html(Messages("bc.business-verification.coUTRField")),
+                  '_labelClass -> "form-label-bold",
+                  '_hintText -> Messages("bc.business-verification.utr.hint"),
+                  '_id -> "cotaxUTR",
+                  '_type -> "text",
+                  '_fieldsetAttributesHelpQuestion -> "utr-help-question",
+                  '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
+                  '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
+                  '_showConstraints -> false)
+          }
+
+
 
       </fieldset>
 
