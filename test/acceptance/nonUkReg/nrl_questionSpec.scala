@@ -42,8 +42,8 @@ class nrl_questionSpec extends FeatureSpec with OneServerPerSuite with MockitoSu
 
       val document = Jsoup.parse(html.toString())
 
-      Then("The title should match - Do you live outside of the UK for 6 months or more a year and receive rental income from the property?")
-      assert(document.select("h1").text === ("Do you live outside of the UK for 6 months or more a year and receive rental income from the property?"))
+      Then("The title should match - Are you a non-resident landlord?")
+      assert(document.select("h1").text === ("Are you a non-resident landlord?"))
 
       Then("The subheader should be - ATED registration")
       assert(document.getElementById("client-appoint-subheader").text() === "ATED registration")

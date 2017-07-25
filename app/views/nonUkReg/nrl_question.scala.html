@@ -14,6 +14,15 @@
 
     <h1 class="heading-xlarge" id="nrl-question-header"> @Messages("bc.nrl.header")</h1>
 
+    <details role="group">
+      <summary class="summary" role="button" aria-controls="details-content-0" tabindex="0">
+        @Messages("bc.nrl-question")
+      </summary>
+      <div class="panel-indent" id="details-content-0">
+      @Messages("bc.nrl-answer")
+      </div>
+    </details>
+
     <div class="form-group" id="paysSA">
 
       @bcInputRadioGroup(
@@ -29,6 +38,8 @@
       )
 
     </div>
+
+
 
     <button class="button" id="submit" type="submit"> @Messages("bc.continue") </button>
 
