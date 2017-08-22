@@ -9,10 +9,8 @@
 @bcMain(title = Messages("bc.nrl.title"), service = service) {
 
   @form(action = controllers.nonUKReg.routes.NRLQuestionController.continue(service)) {
-    @pageHeadersAndError(backLink, "client-appoint-subheader", Messages("bc.nrl.subheader", service.toUpperCase),
+    @pageHeadersAndError(backLink, "client-appoint-subheader", Messages("bc.nrl.subheader", service.toUpperCase), "nrl-question-header", Messages("bc.nrl.header"),
       Some(bcErrorSummary(nrlQuestionForm, "bc.nrl-error.general")))
-
-    <h1 class="heading-xlarge" id="nrl-question-header"> @Messages("bc.nrl.header")</h1>
 
     <details role="group">
       <summary class="summary" role="button" aria-controls="details-content-0" tabindex="0">

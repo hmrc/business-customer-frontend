@@ -5,8 +5,8 @@
 @import views.html.helpers._
 
 @bcMain(title = Messages("business-review.agent-editable.title", service), service = service) {
-  @pageHeadersAndError(backLink, "bc.business-registration-agent.text", Messages("bc.business-registration.text.agent", service.toUpperCase))
-  <h1 class="heading-xlarge" aria-level="1" role="heading">@Html(Messages("business-review.agent-editable.title"))</h1>
+  @pageHeadersAndError(backLink, "bc.business-registration-agent.text", Messages("bc.business-registration.text.agent", service.toUpperCase), "", Messages("business-review.agent-editable.title"))
+
 
 <table>
   <tr>

@@ -13,13 +13,11 @@
 @bcMain(title = if(isAgent) {Messages("bc.business-verification-selected-agent-header")} else {Messages("bc.business-verification-selected-user-header")}, service = service) {
 
   @if(isAgent) {
-    @pageHeadersAndError(backLink, "business-verification-agent-text", Messages("bc.business-verification.agent.text", service.toUpperCase),
+    @pageHeadersAndError(backLink, "business-verification-agent-text", Messages("bc.business-verification.agent.text", service.toUpperCase), "business-type-agent-header", Messages("bc.business-verification-selected-agent-header"),
       Some(bcErrorSummary(ordinaryBusinessPartnershipForm, "bc.business-verification-error.general.obp")))
-    <h1 class="heading-xlarge" id="business-type-agent-header"> @Messages("bc.business-verification-selected-agent-header") </h1>
   } else {
-    @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.client.text", service.toUpperCase),
-      Some(bcErrorSummary(ordinaryBusinessPartnershipForm, "bc.business-verification-error.general.obp")))
-    <h1 class="heading-xlarge" id="business-type-header"> @Messages("bc.business-verification-selected-user-header") </h1>
+    @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.client.text", service.toUpperCase), "business-type-header", Messages("bc.business-verification-selected-user-header"),
+        Some(bcErrorSummary(ordinaryBusinessPartnershipForm, "bc.business-verification-error.general.obp")))
   }
 
   <p id="business-type-paragraph"> @Messages("bc.business-verification-lede") </p>

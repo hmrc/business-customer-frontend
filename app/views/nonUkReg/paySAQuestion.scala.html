@@ -7,11 +7,8 @@
 @implicitFormInstance = @{ Some(paySAQuestionForm) }
 
 @bcMain(title = Messages("bc.nonuk.paySA.title"), service = service) {
-    @pageHeadersAndError(backLink, "paySa-subheader", Messages("bc.nonuk.paySA.subheader", service.toUpperCase),
+    @pageHeadersAndError(backLink, "paySa-subheader", Messages("bc.nonuk.paySA.subheader", service.toUpperCase), "paySa-header", Messages("bc.nonuk.paySA.header"),
         Some(bcErrorSummary(paySAQuestionForm, "bc.nonuk.paySA.error.general")))
-<h1 class="heading-xlarge" id="paySa-header"> @Messages("bc.nonuk.paySA.header")</h1>
-
-
 
 @form(action = controllers.nonUKReg.routes.PaySAQuestionController.continue(service)) {
 

@@ -22,10 +22,8 @@
 
 @bcMain(title = displayDetails.businessRegHeader, service = service, pageScripts = Some(pageScripts)) {
 
-  @pageHeadersAndError(backLink, "business-verification-text", displayDetails.businessRegSubHeader,
+  @pageHeadersAndError(backLink, "business-verification-text", displayDetails.businessRegSubHeader, "business-registration-header", displayDetails.businessRegHeader,
     Some(bcErrorSummary(businessRegistrationForm, "bc.business-registration-error.general")))
-
-  <h1 class="heading-xlarge" id="business-registration-header" aria-level="1" role="heading"> @Html(displayDetails.businessRegHeader)</h1>
 
   <div class="form-group">
     @displayDetails.businessRegLede.map { businessRegLede =>
