@@ -92,7 +92,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with OneServerPerS
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your client's overseas registered business name and address?")
-          document.getElementById("business-verification-text").text() must be("Add a client")
+          document.getElementById("business-verification-text").text() must be("This section is: Add a client")
           document.getElementById("non-uk-reg-header").text() must be("What is your client's overseas registered business name and address?")
           document.getElementById("businessName_field").text() must be("Business name")
           document.getElementById("businessAddress.line_1_field").text() must be("Address")
@@ -114,7 +114,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with OneServerPerS
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your client's overseas registered business name and address?")
-          document.getElementById("business-verification-text").text() must be("Add a client")
+          document.getElementById("business-verification-text").text() must be("This section is: Add a client")
           document.getElementById("non-uk-reg-header").text() must be("What is your client's overseas registered business name and address?")
           document.getElementById("businessName_field").text() must be("Business name")
           document.getElementById("businessAddress.line_1_field").text() must be("Address")
@@ -140,7 +140,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with OneServerPerS
 
 
           document.title() must be("What is your client's overseas registered business name and address?")
-          document.getElementById("business-verification-text").text() must be("Add a client")
+          document.getElementById("business-verification-text").text() must be("This section is: Add a client")
           document.getElementById("non-uk-reg-header").text() must be("What is your client's overseas registered business name and address?")
           document.getElementById("businessName").`val`() must be("ACME")
           document.getElementById("businessAddress.line_1").`val`() must be("line 1")

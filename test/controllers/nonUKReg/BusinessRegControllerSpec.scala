@@ -91,7 +91,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your overseas business registered name and address?")
-          document.getElementById("business-verification-text").text() must be("ATED registration")
+          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
           document.getElementById("business-registration-header").text() must be("What is your overseas business registered name and address?")
           document.getElementById("businessName_field").text() must be("Business name")
           document.getElementById("businessAddress.line_1_field").text() must be("Address")
@@ -112,7 +112,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your overseas business registered name and address?")
-          document.getElementById("business-verification-text").text() must be("ATED registration")
+          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
           document.getElementById("business-registration-header").text() must be("What is your overseas business registered name and address?")
           document.getElementById("businessName").`val`() must be("ACME")
           document.getElementById("businessAddress.line_1").`val`() must be("line 1")
@@ -129,7 +129,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is the registered business name and address of your overseas agency?")
-          document.getElementById("business-verification-text").text() must be("ATED agency set up")
+          document.getElementById("business-verification-text").text() must be("This section is: ATED agency set up")
           document.getElementById("business-registration-header").text() must be("What is the registered business name and address of your overseas agency?")
           document.getElementById("businessName_field").text() must be("Business name")
           document.getElementById("businessAddress.line_1_field").text() must be("Address")

@@ -46,7 +46,7 @@ class paySAQuestionSpec extends FeatureSpec with OneServerPerSuite with MockitoS
       assert(document.select("h1").text === ("Do you pay tax in the UK through self assessment?"))
 
       Then("The subheader should be - ATED registration")
-      assert(document.getElementById("paySa-subheader").text() === "ATED registration")
+      assert(document.getElementById("paySa-subheader").text() === "This section is: ATED registration")
 
       Then("The options should be Yes and No")
       assert(document.select(".block-label").text() === "Yes No")

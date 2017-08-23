@@ -50,7 +50,7 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with OneServerPerSu
       Then("The title should match - Confirm your business details")
       assert(document.select("h1").text === ("Check your agency details"))
 
-      assert(document.getElementById("bc.business-registration-agent.text").text() === ("ATED agency set up"))
+      assert(document.getElementById("bc.business-registration-agent.text").text() === ("This section is: ATED agency set up"))
 
       And("Business name is correct")
       assert(document.getElementById("business-name-title").text === ("Business name"))

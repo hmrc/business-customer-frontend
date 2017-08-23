@@ -97,7 +97,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.getElementById("business-verification-text").text() must be("ATED registration")
+          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
           document.getElementById("business-reg-header").text() must be("What is your overseas business registered name and address?")
           document.getElementById("business-reg-lede").text() must be("This is the registered address of your overseas business.")
 
@@ -123,7 +123,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your client's overseas registered business name and address?")
-          document.getElementById("business-verification-text").text() must be("Add a client")
+          document.getElementById("business-verification-text").text() must be("This section is: Add a client")
           document.getElementById("business-reg-header").text() must be("What is your client's overseas registered business name and address?")
           document.getElementById("business-reg-lede").text() must be("This is the registered address of your client's overseas business.")
 
@@ -172,7 +172,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.getElementById("business-verification-text").text() must be("ATED registration")
+          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
           document.getElementById("business-reg-header").text() must be("What is your overseas business registered name and address?")
           document.getElementById("business-reg-lede").text() must be("This is the registered address of your overseas business.")
 

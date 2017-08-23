@@ -52,7 +52,7 @@ class overseas_company_registrationSpec extends FeatureSpec with OneServerPerSui
       assert(document.select("h1").text === displayDetails.header)
 
       Then("The subheader should be - dynamicSubHeader")
-      assert(document.getElementById("overseas-subheader").text() === "dynamicSubHeader")
+      assert(document.getElementById("overseas-subheader").text() === "This section is: dynamicSubHeader")
 
       Then("The options should be Yes and No")
       assert(document.select(".block-label").text() === "Yes No")
