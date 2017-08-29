@@ -49,7 +49,7 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with OneServerPerSuite with M
       Then("The title should match - Confirm your business details")
       assert(document.select("h1").text === ("Check this is the business you want to register"))
 
-      assert(document.getElementById("bc.business-registration.text").text() === ("ATED registration"))
+      assert(document.getElementById("bc.business-registration.text").text() === ("This section is: ATED registration"))
       assert(document.getElementById("business-name").text === ("ACME"))
       assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
       assert(document.getElementById("wrong-account-title").text === ("Not the right details?"))
@@ -79,7 +79,7 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with OneServerPerSuite with M
       Then("The title should match - Confirm your business details ")
       assert(document.select("h1").text === ("Check this is the business you want to register"))
 
-      assert(document.getElementById("bc.business-registration.text").text() === ("ATED registration"))
+      assert(document.getElementById("bc.business-registration.text").text() === ("This section is: ATED registration"))
       assert(document.getElementById("business-name").text === ("ACME"))
       assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
       assert(document.getElementById("wrong-account-title").text === ("Not the right address?"))
@@ -110,7 +110,7 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with OneServerPerSuite with M
       assert(document.select("h1").text === ("Confirm your agency's details"))
 
       assert(document.getElementById("wrong-account-title-agent").text === ("Not the right details?"))
-      assert(document.getElementById("bc.business-registration-agent.text").text() === ("ATED agency set up"))
+      assert(document.getElementById("bc.business-registration-agent.text").text() === ("This section is: ATED agency set up"))
       assert(document.getElementById("business-name").text === ("ACME"))
       assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
       assert(document.getElementById("wrong-account-title") === null)

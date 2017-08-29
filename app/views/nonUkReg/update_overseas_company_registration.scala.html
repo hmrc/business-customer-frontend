@@ -30,15 +30,10 @@
 }
 
 @bcMain(title = displayDetails.title, service = service, pageScripts = Some(pageScripts)) {
-  @pageHeadersAndError(backLink, "overseas-subheader", displayDetails.subHeader,
+  @pageHeadersAndError(backLink, "overseas-subheader", displayDetails.subHeader, "overseas-header", displayDetails.header,
     Some(bcErrorSummary(overseasCompanyForm, "bc.non-uk-reg-error.general")))
-  <h1 class="heading-xlarge" id="overseas-header">@displayDetails.header</h1>
-
 
 @form(action = controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.update(service, displayDetails.addClient, redirectUrl)) {
-
-
-
 
   <div id="non-uk-reg-form">
 

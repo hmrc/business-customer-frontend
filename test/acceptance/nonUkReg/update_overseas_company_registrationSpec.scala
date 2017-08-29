@@ -52,7 +52,7 @@ class update_overseas_company_registrationSpec extends FeatureSpec with OneServe
       assert(document.select("h1").text === displayDetails.header)
 
       Then("The subheader should be - dynamicSubHeader")
-      assert(document.getElementById("overseas-subheader").text() === displayDetails.subHeader)
+      assert(document.getElementById("overseas-subheader").text() === "This section is: " + displayDetails.subHeader)
 
       Then("We should have a back link")
       assert(document.getElementById("backLinkHref").text() === "Back")

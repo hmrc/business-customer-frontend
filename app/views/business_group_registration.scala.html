@@ -8,14 +8,10 @@
 
 @bcMain(title = Messages("business-registration.group.title", service.toUpperCase), service = service) {
 
-  @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.text", service.toUpperCase),
+  @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.text", service.toUpperCase), "business-registration.header", displayDetails.businessRegHeader,
     Some(bcErrorSummary(businessRegistrationForm, "bc.business-verification-error.general")))
-  <h1 class="heading-xlarge" id="business-registration.header" aria-level="1" role="heading"> @Html(displayDetails.businessRegHeader) </h1>
-
-
 
   @form(action = controllers.routes.BusinessRegUKController.send(service, displayDetails.businessType)) {
-
 
       <div id="business-registration-form">
 

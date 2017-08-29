@@ -4,6 +4,8 @@ bc.radio.no.label = No
 bc.continue = Continue
 bc.edit = Edit
 bc.sign-out = Sign out
+bc.screen-reader.section = This section is:
+bc.screen-reader.name = this is for:
 
 bc.ated.serviceName = Submit and view your ATED returns
 bc.awrs.serviceName = Register as an alcohol wholesaler for AWRS

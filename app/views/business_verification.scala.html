@@ -16,16 +16,13 @@
 @bcMain(title = if(isAgent) {Messages("bc.business-verification.agent.header")} else {Messages("bc.business-verification.user.header")}, service = service) {
 
   @if(isAgent) {
-    @pageHeadersAndError(backLink, "business-verification-agent-text", Messages("bc.business-verification.agent.text", service.toUpperCase),
+    @pageHeadersAndError(backLink, "business-verification-agent-text", Messages("bc.business-verification.agent.text", service.toUpperCase), "business-verification-agent-header", Messages("bc.business-verification.agent.header"),
       Some(bcErrorSummary(businessTypeForm, "bc.business-verification-error.general")))
-    <h1 class="heading-xlarge" id="business-verification-agent-header" aria-level="1" role="heading"> @Html(Messages("bc.business-verification.agent.header")) </h1>
   } else {
-    @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.client.text", service.toUpperCase),
+    @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.client.text", service.toUpperCase), "business-verification-header", Messages("bc.business-verification.user.header"),
       Some(bcErrorSummary(businessTypeForm, "bc.business-verification-error.general")))
-    <h1 class="heading-xlarge" id="business-verification-header" aria-level="1" role="heading"> @Html(Messages("bc.business-verification.user.header")) </h1>
+
   }
-
-
 
   @form(action = controllers.routes.BusinessVerificationController.continue(service)) {
 

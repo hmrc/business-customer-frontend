@@ -46,7 +46,7 @@ class nrl_questionSpec extends FeatureSpec with OneServerPerSuite with MockitoSu
       assert(document.select("h1").text === ("Are you a non-resident landlord?"))
 
       Then("The subheader should be - ATED registration")
-      assert(document.getElementById("client-appoint-subheader").text() === "ATED registration")
+      assert(document.getElementById("client-appoint-subheader").text() === "This section is: ATED registration")
 
       Then("The options should be Yes and No")
       assert(document.select(".block-label").text() === "Yes No")

@@ -13,20 +13,16 @@
 @bcMain(title = if(isAgent) {Messages("bc.business-verification-selected-agent-header")} else {Messages("bc.business-verification-selected-user-header")}, service = service) {
 
   @if(isAgent) {
-    @pageHeadersAndError(backLink, "business-verification-agent-text", Messages("bc.business-verification.agent.text", service.toUpperCase),
+    @pageHeadersAndError(backLink, "business-verification-agent-text", Messages("bc.business-verification.agent.text", service.toUpperCase), "business-type-agent-header", Messages("bc.business-verification-selected-agent-header"),
       Some(bcErrorSummary(limitedLiabilityPartnershipForm, "bc.business-verification-error.general.llp")))
-    <h1 class="heading-xlarge" id="business-type-agent-header"> @Messages("bc.business-verification-selected-agent-header") </h1>
   } else {
-    @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.client.text", service.toUpperCase),
+    @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.client.text", service.toUpperCase), "business-type-header", Messages("bc.business-verification-selected-user-header"),
       Some(bcErrorSummary(limitedLiabilityPartnershipForm, "bc.business-verification-error.general.llp")))
-    <h1 class="heading-xlarge" id="business-type-header"> @Messages("bc.business-verification-selected-user-header") </h1>
   }
 
   <p id="business-type-paragraph"> @Messages("bc.business-verification-lede") </p>
 
-
   @form(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
-
 
       <fieldset id="business-type-llp-form">
           <legend class="visuallyhidden">
@@ -67,7 +63,6 @@
       }
 
       <button class="button" id="submit" type="submit"> @Messages("bc.business-registration.submit") </button>
-
 
   }
 
