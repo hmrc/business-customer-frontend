@@ -6,11 +6,12 @@
 
 @bcMain(title = if (isAgent) { Messages("business-review.agent.title", service) } else {Messages("business-review.user.title", service) }, service = service) {
 
-  @if(isAgent){
-    @pageHeadersAndError(backLink, "bc.business-registration-agent.text", Messages("bc.business-registration.text.agent", service.toUpperCase), "", Messages("business-review.agent.title"))
-  } else {
-    @pageHeadersAndError(backLink, "bc.business-registration.text", Messages("bc.business-registration.text.client", service.toUpperCase), "", Messages("business-review.user.title"))
-  }
+@if(isAgent){
+@pageHeadersAndError(backLink, "bc.business-registration-agent.text", Messages("bc.business-registration.text.agent", service.toUpperCase), "bc.business-registration-agent.header",  Messages("business-review.agent.header"))
+} else {
+@pageHeadersAndError(backLink, "bc.business-registration.text", Messages("bc.business-registration.text.client", service.toUpperCase), "bc.business-registration.header",  Messages("business-review.user.header"))
+}
+
 
   <div class="form-group">
 
