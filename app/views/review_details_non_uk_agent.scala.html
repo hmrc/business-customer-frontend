@@ -5,7 +5,7 @@
 @import views.html.helpers._
 
 @bcMain(title = Messages("business-review.agent-editable.title", service), service = service) {
-  @pageHeadersAndError(backLink, "bc.business-registration-agent.text", Messages("bc.business-registration.text.agent", service.toUpperCase), "", Messages("business-review.agent-editable.title"))
+  @pageHeadersAndError(backLink, "bc.business-registration-agent.text", Messages("bc.business-registration.text.agent", service.toUpperCase), "bc.business-registration-agent.header", Messages("business-review.agent-editable.title"))
 
 
 <table>
@@ -18,7 +18,7 @@
     </td>
     <td valign="top">
       <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="bus-name-edit" data-journey-click="business-customer:click:bus-name-edit-link">@Messages("bc.edit")
-        <span class="screen-reader-text">@Messages("business-review.business-name")</span>
+        <span class="visuallyhidden">@Messages("business-review.business-name")</span>
       </a>
     </td>
   </tr>
@@ -44,7 +44,7 @@
     </td>
     <td valign="top">
       <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="bus-reg-edit" data-journey-click="business-customer:click:bus-reg-edit-link">@Messages("bc.edit")
-        <span class="screen-reader-text">@Messages("business-review.address")</span>
+        <span class="visuallyhidden">@Messages("business-review.address")</span>
       </a>
     </td>
   </tr>
@@ -63,7 +63,7 @@
     </td>
     <td valign="top">
       <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' id="overseas-edit" data-journey-click="business-customer:click:overseas-edit-link">@Messages("bc.edit")
-        <span class="screen-reader-text">@Messages("business-review.overseas-tax-reference")</span>
+        <span class="visuallyhidden">@Messages("business-review.overseas-tax-reference")</span>
       </a>
     </td>
   </tr>

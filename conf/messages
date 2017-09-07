@@ -14,6 +14,8 @@ bc.investment-tax-relief.serviceName = Apply for Enterprise Investment Scheme
 
 business-review.user.title = Check this is the business you want to register
 business-review.agent.title = Confirm your agency''s details
+business-review.user.header = Check this is the business you want to register
+business-review.agent.header = Confirm your agency''s details
 business-review.agent-editable.title = Check your agency details
 bc.business-review.title = Welcome to {0} subscription
 
