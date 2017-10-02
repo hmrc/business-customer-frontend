@@ -96,7 +96,8 @@ bc.business-verification.utr.help.answer.agent = <p>It is issued by HMRC when yo
 bc.business-verification.utr.help.answer = <p>It is issued by HMRC when you register your business or for Self Assessment.</p><p>Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10.</p><p>Your accountant or tax manager would normally have your UTR.</p>
 
 bc.business-verification.back=Back
-bc.business-verification.submit=Continue
+bc.business-verification.submit= Register your agency
+bc.business-verification.submit.client =Continue
 
 bc.business-verification-error.firstname=You must enter a first name
 bc.business-verification-error.firstname.length=A first name cannot be more than 40 characters
@@ -170,7 +171,7 @@ bc.business-registration.businessUniqueId.hint = For example, the number on the 
 bc.business-registration.issuingInstitution = Institution of issue
 bc.business-registration.issuingInstitution.hint = For example, an overseas tax department
 bc.business-registration.issuingCountry = Country of issue
-bc.business-registration.submit= Register your agency
+bc.business-registration.submit= Continue
 bc.business-registration.cancel= Cancel
 bc.business-registration.back= Back
 bc.business-registration.search= Match
