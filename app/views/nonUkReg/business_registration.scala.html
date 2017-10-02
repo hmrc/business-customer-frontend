@@ -6,7 +6,7 @@
 @implicitFormInstance = @{ Some(businessRegistrationForm) }
 
 @pageScripts = {
-  <script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/business-customer-country-auto-complete.js")'></script>
+  <script src='@controllers.routes.AssetsController.at("javascript/business-customer-country-auto-complete.js")'></script>
   <script>
     $(document).ready(function() {
       countryCodeAutoComplete("#businessAddress\\.country")

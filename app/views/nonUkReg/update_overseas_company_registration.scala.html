@@ -12,8 +12,8 @@
 @implicitFormInstance = @{ Some(overseasCompanyForm) }
 
 @pageScripts = {
-<script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/business-customer-country-auto-complete.js")'></script>
-<script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/overseas-company-registration.js")'></script>
+<script src='@controllers.routes.AssetsController.at("javascript/business-customer-country-auto-complete.js")'></script>
+<script src='@controllers.routes.AssetsController.at("javascript/overseas-company-registration.js")'></script>
 <script>
     $(document).ready(function() {
       countryCodeAutoComplete("#issuingCountry")
