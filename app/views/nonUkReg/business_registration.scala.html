@@ -95,7 +95,7 @@
 
       </div>
 
-      <button class="button" id="submit" type="submit">@Messages("bc.business-registration.submit")</button>
+      <button class="button" id="submit" type="submit"> @if(isAgent){@Messages("bc.business-verification.submit")}else{@Messages("bc.business-verification.submit.client")} </button>
 
   }
 
