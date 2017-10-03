@@ -26,13 +26,13 @@ import play.api.i18n.Messages
 import play.api.{Logger, Play}
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
 import uk.gov.hmrc.play.config.{AppName, RunMode}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import utils.GovernmentGatewayConstants
 
 import play.api.http.Status._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 trait AgentRegistrationService extends RunMode with Auditable {
 

@@ -21,11 +21,11 @@ import models._
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import play.api.i18n.Messages
-import uk.gov.hmrc.play.http.{HeaderCarrier, InternalServerException}
 import utils.SessionUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, InternalServerException }
 object BusinessRegistrationService extends BusinessRegistrationService {
 
   val businessCustomerConnector: BusinessCustomerConnector = BusinessCustomerConnector

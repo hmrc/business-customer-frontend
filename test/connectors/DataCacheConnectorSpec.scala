@@ -25,9 +25,9 @@ import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
 
@@ -49,7 +49,7 @@ class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mockit
       "fetch saved BusinessDetails from SessionCache" in {
         implicit val hc: HeaderCarrier = HeaderCarrier()
         val reviewDetails: ReviewDetails = ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
-        when(mockSessionCache.fetchAndGetEntry[ReviewDetails](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(reviewDetails)))
+        when(mockSessionCache.fetchAndGetEntry[ReviewDetails](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(reviewDetails)))
         val result = TestDataCacheConnector.fetchAndGetBusinessDetailsForSession
         await(result) must be(Some(reviewDetails))
       }
@@ -61,7 +61,7 @@ class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mockit
         implicit val hc: HeaderCarrier = HeaderCarrier()
         val reviewDetails: ReviewDetails = ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
         val returnedCacheMap: CacheMap = CacheMap("data", Map(TestDataCacheConnector.sourceId -> Json.toJson(reviewDetails)))
-        when(mockSessionCache.cache[ReviewDetails](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(returnedCacheMap))
+        when(mockSessionCache.cache[ReviewDetails](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(returnedCacheMap))
         val result = TestDataCacheConnector.saveReviewDetails(reviewDetails)
         await(result).get must be(reviewDetails)
       }
@@ -71,7 +71,7 @@ class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mockit
     "clearCache" must {
       "clear the cache for the session" in {
         implicit val hc: HeaderCarrier = HeaderCarrier()
-        when(mockSessionCache.remove()(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
+        when(mockSessionCache.remove()(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
         val result = TestDataCacheConnector.clearCache
         await(result).status must be(OK)
       }

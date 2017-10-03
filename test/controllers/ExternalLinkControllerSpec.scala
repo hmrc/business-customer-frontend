@@ -32,9 +32,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.AgentRegistrationService
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse, SessionKeys}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.SessionKeys
 
 
 class ExternalLinkControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {

@@ -23,9 +23,9 @@ import models.{BusinessCustomerContext, MatchBusinessData}
 import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
 import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
-import uk.gov.hmrc.play.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -36,7 +36,7 @@ object BusinessMatchingConnector extends BusinessMatchingConnector {
   val baseUri = "business-matching"
   val lookupUri = "business-lookup"
   val serviceUrl = baseUrl("business-matching")
-  val http: HttpGet with HttpPost = WSHttp
+  val http: CoreGet with CorePost = WSHttp
 }
 
 trait BusinessMatchingConnector extends ServicesConfig with RawResponseReads with Auditable {
@@ -47,7 +47,7 @@ trait BusinessMatchingConnector extends ServicesConfig with RawResponseReads wit
 
   def lookupUri: String
 
-  def http: HttpGet with HttpPost
+  def http: CoreGet with CorePost
 
   def lookup(lookupData: MatchBusinessData, userType: String, service: String)
             (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[JsValue] = {

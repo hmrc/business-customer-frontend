@@ -25,10 +25,10 @@ import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import utils.{BusinessCustomerFeatureSwitches, FeatureSwitch}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class BackLinkCacheConnectorSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
 
@@ -50,7 +50,7 @@ class BackLinkCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mo
       "fetch saved BusinessDetails from SessionCache with Feature Switch on" in {
         implicit val hc: HeaderCarrier = HeaderCarrier()
         val backLink: BackLinkModel = BackLinkModel(Some("testBackLink"))
-        when(mockSessionCache.fetchAndGetEntry[BackLinkModel](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(backLink)))
+        when(mockSessionCache.fetchAndGetEntry[BackLinkModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(backLink)))
         val result = TestDataCacheConnector.fetchAndGetBackLink("testPageId")
         await(result) must be(backLink.backLink)
 
@@ -64,7 +64,7 @@ class BackLinkCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mo
         implicit val hc: HeaderCarrier = HeaderCarrier()
         val backLink: BackLinkModel = BackLinkModel(Some("testBackLink"))
         val returnedCacheMap: CacheMap = CacheMap("data", Map(TestDataCacheConnector.sourceId -> Json.toJson(backLink)))
-        when(mockSessionCache.cache[ReviewDetails](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(returnedCacheMap))
+        when(mockSessionCache.cache[ReviewDetails](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(returnedCacheMap))
         val result = TestDataCacheConnector.saveBackLink("testPageId", backLink.backLink)
         await(result) must be(backLink.backLink)
 

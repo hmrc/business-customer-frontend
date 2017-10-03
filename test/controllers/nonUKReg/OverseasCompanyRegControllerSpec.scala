@@ -33,9 +33,9 @@ import play.api.test.Helpers._
 import services.BusinessRegistrationService
 import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
 
 
 class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
