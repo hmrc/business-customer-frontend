@@ -20,14 +20,14 @@ import audit.Auditable
 import config.{BusinessCustomerFrontendAuditConnector, WSHttp}
 import models._
 import play.api.Logger
-import play.api.http.Status._
-import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
+import play.api.http.Status._
 import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
 import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
-import uk.gov.hmrc.play.http.{HeaderCarrier, _}
 import utils.GovernmentGatewayConstants
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -41,7 +41,7 @@ object BusinessCustomerConnector extends BusinessCustomerConnector {
   val registerUri = "register"
   val knownFactsUri = "known-facts"
   val updateRegistrationDetailsURI = "update"
-  val http: HttpGet with HttpPost = WSHttp
+  val http: CoreGet with CorePost = WSHttp
 }
 
 trait BusinessCustomerConnector extends ServicesConfig with RawResponseReads with Auditable {
@@ -56,7 +56,7 @@ trait BusinessCustomerConnector extends ServicesConfig with RawResponseReads wit
 
   def knownFactsUri: String
 
-  def http: HttpGet with HttpPost
+  def http: CoreGet with CorePost
 
   def addKnownFacts(knownFacts: KnownFactsForService)(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
     val authLink = bcContext.user.authLink

@@ -27,10 +27,10 @@ import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc._
 import services.BusinessMatchingService
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.BusinessCustomerConstants._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 object BusinessVerificationController extends BusinessVerificationController {
   val businessMatchingService: BusinessMatchingService = BusinessMatchingService

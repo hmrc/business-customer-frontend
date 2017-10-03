@@ -21,9 +21,9 @@ import models.{BackLinkModel, BusinessCustomerContext}
 import play.api.mvc.{AnyContent, Request, Call, Result}
 import play.mvc.Http.Response
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 trait BackLinkController extends BaseController {
   val controllerId: String

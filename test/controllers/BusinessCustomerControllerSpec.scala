@@ -29,9 +29,9 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.{HttpResponse, SessionKeys}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HttpResponse, SessionKeys }
 
 class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 

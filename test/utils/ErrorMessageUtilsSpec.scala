@@ -18,8 +18,8 @@ package utils
 
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.http.HttpResponse
 import utils.ErrorMessageUtils._
+import uk.gov.hmrc.http.HttpResponse
 
 class ErrorMessageUtilsSpec extends PlaySpec {
 

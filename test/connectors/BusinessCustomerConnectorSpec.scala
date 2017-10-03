@@ -27,29 +27,23 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.http.{HeaderCarrier, _}
-import uk.gov.hmrc.play.http.hooks.HttpHook
-import uk.gov.hmrc.play.http.logging.SessionId
-import uk.gov.hmrc.play.http.ws.{WSGet, WSPost}
-import utils.BusinessCustomerConstants
 
 import scala.concurrent.Future
 
 class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
-  class MockHttp extends WSGet with WSPost {
-    override val hooks: Seq[HttpHook] = NoneRequired
-  }
-
-  val mockWSHttp = mock[MockHttp]
+  trait MockedVerbs extends CoreGet with CorePost
+  val mockWSHttp: CoreGet with CorePost = mock[MockedVerbs]
 
   override def beforeEach(): Unit = {
     reset(mockWSHttp)
   }
 
   object TestBusinessCustomerConnector extends BusinessCustomerConnector {
-    override val http: HttpGet with HttpPost = mockWSHttp
+    override val http: CoreGet with CorePost = mockWSHttp
     override val audit: Audit = new TestAudit
     override val appName: String = "Test"
     override val serviceUrl = ""
@@ -75,7 +69,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val successResponse = Json.toJson(knownFacts)
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
 
         val result = TestBusinessCustomerConnector.addKnownFacts(knownFacts)
@@ -88,7 +82,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(matchFailureResponse))))
 
         val result = TestBusinessCustomerConnector.addKnownFacts(knownFacts)
@@ -125,7 +119,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val successResponse = Json.toJson(businessResponseData)
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
 
         val result = TestBusinessCustomerConnector.register(businessRequestData, service)
@@ -138,7 +132,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val successResponse = Json.toJson(businessResponseData)
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
 
         val result = TestBusinessCustomerConnector.register(businessRequestDataNonUK, service)
@@ -151,7 +145,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val successResponse = Json.toJson(businessResponseData)
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
 
         val result = TestBusinessCustomerConnector.register(businessRequestDataNonUK, service, isNonUKClientRegisteredByAgent = true)
@@ -162,7 +156,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(matchFailureResponse))))
 
         val result = TestBusinessCustomerConnector.register(businessRequestData, service)
@@ -174,7 +168,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(matchFailureResponse))))
 
         val result = TestBusinessCustomerConnector.register(businessRequestData, service)
@@ -186,7 +180,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(999, Some(matchFailureResponse))))
 
         val result = TestBusinessCustomerConnector.register(businessRequestData, service)
@@ -225,7 +219,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
       "for successful save, return Response as Json" in {
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(successResponse))
 
         val result = TestBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
@@ -235,7 +229,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
       "for successful save with non-uk address, return Response as Json" in {
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(successResponse))
 
         val result = TestBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestDataNonUk)
@@ -245,7 +239,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
       "for successful registration of NON-UK based client by an agent, return Response as Json" in {
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(successResponse))
 
         val result = TestBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestDataNonUk)
@@ -256,7 +250,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(matchFailureResponse))))
 
         val result = TestBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
@@ -268,7 +262,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(matchFailureResponse))))
 
         val result = TestBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
@@ -280,7 +274,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(999, Some(matchFailureResponse))))
 
         val result = TestBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)

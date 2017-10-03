@@ -26,10 +26,10 @@ import play.api.{Logger, Play}
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
 import uk.gov.hmrc.play.config.{AppName, RunMode}
 import uk.gov.hmrc.play.frontend.controller.{FrontendController, UnauthorisedAction}
-import uk.gov.hmrc.play.http.HeaderCarrier
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import play.api.i18n.Messages
+import uk.gov.hmrc.http.HeaderCarrier
 
 object ApplicationController extends ApplicationController {
   override val audit: Audit = new Audit(AppName.appName, BusinessCustomerFrontendAuditConnector)

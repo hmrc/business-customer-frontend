@@ -56,31 +56,31 @@ object AuthBuilder {
   }
 
   def mockAuthorisedUser(userId:String, mockAuthConnector: AuthConnector) {
-    when(mockAuthConnector.currentAuthority(Matchers.any())) thenReturn {
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any())) thenReturn {
       Future.successful(Some(createUserAuthority(userId)))
     }
   }
 
   def mockAuthorisedSaUser(userId:String, mockAuthConnector: AuthConnector) {
-    when(mockAuthConnector.currentAuthority(Matchers.any())) thenReturn {
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any())) thenReturn {
       Future.successful(Some(createSaAuthority(userId)))
     }
   }
 
   def mockAuthorisedSaOrgUser(userId:String, mockAuthConnector: AuthConnector) {
-    when(mockAuthConnector.currentAuthority(Matchers.any())) thenReturn {
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any())) thenReturn {
       Future.successful(Some(createSaOrgAuthority(userId)))
     }
   }
 
   def mockAuthorisedAgent(userId:String, mockAuthConnector: AuthConnector) {
-    when(mockAuthConnector.currentAuthority(Matchers.any())) thenReturn {
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any())) thenReturn {
       Future.successful(Some(createAgentAuthority(userId, AgentAdmin)))
     }
   }
 
   def mockUnAuthorisedUser(userId:String, mockAuthConnector: AuthConnector) {
-    when(mockAuthConnector.currentAuthority(Matchers.any())) thenReturn {
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any())) thenReturn {
       Future.successful(Some(createInvalidAuthority(userId)))
     }
   }

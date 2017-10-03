@@ -18,7 +18,7 @@ package services
 
 import java.util.UUID
 
-import builders.{AuthBuilder, TestAudit}
+import builders.AuthBuilder
 import connectors.{BusinessCustomerConnector, DataCacheConnector}
 import models._
 import org.mockito.Matchers
@@ -28,12 +28,8 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.http.hooks.HttpHook
-import uk.gov.hmrc.play.http.logging.SessionId
-import uk.gov.hmrc.play.http.ws.{WSGet, WSPost}
-import uk.gov.hmrc.play.http._
-import utils.BusinessCustomerConstants
+import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -44,11 +40,6 @@ class BusinessRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
   val mockDataCacheConnector = mock[DataCacheConnector]
   val service = "ATED"
 
-  class MockHttp extends WSGet with WSPost {
-    override val hooks: Seq[HttpHook] = NoneRequired
-  }
-
-  val mockWSHttp = mock[MockHttp]
   val mockBusinessCustomerConnector = mock[BusinessCustomerConnector]
 
   object TestBusinessRegistrationService extends BusinessRegistrationService {
@@ -60,7 +51,6 @@ class BusinessRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
   override def beforeEach(): Unit = {
     reset(mockDataCacheConnector)
     reset(mockBusinessCustomerConnector)
-    reset(mockWSHttp)
   }
 
   "BusinessRegistrationService" must {
