@@ -60,21 +60,21 @@
         <legend class="visuallyhidden">@headingText</legend>
 
         @bcInput(soleTraderForm("firstName"),
-            '_label -> Html(Messages("bc.business-verification.firstNameField")),
+            '_label -> Messages("bc.business-verification.firstNameField"),
             '_labelClass -> "form-label-bold",
             '_id -> "firstName",
             '_showConstraints -> false
         )
 
         @bcInput(soleTraderForm("lastName"),
-            '_label -> Html(Messages("bc.business-verification.lastNameField")),
+            '_label -> Messages("bc.business-verification.lastNameField"),
             '_labelClass -> "form-label-bold",
             '_id -> "lastName",
             '_showConstraints -> false
         )
 
         @bcInput(soleTraderForm("saUTR"),
-            '_label -> Html(Messages("bc.business-verification.saUTRField")),
+            '_label -> Messages("bc.business-verification.saUTRField"),
             '_labelClass -> "form-label-bold",
             '_hintText -> Messages("bc.business-verification.utr.hint"),
             '_id -> "saUTR",

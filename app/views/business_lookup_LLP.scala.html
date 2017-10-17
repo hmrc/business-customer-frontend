@@ -59,7 +59,7 @@
         <legend class="visuallyhidden">@headingText</legend>
 
         @bcInput(limitedLiabilityPartnershipForm("businessName"),
-            '_label -> Html(Messages("bc.business-verification.businessNamefield")),
+            '_label -> Messages("bc.business-verification.businessNamefield"),
             '_labelClass -> "form-label-bold",
             '_hintText -> Messages("bc.business-verification.registered-name.hint"),
             '_id -> "businessName",
@@ -67,7 +67,7 @@
         )
 
         @bcInput(limitedLiabilityPartnershipForm("psaUTR"),
-            '_label -> Html(Messages("bc.business-verification.partnerUTRField")),
+            '_label -> Messages("bc.business-verification.partnerUTRField"),
             '_labelClass -> "form-label-bold",
             '_hintText -> Messages("bc.business-verification.utr.hint"),
             '_id -> "psaUTR",
