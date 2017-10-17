@@ -10,60 +10,74 @@
 
 @implicitFormInstance = @{ Some(limitedLiabilityPartnershipForm) }
 
-@bcMain(title = if(isAgent) {Messages("bc.business-verification-selected-agent-header")} else {Messages("bc.business-verification-selected-user-header")}, service = service) {
+@headingId = @{
+    isAgent match {
+        case true => "business-type-agent-header"
+        case false => "business-type-header"
+    }
+}
 
-  @if(isAgent) {
-    @pageHeadersAndError(backLink, "business-verification-agent-text", Messages("bc.business-verification.agent.text", service.toUpperCase), "business-type-agent-header", Messages("bc.business-verification-selected-agent-header"),
-      Some(bcErrorSummary(limitedLiabilityPartnershipForm, "bc.business-verification-error.general.llp")))
-  } else {
-    @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.client.text", service.toUpperCase), "business-type-header", Messages("bc.business-verification-selected-user-header"),
-      Some(bcErrorSummary(limitedLiabilityPartnershipForm, "bc.business-verification-error.general.llp")))
-  }
+@headingText = @{
+    isAgent match {
+        case true => Messages("bc.business-verification-selected-agent-header")
+        case false => Messages("bc.business-verification-selected-user-header")
+    }
+}
 
-  <p id="business-type-paragraph"> @Messages("bc.business-verification-lede") </p>
+@headingSecondaryId = @{
+    isAgent match {
+        case true => "business-verification-agent-text"
+        case false => "business-verification-text"
+    }
+}
 
-  @form(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
+@headingSecondaryText = @{
+    isAgent match {
+        case true => Messages("bc.business-verification.agent.text", service.toUpperCase)
+        case false => Messages("bc.business-verification.client.text", service.toUpperCase)
+    }
+}
 
-      <fieldset id="business-type-llp-form">
-          <legend class="visuallyhidden">
-              @if(isAgent) {
-                @Messages("bc.business-verification-selected-agent-header")
-              } else {
-                @Messages("bc.business-verification-selected-user-header")
-              }
-          </legend>
+@bcMain(title = headingText, service = service) {
+    @pageHeadersAndError(
+        backLink,
+        headingSecondaryId,
+        headingSecondaryText,
+        headingId,
+        headingText,
+        Some(bcErrorSummary(limitedLiabilityPartnershipForm, "bc.business-verification-error.general.llp"))
+    )
+
+    @if(isAgent){
+        @bcCheckAgency()
+    }
+
+    <p id="business-type-paragraph">@Messages("bc.business-verification-lede")</p>
+
+    @form(action = controllers.routes.BusinessVerificationController.submit(service, businessType)) {
+
+        <legend class="visuallyhidden">@headingText</legend>
 
         @bcInput(limitedLiabilityPartnershipForm("businessName"),
-          '_label -> Html(Messages("bc.business-verification.businessNamefield")),
-          '_labelClass -> "form-label-bold",
-          '_hintText -> Messages("bc.business-verification.registered-name.hint"),
-          '_id -> "businessName",
-          '_showConstraints -> false)
+            '_label -> Messages("bc.business-verification.businessNamefield"),
+            '_labelClass -> "form-label-bold",
+            '_hintText -> Messages("bc.business-verification.registered-name.hint"),
+            '_id -> "businessName",
+            '_showConstraints -> false
+        )
 
         @bcInput(limitedLiabilityPartnershipForm("psaUTR"),
-          '_label -> Html(Messages("bc.business-verification.partnerUTRField")),
-          '_labelClass -> "form-label-bold",
-          '_hintText -> Messages("bc.business-verification.utr.hint"),
-          '_id -> "psaUTR",
-          '_type -> "text",
-          '_fieldsetAttributesHelpQuestion -> "utr-help-question",
-          '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
-          '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
-          '_showConstraints -> false)
+            '_label -> Messages("bc.business-verification.partnerUTRField"),
+            '_labelClass -> "form-label-bold",
+            '_hintText -> Messages("bc.business-verification.utr.hint"),
+            '_id -> "psaUTR",
+            '_type -> "text",
+            '_fieldsetAttributesHelpQuestion -> "utr-help-question",
+            '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
+            '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
+            '_showConstraints -> false
+        )
 
-      </fieldset>
-
-      @if(isAgent){
-          <div class="form-group">
-              <div class="confirmation-notice">
-                  <div class="icon-important"></div>
-                  <div class="ated-icon-important-text" id="check-agency-details"><strong>@Messages("business-review.check-agency.text")</strong></div>
-              </div>
-          </div>
-      }
-
-      <button class="button" id="submit" type="submit"> @Messages("bc.business-registration.submit") </button>
-
-  }
-
+        <button id="submit" type="submit"> @Messages("bc.business-registration.submit") </button>
+    }
 }

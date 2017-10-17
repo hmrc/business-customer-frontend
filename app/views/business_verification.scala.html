@@ -13,39 +13,64 @@
 
 @implicitFormInstance = @{ Some(businessTypeForm) }
 
-@bcMain(title = if(isAgent) {Messages("bc.business-verification.agent.header")} else {Messages("bc.business-verification.user.header")}, service = service) {
-
-  @if(isAgent) {
-    @pageHeadersAndError(backLink, "business-verification-agent-text", Messages("bc.business-verification.agent.text", service.toUpperCase), "business-verification-agent-header", Messages("bc.business-verification.agent.header"),
-      Some(bcErrorSummary(businessTypeForm, "bc.business-verification-error.general")))
-  } else {
-    @pageHeadersAndError(backLink, "business-verification-text", Messages("bc.business-verification.client.text", service.toUpperCase), "business-verification-header", Messages("bc.business-verification.user.header"),
-      Some(bcErrorSummary(businessTypeForm, "bc.business-verification-error.general")))
-
-  }
-
-  @form(action = controllers.routes.BusinessVerificationController.continue(service)) {
-
-    <div class="form-group" id="businessType">
-
-      <input type="hidden" name="isSaAccount" value="@{isSaAccount}">
-      <input type="hidden" name="isOrgAccount" value="@{isOrgAccount}">
-
-      @bcInputRadioGroup(
-        businessTypeForm("businessType"),
-        BCUtils.businessTypeMap(service, isAgent),
-        '_labelClass -> "block-label",
-        '_legend -> Messages("bc.business-verification.user.header"),
-        '_legendClass -> "visuallyhidden",
-        '_labelAfter -> true,
-        '_trackGA -> true
-      )
-
-    </div>
-
-
-    <button class="button" id="submit" type="submit"> @Messages("bc.business-verification.submit.client") </button>
-
+@headingId = @{
+    isAgent match {
+        case true => "business-verification-agent-header"
+        case false => "business-verification-header"
     }
+}
 
+@headingText = @{
+    isAgent match {
+        case true => Messages("bc.business-verification.agent.header")
+        case false => Messages("bc.business-verification.user.header")
+    }
+}
+
+@headingSecondaryId = @{
+    isAgent match {
+        case true => "business-verification-agent-text"
+        case false => "business-verification-text"
+    }
+}
+
+@headingSecondaryText = @{
+    isAgent match {
+        case true => Messages("bc.business-verification.agent.text", service.toUpperCase)
+        case false => Messages("bc.business-verification.client.text", service.toUpperCase)
+    }
+}
+
+@bcMain(title = headingText, service = service) {
+
+    @pageHeadersAndError(
+        backLink,
+        headingSecondaryId,
+        headingSecondaryText,
+        headingId,
+        headingText,
+        Some(bcErrorSummary(businessTypeForm, "bc.business-verification-error.general"))
+    )
+
+    @form(action = controllers.routes.BusinessVerificationController.continue(service)) {
+
+        <div class="form-group" id="businessType">
+
+            <input type="hidden" name="isSaAccount" value="@{isSaAccount}">
+            <input type="hidden" name="isOrgAccount" value="@{isOrgAccount}">
+
+            @bcInputRadioGroup(
+                businessTypeForm("businessType"),
+                BCUtils.businessTypeMap(service, isAgent),
+                '_labelClass -> "block-label",
+                '_legend -> headingText,
+                '_legendClass -> "visuallyhidden",
+                '_labelAfter -> true,
+                '_trackGA -> true
+            )
+
+        </div>
+
+        <button id="submit" type="submit"> @Messages("bc.business-verification.submit.client") </button>
+    }
 }
