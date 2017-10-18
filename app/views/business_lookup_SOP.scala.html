@@ -56,35 +56,35 @@
 
 
     @form(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
+        <fieldset id="business-type-sop-form">
+            <legend class="visuallyhidden">@headingText</legend>
 
-        <legend class="visuallyhidden">@headingText</legend>
+            @bcInput(soleTraderForm("firstName"),
+                '_label -> Messages("bc.business-verification.firstNameField"),
+                '_labelClass -> "form-label-bold",
+                '_id -> "firstName",
+                '_showConstraints -> false
+            )
 
-        @bcInput(soleTraderForm("firstName"),
-            '_label -> Messages("bc.business-verification.firstNameField"),
-            '_labelClass -> "form-label-bold",
-            '_id -> "firstName",
-            '_showConstraints -> false
-        )
+            @bcInput(soleTraderForm("lastName"),
+                '_label -> Messages("bc.business-verification.lastNameField"),
+                '_labelClass -> "form-label-bold",
+                '_id -> "lastName",
+                '_showConstraints -> false
+            )
 
-        @bcInput(soleTraderForm("lastName"),
-            '_label -> Messages("bc.business-verification.lastNameField"),
-            '_labelClass -> "form-label-bold",
-            '_id -> "lastName",
-            '_showConstraints -> false
-        )
-
-        @bcInput(soleTraderForm("saUTR"),
-            '_label -> Messages("bc.business-verification.saUTRField"),
-            '_labelClass -> "form-label-bold",
-            '_hintText -> Messages("bc.business-verification.utr.hint"),
-            '_id -> "saUTR",
-            '_type -> "text",
-            '_fieldsetAttributesHelpQuestion -> "utr-help-question",
-            '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
-            '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
-            '_showConstraints -> false
-        )
-
+            @bcInput(soleTraderForm("saUTR"),
+                '_label -> Messages("bc.business-verification.saUTRField"),
+                '_labelClass -> "form-label-bold",
+                '_hintText -> Messages("bc.business-verification.utr.hint"),
+                '_id -> "saUTR",
+                '_type -> "text",
+                '_fieldsetAttributesHelpQuestion -> "utr-help-question",
+                '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
+                '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
+                '_showConstraints -> false
+            )
+        </fieldset>
         <button id="submit" type="submit">@Messages("bc.business-registration.submit")</button>
     }
 }
