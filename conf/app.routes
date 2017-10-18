@@ -12,7 +12,7 @@ POST        /business-verification/:service/submit/:businessType                
 GET         /business-verification/:service/detailsNotFound/:businessType       controllers.BusinessVerificationController.detailsNotFound(service: String, businessType: String)
 
 GET         /review-details/:service                                            controllers.ReviewDetailsController.businessDetails(service: String)
-POST        /review-details-continue/:service                                   controllers.ReviewDetailsController.continue(service: String)
+GET         /review-details-continue/:service                                   controllers.ReviewDetailsController.continue(service: String)
 
 GET         /unauthorised                                                       controllers.ApplicationController.unauthorised
 
