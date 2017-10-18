@@ -99,7 +99,6 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("Does your client have an overseas company registration number?")
-          document.getElementById("hasBusinessUniqueId-false").attr("true") must be("true")
         }
       }
 

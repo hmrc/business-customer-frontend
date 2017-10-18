@@ -52,29 +52,29 @@
     <p id="business-type-paragraph">@Messages("bc.business-verification-lede")</p>
 
     @form(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
+        <fieldset id="business-type-uib-form">
+            <legend class="visuallyhidden">@headingText</legend>
 
-        <legend class="visuallyhidden">@headingText</legend>
+            @bcInput(unincorporatedBodyForm("businessName"),
+                '_label -> Messages("bc.business-verification.businessNamefield"),
+                '_labelClass -> "form-label-bold",
+                '_id -> "businessName",
+                '_hintText -> Messages("bc.business-verification.registered-name.hint"),
+                '_showConstraints -> false
+            )
 
-        @bcInput(unincorporatedBodyForm("businessName"),
-            '_label -> Messages("bc.business-verification.businessNamefield"),
-            '_labelClass -> "form-label-bold",
-            '_id -> "businessName",
-            '_hintText -> Messages("bc.business-verification.registered-name.hint"),
-            '_showConstraints -> false
-        )
-
-        @bcInput(unincorporatedBodyForm("cotaxUTR"),
-            '_label -> Messages("bc.business-verification.coUTRField"),
-            '_labelClass -> "form-label-bold",
-            '_hintText -> Messages("bc.business-verification.utr.hint"),
-            '_id -> "cotaxUTR",
-            '_type -> "text",
-            '_fieldsetAttributesHelpQuestion -> "utr-help-question",
-            '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
-            '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
-            '_showConstraints -> false
-        )
-
+            @bcInput(unincorporatedBodyForm("cotaxUTR"),
+                '_label -> Messages("bc.business-verification.coUTRField"),
+                '_labelClass -> "form-label-bold",
+                '_hintText -> Messages("bc.business-verification.utr.hint"),
+                '_id -> "cotaxUTR",
+                '_type -> "text",
+                '_fieldsetAttributesHelpQuestion -> "utr-help-question",
+                '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
+                '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
+                '_showConstraints -> false
+            )
+        </fieldset>
         <button id="submit" type="submit">@Messages("bc.business-registration.submit")</button>
     }
 }
