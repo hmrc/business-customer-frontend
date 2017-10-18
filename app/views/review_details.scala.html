@@ -4,107 +4,95 @@
 @import utils._
 @import views.html.helpers._
 
-@bcMain(title = if (isAgent) { Messages("business-review.agent.title", service) } else {Messages("business-review.user.title", service) }, service = service) {
+@headingId = @{
+    isAgent match {
+        case true => "bc.business-registration-agent.header"
+        case false => "bc.business-registration.header"
+    }
+}
 
-@if(isAgent){
-@pageHeadersAndError(backLink, "bc.business-registration-agent.text", Messages("bc.business-registration.text.agent", service.toUpperCase), "bc.business-registration-agent.header",  Messages("business-review.agent.header"))
-} else {
-@pageHeadersAndError(backLink, "bc.business-registration.text", Messages("bc.business-registration.text.client", service.toUpperCase), "bc.business-registration.header",  Messages("business-review.user.header"))
+@headingText = @{
+    isAgent match {
+        case true => Messages("business-review.agent.header")
+        case false => Messages("business-review.user.header")
+    }
+}
+
+@headingSecondaryId = @{
+    isAgent match {
+        case true => "bc.business-registration-agent.text"
+        case false => "bc.business-registration.text"
+    }
+}
+
+@headingSecondaryText = @{
+    isAgent match {
+        case true => Messages("bc.business-registration.text.agent", service.toUpperCase)
+        case false => Messages("bc.business-registration.text.client", service.toUpperCase)
+    }
+}
+
+@businessDetailsMatchTextQuestion = @{
+    businessDetails.directMatch match {
+        case true => Messages("business-review.invalid-business.header")
+        case false => Messages("business-review.invalid-address.header")
+    }
+}
+
+@businessDetailsMatchText = @{
+    businessDetails.directMatch match {
+        case true => Messages("business-review.invalid-business.text")
+        case false => Messages("business-review.invalid-address.text")
+    }
 }
 
 
-  <div class="form-group">
+@bcMain(title = headingText, service = service) {
 
-    <p id="business-name"><span class="heading-medium">@businessDetails.businessName</span></p>
+    @pageHeadersAndError(
+        backLink,
+        headingSecondaryId,
+        headingSecondaryText,
+        headingId,
+        headingText
+    )
 
-    <ul id="business-address">
-      <li id="registered-address-line-1">@businessDetails.businessAddress.line_1</li>
-      <li id="registered-address-line-2">@businessDetails.businessAddress.line_2</li>
-      @businessDetails.businessAddress.line_3.map {line_3 =>
-        <li id="registered-address-line-3">@line_3</li>
-      }
-      @businessDetails.businessAddress.line_4.map {line_4 =>
-        <li id="registered-address-line-4">@line_4</li>
-      }
-      @businessDetails.businessAddress.postcode.map {postcode =>
-        <li id="registered-postcode">@postcode</li>
-      }
-      <li id="registered-country">@BCUtils.getSelectedCountry(businessDetails.businessAddress.country)</li>
-    </ul>
+    <div class="form-group">
 
-    @if(businessDetails.businessAddress.country.toUpperCase == "GB") {
+        <p id="business-name">@businessDetails.businessName</p>
 
-    @if(isAgent){
+        <p id="business-address">
+            @businessDetails.businessAddress.line_1<br>
+            @businessDetails.businessAddress.line_2<br>
+            @businessDetails.businessAddress.line_3.map { line_3 => @line_3<br> }
+            @businessDetails.businessAddress.line_4.map { line_4 => @line_4<br> }
+            @businessDetails.businessAddress.postcode.map { postcode => @postcode<br> }
+            @BCUtils.getSelectedCountry(businessDetails.businessAddress.country)
+        </p>
 
-      <details>
-        <summary>
-          <span id="wrong-account-title-agent" class="summary">
-            @if(businessDetails.directMatch){
-              @Messages("business-review.invalid-business.header")
-            } else {
-              @Messages("business-review.invalid-address.header")
-            }
-          </span>
-        </summary>
+        @if(businessDetails.businessAddress.country.toUpperCase == "GB") {
+            <details>
+                <summary>
+                    <span id="wrong-account-title" class="summary">
+                        @businessDetailsMatchTextQuestion
+                    </span>
+                </summary>
+                <div class="panel-indent">
+                    <p id="wrong-account-text">
+                        @businessDetailsMatchText
+                    </p>
+                    <ul class="list-bullet">
+                        <li id="wrong-account-text-item-1">@Html(Messages("business-review.registered-with-companies-house.text"))</li>
+                        <li id="wrong-account-text-item-2">@Html(Messages("business-review.sole-trader.text"))</li>
+                    </ul>
+                </div>
+            </details>
+        }
 
-        <div class="panel-indent">
-          <p id="wrong-account-text-agent">
-          @if(businessDetails.directMatch){
-            @Messages("business-review.invalid-business.text")
-          <p><span class="heading-small">@Messages("business-review.invalid-business.address-header")</span></p>
-          } else {
-            @Messages("business-review.invalid-address.text-agent")
-          }
-          <ul class="list-bullet">
-            <li id="wrong-account-text-agent-item-1">@Html(Messages("business-review.registered-with-companies-house.text"))</li>
-            <li id="wrong-account-text-agent-item-2">@Html(Messages("business-review.sole-trader.text"))</li>
-          </ul>
-        </div>
-      </details>
+    </div>
 
-    } else {
-
-      <details>
-
-        <summary>
-          <span id="wrong-account-title" class="summary">
-            @if(businessDetails.directMatch) {
-              @Messages("business-review.invalid-business.header")
-            } else {
-              @Messages("business-review.invalid-address.header")
-            }
-          </span>
-        </summary>
-
-        <div class="panel-indent">
-
-          <p id="wrong-account-text">
-          @if(businessDetails.directMatch){
-            @Messages("business-review.invalid-business.text")
-          <p><span class="heading-small">@Messages("business-review.invalid-business.address-header")</span></p>
-          } else {
-            @Messages("business-review.invalid-address.text",service.toUpperCase)
-          }
-
-          <ul class="list-bullet">
-            <li id="wrong-account-text-item-1">@Html(Messages("business-review.registered-with-companies-house.text"))</li>
-            <li id="wrong-account-text-item-2">@Html(Messages("business-review.sole-trader.text"))</li>
-          </ul>
-
-        </div>
-
-      </details>
-    }
-    }
-
-  </div>
-
-  <div class="form-group">
-    @form(action = controllers.routes.ReviewDetailsController.continue(service)) {
-      <button class="button" id="submit" type="submit" @if(isAgent){onclick="ga('send', 'event', 'Agent - registration - end', 'button clicked')"}>
+    <a href="@controllers.routes.ReviewDetailsController.continue(service)" class="button" id="submit" @if(isAgent){onclick="ga('send', 'event', 'Agent - registration - end', 'button clicked')"}>
         @Messages("business-review.registration-button")
-      </button>
-    }
-  </div>
+    </a>
 }
 
