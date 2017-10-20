@@ -31,13 +31,10 @@
 
 @bcMain(title = displayDetails.title, service = service, pageScripts = Some(pageScripts)) {
 
-<div class="form-group">
-  @pageHeadersAndError(backLink, "overseas-subheader", displayDetails.subHeader, "overseas-header", displayDetails.header,
-    Some(bcErrorSummary(overseasCompanyForm, "bc.non-uk-reg-error.general")))
+@pageHeadersAndError(backLink, "overseas-subheader", displayDetails.subHeader, "overseas-header", displayDetails.header,
+  Some(bcErrorSummary(overseasCompanyForm, "bc.non-uk-reg-error.general")))
 
 @form(action = controllers.nonUKReg.routes.OverseasCompanyRegController.register(service, displayDetails.addClient, redirectUrl)) {
-</div>
-
   <div id="non-uk-reg-form">
 
     <div class="form-group" id="hasBusinessUniqueId">
