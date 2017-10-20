@@ -310,7 +310,7 @@ bc.nrl.subheader = {0} registration
 bc.nrl.header = Are you a non-resident landlord?
 bc.nrl.title = Are you a non-resident landlord?
 bc.nrl-question = What is a non-resident landlord?
-bc.nrl-answer = A non resident landlord (NRL) is someone who lives outside of the UK for 6 months or more a year and receives rental income from a property or properties. 
+bc.nrl-answer = A non-resident landlord is someone who lives outside of the UK for 6 months or more a year, and receives rental income from a property or properties.
 bc.nrl-error.general.paysSA = There is a problem with the non-resident landlord question
 bc.nrl.paysSA.not-selected.error = You must select an option
 

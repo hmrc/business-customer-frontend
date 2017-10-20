@@ -12,14 +12,7 @@
     @pageHeadersAndError(backLink, "client-appoint-subheader", Messages("bc.nrl.subheader", service.toUpperCase), "nrl-question-header", Messages("bc.nrl.header"),
       Some(bcErrorSummary(nrlQuestionForm, "bc.nrl-error.general")))
 
-    <details role="group">
-      <summary class="summary" role="button" aria-controls="details-content-0" tabindex="0">
-        @Messages("bc.nrl-question")
-      </summary>
-      <div class="panel-indent" id="details-content-0">
-      @Messages("bc.nrl-answer")
-      </div>
-    </details>
+    <p>@Messages("bc.nrl-answer")</p>
 
     <div class="form-group" id="paysSA">
 
