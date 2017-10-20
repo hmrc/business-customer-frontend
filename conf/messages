@@ -352,11 +352,11 @@ bc.nonuk.client.reg.view-clients = View all my clients
 bc.nonuk.client.reg.unique-tax-reference.not-selected = You must select an option
 
 ## non-uk-registration of client by agent ##
-bc.non-uk-reg.title = What is your client''s overseas registered business name and address?
-bc.non-uk-reg.header = What is your client''s overseas registered business name and address?
+bc.non-uk-reg.title = What is your client’s overseas registered business name and address?
+bc.non-uk-reg.header = What is your client’s overseas registered business name and address?
 bc.non-uk-reg.sub-header = Add a client
 bc.non-uk-reg.lede.text = This is the registered address of your client’s overseas business. This is not the address we will use to send letters, you can enter that on the next page.
-bc.non-uk-reg.lede.update-text = This is the registered address of your client''s overseas business.
+bc.non-uk-reg.lede.update-text = This is the registered address of your client’s overseas business.
 bc.non-uk-reg.businessName = Business name
 bc.non-uk-reg.address = Address
 bc.non-uk-reg.line_1 = Address line 1

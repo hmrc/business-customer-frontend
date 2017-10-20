@@ -23,7 +23,6 @@
 
 @bcMain(title = displayDetails.businessRegHeader, service = service, pageScripts = Some(pageScripts)) {
 
-<div class="form-group">
   @pageHeadersAndError(backLink, "business-verification-text", displayDetails.businessRegSubHeader, "non-uk-reg-header", displayDetails.businessRegHeader,
     Some(bcErrorSummary(businessRegistrationForm, "bc.non-uk-reg-error.general")))
 
@@ -31,50 +30,49 @@
   <p id="non-uk-reg-lede">@Html(businessRegLede)</p>
   }
 
-  @form(action = controllers.nonUKReg.routes.AgentRegisterNonUKClientController.submit(service)) {
-</div>
-
-
+ @form(action = controllers.nonUKReg.routes.AgentRegisterNonUKClientController.submit(service)) {
   <div id="non-uk-reg-form">
+    <fieldset>
+      <legend class="visuallyhidden">displayDetails.businessRegHeader</legend>
 
-    @bcInput(businessRegistrationForm("businessName"),
-    '_label ->  Html(Messages("bc.non-uk-reg.businessName")),
-    '_labelClass -> "form-label-bold",
-    '_id -> "businessName",
-    '_showConstraints -> false)
+      @bcInput(businessRegistrationForm("businessName"),
+      '_label ->  Html(Messages("bc.non-uk-reg.businessName")),
+      '_labelClass -> "form-label-bold",
+      '_id -> "businessName",
+      '_showConstraints -> false)
 
-    @bcInput(businessRegistrationForm("businessAddress.line_1"),
-    '_label ->  Html(Messages("bc.non-uk-reg.address")),
-     '_labelClass -> "form-label-bold",
-    '_id -> "businessAddress.line_1",
-    '_showConstraints -> false)
+      @bcInput(businessRegistrationForm("businessAddress.line_1"),
+      '_label ->  Html(Messages("bc.non-uk-reg.line_1")),
+       '_labelClass -> "form-label-bold",
+      '_id -> "businessAddress.line_1",
+      '_showConstraints -> false)
 
-    @bcInput(businessRegistrationForm("businessAddress.line_2"),
-    '_label ->  Html(Messages("bc.non-uk-reg.line_2")),
-    '_labelClass -> "visuallyhidden",
-    '_id -> "businessAddress.line_2",
-    '_showConstraints -> false)
+      @bcInput(businessRegistrationForm("businessAddress.line_2"),
+      '_label ->  Html(Messages("bc.non-uk-reg.line_2")),
+      '_labelClass -> "form-label-bold",
+      '_id -> "businessAddress.line_2",
+      '_showConstraints -> false)
 
-    @bcInput(businessRegistrationForm("businessAddress.line_3"),
-    '_label ->  Html(Messages("bc.non-uk-reg.line_3")),
-    '_labelClass -> "visuallyhidden",
-    '_id -> "businessAddress.line_3",
-    '_showConstraints -> false)
+      @bcInput(businessRegistrationForm("businessAddress.line_3"),
+      '_label ->  Html(Messages("bc.non-uk-reg.line_3")),
+      '_labelClass -> "form-label-bold",
+      '_id -> "businessAddress.line_3",
+      '_showConstraints -> false)
 
-    @bcInput(businessRegistrationForm("businessAddress.line_4"),
-    '_label ->  Html(Messages("bc.non-uk-reg.line_4")),
-    '_labelClass -> "visuallyhidden",
-    '_id -> "businessAddress.line_4",
-    '_showConstraints -> false)
+      @bcInput(businessRegistrationForm("businessAddress.line_4"),
+      '_label ->  Html(Messages("bc.non-uk-reg.line_4")),
+      '_labelClass -> "form-label-bold",
+      '_id -> "businessAddress.line_4",
+      '_showConstraints -> false)
 
-    @bcDropdown(businessRegistrationForm("businessAddress.country"),
-    elementOptions = displayDetails.listOfIsoCode,
-    displayEmptyValue = true,
-    '_id -> "businessAddress.country",
-    '_emptyValueText -> Messages("bc.non-uk-reg.country.select"),
-    '_labelClass -> "form-label-bold",
-    '_label -> Html(Messages("bc.non-uk-reg.country")))
-
+      @bcDropdown(businessRegistrationForm("businessAddress.country"),
+      elementOptions = displayDetails.listOfIsoCode,
+      displayEmptyValue = true,
+      '_id -> "businessAddress.country",
+      '_emptyValueText -> Messages("bc.non-uk-reg.country.select"),
+      '_labelClass -> "form-label-bold",
+      '_label -> Html(Messages("bc.non-uk-reg.country")))
+    </fieldset>
 
   </div>
 
