@@ -34,10 +34,9 @@
 <div class="form-group">
   @pageHeadersAndError(backLink, "overseas-subheader", displayDetails.subHeader, "overseas-header", displayDetails.header,
     Some(bcErrorSummary(overseasCompanyForm, "bc.non-uk-reg-error.general")))
-
-@form(action = controllers.nonUKReg.routes.OverseasCompanyRegController.register(service, displayDetails.addClient, redirectUrl)) {
 </div>
 
+@form(action = controllers.nonUKReg.routes.OverseasCompanyRegController.register(service, displayDetails.addClient, redirectUrl)) {
   <div id="non-uk-reg-form">
 
     <div class="form-group" id="hasBusinessUniqueId">
@@ -46,7 +45,7 @@
         Seq("true" -> Messages("bc.radio.yes.label"),
         "false" -> Messages("bc.radio.no.label")),
         '_groupClass -> "inline",
-        '_legend -> Messages("bc.nonuk.overseas.agent.title"),
+        '_legend -> displayDetails.header,
         '_legendClass -> "screen-reader-text",
         '_labelClass -> "block-label",
         '_labelAfter -> true,
