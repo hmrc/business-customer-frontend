@@ -32,11 +32,11 @@
   @pageHeadersAndError(backLink, "business-verification-text", displayDetails.businessRegSubHeader, "business-reg-header", displayDetails.businessRegHeader,
     Some(bcErrorSummary(businessRegistrationForm, "bc.non-uk-reg-error.general")))
 
-@displayDetails.businessRegLede.map { businessRegLede =>
-  <p class="paragraph" id="business-reg-lede">@Html(businessRegLede)</p>
-}
+  @displayDetails.businessRegLede.map { businessRegLede =>
+    <p class="paragraph" id="business-reg-lede">@Html(businessRegLede)</p>
+  }
 
-@form(action = controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.update(service, redirectUrl, isRegisterClient)) {
+  @form(action = controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.update(service, redirectUrl, isRegisterClient)) {
 
 
   <div id="non-uk-reg-form">
@@ -48,26 +48,26 @@
     '_showConstraints -> false)
 
     @bcInput(businessRegistrationForm("businessAddress.line_1"),
-    '_label ->  Html(Messages("bc.non-uk-reg.address")),
+    '_label ->  Html(Messages("bc.non-uk-reg.line_1")),
     '_labelClass -> "form-label-bold",
     '_id -> "businessAddress.line_1",
     '_showConstraints -> false)
 
     @bcInput(businessRegistrationForm("businessAddress.line_2"),
     '_label ->  Html(Messages("bc.non-uk-reg.line_2")),
-    '_labelClass -> "visuallyhidden",
+    '_labelClass -> "form-label-bold",
     '_id -> "businessAddress.line_2",
     '_showConstraints -> false)
 
     @bcInput(businessRegistrationForm("businessAddress.line_3"),
     '_label ->  Html(Messages("bc.non-uk-reg.line_3")),
-    '_labelClass -> "visuallyhidden",
+    '_labelClass -> "form-label-bold",
     '_id -> "businessAddress.line_3",
     '_showConstraints -> false)
 
     @bcInput(businessRegistrationForm("businessAddress.line_4"),
     '_label ->  Html(Messages("bc.non-uk-reg.line_4")),
-    '_labelClass -> "visuallyhidden",
+    '_labelClass -> "form-label-bold",
     '_id -> "businessAddress.line_4",
     '_showConstraints -> false)
 

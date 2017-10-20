@@ -122,13 +122,13 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("What is your client's overseas registered business name and address?")
+          document.title() must be("What is your client’s overseas registered business name and address?")
           document.getElementById("business-verification-text").text() must be("This section is: Add a client")
-          document.getElementById("business-reg-header").text() must be("What is your client's overseas registered business name and address?")
-          document.getElementById("business-reg-lede").text() must be("This is the registered address of your client's overseas business.")
+          document.getElementById("business-reg-header").text() must be("What is your client’s overseas registered business name and address?")
+          document.getElementById("business-reg-lede").text() must be("This is the registered address of your client’s overseas business.")
 
           document.getElementById("businessName_field").text() must be("Business name")
-          document.getElementById("businessAddress.line_1_field").text() must be("Address")
+          document.getElementById("businessAddress.line_1_field").text() must be("Address line 1")
           document.getElementById("businessAddress.line_2_field").text() must be("Address line 2")
           document.getElementById("businessAddress.line_3_field").text() must be("Address line 3 (optional)")
           document.getElementById("businessAddress.line_4_field").text() must be("Address line 4 (optional)")
@@ -201,7 +201,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
           document.getElementById("business-reg-header").text() must be("What is the registered business name and address of your overseas agency?")
 
           document.getElementById("businessName_field").text() must be("Business name")
-          document.getElementById("businessAddress.line_1_field").text() must be("Address")
+          document.getElementById("businessAddress.line_1_field").text() must be("Address line 1")
           document.getElementById("businessAddress.line_2_field").text() must be("Address line 2")
           document.getElementById("businessAddress.line_3_field").text() must be("Address line 3 (optional)")
           document.getElementById("businessAddress.line_4_field").text() must be("Address line 4 (optional)")
