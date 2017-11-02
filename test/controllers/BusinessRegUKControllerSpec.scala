@@ -87,7 +87,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
             status(result) must be(OK)
             val document = Jsoup.parse(contentAsString(result))
 
-            document.title() must be("Create AWRS group")
+            document.title() must be("Create AWRS group - GOV.UK")
             document.getElementById("business-verification-text").text() must be("This section is: AWRS account registration")
             document.getElementById("business-registration.header").text() must be("Create AWRS group")
 
@@ -109,7 +109,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
             status(result) must be(OK)
             val document = Jsoup.parse(contentAsString(result))
 
-            document.title() must be("Create AWRS group")
+            document.title() must be("Create AWRS group - GOV.UK")
             document.getElementById("business-verification-text").text() must be("This section is: AWRS account registration")
             document.getElementById("business-registration.header").text() must be("New business details")
             document.getElementById("businessName_field").text() must be("Group representative name This is your registered company name")

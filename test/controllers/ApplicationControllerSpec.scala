@@ -42,7 +42,7 @@ class ApplicationControllerSpec extends PlaySpec with OneServerPerSuite {
         val result = controllers.ApplicationController.unauthorised().apply(FakeRequest())
         val content = contentAsString(result)
         val doc = Jsoup.parse(content)
-        doc.title() must be(Messages("bc.unauthorised.title"))
+        doc.title() must be(Messages("bc.unauthorised.title").concat(" - GOV.UK"))
       }
 
     }

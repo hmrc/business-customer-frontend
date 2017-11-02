@@ -85,7 +85,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
             val document = Jsoup.parse(contentAsString(result))
 
 
-            document.title() must be("What is your business type?")
+            document.title() must be("What is your business type? - GOV.UK")
             document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
             document.getElementById("business-verification-header").text() must be("What is your business type?")
             document.select(".block-label").text() must include("Limited company")
@@ -103,7 +103,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           businessVerificationWithAuthorisedAgent { result =>
             val document = Jsoup.parse(contentAsString(result))
 
-            document.title() must be("What is the business type for your agency?")
+            document.title() must be("What is the business type for your agency? - GOV.UK")
             document.getElementById("business-verification-agent-text").text() must be("This section is: ATED agency set up")
             document.getElementById("business-verification-agent-header").text() must be("What is the business type for your agency?")
             document.select(".block-label").text() must include("Limited company")
