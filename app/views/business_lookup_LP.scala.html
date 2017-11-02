@@ -55,8 +55,6 @@
     <p id="business-type-paragraph"> @Messages("bc.business-verification-lede") </p>
 
     @form(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
-        <fieldset id="business-type-lp-form">
-            <legend class="visuallyhidden">@headingText</legend>
 
             @bcInput(limitedPartnershipForm("businessName"),
                 '_label -> Messages("bc.business-verification.partnerNameField"),
@@ -77,7 +75,7 @@
                 '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
                 '_showConstraints -> false
             )
-        </fieldset>
+
         <button id="submit" type="submit">@Messages("bc.business-registration.submit")</button>
     }
 }

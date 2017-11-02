@@ -59,8 +59,6 @@
     <p id="business-type-paragraph">@ledeParagraph</p>
 
     @form(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
-        <fieldset id="business-type-nrl-form">
-            <legend class="visuallyhidden">@headingText</legend>
 
             @bcInput(nrlForm("businessName"),
                 '_label -> Messages("bc.business-verification.businessNamefield"),
@@ -81,7 +79,7 @@
                 '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
                 '_showConstraints -> false
             )
-        </fieldset>
+
         <button id="submit" type="submit">@Messages("bc.business-registration.submit")</button>
     }
 }
