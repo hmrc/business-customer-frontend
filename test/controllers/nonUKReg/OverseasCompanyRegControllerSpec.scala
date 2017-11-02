@@ -81,7 +81,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number?")
+          document.title() must be("Do you have an overseas company registration number? - GOV.UK")
         }
       }
 
@@ -98,7 +98,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Does your client have an overseas company registration number?")
+          document.title() must be("Does your client have an overseas company registration number? - GOV.UK")
         }
       }
 
