@@ -45,7 +45,7 @@
   @form(action = controllers.nonUKReg.routes.BusinessRegController.send(service, displayDetails.businessType)) {
     <div id="business-registration-form">
       <fieldset>
-        <legend class="visuallyhidden">displayDetails.businessRegHeader</legend>
+        <legend class="visuallyhidden">@displayDetails.businessRegHeader</legend>
         @bcInput(businessRegistrationForm("businessName"),
           '_label ->  Html(Messages("bc.business-registration.businessName")),
           '_labelClass -> "form-label-bold",
@@ -99,6 +99,7 @@
               <p id="email-risk-ans">@Html(Messages("bc.non-uk-reg.postcode.help.answer"))</p>
             </div>
           </details>
+
         }
 
         @bcDropdown(businessRegistrationForm("businessAddress.country"),
