@@ -1,3 +1,4 @@
 window.onload = function() {
-    document.getElementById("errors").focus();
+    if(document.getElementById("errors"))
+        document.getElementById("errors").focus();
 };
