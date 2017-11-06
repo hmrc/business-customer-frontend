@@ -16,7 +16,6 @@
 
   <table>
     <tbody>
-
       <tr>
         <th scope="row" id="business-name-title">
           @Messages("business-review.business-name")
@@ -58,25 +57,51 @@
 
       </tr>
 
-      <tr>
-        <th scope="row" id="overseas-tax-reference-title">
-          @Messages("business-review.overseas-tax-reference")
-        </th>
-        <td id="overseas-details">
-          @businessDetails.identification.map { identification =>
-            @identification.idNumber<br>
-            @BCUtils.getSelectedCountry(identification.issuingCountryCode)<br>
-            @identification.issuingInstitution
-          }.getOrElse {
-            @Messages("business-review.overseas-tax-reference.not-provided")
-          }
-        </td>
-        <td>
-          <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' id="overseas-edit" data-journey-click="business-customer:click:overseas-edit-link">@Messages("bc.edit")
-            <span class="visuallyhidden">@Messages("business-review.overseas-tax-reference")</span>
-          </a>
-        </td>
-      </tr>
+      @businessDetails.identification.map { identification =>
+
+        <tr>
+          <th scope="row">@Messages("bc.non-uk-reg.businessUniqueId")</th>
+          <td>@identification.idNumber</td>
+          <td>
+            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@Messages("bc.edit")
+              <span class="visuallyhidden">@Messages("bc.non-uk-reg.businessUniqueId")</span>
+            </a>
+          </td>
+        </tr>
+
+        <tr>
+          <th scope="row">@Messages("bc.non-uk-reg.issuingCountry")</th>
+          <td>@BCUtils.getSelectedCountry(identification.issuingCountryCode)</td>
+          <td>
+            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@Messages("bc.edit")
+              <span class="visuallyhidden">@Messages("bc.non-uk-reg.issuingCountry")</span>
+            </a>
+          </td>
+        </tr>
+
+        <tr>
+          <th scope="row">@Messages("bc.non-uk-reg.issuingInstitution")</th>
+          <td>@identification.issuingInstitution</td>
+          <td>
+            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@Messages("bc.edit")
+              <span class="visuallyhidden">@Messages("bc.non-uk-reg.issuingInstitution")</span>
+            </a>
+          </td>
+        </tr>
+
+      }.getOrElse {
+
+        <tr>
+          <th scope="row">@Messages("business-review.overseas-tax-reference")</th>
+          <td>@Messages("business-review.overseas-tax-reference.not-provided")</td>
+          <td>
+            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@Messages("bc.edit")
+              <span class="visuallyhidden">@Messages("business-review.overseas-tax-reference")</span>
+            </a>
+          </td>
+        </tr>
+
+      }
 
     </tbody>
   </table>

@@ -411,5 +411,18 @@ html.noScroll {
   }
 }
 
+/*  -- Vertical Spacing -- */
+
+.margin-bottom-default {
+  margin-bottom: 30px;
+}
+
+p.margin-bottom-default {
+  margin-bottom: 30px !important;
+}
+
+.margin-bottom-none {
+  margin-bottom: 0;
+}
 
 
