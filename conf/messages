@@ -22,6 +22,7 @@ bc.business-review.title = Welcome to {0} subscription
 business-review.name = Name
 business-review.business-name = Business name
 business-review.overseas-tax-reference = Overseas company registration number
+business-review.overseas-tax-reference.not-provided = Not provided
 business-review.type = Type of business
 business-review.address = Registered address
 business-review.telephone = Telephone number
