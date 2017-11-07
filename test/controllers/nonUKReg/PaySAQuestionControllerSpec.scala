@@ -68,7 +68,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with OneServerPerSuite with M
         viewWithAuthorisedClient(service) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
-          document.title must be("Do you pay tax in the UK through self assessment?")
+          document.title must be("Do you pay tax in the UK through self assessment? - GOV.UK")
           document.select(".block-label").text() must include("Yes")
           document.select(".block-label").text() must include("No")
           document.getElementById("submit").text() must be("Continue")
@@ -78,7 +78,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with OneServerPerSuite with M
         viewWithAuthorisedClientWistSavedData(service) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
-          document.title must be("Do you pay tax in the UK through self assessment?")
+          document.title must be("Do you pay tax in the UK through self assessment? - GOV.UK")
           document.select(".block-label").text() must include("Yes")
           document.select(".block-label").text() must include("No")
           document.getElementById("paySA-false").attr("checked") must be("checked")

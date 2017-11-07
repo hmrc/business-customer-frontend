@@ -90,7 +90,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("What is your overseas business registered name and address?")
+          document.title() must be("What is your overseas business registered name and address? - GOV.UK")
           document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
           document.getElementById("business-registration-header").text() must be("What is your overseas business registered name and address?")
           document.getElementById("businessName_field").text() must be("Business name")
@@ -111,7 +111,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("What is your overseas business registered name and address?")
+          document.title() must be("What is your overseas business registered name and address? - GOV.UK")
           document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
           document.getElementById("business-registration-header").text() must be("What is your overseas business registered name and address?")
           document.getElementById("businessName").`val`() must be("ACME")
@@ -128,7 +128,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("What is the registered business name and address of your overseas agency?")
+          document.title() must be("What is the registered business name and address of your overseas agency? - GOV.UK")
           document.getElementById("business-verification-text").text() must be("This section is: ATED agency set up")
           document.getElementById("business-registration-header").text() must be("What is the registered business name and address of your overseas agency?")
           document.getElementById("businessName_field").text() must be("Business name")
