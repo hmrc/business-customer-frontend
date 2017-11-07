@@ -19,11 +19,11 @@ package acceptance
 import models.{Identification, Address, ReviewDetails}
 import org.jsoup.Jsoup
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen}
+import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen, Matchers}
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.test.FakeRequest
 
-class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen{
+class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Matchers{
 
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
   val reviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true,
@@ -43,31 +43,37 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with OneServerPerSu
       val html = views.html.review_details_non_uk_agent("ATED", reviewDetails.copy(directMatch = false), Some("backLinkUri"))
 
       val document = Jsoup.parse(html.toString())
-
-      And("The submit button is - Confirm and continue")
-      assert(document.getElementById("submit").text() === "Confirm")
+      val bizRegistrationDetails = document.select("#business-details tbody tr")
 
       Then("The title should match - Confirm your business details")
       assert(document.select("h1").text === ("Check your agency details"))
 
       assert(document.getElementById("bc.business-registration-agent.text").text() === ("This section is: ATED agency set up"))
 
+      And("The confirmation notice should display")
+      assert(document.getElementById("check-agency-details").text ===("You are setting up your agency. These should be your company details not your clients."))
+
       And("Business name is correct")
+
       assert(document.getElementById("business-name-title").text === ("Business name"))
       assert(document.getElementById("business-name").text === ("ACME"))
-      assert(document.getElementById("bus-name-edit").attr("href") === ("/business-customer/agent/register/non-uk-client/ATED/edit"))
+      assert(document.getElementById("business-name-edit").attr("href") === ("/business-customer/agent/register/non-uk-client/ATED/edit"))
 
       And("Business address is correct")
       assert(document.getElementById("business-address-title").text === ("Registered address"))
       assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
-      assert(document.getElementById("bus-reg-edit").attr("href") === ("/business-customer/agent/register/non-uk-client/ATED/edit"))
+      assert(document.getElementById("business-reg-edit").attr("href") === ("/business-customer/agent/register/non-uk-client/ATED/edit"))
 
-      And("Overseas tax referebce is correct")
-      assert(document.getElementById("overseas-tax-reference-title").text === ("Overseas company registration number"))
-      assert(document.getElementById("overseas-details").text === ("id France inst"))
-      assert(document.getElementById("overseas-edit").attr("href") === ("/business-customer/register/non-uk-client/edit-overseas-company/ATED/false"))
-      assert(document.getElementById("check-agency-details").text ===("You are setting up your agency. These should be your company details not your clients."))
-      assert(document.select(".button").text === ("Confirm"))
+      And("Overseas tax reference is correct")
+      bizRegistrationDetails.get(2).text should include ("Overseas company registration number")
+      bizRegistrationDetails.get(2).text should include("id")
+      bizRegistrationDetails.get(3).text should include("Country that issued the number")
+      bizRegistrationDetails.get(3).text should include("France")
+      bizRegistrationDetails.get(4).text should include("Institution that issued the number")
+      bizRegistrationDetails.get(4).text should include("inst")
+
+      And("The submit button is - Confirm")
+      assert(document.getElementById("submit").text() === "Confirm")
 
     }
 

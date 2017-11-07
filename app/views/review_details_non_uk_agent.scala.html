@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <table>
+  <table id="business-details">
     <tbody>
       <tr>
         <th scope="row" id="business-name-title">
@@ -24,7 +24,7 @@
           @businessDetails.businessName
         </td>
         <td>
-          <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="bus-name-edit" data-journey-click="business-customer:click:bus-name-edit-link">@Messages("bc.edit")
+          <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="business-name-edit" data-journey-click="business-customer:click:bus-name-edit-link">@Messages("bc.edit")
             <span class="visuallyhidden">@Messages("business-review.business-name")</span>
           </a>
         </td>
@@ -50,7 +50,7 @@
         </td>
 
         <td>
-          <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="bus-reg-edit" data-journey-click="business-customer:click:bus-reg-edit-link">@Messages("bc.edit")
+          <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="business-reg-edit" data-journey-click="business-customer:click:bus-reg-edit-link">@Messages("bc.edit")
             <span class="visuallyhidden">@Messages("business-review.address")</span>
           </a>
         </td>
