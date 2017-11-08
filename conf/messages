@@ -317,10 +317,10 @@ bc.nrl.paysSA.not-selected.error = You must select an option
 
 # non-uk client - paySA question page
 bc.nonuk.paySA.subheader = {0} registration
-bc.nonuk.paySA.header = Do you pay tax in the UK through self assessment?
-bc.nonuk.paySA.title = Do you pay tax in the UK through self assessment?
-bc.nonuk.paySA.error.general.paySA = There is a problem with the do you pay self assessment question
-bc.nonuk.paySA.not-selected.error = You must answer the self assessment question
+bc.nonuk.paySA.header = Do you pay tax in the UK through Self Assessment?
+bc.nonuk.paySA.title = Do you pay tax in the UK through Self Assessment?
+bc.nonuk.paySA.error.general.paySA = There is a problem with the do you pay Self Assessment question
+bc.nonuk.paySA.not-selected.error = You must answer the Self Assessment question
 
 # non-uk client - Overseas Company Identification
 bc.nonuk.overseas.agent.title = Do you have an overseas company registration number?
@@ -398,7 +398,7 @@ bc.details-not-found.exact-match-reason.text = Your business name should match t
 bc.details-not-found.name-changed-reason.header = Your business name has changed
 bc.details-not-found.name-changed-reason.text = If your business name has changed recently you need to update your details. If you are a:
 bc.details-not-found.name-changed-reason.text.li1 = limited company you need to <a data-journey-click="business-customer:click:corporation-tax-enquiry" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/corporation-tax-enquiries">update your corporation tax details</a>
-bc.details-not-found.name-changed-reason.text.li2 = sole trader or partnership you need to <a data-journey-click="business-customer:click:income-tax-enquiry" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees">update your self assessment details</a>
+bc.details-not-found.name-changed-reason.text.li2 = sole trader or partnership you need to <a data-journey-click="business-customer:click:income-tax-enquiry" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees">update your Self Assessment details</a>
 bc.details-not-found.name-changed-reason.text.24-hours = It will take up to 24 hours before your details are updated.
 bc.details-not-found.utr-reason.header = Your Unique Taxpayer Reference (UTR) does not match
 bc.details-not-found.utr-reason.text = Your UTR number is made up of 10 or 13 digits, If it is 13 digits only enter the last 10. Your UTR should match the UTR on any letters you have from HMRC.
