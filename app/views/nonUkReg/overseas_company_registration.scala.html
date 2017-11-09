@@ -14,6 +14,7 @@
 @pageScripts = {
 <script src='@controllers.routes.AssetsController.at("javascript/business-customer-country-auto-complete.js")'></script>
 <script src='@controllers.routes.AssetsController.at("javascript/show-hide-content.js")'></script>
+<script src='@controllers.routes.AssetsController.at("javascript/overseas-company-registration.js")'></script>
 <script>
     $(document).ready(function() {
       countryCodeAutoComplete("#issuingCountry")
@@ -28,6 +29,9 @@
       // to toggle hidden content
       var showHideContent = new GOVUK.ShowHideContent()
       showHideContent.init()
+
+      //Clear out form when switching back to no
+      clearInputValues()
     });
 </script>
 }
