@@ -42,8 +42,8 @@ class paySAQuestionSpec extends FeatureSpec with OneServerPerSuite with MockitoS
 
       val document = Jsoup.parse(html.toString())
 
-      Then("The title should match - Do you pay tax in the UK through self assessment?")
-      assert(document.select("h1").text === ("Do you pay tax in the UK through self assessment?"))
+      Then("The title should match - Do you pay tax in the UK through Self Assessment?")
+      assert(document.select("h1").text === ("Do you pay tax in the UK through Self Assessment?"))
 
       Then("The subheader should be - ATED registration")
       assert(document.getElementById("paySa-subheader").text() === "This section is: ATED registration")
