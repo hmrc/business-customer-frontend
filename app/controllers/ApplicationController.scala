@@ -53,7 +53,7 @@ trait ApplicationController extends FrontendController with RunMode with Auditab
   def logout(service: String) = UnauthorisedAction { implicit request =>
     service.toUpperCase match {
       case "ATED" => {
-        Redirect(Play.configuration.getString(s"services.${service.toLowerCase}.logoutUrl").getOrElse("/ated/logout")).withNewSession
+        Redirect(Play.configuration.getString(s"microservice.services.${service.toLowerCase}.logoutUrl").getOrElse("/ated/logout")).withNewSession
       }
       case _ => Redirect(controllers.routes.ApplicationController.signedOut).withNewSession
     }
