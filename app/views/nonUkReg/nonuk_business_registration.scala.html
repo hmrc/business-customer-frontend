@@ -33,7 +33,7 @@
  @form(action = controllers.nonUKReg.routes.AgentRegisterNonUKClientController.submit(service)) {
   <div id="non-uk-reg-form">
     <fieldset>
-      <legend class="visuallyhidden">displayDetails.businessRegHeader</legend>
+      <legend class="visuallyhidden">@displayDetails.businessRegHeader</legend>
 
       @bcInput(businessRegistrationForm("businessName"),
       '_label ->  Html(Messages("bc.non-uk-reg.businessName")),
