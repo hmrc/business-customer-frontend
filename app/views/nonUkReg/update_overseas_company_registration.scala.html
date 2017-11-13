@@ -12,18 +12,15 @@
 @implicitFormInstance = @{ Some(overseasCompanyForm) }
 
 @pageScripts = {
-<script src='@controllers.routes.AssetsController.at("javascript/business-customer-country-auto-complete.js")'></script>
+<script src='@controllers.routes.AssetsController.at("javascript/accessible-autocomplete.min.js")'></script>
 <script src='@controllers.routes.AssetsController.at("javascript/overseas-company-registration.js")'></script>
 <script src='@controllers.routes.AssetsController.at("javascript/show-hide-content.js")'></script>
 <script>
     $(document).ready(function() {
-      countryCodeAutoComplete("#issuingCountry")
-      var classOfSelect2 = $('#issuingCountry_').attr('class');
-      $("#issuingCountry").addClass(classOfSelect2)
-      var labelText2 = $("#issuingCountry_field").text();
-      var divId2 = "issuingCountry_div"
-      var fieldId2 = "issuingCountry_"
-      createLabelForHiddenSelect(divId2, fieldId2, labelText2);
+
+      accessibleAutocomplete.enhanceSelectElement({
+        selectElement: document.querySelector('#issuingCountry')
+      })
 
       // Where .multiple-choice uses the data-target attribute
       // to toggle hidden content
