@@ -91,7 +91,7 @@
 
     </div>
 
-    <a href="@controllers.routes.ReviewDetailsController.continue(service)" class="button" id="submit" @if(isAgent){onclick="ga('send', 'event', 'Agent - registration - end', 'button clicked')"}>
+    <a href="@controllers.routes.ReviewDetailsController.continue(service)" class="button" id="submit" role="button" @if(isAgent){onclick="ga('send', 'event', 'Agent - registration - end', 'button clicked')"}>
         @Messages("business-review.registration-button")
     </a>
 }
