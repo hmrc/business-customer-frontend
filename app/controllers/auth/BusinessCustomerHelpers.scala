@@ -29,9 +29,6 @@ trait BusinessCustomerHelpers extends Actions {
   def AuthAction(service: String) = new AuthAction(service)
 
   private def isValidUrl(s: String): Boolean = {
-
-    println(s"SERVICE NAME - $s")
-
     ValidateUri.isValid(ApplicationConfig.serviceList, s)
   }
 
