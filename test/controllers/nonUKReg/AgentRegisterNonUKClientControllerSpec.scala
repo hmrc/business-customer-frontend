@@ -34,13 +34,14 @@ import services.BusinessRegistrationService
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 
 
 class AgentRegisterNonUKClientControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
   val request = FakeRequest()
   val service = "ATED"
+  val invalidService = "scooby-doo"
   val mockAuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
@@ -134,7 +135,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with OneServerPerS
         val regAddress = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
         val businessReg = BusinessRegistration("ACME", regAddress)
         when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(Some("http://backLink")))
-        viewWithAuthorisedUserWithSomeData(serviceName,Some(businessReg), "NUK", Some("http://backLink"), Some("http://cachedBackLink")) { result =>
+        viewWithAuthorisedUserWithSomeData(serviceName, Some(businessReg), "NUK", Some("http://backLink"), Some("http://cachedBackLink")) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
@@ -204,7 +205,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with OneServerPerS
           (createJson(line3 = "a" * 36), "Address line 3 is optional but if entered, must be maximum of 35 characters", "Address line 3 cannot be more than 35 characters"),
           (createJson(line4 = "a" * 36), "Address line 4 is optional but if entered, must be maximum of 35 characters", "Address line 4 cannot be more than 35 characters"),
           (createJson(country = "GB"), "show an error if country is selected as GB", "You cannot select United Kingdom when entering an overseas address")
-         )
+        )
 
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
@@ -226,16 +227,13 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with OneServerPerS
           }
         }
 
-
-        "throw exception, if redirect url is not defined" in {
+        "respond with NotFound when invalid service is in uri" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
-          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "undefined", None) { result =>
-            val thrown = the[RuntimeException] thrownBy await(result)
-            thrown.getMessage must be("Service does not exist for : undefined. This should be in the conf file against services.{1}.serviceRedirectUrl")
+          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), invalidService, None) { result =>
+            status(result) must be(NOT_FOUND)
           }
         }
-
       }
     }
   }
@@ -286,7 +284,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with OneServerPerS
     test(result)
   }
 
-  def viewWithAuthorisedUserWithSomeData(service: String, businessRegistration: Option[BusinessRegistration],businessType: String, backLink: Option[String] = None, cachedBackLink: Option[String] = None)(test: Future[Result] => Any) {
+  def viewWithAuthorisedUserWithSomeData(service: String, businessRegistration: Option[BusinessRegistration], businessType: String, backLink: Option[String] = None, cachedBackLink: Option[String] = None)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
@@ -330,7 +328,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with OneServerPerS
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = BusinessRegistration("ACME", address)
 
-    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](Matchers.any(), Matchers.any())(Matchers.any(),(Matchers.any())))
+    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](Matchers.any(), Matchers.any())(Matchers.any(), (Matchers.any())))
       .thenReturn(Future.successful(successModel))
 
 

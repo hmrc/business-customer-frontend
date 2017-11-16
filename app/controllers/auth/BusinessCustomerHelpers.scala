@@ -16,9 +16,11 @@
 
 package controllers.auth
 
-import models.{BusinessCustomerUser, BusinessCustomerContext}
-import play.api.mvc.{Action, Result, AnyContent}
+import config.ApplicationConfig
+import models.{BusinessCustomerContext, BusinessCustomerUser}
+import play.api.mvc.{Action, AnyContent, Result}
 import uk.gov.hmrc.play.frontend.auth.Actions
+import utils.ValidateUri
 
 import scala.concurrent.Future
 
@@ -26,19 +28,36 @@ trait BusinessCustomerHelpers extends Actions {
 
   def AuthAction(service: String) = new AuthAction(service)
 
+  private def isValidUrl(s: String): Boolean = {
+
+    println(s"SERVICE NAME - $s")
+
+    ValidateUri.isValid(ApplicationConfig.serviceList, s)
+  }
+
   class AuthAction(service: String) {
 
     def apply(f: BusinessCustomerContext => Result): Action[AnyContent] = {
-      AuthorisedFor(taxRegime = BusinessCustomerRegime(service), pageVisibility = GGConfidence) {
-        implicit authContext => implicit request =>
-          f(BusinessCustomerContext(request, BusinessCustomerUser(authContext)))
+      if (!isValidUrl(service)) {
+        Action.apply(NotFound)
+      }
+      else {
+        AuthorisedFor(taxRegime = BusinessCustomerRegime(service), pageVisibility = GGConfidence) {
+          implicit authContext => implicit request =>
+            f(BusinessCustomerContext(request, BusinessCustomerUser(authContext)))
+        }
       }
     }
 
     def async(f: BusinessCustomerContext => Future[Result]): Action[AnyContent] = {
-      AuthorisedFor(taxRegime = BusinessCustomerRegime(service), pageVisibility = GGConfidence).async {
-        implicit authContext => implicit request =>
-          f(BusinessCustomerContext(request, BusinessCustomerUser(authContext)))
+      if (!isValidUrl(service)) {
+        Action.apply(NotFound)
+      }
+      else {
+        AuthorisedFor(taxRegime = BusinessCustomerRegime(service), pageVisibility = GGConfidence).async {
+          implicit authContext => implicit request =>
+            f(BusinessCustomerContext(request, BusinessCustomerUser(authContext)))
+        }
       }
     }
 

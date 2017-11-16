@@ -45,6 +45,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
   val mockBusinessMatchingService = mock[BusinessMatchingService]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
   val service = "ATED"
+  val invalidService = "scooby-doo"
 
   object TestBusinessVerificationController extends BusinessVerificationController {
     override val authConnector = mockAuthConnector
@@ -66,7 +67,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
 
     "respond to hello" in {
       val result = route(FakeRequest(GET, "/business-customer/hello")).get
-      status(result) must not be NOT_FOUND
+      status(result) must be(NOT_FOUND)
     }
 
     "businessVerification" must {
@@ -77,6 +78,11 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           businessVerificationWithAuthorisedUser { result =>
             status(result) must be(OK)
           }
+        }
+
+        "respond with NotFound when invalid service is in uri" in {
+          businessVerificationWithAuthorisedUser(result =>
+            status(result) must be(NOT_FOUND), serviceName = invalidService)
         }
 
         "return Business Verification view for a user" in {
@@ -752,14 +758,14 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
   }
 
 
-  def businessVerificationWithAuthorisedUser(test: Future[Result] => Any) {
+  def businessVerificationWithAuthorisedUser(test: Future[Result] => Any, serviceName: String = service) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
 
-    val result = TestBusinessVerificationController.businessVerification(service).apply(FakeRequest().withSession(
+    val result = TestBusinessVerificationController.businessVerification(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId))

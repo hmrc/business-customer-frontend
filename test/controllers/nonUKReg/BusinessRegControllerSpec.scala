@@ -35,13 +35,14 @@ import services.BusinessRegistrationService
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 
 
-class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar  with BeforeAndAfterEach {
+class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
   val request = FakeRequest()
   val serviceName = "ATED"
+  val invalidService = "scooby-doo"
   val mockAuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
@@ -75,7 +76,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
       }
 
       "respond with a redirect for /send & be redirected to the unauthorised page" in {
-        submitWithUnAuthorisedUser("NUK") { result =>
+        submitWithUnAuthorisedUser(service = serviceName, "NUK") { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some("/business-customer/unauthorised"))
         }
@@ -265,6 +266,15 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
             status(result) must be(SEE_OTHER)
           }
         }
+
+        "respond with NotFound when invalid service is in uri" in {
+          implicit val hc: HeaderCarrier = HeaderCarrier()
+          val inputJson = createJson(postcode = "")
+          when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+          submitWithAuthorisedAgent(invalidService, FakeRequest().withJsonBody(inputJson)) { result =>
+            status(result) must be(NOT_FOUND)
+          }
+        }
       }
     }
   }
@@ -362,7 +372,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = BusinessRegistration("ACME", address)
 
-    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](Matchers.any(), Matchers.any())(Matchers.any(),(Matchers.any())))
+    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](Matchers.any(), Matchers.any())(Matchers.any(), (Matchers.any())))
       .thenReturn(Future.successful(successModel))
 
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
@@ -381,7 +391,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
 
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = BusinessRegistration("ACME", address)
-    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](Matchers.any(), Matchers.any())(Matchers.any(),(Matchers.any())))
+    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](Matchers.any(), Matchers.any())(Matchers.any(), (Matchers.any())))
       .thenReturn(Future.successful(successModel))
 
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
