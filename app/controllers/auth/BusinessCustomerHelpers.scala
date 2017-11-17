@@ -35,15 +35,10 @@ trait BusinessCustomerHelpers extends Actions {
   class AuthAction(service: String) {
 
     def apply(f: BusinessCustomerContext => Result): Action[AnyContent] = {
-      if (!isValidUrl(service)) {
-        Action.apply(NotFound)
-      }
-      else {
         AuthorisedFor(taxRegime = BusinessCustomerRegime(service), pageVisibility = GGConfidence) {
           implicit authContext => implicit request =>
             f(BusinessCustomerContext(request, BusinessCustomerUser(authContext)))
         }
-      }
     }
 
     def async(f: BusinessCustomerContext => Future[Result]): Action[AnyContent] = {

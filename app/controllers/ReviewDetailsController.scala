@@ -73,8 +73,10 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
               Messages("bc.business-registration-error.duplicate.identifier.title"),
               Messages("bc.business-registration-error.duplicate.identifier.message"), serviceName)))
           case _ =>
+            // $COVERAGE-OFF$
             Logger.warn(s"[ReviewDetailsController][continue] - Exception other than status - OK and BAD_GATEWAY")
             throw new RuntimeException(Messages("bc.business-review.error.not-found"))
+            // $COVERAGE-ON$
         }
       }
     } else {
