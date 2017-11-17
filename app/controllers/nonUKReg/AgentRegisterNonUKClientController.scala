@@ -86,8 +86,10 @@ trait AgentRegisterNonUKClientController extends BackLinkController with RunMode
                   Some(controllers.nonUKReg.routes.AgentRegisterNonUKClientController.view(service).url)
                 )
               case _ =>
+                // $COVERAGE-OFF$
                 Logger.warn(s"[ReviewDetailsController][submit] - No Service config found for = $service")
                 throw new RuntimeException(Messages("bc.business-review.error.no-service", service, service.toLowerCase))
+                // $COVERAGE-ON$
             }
         }
       }
