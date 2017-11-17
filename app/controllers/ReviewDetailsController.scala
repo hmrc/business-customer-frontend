@@ -73,10 +73,8 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
               Messages("bc.business-registration-error.duplicate.identifier.title"),
               Messages("bc.business-registration-error.duplicate.identifier.message"), serviceName)))
           case _ =>
-            // $COVERAGE-OFF$
             Logger.warn(s"[ReviewDetailsController][continue] - Exception other than status - OK and BAD_GATEWAY")
             throw new RuntimeException(Messages("bc.business-review.error.not-found"))
-            // $COVERAGE-ON$
         }
       }
     } else {
@@ -84,8 +82,10 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
       serviceRedirectUrl match {
         case Some(serviceUrl) => RedirectToExernal(serviceUrl, Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
         case _ =>
+          // $COVERAGE-OFF$
           Logger.warn(s"[ReviewDetailsController][continue] - No Service config found for = $serviceName")
           throw new RuntimeException(Messages("bc.business-review.error.no-service", serviceName, serviceName.toLowerCase))
+          // $COVERAGE-ON$
       }
     }
   }
