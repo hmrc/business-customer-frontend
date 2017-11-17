@@ -256,12 +256,11 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
         }
       }
 
-      "throw an exception if it's an unknown service" in {
+      "respond with NotFound when invalid service is in uri" in {
         when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq("unknownServiceTest"))).thenReturn(false)
         continueWithAuthorisedUser("unknownServiceTest") {
           result =>
-            val thrown = the[RuntimeException] thrownBy redirectLocation(result).get
-            thrown.getMessage must include("Service does not exist for : unknownServiceTest")
+            status(result) must be (NOT_FOUND)
         }
       }
     }

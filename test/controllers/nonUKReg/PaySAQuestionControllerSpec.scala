@@ -42,7 +42,8 @@ class PaySAQuestionControllerSpec extends PlaySpec with OneServerPerSuite with M
 
   val mockAuthConnector = mock[AuthConnector]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
-  val service = "serviceName"
+  val service = "amls"
+  val invalidService = "scooby-doo"
   val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
 
   object TestPaySaQuestionController extends PaySAQuestionController {
@@ -64,6 +65,13 @@ class PaySAQuestionControllerSpec extends PlaySpec with OneServerPerSuite with M
     }
 
     "view" must {
+
+      "respond with NotFound when invalid service is in uri" in {
+        viewWithAuthorisedClient(invalidService) { result =>
+          status(result) must be(NOT_FOUND)
+        }
+      }
+
       "redirect present user to Pay SA question page, if user is not an agent" in {
         viewWithAuthorisedClient(service) { result =>
           status(result) must be(OK)
@@ -95,6 +103,15 @@ class PaySAQuestionControllerSpec extends PlaySpec with OneServerPerSuite with M
     }
 
     "continue" must {
+
+      "respond with NotFound when invalid service is in uri" in {
+        val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paySA": ""}"""))
+        when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+        continueWithAuthorisedClient(fakeRequest, invalidService) { result =>
+          status(result) must be(NOT_FOUND)
+        }
+      }
+
       "if user doesn't select any radio button, show form error with bad_request" in {
         val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paySA": ""}"""))
         when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))

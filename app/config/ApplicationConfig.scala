@@ -42,6 +42,9 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
 
   private val contactHost = configuration.getString("contact-frontend.host").getOrElse("")
 
+  val serviceList: Seq[String] =  configuration.getStringSeq(s"microservice.services.names").getOrElse(
+    throw new Exception("No services available in application configuration"))
+
   val contactFormServiceIdentifier = "BUSINESS-CUSTOMER"
 
   override lazy val defaultBetaFeedbackUrl = s"$contactHost/contact/beta-feedback"

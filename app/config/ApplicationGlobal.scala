@@ -46,7 +46,8 @@ object ApplicationGlobal extends DefaultFrontendGlobal with RunMode {
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
     val url = request.path
-    val serviceList =  configuration.getStringList(s"microservice.services.names").getOrElse(throw new Exception("No services available in application configuration"))
+    val serviceList =  configuration.getStringList(s"microservice.services.names").getOrElse(
+      throw new Exception("No services available in application configuration"))
     serviceList.filter(url.toLowerCase.contains(_)).headOption match {
       case Some(x) => views.html.global_error(pageTitle, heading, message, service = x)(request, applicationMessages)
       case _ => views.html.global_error(pageTitle, heading, message)(request, applicationMessages)

@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.FrontendAuthConnector
+import config.{ApplicationConfig, FrontendAuthConnector}
 import connectors.BackLinkCacheConnector
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import forms.BusinessVerificationForms._
@@ -27,10 +27,11 @@ import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc._
 import services.BusinessMatchingService
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.BusinessCustomerConstants._
+import utils.ValidateUri
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 object BusinessVerificationController extends BusinessVerificationController {
   val businessMatchingService: BusinessMatchingService = BusinessMatchingService
@@ -45,7 +46,7 @@ trait BusinessVerificationController extends BackLinkController {
 
   def businessVerification(service: String) = AuthAction(service).async {
     implicit bcContext =>
-      currentBackLink.map(backLink => Ok(views.html.business_verification(businessTypeForm, bcContext.user.isAgent, service, bcContext.user.isSa, bcContext.user.isOrg, backLink)))
+        currentBackLink.map(backLink => Ok(views.html.business_verification(businessTypeForm, bcContext.user.isAgent, service, bcContext.user.isSa, bcContext.user.isOrg, backLink)))
   }
 
   def continue(service: String) = AuthAction(service).async { implicit bcContext =>

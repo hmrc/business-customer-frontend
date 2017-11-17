@@ -42,7 +42,8 @@ class NRLQuestionControllerSpec extends PlaySpec with OneServerPerSuite with Moc
 
   val mockAuthConnector = mock[AuthConnector]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
-  val service = "serviceName"
+  val service = "amls"
+  val invalidService = "scooby-doo"
   val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
 
   object TestNRLQuestionController extends NRLQuestionController {
@@ -64,6 +65,13 @@ class NRLQuestionControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     }
 
     "view" must {
+
+      "respond with NotFound when invalid service is in uri" in {
+        viewWithAuthorisedClient(invalidService) { result =>
+          status(result) must be(NOT_FOUND)
+        }
+      }
+
       "redirect present user to NRL question page, if user is not an agent" in {
         viewWithAuthorisedClient(service) { result =>
           status(result) must be(OK)
@@ -93,6 +101,14 @@ class NRLQuestionControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     }
 
     "continue" must {
+
+      "respond with NotFound when invalid service is in uri" in {
+        val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paysSA": ""}"""))
+        continueWithAuthorisedClient(fakeRequest, invalidService) { result =>
+          status(result) must be(NOT_FOUND)
+        }
+      }
+
       "if user doesn't select any radio button, show form error with bad_request" in {
         val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paysSA": ""}"""))
         continueWithAuthorisedClient(fakeRequest, service) { result =>
