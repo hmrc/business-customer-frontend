@@ -37,9 +37,9 @@ object EtmpOrganisation {
 }
 
 case class EtmpIndividual(firstName: String,
-                      middleName: Option[String] = None,
-                      lastName: String,
-                      dateOfBirth: LocalDate)
+                          middleName: Option[String] = None,
+                          lastName: String,
+                          dateOfBirth: LocalDate)
 
 object EtmpIndividual {
   implicit val formats = Json.format[EtmpIndividual]
@@ -60,7 +60,8 @@ object EtmpIdentification {
   implicit val formats = Json.format[EtmpIdentification]
 }
 
-case class BusinessRegistrationRequest(acknowledgementReference: String,
+case class BusinessRegistrationRequest(regime: Option[String] = None,
+                                       acknowledgementReference: String,
                                        isAnAgent: Boolean,
                                        isAGroup: Boolean,
                                        identification: Option[EtmpIdentification],

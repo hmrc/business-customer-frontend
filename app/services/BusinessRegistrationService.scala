@@ -21,7 +21,8 @@ import models._
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import play.api.i18n.Messages
-import utils.SessionUtils
+import utils.{SessionUtils, BCUtils}
+
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -49,7 +50,7 @@ trait BusinessRegistrationService {
                        isBusinessDetailsEditable: Boolean = false)
                       (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[ReviewDetails] = {
 
-    val businessRegisterDetails = createBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
+    val businessRegisterDetails = createBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent, service)
 
     for {
       registerResponse <- businessCustomerConnector.register(businessRegisterDetails, service, isNonUKClientRegisteredByAgent)
@@ -62,7 +63,6 @@ trait BusinessRegistrationService {
       reviewDetailsCache.getOrElse(throw new InternalServerException(Messages("bc.connector.error.registration-failed")))
     }
   }
-
 
   def updateRegisterBusiness(registerData: BusinessRegistration,
                              overseasCompany: OverseasCompany,
@@ -96,7 +96,6 @@ trait BusinessRegistrationService {
     }
   }
 
-
   def getDetails()(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
 
     def createBusinessRegistration(reviewDetailsOpt: Option[ReviewDetails]) : Option[(String, BusinessRegistration, OverseasCompany)] = {
@@ -114,9 +113,6 @@ trait BusinessRegistrationService {
     }
     dataCacheConnector.fetchAndGetBusinessDetailsForSession.map( createBusinessRegistration(_) )
   }
-
-
-
 
   private def createUpdateBusinessRegistrationRequest(registerData: BusinessRegistration,
                                                       overseasCompany: OverseasCompany,
@@ -140,10 +136,12 @@ trait BusinessRegistrationService {
   private def createBusinessRegistrationRequest(registerData: BusinessRegistration,
                                                 overseasCompany: OverseasCompany,
                                                 isGroup: Boolean,
-                                                isNonUKClientRegisteredByAgent: Boolean = false)
+                                                isNonUKClientRegisteredByAgent: Boolean = false,
+                                                service: String)
                                                (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): BusinessRegistrationRequest = {
 
     BusinessRegistrationRequest(
+      regime = if(BCUtils.newService(service)) Some(service) else None, //TODO:: make more functional
       acknowledgementReference = SessionUtils.getUniqueAckNo,
       organisation = EtmpOrganisation(organisationName = registerData.businessName),
       address = getEtmpBusinessAddress(registerData.businessAddress),
@@ -153,7 +151,6 @@ trait BusinessRegistrationService {
       contactDetails = EtmpContactDetails()
     )
   }
-
 
   private def createReviewDetails(sapNumber: String, safeId: String,
                                   agentReferenceNumber: Option[String],

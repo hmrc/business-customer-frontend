@@ -150,4 +150,6 @@ object BCUtils {
 
     getCountry(isoCode.toUpperCase).fold(isoCode) { x => x }
   }
+
+  def newService(service: String) = !BusinessCustomerConstants.oldServiceList.contains(service)
 }

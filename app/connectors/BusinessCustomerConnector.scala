@@ -28,7 +28,7 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
 import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
-import utils.GovernmentGatewayConstants
+import utils.{BCUtils, GovernmentGatewayConstants}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -39,6 +39,7 @@ object BusinessCustomerConnector extends BusinessCustomerConnector {
   val serviceUrl = baseUrl("business-customer")
   val baseUri = "business-customer"
   val registerUri = "register"
+  val version2 = "v2"
   val knownFactsUri = "known-facts"
   val updateRegistrationDetailsURI = "update"
   val http: CoreGet with CorePost = WSHttp
@@ -51,6 +52,8 @@ trait BusinessCustomerConnector extends ServicesConfig with RawResponseReads wit
   def baseUri: String
 
   def registerUri: String
+
+  def version2: String
 
   def updateRegistrationDetailsURI: String
 
@@ -68,6 +71,9 @@ trait BusinessCustomerConnector extends ServicesConfig with RawResponseReads wit
 
   def register(registerData: BusinessRegistrationRequest, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
               (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[BusinessRegistrationResponse] = {
+
+    val authLink = bcContext.user.authLink
+    val jsonData = Json.toJson(registerData)
 
     def auditRegisterCall(input: BusinessRegistrationRequest,
                           response: HttpResponse,
@@ -93,9 +99,9 @@ trait BusinessCustomerConnector extends ServicesConfig with RawResponseReads wit
           "organisation" -> s"${input.organisation}",
           "responseStatus" -> s"${response.status}",
           "responseBody" -> s"${response.body}",
-          "status" ->  s"${eventType}"))
+          "status" -> s"${eventType}"))
 
-      def getAddressPiece(piece: Option[String]):String = {
+      def getAddressPiece(piece: Option[String]): String = {
         if (piece.isDefined)
           piece.get
         else
@@ -112,9 +118,11 @@ trait BusinessCustomerConnector extends ServicesConfig with RawResponseReads wit
           "submittedCountry" -> input.address.countryCode))
     }
 
-    val authLink = bcContext.user.authLink
-    val postUrl = s"""$serviceUrl$authLink/$baseUri/$registerUri"""
-    val jsonData = Json.toJson(registerData)
+    def postUrl = if (BCUtils.newService(service))
+      s"""$serviceUrl$authLink/$baseUri/$registerUri/$version2"""
+    else
+      s"""$serviceUrl$authLink/$baseUri/$registerUri"""
+
     http.POST(postUrl, jsonData) map { response =>
       auditRegisterCall(registerData, response, service, isNonUKClientRegisteredByAgent)
       response.status match {

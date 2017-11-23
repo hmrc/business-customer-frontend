@@ -30,4 +30,6 @@ object BusinessCustomerConstants {
   val OverseasRegDetailsId = "Overseas_Business_Details"
   val PaySaDetailsId = "Pay_Sa_Details"
   val NrlFormId = "NRL_Details"
+
+  val oldServiceList: Seq[String] = Seq("ATED", "AMLS", "AWRS")
 }

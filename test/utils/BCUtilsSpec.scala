@@ -163,6 +163,20 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
       }
     }
 
+    "newService" must {
+      "return true, if it's a new service" in {
+        BCUtils.newService("hello") must be(true)
+      }
+
+      "return false, if it's an old service ATED" in {
+        BCUtils.newService("ated") must be(false)
+      }
+
+      "return false, if it's an old service AMLS" in {
+        BCUtils.newService("AMLS") must be(false)
+      }
+    }
+
   }
 
 }
