@@ -128,7 +128,7 @@ object BCUtils {
       case "investment-tax-relief" => Seq("LTD" -> Messages("bc.business-verification.LTD"))
       case "capital-gains-tax" => isCGTBusinessTypes
       case "capital-gains-tax-agents" => isAtedAgentBusinessTypes.filter(p => isCGTAgentTypes.contains(p._1))
-      case "fhdds" => fixedBusinessTypes ++ atedExtraBusinessTypes
+      case "fhdds" => fixedBusinessTypes ++ Seq("NUK" -> Messages("bc.business-verification.NUK"))
       case _ => fixedBusinessTypes
     }
   }

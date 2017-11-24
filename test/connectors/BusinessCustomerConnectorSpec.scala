@@ -56,6 +56,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
 
   implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
   val service = "ATED"
+  val newService = "FHDDS"
 
   "BusinessCustomerConnector" must {
     val businessOrgData = EtmpOrganisation(organisationName = "testName")
@@ -137,6 +138,19 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
           .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
 
         val result = TestBusinessCustomerConnector.register(businessRequestDataNonUK, service)
+        await(result) must be(businessResponseData)
+      }
+
+      "for successful save with non-uk address for a new service, return Response as Json" in {
+        val businessResponseData = BusinessRegistrationResponse(processingDate = "2015-01-01", sapNumber = "SAP123123", safeId = "SAFE123123",
+          agentReferenceNumber = Some("AREF123123"))
+        val successResponse = Json.toJson(businessResponseData)
+
+        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
+
+        val result = TestBusinessCustomerConnector.register(businessRequestDataNonUK, newService)
         await(result) must be(businessResponseData)
       }
 
