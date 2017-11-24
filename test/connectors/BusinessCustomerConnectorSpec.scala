@@ -51,6 +51,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with
     override val registerUri = "register"
     override val updateRegistrationDetailsURI = "update"
     override val knownFactsUri = "known-facts"
+    override val version2 = "v2"
   }
 
   implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")

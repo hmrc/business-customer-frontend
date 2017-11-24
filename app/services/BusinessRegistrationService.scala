@@ -18,15 +18,16 @@ package services
 
 import connectors.{BusinessCustomerConnector, DataCacheConnector}
 import models._
-import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import play.api.i18n.Messages
-import utils.{SessionUtils, BCUtils}
+import play.api.i18n.Messages.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
+import utils.{BCUtils, SessionUtils}
 
+import scala.concurrent.Future
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, InternalServerException }
+
 object BusinessRegistrationService extends BusinessRegistrationService {
 
   val businessCustomerConnector: BusinessCustomerConnector = BusinessCustomerConnector
@@ -141,7 +142,7 @@ trait BusinessRegistrationService {
                                                (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): BusinessRegistrationRequest = {
 
     BusinessRegistrationRequest(
-      regime = if(BCUtils.newService(service)) Some(service) else None, //TODO:: make more functional
+      regime = Some(service).filter(x => BCUtils.newService(x)),
       acknowledgementReference = SessionUtils.getUniqueAckNo,
       organisation = EtmpOrganisation(organisationName = registerData.businessName),
       address = getEtmpBusinessAddress(registerData.businessAddress),

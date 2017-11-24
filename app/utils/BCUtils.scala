@@ -128,6 +128,7 @@ object BCUtils {
       case "investment-tax-relief" => Seq("LTD" -> Messages("bc.business-verification.LTD"))
       case "capital-gains-tax" => isCGTBusinessTypes
       case "capital-gains-tax-agents" => isAtedAgentBusinessTypes.filter(p => isCGTAgentTypes.contains(p._1))
+      case "fhdds" => fixedBusinessTypes ++ atedExtraBusinessTypes
       case _ => fixedBusinessTypes
     }
   }
@@ -151,5 +152,5 @@ object BCUtils {
     getCountry(isoCode.toUpperCase).fold(isoCode) { x => x }
   }
 
-  def newService(service: String) = !BusinessCustomerConstants.oldServiceList.contains(service)
+  def newService(service: String) = !BusinessCustomerConstants.oldServiceList.contains(service.toUpperCase)
 }
