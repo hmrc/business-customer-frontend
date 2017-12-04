@@ -64,7 +64,7 @@ Note - Remember to use the partials header carrier for frontend to frontend call
 Requirements
 ------------
 
-This service is written in [Scala] and [Play], so needs at least a [JRE] to run.
+This service is written in [Scala] and [Play], so needs the latest [JRE] to run.
 
 
 Authentication
