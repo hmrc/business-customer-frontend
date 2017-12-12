@@ -79,7 +79,7 @@ trait AgentRegistrationService extends RunMode with Auditable with AuthorisedFun
   private def createEnrolRequest(serviceName: String, knownFacts: Verifiers)(implicit bcContext: BusinessCustomerContext): NewEnrolRequest = {
     getServiceAgentEnrolmentType(serviceName) match {
       case Some(enrolServiceName) =>
-        NewEnrolRequest(userId = bcContext.user.authContext.user.userId,
+        NewEnrolRequest(userId = bcContext.user.authContext.user.userId.replace("/auth/session/", ""),
           friendlyName = GovernmentGatewayConstants.FriendlyName,
           `type` = GovernmentGatewayConstants.enrolmentType,
           verifiers = knownFacts.verifiers)

@@ -67,6 +67,7 @@ trait GovernmentGatewayConnector extends ServicesConfig with RawResponseReads wi
       response.status match {
         case OK =>
           metrics.incrementSuccessCounter(MetricsEnum.GG_AGENT_ENROL)
+          println(s"***************************************************+${Json.prettyPrint(Json.toJson(response.body))}")
           response
         case BAD_REQUEST =>
           metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
