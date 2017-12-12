@@ -92,8 +92,8 @@ bc.business-verification.partnerUTRField=Partnership Self Assessment Unique Taxp
 bc.business-verification.registered-name.hint=This is the registered name on your incorporation certificate.
 bc.business-verification.utr.hint=It can usually be found in the header of any letter issued by HMRC next to headings such as ''Tax Reference'', ''UTR'' or ''Official Use''.
 bc.business-verification.utr.help.question = What is a UTR
-bc.business-verification.utr.help.answer.agent = It is issued by HMRC when you register your business or for Self Assessment.<br><br>Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10.
-bc.business-verification.utr.help.answer = It is issued by HMRC when you register your business or for Self Assessment.<br><br>Your UTR number is made up of 10 or 13 digits.<br><br>If it is 13 digits only enter the last 10.<br><br>Your accountant or tax manager would normally have your UTR.
+bc.business-verification.utr.help.answer.agent = It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10.
+bc.business-verification.utr.help.answer = It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10.<br><br>Your accountant or tax manager would normally have your UTR.
 
 bc.business-verification.back=Back
 bc.business-verification.submit= Register your agency
