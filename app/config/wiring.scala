@@ -16,6 +16,7 @@
 
 package config
 
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.{HttpDelete, HttpGet, HttpPost, HttpPut}
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.http.hooks.HttpHooks
@@ -49,6 +50,12 @@ object FrontendAuthConnector extends AuthConnector with ServicesConfig {
   val serviceUrl = baseUrl("auth")
   lazy val http = WSHttp
 }
+
+object AuthClientConnector extends PlayAuthConnector with ServicesConfig {
+  val serviceUrl: String = baseUrl("auth")
+  lazy val http = WSHttp
+}
+
 
 object BusinessCustomerSessionCache extends SessionCache with AppName with ServicesConfig {
   override lazy val http = WSHttp

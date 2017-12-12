@@ -133,7 +133,6 @@ object BCUtils {
   }
 
   def getSelectedCountry(isoCode: String): String = {
-
     def trimCountry(selectedCountry: String) = {
       val position = selectedCountry.indexOf(":")
       if (position > 0) {
@@ -142,12 +141,12 @@ object BCUtils {
         selectedCountry
       }
     }
-
     def getCountry(isoCode: String): Option[String] = {
       val country = Option(p.getProperty(isoCode.toUpperCase))
       country.map(selectedCountry => trimCountry(selectedCountry))
     }
-
     getCountry(isoCode.toUpperCase).fold(isoCode) { x => x }
   }
+
+  def formatGroupId(str: String) = str.substring(str.indexOf("-") + 1, str.length)
 }

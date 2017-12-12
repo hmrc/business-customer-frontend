@@ -18,14 +18,14 @@ package models
 
 import play.api.libs.json.Json
 
-case class KnownFact(`type`: String, value: String)
+case class Verifier(key: String, value: String)
 
-object KnownFact {
-  implicit val formats = Json.format[KnownFact]
+object Verifier {
+  implicit val formats = Json.format[Verifier]
 }
 
-case class KnownFactsForService(facts: List[KnownFact])
+case class Verifiers(verifiers: List[Verifier])
 
-object KnownFactsForService {
-  implicit val formats = Json.format[KnownFactsForService]
+object Verifiers {
+  implicit val formats = Json.format[Verifiers]
 }

@@ -17,24 +17,26 @@
 package services
 
 import audit.Auditable
-import config.BusinessCustomerFrontendAuditConnector
+import config.{AuthClientConnector, BusinessCustomerFrontendAuditConnector}
 import connectors.{BusinessCustomerConnector, DataCacheConnector, GovernmentGatewayConnector}
 import models._
-import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
+import play.api.http.Status._
 import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
 import play.api.{Logger, Play}
+import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
+import uk.gov.hmrc.auth.core.{AuthConnector, _}
+import uk.gov.hmrc.auth.core.retrieve.Retrievals._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
 import uk.gov.hmrc.play.config.{AppName, RunMode}
-import utils.GovernmentGatewayConstants
-
-import play.api.http.Status._
+import utils.{BCUtils, GovernmentGatewayConstants}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
-trait AgentRegistrationService extends RunMode with Auditable {
+trait AgentRegistrationService extends RunMode with Auditable with AuthorisedFunctions{
 
   def governmentGatewayConnector: GovernmentGatewayConnector
 
@@ -51,7 +53,6 @@ trait AgentRegistrationService extends RunMode with Auditable {
     }
   }
 
-
   def isAgentEnrolmentAllowed(serviceName: String) :Boolean = {
     getServiceAgentEnrolmentType(serviceName).isDefined
   }
@@ -59,11 +60,12 @@ trait AgentRegistrationService extends RunMode with Auditable {
   private def enrolAgent(serviceName: String, businessDetails: ReviewDetails)
                         (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
 
-    val enrolReq = createEnrolRequest(serviceName, businessDetails)
-    val knownFacts = createKnownFacts(businessDetails)
+    val knownFacts = createEnrolmentVerifiers(businessDetails)
+    val enrolReq = createEnrolRequest(serviceName, knownFacts)
     for {
-      _ <- businessCustomerConnector.addKnownFacts(knownFacts)
-      enrolResponse <- governmentGatewayConnector.enrol(enrolReq, knownFacts)
+      groupId <- getGroupIdentifier
+      _ <- businessCustomerConnector.addKnownFacts(knownFacts, getArn(businessDetails))//es06
+      enrolResponse <- governmentGatewayConnector.enrol(enrolReq, knownFacts, groupId, getArn(businessDetails))
     } yield {
       auditEnrolAgent(businessDetails, enrolResponse, enrolReq); enrolResponse
       enrolResponse
@@ -74,34 +76,33 @@ trait AgentRegistrationService extends RunMode with Auditable {
     Play.configuration.getString(s"microservice.services.${serviceName.toLowerCase}.agentEnrolmentService")
   }
 
-  private def createEnrolRequest(serviceName: String, businessDetails: ReviewDetails)(implicit bcContext: BusinessCustomerContext): EnrolRequest = {
+  private def createEnrolRequest(serviceName: String, knownFacts: Verifiers)(implicit bcContext: BusinessCustomerContext): NewEnrolRequest = {
     getServiceAgentEnrolmentType(serviceName) match {
       case Some(enrolServiceName) =>
-        val knownFactsList = List(businessDetails.agentReferenceNumber, Some(""), Some(""), Some(businessDetails.safeId)).flatten
-        EnrolRequest(portalId = GovernmentGatewayConstants.PortalIdentifier,
-          serviceName = enrolServiceName,
+        NewEnrolRequest(userId = bcContext.user.authContext.user.userId,
           friendlyName = GovernmentGatewayConstants.FriendlyName,
-          knownFacts = knownFactsList)
+          `type` = GovernmentGatewayConstants.enrolmentType,
+          verifiers = knownFacts.verifiers)
       case _ =>
         Logger.warn(s"[AgentRegistrationService][createEnrolRequest] - No Agent Enrolment name found in config found = $serviceName")
         throw new RuntimeException(Messages("bc.agent-service.error.no-agent-enrolment-service-name", serviceName, serviceName.toLowerCase))
     }
-
   }
 
-  private def createKnownFacts(businessDetails: ReviewDetails)(implicit bcContext: BusinessCustomerContext) = {
-    val agentRefNo = businessDetails.agentReferenceNumber.getOrElse {
-      Logger.warn(s"[AgentRegistrationService][createKnownFacts] - No Agent Reference Number Found")
-      throw new RuntimeException(Messages("bc.agent-service.error.no-agent-reference", "[AgentRegistrationService][createKnownFacts]"))
+  private def createEnrolmentVerifiers(businessDetails: ReviewDetails)(implicit bcContext: BusinessCustomerContext): Verifiers = {
+    val agentRefNo = getArn(businessDetails)
+    val knownFacts = List(Verifier(GovernmentGatewayConstants.KnownFactsSafeId, businessDetails.safeId))
+    Verifiers(knownFacts)
+  }
+
+  def getGroupIdentifier(implicit hc: HeaderCarrier): Future[String] = {
+    authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent).retrieve(groupIdentifier) {
+      case Some(groupId) => Future.successful(BCUtils.formatGroupId(groupId))
+      case _ => throw new RuntimeException("No group identifier found for the agent!")
     }
-    val knownFacts = List(
-      KnownFact(GovernmentGatewayConstants.KnownFactsAgentRefNo, agentRefNo),
-      KnownFact(GovernmentGatewayConstants.KnownFactsSafeId, businessDetails.safeId)
-    )
-    KnownFactsForService(knownFacts)
   }
 
-  private def auditEnrolAgent(businessDetails: ReviewDetails, enrolResponse: HttpResponse, enrolReq: EnrolRequest)(implicit hc: HeaderCarrier) = {
+  private def auditEnrolAgent(businessDetails: ReviewDetails, enrolResponse: HttpResponse, enrolReq: NewEnrolRequest)(implicit hc: HeaderCarrier) = {
     val status = enrolResponse.status match {
       case OK => EventTypes.Succeeded
       case _ => EventTypes.Failed
@@ -110,9 +111,15 @@ trait AgentRegistrationService extends RunMode with Auditable {
       "txName" -> "enrolAgent",
       "agentReferenceNumber" -> businessDetails.agentReferenceNumber.getOrElse(""),
       "safeId" -> businessDetails.safeId,
-      "service" -> enrolReq.serviceName,
+      "service" -> GovernmentGatewayConstants.KnownFactsAgentServiceName,
       "status" -> status
     ))
+  }
+
+  private def getArn(businessDetails: ReviewDetails): String = {
+    businessDetails.agentReferenceNumber.getOrElse {
+      throw new RuntimeException(Messages("bc.agent-service.error.no-agent-reference", "[AgentRegistrationService][createEnrolmentVerifiers]"))
+    }
   }
 }
 
@@ -122,4 +129,5 @@ object AgentRegistrationService extends AgentRegistrationService {
   val businessCustomerConnector = BusinessCustomerConnector
   val audit: Audit = new Audit(AppName.appName, BusinessCustomerFrontendAuditConnector)
   val appName: String = AppName.appName
+  val authConnector: AuthConnector = AuthClientConnector
 }

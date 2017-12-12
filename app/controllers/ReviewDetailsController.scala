@@ -67,7 +67,7 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
       agentRegistrationService.enrolAgent(serviceName).flatMap { response =>
         response.status match {
           case OK => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
-          case BAD_GATEWAY if (matchErrorResponse(response)) =>
+          case BAD_GATEWAY if matchErrorResponse(response) =>
             Logger.warn(s"[ReviewDetailsController][continue] - Already Registered Error")
             Future.successful(Ok(views.html.global_error(Messages("bc.business-registration-error.duplicate.identifier.header"),
               Messages("bc.business-registration-error.duplicate.identifier.title"),
