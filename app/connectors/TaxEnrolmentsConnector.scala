@@ -26,32 +26,39 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
 import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
+import utils.GovernmentGatewayConstants
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object GovernmentGatewayConnector extends GovernmentGatewayConnector {
+object TaxEnrolmentsConnector extends TaxEnrolmentsConnector {
   val audit: Audit = new Audit(AppName.appName, BusinessCustomerFrontendAuditConnector)
   val appName: String = AppName.appName
   val metrics = Metrics
-  val serviceUrl = baseUrl("government-gateway")
-  val enrolUri = "enrol"
+  val serviceUrl = baseUrl("tax-enrolments")
+  val enrolmentUrl = s"$serviceUrl/tax-enrolments"
   val http: CoreGet with CorePost = WSHttp
 }
 
-trait GovernmentGatewayConnector extends ServicesConfig with RawResponseReads with Auditable {
+trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with Auditable {
 
   def serviceUrl: String
 
-  def enrolUri: String
+  def enrolmentUrl: String
 
   def http: CoreGet with CorePost
 
   def metrics: Metrics
 
-  def enrol(enrolRequest: EnrolRequest, knownFacts: KnownFactsForService)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def enrol(enrolRequest: NewEnrolRequest, knownFacts: Verifiers, groupId: String, arn: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+
+    val enrolmentKey = s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}~${GovernmentGatewayConstants.KnownFactsAgentRefNo}~$arn"
+    def createUrl = s"""$enrolmentUrl/groups/$groupId/enrolments/$enrolmentKey"""
+
     val jsonData = Json.toJson(enrolRequest)
-    val postUrl = s"""$serviceUrl/$enrolUri"""
+    val postUrl = createUrl
+
+    println(s"+++++++++++++++++++++$postUrl+++++++++++++++${Json.prettyPrint(jsonData)}")
 
     val timerContext = metrics.startTimer(MetricsEnum.GG_AGENT_ENROL)
     http.POST[JsValue, HttpResponse](postUrl, jsonData) map { response =>
@@ -60,43 +67,43 @@ trait GovernmentGatewayConnector extends ServicesConfig with RawResponseReads wi
       response.status match {
         case OK =>
           metrics.incrementSuccessCounter(MetricsEnum.GG_AGENT_ENROL)
+          println(s"***************************************************+${Json.prettyPrint(Json.toJson(response.body))}")
           response
         case BAD_REQUEST =>
           metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
-          Logger.warn(s"[GovernmentGatewayConnector][enrol] - " +
+          Logger.warn(s"[TaxEnrolmentsConnector][enrol] - " +
             s"gg url:$postUrl, " +
-            s"Bad Request Exception account Ref:${enrolRequest.knownFacts}, " +
-            s"Service: ${enrolRequest.serviceName}}")
+            s"Bad Request Exception account Ref:${enrolRequest.verifiers}, " +
+            s"Service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}")
           throw new BadRequestException(response.body)
         case NOT_FOUND =>
           metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
-          Logger.warn(s"[GovernmentGatewayConnector][enrol] - " +
-            s"Not Found Exception account Ref:${enrolRequest.knownFacts}, " +
-            s"Service: ${enrolRequest.serviceName}}")
+          Logger.warn(s"[TaxEnrolmentsConnector][enrol] - " +
+            s"Not Found Exception account Ref:${enrolRequest.verifiers}, " +
+            s"Service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}}")
           throw new NotFoundException(response.body)
         case SERVICE_UNAVAILABLE =>
           metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
-          Logger.warn(s"[GovernmentGatewayConnector][enrol] - " +
+          Logger.warn(s"[TaxEnrolmentsConnector][enrol] - " +
             s"gg url:$postUrl, " +
-            s"Service Unavailable Exception account Ref:${enrolRequest.knownFacts}, " +
-            s"Service: ${enrolRequest.serviceName}}")
+            s"Service Unavailable Exception account Ref:${enrolRequest.verifiers}, " +
+            s"Service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}}")
           throw new ServiceUnavailableException(response.body)
         case BAD_GATEWAY =>
           metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
-          Logger.warn(s"[GovernmentGatewayConnector][enrol] - BAD_GATEWAY " +
+          Logger.warn(s"[TaxEnrolmentsConnector][enrol] - BAD_GATEWAY " +
             s"gg url:$postUrl, " +
-            s"Service: ${enrolRequest.serviceName}, " +
-            s"Register Known Facts:${knownFacts.facts}, " +
-            s"Enrol Known Facts:${enrolRequest.knownFacts}, " +
+            s"Service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}, " +
+            s"Enrol Known Facts:${enrolRequest.verifiers}, " +
             s"Reponse Body: ${response.body}," +
             s"Reponse Status: ${response.status}")
           response
         case status =>
           metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
-          Logger.warn(s"[GovernmentGatewayConnector][enrol] - " +
+          Logger.warn(s"[TaxEnrolmentsConnector][enrol] - " +
             s"gg url:$postUrl, " +
-            s"status:$status Exception account Ref:${enrolRequest.knownFacts}, " +
-            s"Service: ${enrolRequest.serviceName}}" +
+            s"status:$status Exception account Ref:${enrolRequest.verifiers}, " +
+            s"Service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}" +
             s"Reponse Body: ${response.body}," +
             s"Reponse Status: ${response.status}")
           throw new InternalServerException(response.body)
@@ -105,7 +112,7 @@ trait GovernmentGatewayConnector extends ServicesConfig with RawResponseReads wi
 
   }
 
-  private def auditEnrolCall(input: EnrolRequest, response: HttpResponse)(implicit hc: HeaderCarrier) = {
+  private def auditEnrolCall(input: NewEnrolRequest, response: HttpResponse)(implicit hc: HeaderCarrier) = {
     val eventType = response.status match {
       case OK => EventTypes.Succeeded
       case _ => EventTypes.Failed
@@ -113,9 +120,8 @@ trait GovernmentGatewayConnector extends ServicesConfig with RawResponseReads wi
     sendDataEvent(transactionName = "ggEnrolCall",
       detail = Map("txName" -> "ggEnrolCall",
         "friendlyName" -> s"${input.friendlyName}",
-        "serviceName" -> s"${input.serviceName}",
-        "portalId" -> s"${input.portalId}",
-        "knownFacts" -> s"${input.knownFacts}",
+        "serviceName" -> s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}",
+        "knownFacts" -> s"${input.verifiers}",
         "responseStatus" -> s"${response.status}",
         "responseBody" -> s"${response.body}",
         "status" ->  s"${eventType}"))

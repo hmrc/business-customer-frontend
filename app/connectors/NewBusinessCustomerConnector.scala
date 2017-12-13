@@ -33,7 +33,7 @@ import utils.GovernmentGatewayConstants
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object BusinessCustomerConnector extends BusinessCustomerConnector {
+object NewBusinessCustomerConnector extends NewBusinessCustomerConnector {
   val audit: Audit = new Audit(AppName.appName, BusinessCustomerFrontendAuditConnector)
   val appName: String = AppName.appName
   val serviceUrl = baseUrl("business-customer")
@@ -44,7 +44,7 @@ object BusinessCustomerConnector extends BusinessCustomerConnector {
   val http: CoreGet with CorePost = WSHttp
 }
 
-trait BusinessCustomerConnector extends ServicesConfig with RawResponseReads with Auditable {
+trait NewBusinessCustomerConnector extends ServicesConfig with RawResponseReads with Auditable {
 
   def serviceUrl: String
 
@@ -58,13 +58,12 @@ trait BusinessCustomerConnector extends ServicesConfig with RawResponseReads wit
 
   def http: CoreGet with CorePost
 
-  def addKnownFacts(knownFacts: KnownFactsForService)(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
+  def addKnownFacts(knownFacts: Verifiers, arn: String)(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
     val authLink = bcContext.user.authLink
-    val postUrl = s"""$serviceUrl$authLink/$baseUri/${GovernmentGatewayConstants.KnownFactsAgentServiceName}/$knownFactsUri"""
+    val postUrl = s"""$serviceUrl$authLink/$baseUri/${GovernmentGatewayConstants.KnownFactsAgentServiceName}/$knownFactsUri/$arn"""
     val jsonData = Json.toJson(knownFacts)
     http.POST[JsValue, HttpResponse](postUrl, jsonData)
   }
-
 
   def register(registerData: BusinessRegistrationRequest, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
               (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[BusinessRegistrationResponse] = {
