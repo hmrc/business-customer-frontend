@@ -43,6 +43,7 @@ trait AgentRegistrationService extends RunMode with Auditable {
   def businessCustomerConnector: BusinessCustomerConnector
 
   def enrolAgent(serviceName: String)(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
+    println(s"-----------------Inside OLD GG route------")
     dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
       case Some(businessDetails) => enrolAgent(serviceName, businessDetails)
       case _ =>

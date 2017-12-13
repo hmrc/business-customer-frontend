@@ -45,6 +45,7 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
   def businessCustomerConnector: NewBusinessCustomerConnector
 
   def enrolAgent(serviceName: String)(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
+    println(s"-----------------Inside NEW Tax route------")
     dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
       case Some(businessDetails) => enrolAgent(serviceName, businessDetails)
       case _ =>
