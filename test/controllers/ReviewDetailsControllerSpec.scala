@@ -31,11 +31,11 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.AgentRegistrationService
+import services.{AgentRegistrationService, NewAgentRegistrationService}
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse, SessionKeys }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionKeys}
 
 
 class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
@@ -44,6 +44,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
 
   val mockAuthConnector = mock[AuthConnector]
   val mockAgentRegistrationService = mock[AgentRegistrationService]
+  val mockNewAgentRegistrationService = mock[NewAgentRegistrationService]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
 
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
@@ -70,6 +71,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
       override def dataCacheConnector = mockDataCacheConnector
       override val authConnector = mockAuthConnector
       override val agentRegistrationService = mockAgentRegistrationService
+      override val newAgentRegistrationService = mockNewAgentRegistrationService
       override val controllerId = "test"
       override val backLinkCacheConnector = mockBackLinkCache
     }
@@ -91,6 +93,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
       override def dataCacheConnector = mockDataCacheConnector
       override val authConnector = mockAuthConnector
       override val agentRegistrationService = mockAgentRegistrationService
+      override val newAgentRegistrationService = mockNewAgentRegistrationService
       override val controllerId = "test"
       override val backLinkCacheConnector = mockBackLinkCache
     }
