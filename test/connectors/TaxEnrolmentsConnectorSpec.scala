@@ -64,7 +64,7 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with OneServerPerSuite with Mo
 
   "TaxEnrolmentsConnector" must {
     "use correct metrics" in {
-      GovernmentGatewayConnector.metrics must be(Metrics)
+      TaxEnrolmentsConnector.metrics must be(Metrics)
     }
     val request = NewEnrolRequest(userId = "user-id",
       friendlyName = GovernmentGatewayConstants.FriendlyName,
