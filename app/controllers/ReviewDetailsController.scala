@@ -83,6 +83,7 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
           }
         }
       } else {
+        // $COVERAGE-OFF$
         newAgentRegistrationService.enrolAgent(serviceName).flatMap { response =>
           response.status match {
             case OK => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
@@ -96,6 +97,7 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
               throw new RuntimeException(Messages("bc.business-review.error.not-found"))
           }
         }
+        // $COVERAGE-ON$
       }
 
     } else {

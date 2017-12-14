@@ -36,7 +36,7 @@ import utils.{BCUtils, GovernmentGatewayConstants}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait NewAgentRegistrationService extends RunMode with Auditable with AuthorisedFunctions{
+trait NewAgentRegistrationService extends RunMode with Auditable with AuthorisedFunctions {
 
   def taxEnrolmentsConnector: TaxEnrolmentsConnector
 
@@ -45,7 +45,6 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
   def businessCustomerConnector: NewBusinessCustomerConnector
 
   def enrolAgent(serviceName: String)(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
-    println(s"-----------------Inside NEW Tax route------")
     dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
       case Some(businessDetails) => enrolAgent(serviceName, businessDetails)
       case _ =>
@@ -65,10 +64,10 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     val enrolReq = createEnrolRequest(serviceName, knownFacts)
     for {
       groupId <- getGroupIdentifier
-      _ <- businessCustomerConnector.addKnownFacts(knownFacts, getArn(businessDetails))//es06
-      enrolResponse <- taxEnrolmentsConnector.enrol(enrolReq, knownFacts, groupId, getArn(businessDetails))
+      _ <- businessCustomerConnector.addKnownFacts(knownFacts, getArn(businessDetails))
+      enrolResponse <- taxEnrolmentsConnector.enrol(enrolReq, groupId, getArn(businessDetails))
     } yield {
-      auditEnrolAgent(businessDetails, enrolResponse, enrolReq); enrolResponse
+      auditEnrolAgent(businessDetails, enrolResponse, enrolReq)
       enrolResponse
     }
   }
@@ -96,7 +95,7 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     Verifiers(knownFacts)
   }
 
-  def getGroupIdentifier(implicit hc: HeaderCarrier): Future[String] = {
+  private def getGroupIdentifier(implicit hc: HeaderCarrier): Future[String] = {
     authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent).retrieve(groupIdentifier) {
       case Some(groupId) => Future.successful(BCUtils.formatGroupId(groupId))
       case _ => throw new RuntimeException("No group identifier found for the agent!")

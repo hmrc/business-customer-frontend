@@ -50,15 +50,13 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
 
   def metrics: Metrics
 
-  def enrol(enrolRequest: NewEnrolRequest, knownFacts: Verifiers, groupId: String, arn: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def enrol(enrolRequest: NewEnrolRequest, groupId: String, arn: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
 
     val enrolmentKey = s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}~${GovernmentGatewayConstants.KnownFactsAgentRefNo}~$arn"
     def createUrl = s"""$enrolmentUrl/groups/$groupId/enrolments/$enrolmentKey"""
 
     val jsonData = Json.toJson(enrolRequest)
     val postUrl = createUrl
-
-    println(s"+++++++++++++++++++++$postUrl+++++++++++++++${Json.prettyPrint(jsonData)}")
 
     val timerContext = metrics.startTimer(MetricsEnum.GG_AGENT_ENROL)
     http.POST[JsValue, HttpResponse](postUrl, jsonData) map { response =>
@@ -67,7 +65,6 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
       response.status match {
         case OK =>
           metrics.incrementSuccessCounter(MetricsEnum.GG_AGENT_ENROL)
-          println(s"***************************************************+${Json.prettyPrint(Json.toJson(response.body))}")
           response
         case BAD_REQUEST =>
           metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
