@@ -69,6 +69,7 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
   def continue(serviceName: String) = AuthAction(serviceName).async { implicit bcContext =>
     if (bcContext.user.isAgent && agentRegistrationService.isAgentEnrolmentAllowed(serviceName)) {
       if(FeatureSwitch.isEnabled("registration.usingGG")) {
+        // $COVERAGE-OFF$
         agentRegistrationService.enrolAgent(serviceName).flatMap { response =>
           response.status match {
             case OK => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
@@ -82,7 +83,9 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
               throw new RuntimeException(Messages("bc.business-review.error.not-found"))
           }
         }
+        // $COVERAGE-ON$
       }
+      // $COVERAGE-OFF$
       else {
         newAgentRegistrationService.enrolAgent(serviceName).flatMap { response =>
           response.status match {
@@ -98,6 +101,7 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
           }
         }
       }
+      // $COVERAGE-ON$
     } else {
       val serviceRedirectUrl: Option[String] = Play.configuration.getString(s"microservice.services.${serviceName.toLowerCase}.serviceRedirectUrl")
       serviceRedirectUrl match {
