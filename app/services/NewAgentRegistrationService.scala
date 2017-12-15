@@ -18,7 +18,7 @@ package services
 
 import audit.Auditable
 import config.{AuthClientConnector, BusinessCustomerFrontendAuditConnector}
-import connectors.{BusinessCustomerConnector, DataCacheConnector, NewBusinessCustomerConnector, TaxEnrolmentsConnector}
+import connectors.{DataCacheConnector, NewBusinessCustomerConnector, TaxEnrolmentsConnector}
 import models._
 import play.api.Play.current
 import play.api.http.Status._
@@ -26,6 +26,7 @@ import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.{Logger, Play}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.retrieve.Retrievals._
 import uk.gov.hmrc.auth.core.{AuthConnector, _}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -61,13 +62,12 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
                         (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
 
     val knownFacts = createEnrolmentVerifiers(businessDetails)
-    val enrolReq = createEnrolRequest(serviceName, knownFacts)
     for {
-      groupId <- getGroupIdentifier
+      (groupId, ggCredId) <- getUserAuthDetails
       _ <- businessCustomerConnector.addKnownFacts(knownFacts, getArn(businessDetails))
-      enrolResponse <- taxEnrolmentsConnector.enrol(enrolReq, groupId, getArn(businessDetails))
+      enrolResponse <- taxEnrolmentsConnector.enrol(createEnrolRequest(serviceName, knownFacts, ggCredId), groupId, getArn(businessDetails))
     } yield {
-      auditEnrolAgent(businessDetails, enrolResponse, enrolReq)
+      auditEnrolAgent(businessDetails, enrolResponse, createEnrolRequest(serviceName, knownFacts, ggCredId))
       enrolResponse
     }
   }
@@ -76,7 +76,7 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     Play.configuration.getString(s"microservice.services.${serviceName.toLowerCase}.agentEnrolmentService")
   }
 
-  private def createEnrolRequest(serviceName: String, knownFacts: Verifiers)(implicit bcContext: BusinessCustomerContext): NewEnrolRequest = {
+  private def createEnrolRequest(serviceName: String, knownFacts: Verifiers, ggCredId: String)(implicit bcContext: BusinessCustomerContext): NewEnrolRequest = {
     getServiceAgentEnrolmentType(serviceName) match {
       case Some(enrolServiceName) =>
         NewEnrolRequest(userId = bcContext.user.authContext.user.userId.replace("/auth/session/", ""),
@@ -95,10 +95,10 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     Verifiers(knownFacts)
   }
 
-  private def getGroupIdentifier(implicit hc: HeaderCarrier): Future[String] = {
-    authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent).retrieve(groupIdentifier) {
-      case Some(groupId) => Future.successful(BCUtils.formatGroupId(groupId))
-      case _ => throw new RuntimeException("No group identifier found for the agent!")
+  private def getUserAuthDetails(implicit hc: HeaderCarrier): Future[(String, String)] = {
+    authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent).retrieve(credentials and groupIdentifier) {
+      case Credentials(ggCredId, _) ~ Some(groupId) => Future.successful(BCUtils.formatGroupId(groupId), ggCredId)
+      case _ => throw new RuntimeException("No details found for the agent!")
     }
   }
 
