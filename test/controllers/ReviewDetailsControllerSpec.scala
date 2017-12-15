@@ -36,6 +36,7 @@ import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionKeys}
+import utils.FeatureSwitch
 
 
 class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
@@ -298,7 +299,11 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
     val enrolSuccessResponse = EnrolResponse(serviceName = "ATED", state = "NotYetActivated", identifiers = List(Identifier("ATED", "Ated_Ref_No")))
-    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
+    if(FeatureSwitch.isEnabled("registration.usingGG")) {
+      when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
+    } else {
+      when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
+    }
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
@@ -307,7 +312,11 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, Some(badGatewayResponse))))
+    if(FeatureSwitch.isEnabled("registration.usingGG")) {
+      when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, Some(badGatewayResponse))))
+    } else {
+      when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, Some(badGatewayResponse))))
+    }
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
@@ -316,7 +325,11 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
+    if(FeatureSwitch.isEnabled("registration.usingGG")) {
+      when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
+    } else {
+      when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
+    }
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
