@@ -19,7 +19,9 @@ package utils
 object GovernmentGatewayConstants {
 
   val PortalIdentifier = "Default"
+
   val FriendlyName = "Agent Enrolment"
+  val enrolmentType = "principal"
 
   val KnownFactsAgentServiceName = "HMRC-AGENT-AGENT"
   val KnownFactsAgentRefNo = "AgentRefNumber"

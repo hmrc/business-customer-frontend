@@ -65,7 +65,7 @@ trait AgentRegistrationService extends RunMode with Auditable {
       _ <- businessCustomerConnector.addKnownFacts(knownFacts)
       enrolResponse <- governmentGatewayConnector.enrol(enrolReq, knownFacts)
     } yield {
-      auditEnrolAgent(businessDetails, enrolResponse, enrolReq); enrolResponse
+      auditEnrolAgent(businessDetails, enrolResponse, enrolReq)
       enrolResponse
     }
   }
@@ -106,7 +106,7 @@ trait AgentRegistrationService extends RunMode with Auditable {
       case OK => EventTypes.Succeeded
       case _ => EventTypes.Failed
     }
-      sendDataEvent("enrolAgent", detail = Map(
+    sendDataEvent("enrolAgent", detail = Map(
       "txName" -> "enrolAgent",
       "agentReferenceNumber" -> businessDetails.agentReferenceNumber.getOrElse(""),
       "safeId" -> businessDetails.safeId,
@@ -123,3 +123,4 @@ object AgentRegistrationService extends AgentRegistrationService {
   val audit: Audit = new Audit(AppName.appName, BusinessCustomerFrontendAuditConnector)
   val appName: String = AppName.appName
 }
+

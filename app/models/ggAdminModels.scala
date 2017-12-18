@@ -18,6 +18,8 @@ package models
 
 import play.api.libs.json.Json
 
+//TODO - used by GG - need to be removed
+
 case class KnownFact(`type`: String, value: String)
 
 object KnownFact {
@@ -28,4 +30,18 @@ case class KnownFactsForService(facts: List[KnownFact])
 
 object KnownFactsForService {
   implicit val formats = Json.format[KnownFactsForService]
+}
+
+//TODO - used by GG - need to be removed
+
+case class Verifier(key: String, value: String)
+
+object Verifier {
+  implicit val formats = Json.format[Verifier]
+}
+
+case class Verifiers(verifiers: List[Verifier])
+
+object Verifiers {
+  implicit val formats = Json.format[Verifiers]
 }

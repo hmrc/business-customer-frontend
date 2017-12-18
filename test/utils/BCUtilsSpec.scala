@@ -163,6 +163,17 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
       }
     }
 
+    "formatGroupId" must {
+
+      "return the formated string" when {
+
+        "valid string is passed" in {
+          BCUtils.formatGroupId("abc-def-ghi") must be("def-ghi")
+        }
+      }
+
+    }
+
   }
 
 }

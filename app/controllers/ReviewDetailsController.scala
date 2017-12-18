@@ -24,9 +24,10 @@ import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import play.api.i18n.Messages
 import play.api.{Logger, Play}
-import services.AgentRegistrationService
+import services.{AgentRegistrationService, NewAgentRegistrationService}
 import uk.gov.hmrc.play.config.RunMode
 import utils.ErrorMessageUtils._
+import utils.FeatureSwitch
 
 import scala.concurrent.Future
 
@@ -34,6 +35,7 @@ object ReviewDetailsController extends ReviewDetailsController {
   val dataCacheConnector = DataCacheConnector
   val authConnector = FrontendAuthConnector
   val agentRegistrationService = AgentRegistrationService
+  val newAgentRegistrationService = NewAgentRegistrationService
   override val controllerId: String = "ReviewDetailsController"
   override val backLinkCacheConnector = BackLinkCacheConnector
 }
@@ -45,6 +47,8 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
   def dataCacheConnector: DataCacheConnector
 
   def agentRegistrationService: AgentRegistrationService
+
+  def newAgentRegistrationService: NewAgentRegistrationService
 
   def businessDetails(serviceName: String) = AuthAction(serviceName).async { implicit bcContext =>
     dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
@@ -64,19 +68,40 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
 
   def continue(serviceName: String) = AuthAction(serviceName).async { implicit bcContext =>
     if (bcContext.user.isAgent && agentRegistrationService.isAgentEnrolmentAllowed(serviceName)) {
-      agentRegistrationService.enrolAgent(serviceName).flatMap { response =>
-        response.status match {
-          case OK => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
-          case BAD_GATEWAY if (matchErrorResponse(response)) =>
-            Logger.warn(s"[ReviewDetailsController][continue] - Already Registered Error")
-            Future.successful(Ok(views.html.global_error(Messages("bc.business-registration-error.duplicate.identifier.header"),
-              Messages("bc.business-registration-error.duplicate.identifier.title"),
-              Messages("bc.business-registration-error.duplicate.identifier.message"), serviceName)))
-          case _ =>
-            Logger.warn(s"[ReviewDetailsController][continue] - Exception other than status - OK and BAD_GATEWAY")
-            throw new RuntimeException(Messages("bc.business-review.error.not-found"))
+      if(FeatureSwitch.isEnabled("registration.usingGG")) {
+        // $COVERAGE-OFF$
+        agentRegistrationService.enrolAgent(serviceName).flatMap { response =>
+          response.status match {
+            case OK => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
+            case BAD_GATEWAY if matchErrorResponse(response) =>
+              Logger.warn(s"[ReviewDetailsController][continue] - Already Registered Error")
+              Future.successful(Ok(views.html.global_error(Messages("bc.business-registration-error.duplicate.identifier.header"),
+                Messages("bc.business-registration-error.duplicate.identifier.title"),
+                Messages("bc.business-registration-error.duplicate.identifier.message"), serviceName)))
+            case _ =>
+              Logger.warn(s"[ReviewDetailsController][continue] - Exception other than status - OK and BAD_GATEWAY")
+              throw new RuntimeException(Messages("bc.business-review.error.not-found"))
+          }
+        }
+        // $COVERAGE-ON$
+      }
+      // $COVERAGE-OFF$
+      else {
+        newAgentRegistrationService.enrolAgent(serviceName).flatMap { response =>
+          response.status match {
+            case OK => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
+            case BAD_GATEWAY if matchErrorResponse(response) =>
+              Logger.warn(s"[ReviewDetailsController][continue] - Already Registered Error")
+              Future.successful(Ok(views.html.global_error(Messages("bc.business-registration-error.duplicate.identifier.header"),
+                Messages("bc.business-registration-error.duplicate.identifier.title"),
+                Messages("bc.business-registration-error.duplicate.identifier.message"), serviceName)))
+            case _ =>
+              Logger.warn(s"[ReviewDetailsController][continue] - Exception other than status - OK and BAD_GATEWAY")
+              throw new RuntimeException(Messages("bc.business-review.error.not-found"))
+          }
         }
       }
+      // $COVERAGE-ON$
     } else {
       val serviceRedirectUrl: Option[String] = Play.configuration.getString(s"microservice.services.${serviceName.toLowerCase}.serviceRedirectUrl")
       serviceRedirectUrl match {
