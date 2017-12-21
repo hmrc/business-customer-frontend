@@ -18,6 +18,7 @@ package utils
 
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages
+import play.api.test.Helpers.await
 
 class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
 
@@ -163,12 +164,19 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
       }
     }
 
-    "formatGroupId" must {
+    "validateGroupId" must {
 
-      "return the formated string" when {
+      "throw an exception" when {
+        "invalid string is passed" in {
+          val thrown = the[RuntimeException] thrownBy BCUtils.validateGroupId("abc-def-ghi")
+          thrown.getMessage must include("Invalid groupId from auth")
+        }
+      }
 
+      "return groupId" when {
         "valid string is passed" in {
-          BCUtils.formatGroupId("abc-def-ghi") must be("def-ghi")
+          val result = BCUtils.validateGroupId("42424200-0000-0000-0000-000000000000")
+          result must be("42424200-0000-0000-0000-000000000000")
         }
       }
 

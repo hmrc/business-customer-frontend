@@ -148,5 +148,5 @@ object BCUtils {
     getCountry(isoCode.toUpperCase).fold(isoCode) { x => x }
   }
 
-  def formatGroupId(str: String) = str.substring(str.indexOf("-") + 1, str.length)
+  def validateGroupId(str: String) = if(str.trim.length != 36) throw new RuntimeException("Invalid groupId from auth") else str.trim
 }

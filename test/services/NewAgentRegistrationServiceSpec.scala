@@ -99,7 +99,7 @@ class NewAgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("group-id"))))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       when(mockTaxEnrolmentConnector.enrol(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
 
@@ -139,7 +139,7 @@ class NewAgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("group-id"))))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       when(mockTaxEnrolmentConnector.enrol(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY)))
 
@@ -152,6 +152,7 @@ class NewAgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(None))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       val thrown = the[RuntimeException] thrownBy await(result)
@@ -170,6 +171,7 @@ class NewAgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       val result = TestAgentRegistrationService.enrolAgent("INVALID_SERVICE_NAME")
       val thrown = the[RuntimeException] thrownBy await(result)

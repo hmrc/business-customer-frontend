@@ -54,13 +54,12 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     }
   }
 
-  def isAgentEnrolmentAllowed(serviceName: String) :Boolean = {
+  def isAgentEnrolmentAllowed(serviceName: String): Boolean = {
     getServiceAgentEnrolmentType(serviceName).isDefined
   }
 
   private def enrolAgent(serviceName: String, businessDetails: ReviewDetails)
                         (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
-
     val knownFacts = createEnrolmentVerifiers(businessDetails)
     for {
       (groupId, ggCredId) <- getUserAuthDetails
@@ -72,14 +71,14 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     }
   }
 
-  private def getServiceAgentEnrolmentType(serviceName: String) : Option[String] = {
+  private def getServiceAgentEnrolmentType(serviceName: String): Option[String] = {
     Play.configuration.getString(s"microservice.services.${serviceName.toLowerCase}.agentEnrolmentService")
   }
 
   private def createEnrolRequest(serviceName: String, knownFacts: Verifiers, ggCredId: String)(implicit bcContext: BusinessCustomerContext): NewEnrolRequest = {
     getServiceAgentEnrolmentType(serviceName) match {
       case Some(enrolServiceName) =>
-        NewEnrolRequest(userId = bcContext.user.authContext.user.userId.replace("/auth/session/", ""),
+        NewEnrolRequest(userId = ggCredId,
           friendlyName = GovernmentGatewayConstants.FriendlyName,
           `type` = GovernmentGatewayConstants.enrolmentType,
           verifiers = knownFacts.verifiers)
@@ -97,7 +96,7 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
 
   private def getUserAuthDetails(implicit hc: HeaderCarrier): Future[(String, String)] = {
     authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent).retrieve(credentials and groupIdentifier) {
-      case Credentials(ggCredId, _) ~ Some(groupId) => Future.successful(BCUtils.formatGroupId(groupId), ggCredId)
+      case Credentials(ggCredId, _) ~ Some(groupId) => Future.successful(BCUtils.validateGroupId(groupId), ggCredId)
       case _ => throw new RuntimeException("No details found for the agent!")
     }
   }
@@ -107,7 +106,7 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
       case OK => EventTypes.Succeeded
       case _ => EventTypes.Failed
     }
-      sendDataEvent("enrolAgent", detail = Map(
+    sendDataEvent("enrolAgent", detail = Map(
       "txName" -> "enrolAgent",
       "agentReferenceNumber" -> businessDetails.agentReferenceNumber.getOrElse(""),
       "safeId" -> businessDetails.safeId,
