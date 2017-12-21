@@ -95,7 +95,7 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
   }
 
   private def getUserAuthDetails(implicit hc: HeaderCarrier): Future[(String, String)] = {
-    authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent).retrieve(credentials and groupIdentifier) {
+    authorised().retrieve(credentials and groupIdentifier) {
       case Credentials(ggCredId, _) ~ Some(groupId) => Future.successful(BCUtils.validateGroupId(groupId), ggCredId)
       case _ => throw new RuntimeException("No details found for the agent!")
     }
