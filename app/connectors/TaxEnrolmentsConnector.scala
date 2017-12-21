@@ -57,7 +57,7 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
 
     val jsonData = Json.toJson(enrolRequest)
 
-    val timerContext = metrics.startTimer(MetricsEnum.GG_AGENT_ENROL)
+    val timerContext = metrics.startTimer(MetricsEnum.EMAC_AGENT_ENROL)
     http.POST[JsValue, HttpResponse](postUrl, jsonData) map { response =>
       timerContext.stop()
       auditEnrolCall(enrolRequest, response)
@@ -68,41 +68,41 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
   private def processResponse(response: HttpResponse, postUrl: String, enrolRequest: NewEnrolRequest) =
     response.status match {
       case OK =>
-        metrics.incrementSuccessCounter(MetricsEnum.GG_AGENT_ENROL)
+        metrics.incrementSuccessCounter(MetricsEnum.EMAC_AGENT_ENROL)
         response
       case BAD_REQUEST =>
-        metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
+        metrics.incrementFailedCounter(MetricsEnum.EMAC_AGENT_ENROL)
         Logger.warn(s"[TaxEnrolmentsConnector][enrol] - " +
-          s"gg url:$postUrl, " +
+          s"emacf url:$postUrl, " +
           s"Bad Request Exception account Ref:${enrolRequest.verifiers}, " +
           s"Service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}")
         throw new BadRequestException(response.body)
       case NOT_FOUND =>
-        metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
+        metrics.incrementFailedCounter(MetricsEnum.EMAC_AGENT_ENROL)
         Logger.warn(s"[TaxEnrolmentsConnector][enrol] - " +
           s"Not Found Exception account Ref:${enrolRequest.verifiers}, " +
           s"Service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}}")
         throw new NotFoundException(response.body)
       case SERVICE_UNAVAILABLE =>
-        metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
+        metrics.incrementFailedCounter(MetricsEnum.EMAC_AGENT_ENROL)
         Logger.warn(s"[TaxEnrolmentsConnector][enrol] - " +
-          s"gg url:$postUrl, " +
+          s"emac url:$postUrl, " +
           s"Service Unavailable Exception account Ref:${enrolRequest.verifiers}, " +
           s"Service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}}")
         throw new ServiceUnavailableException(response.body)
       case BAD_GATEWAY =>
-        metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
+        metrics.incrementFailedCounter(MetricsEnum.EMAC_AGENT_ENROL)
         Logger.warn(s"[TaxEnrolmentsConnector][enrol] - BAD_GATEWAY " +
-          s"gg url:$postUrl, " +
+          s"emac url:$postUrl, " +
           s"Service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}, " +
           s"Enrol Known Facts:${enrolRequest.verifiers}, " +
           s"Reponse Body: ${response.body}," +
           s"Reponse Status: ${response.status}")
         response
       case status =>
-        metrics.incrementFailedCounter(MetricsEnum.GG_AGENT_ENROL)
+        metrics.incrementFailedCounter(MetricsEnum.EMAC_AGENT_ENROL)
         Logger.warn(s"[TaxEnrolmentsConnector][enrol] - " +
-          s"gg url:$postUrl, " +
+          s"emac url:$postUrl, " +
           s"status:$status Exception account Ref:${enrolRequest.verifiers}, " +
           s"Service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}" +
           s"Reponse Body: ${response.body}," +

@@ -33,16 +33,20 @@ trait Metrics {
 
 object Metrics extends Metrics  with MicroserviceMetrics {
   val registry = metrics.defaultRegistry
+
   val timers = Map(
-    MetricsEnum.GG_AGENT_ENROL -> registry.timer("gg-enrol-agent-ated-response-timer")
+    MetricsEnum.GG_AGENT_ENROL -> registry.timer("gg-enrol-agent-ated-response-timer"),
+    MetricsEnum.EMAC_AGENT_ENROL -> registry.timer("emac-enrol-agent-ated-response-timer")
   )
 
   val successCounters = Map(
-    MetricsEnum.GG_AGENT_ENROL -> registry.counter("gg-enrol-agent-ated-success-counter")
+    MetricsEnum.GG_AGENT_ENROL -> registry.counter("gg-enrol-agent-ated-success-counter"),
+    MetricsEnum.EMAC_AGENT_ENROL -> registry.counter("emac-enrol-agent-ated-success-counter")
   )
 
   val failedCounters = Map(
-    MetricsEnum.GG_AGENT_ENROL -> registry.counter("gg-enrol-agent-ated-failed-counter")
+    MetricsEnum.GG_AGENT_ENROL -> registry.counter("gg-enrol-agent-ated-failed-counter"),
+    MetricsEnum.EMAC_AGENT_ENROL -> registry.counter("emac-enrol-agent-ated-failed-counter")
   )
 
   override def startTimer(api: MetricsEnum): Context = timers(api).time()
