@@ -18,7 +18,6 @@ package utils
 
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.i18n.Messages
-import play.api.test.Helpers.await
 
 class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
 
