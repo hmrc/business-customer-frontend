@@ -177,6 +177,11 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
           val result = BCUtils.validateGroupId("42424200-0000-0000-0000-000000000000")
           result must be("42424200-0000-0000-0000-000000000000")
         }
+
+        "string with testGroupId- is passed" in {
+          val result = BCUtils.validateGroupId("testGroupId-0000-0000-0000-000000000000")
+          result must be("0000-0000-0000-000000000000")
+        }
       }
 
     }

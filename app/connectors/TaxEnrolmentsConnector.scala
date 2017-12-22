@@ -35,8 +35,8 @@ object TaxEnrolmentsConnector extends TaxEnrolmentsConnector {
   val audit: Audit = new Audit(AppName.appName, BusinessCustomerFrontendAuditConnector)
   val appName: String = AppName.appName
   val metrics = Metrics
-  val serviceUrl = baseUrl("tax-enrolments")
-  val enrolmentUrl = s"$serviceUrl/tax-enrolments"
+  val serviceUrl = baseUrl("enrolment-store-proxy")
+  val enrolmentUrl = s"$serviceUrl/enrolment-store-proxy/enrolment-store"
   val http: CoreGet with CorePost = WSHttp
 }
 
@@ -57,7 +57,7 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
 
     val jsonData = Json.toJson(enrolRequest)
 
-    Logger.error(s"postUrl ->> $postUrl --- Json Data --> $jsonData")
+    Logger.error(s"postUrl ->> $postUrl --- Json Data --> ${Json.prettyPrint(Json.toJson(jsonData))}")
 
     val timerContext = metrics.startTimer(MetricsEnum.EMAC_AGENT_ENROL)
     http.POST[JsValue, HttpResponse](postUrl, jsonData) map { response =>
