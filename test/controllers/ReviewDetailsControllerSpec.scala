@@ -241,16 +241,6 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
         }
       }
 
-      "return OK and redirect to error page, if different agent try to register with same details" in {
-        when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
-        continueWithDuplicategent(service) {
-          result =>
-            val document = Jsoup.parse(contentAsString(result))
-            status(result) must be(OK)
-            document.getElementById("content").text() must be("Somebody has already registered from your agency If you require access you need to add administrators to your account in Government Gateway. Get help with this page. Get help with this page.")
-        }
-      }
-
       "throw an exception if status is not OK or BAD_GATEWAY" in {
         when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
         continueWithAAuthAgent("ATED") {
@@ -298,11 +288,10 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    val enrolSuccessResponse = EnrolResponse(serviceName = "ATED", state = "NotYetActivated", identifiers = List(Identifier("ATED", "Ated_Ref_No")))
     if(FeatureSwitch.isEnabled("registration.usingGG")) {
-      when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
+      when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
     } else {
-      when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
+      when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
     }
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)

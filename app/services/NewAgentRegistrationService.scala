@@ -49,7 +49,7 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
       case Some(businessDetails) => enrolAgent(serviceName, businessDetails)
       case _ =>
-        Logger.warn(s"[AgentRegistrationService][enrolAgent] - No Service details found in DataCache for")
+        Logger.warn(s"[NewAgentRegistrationService][enrolAgent] - No Service details found in DataCache for")
         throw new RuntimeException(Messages("bc.business-review.error.not-found"))
     }
   }
@@ -83,7 +83,7 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
           `type` = GovernmentGatewayConstants.enrolmentType,
           verifiers = knownFacts.verifiers)
       case _ =>
-        Logger.warn(s"[AgentRegistrationService][createEnrolRequest] - No Agent Enrolment name found in config found = $serviceName")
+        Logger.warn(s"[NewAgentRegistrationService][createEnrolRequest] - No Agent Enrolment name found in config found = $serviceName")
         throw new RuntimeException(Messages("bc.agent-service.error.no-agent-enrolment-service-name", serviceName, serviceName.toLowerCase))
     }
   }
@@ -117,7 +117,7 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
 
   private def getArn(businessDetails: ReviewDetails): String = {
     businessDetails.agentReferenceNumber.getOrElse {
-      throw new RuntimeException(Messages("bc.agent-service.error.no-agent-reference", "[AgentRegistrationService][createEnrolmentVerifiers]"))
+      throw new RuntimeException(Messages("bc.agent-service.error.no-agent-reference", "[NewAgentRegistrationService][createEnrolmentVerifiers]"))
     }
   }
 }
