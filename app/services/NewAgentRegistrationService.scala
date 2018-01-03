@@ -103,7 +103,7 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
 
   private def auditEnrolAgent(businessDetails: ReviewDetails, enrolResponse: HttpResponse, enrolReq: NewEnrolRequest)(implicit hc: HeaderCarrier) = {
     val status = enrolResponse.status match {
-      case OK => EventTypes.Succeeded
+      case CREATED => EventTypes.Succeeded
       case _ => EventTypes.Failed
     }
     sendDataEvent("enrolAgent", detail = Map(
