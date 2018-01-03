@@ -80,52 +80,21 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with OneServerPerSuite with Mo
       "works for a user" in {
 
         when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).
-          thenReturn(Future.successful(HttpResponse(OK, responseJson = Some(successfulSubscribeJson))))
+          thenReturn(Future.successful(HttpResponse(CREATED, responseJson = Some(successfulSubscribeJson))))
 
         val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
         val enrolResponse = await(result)
-        enrolResponse.status must be(OK)
+        enrolResponse.status must be(CREATED)
       }
 
-      "return status as BAD_REQUEST, for bad data sent for enrol" in {
-        when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(subscribeFailureResponseJson))))
-        val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
-        val thrown = the[BadRequestException] thrownBy await(result)
-        Json.parse(thrown.getMessage) must be(subscribeFailureResponseJson)
-        verify(mockWSHttp, times(1)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
-      }
-      "return status as NOT_FOUND, for bad data sent for enrol" in {
-        when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(subscribeFailureResponseJson))))
-        val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
-        val thrown = the[NotFoundException] thrownBy await(result)
-        Json.parse(thrown.getMessage) must be(subscribeFailureResponseJson)
-        verify(mockWSHttp, times(1)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
-      }
-      "return status as SERVICE_UNAVAILABLE, for bad data sent for enrol" in {
-        when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(subscribeFailureResponseJson))))
-        val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
-        val thrown = the[ServiceUnavailableException] thrownBy await(result)
-        Json.parse(thrown.getMessage) must be(subscribeFailureResponseJson)
-        verify(mockWSHttp, times(1)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
-      }
       "return status is anything, for bad data sent for enrol" in {
         when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(subscribeFailureResponseJson))))
         val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
-        val thrown = the[InternalServerException] thrownBy await(result)
-        Json.parse(thrown.getMessage) must be(subscribeFailureResponseJson)
-        verify(mockWSHttp, times(1)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
-      }
-      "return status 502, for bad data sent for enrol" in {
-        when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, Some(subscribeFailureResponseJson))))
-        val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
         val enrolResponse = await(result)
-        enrolResponse.status must be(BAD_GATEWAY)
+        enrolResponse.status must not be(CREATED)
       }
+
     }
   }
 }
