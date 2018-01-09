@@ -131,5 +131,4 @@ trait BusinessMatchingConnector extends ServicesConfig with RawResponseReads wit
       }
     }
   }
-
 }
