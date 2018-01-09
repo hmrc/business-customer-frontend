@@ -44,6 +44,7 @@ class NewAgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
   val mockNewBusinessCustomerConnector = mock[NewBusinessCustomerConnector]
   val mockAuthClientConnector = mock[AuthConnector]
 
+
   object TestAgentRegistrationService extends NewAgentRegistrationService {
     val taxEnrolmentsConnector: TaxEnrolmentsConnector = mockTaxEnrolmentConnector
     val dataCacheConnector = mockDataCacheConnector

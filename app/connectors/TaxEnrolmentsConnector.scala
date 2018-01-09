@@ -59,7 +59,7 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
     val timerContext = metrics.startTimer(MetricsEnum.EMAC_AGENT_ENROL)
     http.POST[JsValue, HttpResponse](postUrl, jsonData) map { response =>
       timerContext.stop()
-      auditEnrolCall(enrolRequest, response)
+      auditEnrolCall(postUrl, enrolRequest, response)
       processResponse(response, postUrl, enrolRequest)
     }
   }
@@ -80,7 +80,7 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
     }
   }
 
-  private def auditEnrolCall(input: NewEnrolRequest, response: HttpResponse)(implicit hc: HeaderCarrier) = {
+  private def auditEnrolCall(postUrl: String, input: NewEnrolRequest, response: HttpResponse)(implicit hc: HeaderCarrier) = {
     val eventType = response.status match {
       case CREATED => EventTypes.Succeeded
       case _ => EventTypes.Failed
@@ -89,7 +89,9 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
       detail = Map("txName" -> "emacAllocateEnrolmentToGroup",
         "friendlyName" -> s"${input.friendlyName}",
         "serviceName" -> s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}",
+        "postUrl" -> s"$postUrl",
         "verifiers" -> s"${input.verifiers}",
+        "requestBody" -> s"${Json.prettyPrint(Json.toJson(input))}",
         "responseStatus" -> s"${response.status}",
         "responseBody" -> s"${response.body}",
         "status" -> s"$eventType"))
