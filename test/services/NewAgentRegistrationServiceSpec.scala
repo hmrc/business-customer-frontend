@@ -44,6 +44,7 @@ class NewAgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
   val mockNewBusinessCustomerConnector = mock[NewBusinessCustomerConnector]
   val mockAuthClientConnector = mock[AuthConnector]
 
+
   object TestAgentRegistrationService extends NewAgentRegistrationService {
     val taxEnrolmentsConnector: TaxEnrolmentsConnector = mockTaxEnrolmentConnector
     val dataCacheConnector = mockDataCacheConnector
@@ -124,7 +125,7 @@ class NewAgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
 
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       val thrown = the[RuntimeException] thrownBy await(result)
-      thrown.getMessage must include("No details found for the agent!")
+      thrown.getMessage must include("Failed to enrol -  no details found for the agent (not a valid GG user")
     }
 
     "enrolAgent return the status anything if it does not work" in {
