@@ -51,7 +51,6 @@ trait AgentRegistrationService extends RunMode with Auditable {
     }
   }
 
-
   def isAgentEnrolmentAllowed(serviceName: String) :Boolean = {
     getServiceAgentEnrolmentType(serviceName).isDefined
   }
@@ -86,7 +85,6 @@ trait AgentRegistrationService extends RunMode with Auditable {
         Logger.warn(s"[AgentRegistrationService][createEnrolRequest] - No Agent Enrolment name found in config found = $serviceName")
         throw new RuntimeException(Messages("bc.agent-service.error.no-agent-enrolment-service-name", serviceName, serviceName.toLowerCase))
     }
-
   }
 
   private def createKnownFacts(businessDetails: ReviewDetails)(implicit bcContext: BusinessCustomerContext) = {

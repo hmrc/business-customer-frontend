@@ -90,8 +90,8 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
         "friendlyName" -> s"${input.friendlyName}",
         "serviceName" -> s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}",
         "postUrl" -> s"$postUrl",
-        "verifiers" -> s"${input.verifiers}",
         "requestBody" -> s"${Json.prettyPrint(Json.toJson(input))}",
+        "verifiers" -> s"${input.verifiers}",
         "responseStatus" -> s"${response.status}",
         "responseBody" -> s"${response.body}",
         "status" -> s"$eventType"))
