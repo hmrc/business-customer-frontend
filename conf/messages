@@ -123,6 +123,9 @@ bc.business-registration-error.issuingInstitution.select= You must enter an inst
 bc.business-registration-error.duplicate.identifier.header = Somebody has already registered from your agency
 bc.business-registration-error.duplicate.identifier.title = Somebody has already registered from your agency
 bc.business-registration-error.duplicate.identifier.message = If you require access you need to <a href="https://myaccount.gateway.gov.uk/Pages/Credentials/Admin/List.aspx" target="_blank">add administrators to your account in Government Gateway.</a>
+bc.business-registration-error.wrong.role.header = You must be logged in as an administrator to submit an ATED return
+bc.business-registration-error.wrong.role.title = You must be logged in as an administrator to submit an ATED return
+bc.business-registration-error.wrong.role.message = If you require access you need to <a href="https://myaccount.gateway.gov.uk/Pages/Credentials/Admin/List.aspx" target="_blank">add administrators to your account in Government Gateway.</a>
 
 
 bc.business-verification-error.registeredName.length=The registered company name cannot be more than 105 characters
@@ -403,3 +406,5 @@ bc.details-not-found.name-changed-reason.text.24-hours = It will take up to 24 h
 bc.details-not-found.utr-reason.header = Your Unique Taxpayer Reference (UTR) does not match
 bc.details-not-found.utr-reason.text = Your UTR number is made up of 10 or 13 digits, If it is 13 digits only enter the last 10. Your UTR should match the UTR on any letters you have from HMRC.
 bc.details-not-found.try-again = Try again
+
+bc.business-registration.error.other = EMAC Allocate an Enrolment to a Group failed

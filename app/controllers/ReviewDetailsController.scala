@@ -50,6 +50,9 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
 
   def newAgentRegistrationService: NewAgentRegistrationService
 
+  private val DuplicateUserError = "duplicate user error"
+  private val WrongRoleUserError = "wrong role user error"
+
   def businessDetails(serviceName: String) = AuthAction(serviceName).async { implicit bcContext =>
     dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
       case Some(businessDetails) =>
@@ -69,34 +72,37 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
   def continue(serviceName: String) = AuthAction(serviceName).async { implicit bcContext =>
     if (bcContext.user.isAgent && agentRegistrationService.isAgentEnrolmentAllowed(serviceName)) {
       if(FeatureSwitch.isEnabled("registration.usingGG")) {
-        // $COVERAGE-OFF$
         agentRegistrationService.enrolAgent(serviceName).flatMap { response =>
           response.status match {
             case OK => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
             case BAD_GATEWAY if matchErrorResponse(response) =>
-              Logger.warn(s"[ReviewDetailsController][continue] - Already Registered Error")
-              Future.successful(Ok(views.html.global_error(Messages("bc.business-registration-error.duplicate.identifier.header"),
-                Messages("bc.business-registration-error.duplicate.identifier.title"),
-                Messages("bc.business-registration-error.duplicate.identifier.message"), serviceName)))
+              val errMessage = formatErrorMessage(DuplicateUserError, serviceName)
+              Logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EMAC")
+              Future.successful(Ok(views.html.global_error(errMessage._1, errMessage._2, errMessage._3)))
             case _ =>
               Logger.warn(s"[ReviewDetailsController][continue] - Exception other than status - OK and BAD_GATEWAY")
               throw new RuntimeException(Messages("bc.business-review.error.not-found"))
           }
         }
-        // $COVERAGE-ON$
       }
-      // $COVERAGE-OFF$
       else {
         newAgentRegistrationService.enrolAgent(serviceName).flatMap { response =>
           response.status match {
             case CREATED => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
+            case BAD_REQUEST | CONFLICT =>
+              val errMessage = formatErrorMessage(DuplicateUserError, serviceName)
+              Logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EMAC")
+              Future.successful(Ok(views.html.global_error(errMessage._1, errMessage._2, errMessage._3)))
+            case FORBIDDEN =>
+              val errMessage = formatErrorMessage(WrongRoleUserError, serviceName)
+              Logger.warn(s"[ReviewDetailsController][continue] - wrong role for agent enrolling in EMAC")
+              Future.successful(Ok(views.html.global_error(errMessage._1, errMessage._2, errMessage._3)))
             case _ =>
               Logger.warn(s"[ReviewDetailsController][continue] - allocation failed")
               throw new RuntimeException(Messages("bc.business-review.error.not-found"))
           }
         }
       }
-      // $COVERAGE-ON$
     } else {
       val serviceRedirectUrl: Option[String] = Play.configuration.getString(s"microservice.services.${serviceName.toLowerCase}.serviceRedirectUrl")
       serviceRedirectUrl match {
@@ -109,4 +115,16 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
       }
     }
   }
+
+  private def formatErrorMessage(str: String, serviceName: String) =
+    str match {
+      case DuplicateUserError =>
+        (Messages("bc.business-registration-error.duplicate.identifier.header"),
+          Messages("bc.business-registration-error.duplicate.identifier.title"),
+          Messages("bc.business-registration-error.duplicate.identifier.message", serviceName))
+      case WrongRoleUserError =>
+        (Messages("bc.business-registration-error.wrong.role.header"),
+          Messages("bc.business-registration-error.wrong.role.title"),
+          Messages("bc.business-registration-error.wrong.role.message", serviceName))
+    }
 }
