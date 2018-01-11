@@ -27,7 +27,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -55,6 +55,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
   val nonDirectMatchReviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
   val badGatewayResponse = Json.parse( """{"statusCode":502,"message":"<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/03/addressing\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"><soap:Header><wsa:Action>http://schemas.xmlsoap.org/ws/2004/03/addressing/fault</wsa:Action><wsa:MessageID>uuid:199814d0-9758-49d1-a2c0-d24300f67e2c</wsa:MessageID><wsa:RelatesTo>uuid:d1894fa0-b97d-4707-a814-e0c5ea79a01a</wsa:RelatesTo><wsa:To>http://schemas.xmlsoap.org/ws/2004/03/addressing/role/anonymous</wsa:To><wsse:Security><wsu:Timestamp wsu:Id=\"Timestamp-0fdb513d-1da4-4804-80b5-d04530653fac\"><wsu:Created>2017-03-22T14:23:00Z</wsu:Created><wsu:Expires>2017-03-22T14:28:00Z</wsu:Expires></wsu:Timestamp></wsse:Security></soap:Header><soap:Body><soap:Fault><faultcode>soap:Client</faultcode><faultstring>Business Rule Error</faultstring><faultactor>http://www.gateway.gov.uk/soap/2007/02/portal</faultactor><detail><GatewayDetails xmlns=\"urn:GSO-System-Services:external:SoapException\"><ErrorNumber>9001</ErrorNumber><Message>The service HMRC-AGENT-AGENT requires unique identifiers</Message><RequestID>0753B23CA0C14D23A4BBFC129795C42E</RequestID></GatewayDetails></detail></soap:Fault></soap:Body></soap:Envelope>"}	""")
+  val invalidBadGatewayResponse = Json.parse( """{"statusCode":502,"message":"<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/03/addressing\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"><soap:Header><wsa:Action>http://schemas.xmlsoap.org/ws/2004/03/addressing/fault</wsa:Action><wsa:MessageID>uuid:199814d0-9758-49d1-a2c0-d24300f67e2c</wsa:MessageID><wsa:RelatesTo>uuid:d1894fa0-b97d-4707-a814-e0c5ea79a01a</wsa:RelatesTo><wsa:To>http://schemas.xmlsoap.org/ws/2004/03/addressing/role/anonymous</wsa:To><wsse:Security><wsu:Timestamp wsu:Id=\"Timestamp-0fdb513d-1da4-4804-80b5-d04530653fac\"><wsu:Created>2017-03-22T14:23:00Z</wsu:Created><wsu:Expires>2017-03-22T14:28:00Z</wsu:Expires></wsu:Timestamp></wsse:Security></soap:Header><soap:Body><soap:Fault><faultcode>soap:Client</faultcode><faultstring>Business Rule Error</faultstring><faultactor>http://www.gateway.gov.uk/soap/2007/02/portal</faultactor><detail><GatewayDetails xmlns=\"urn:GSO-System-Services:external:SoapException\"><ErrorNumber>1111</ErrorNumber><Message>The service HMRC-AGENT-AGENT requires unique identifiers</Message><RequestID>0753B23CA0C14D23A4BBFC129795C42E</RequestID></GatewayDetails></detail></soap:Fault></soap:Body></soap:Envelope>"}	""")
 
   def testReviewDetailsController(reviewDetails: ReviewDetails) = {
     val mockDataCacheConnector = new DataCacheConnector {
@@ -70,6 +71,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
     }
     new ReviewDetailsController {
       override def dataCacheConnector = mockDataCacheConnector
+
       override val authConnector = mockAuthConnector
       override val agentRegistrationService = mockAgentRegistrationService
       override val newAgentRegistrationService = mockNewAgentRegistrationService
@@ -92,6 +94,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
     }
     new ReviewDetailsController {
       override def dataCacheConnector = mockDataCacheConnector
+
       override val authConnector = mockAuthConnector
       override val agentRegistrationService = mockAgentRegistrationService
       override val newAgentRegistrationService = mockNewAgentRegistrationService
@@ -112,149 +115,256 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
       controllers.ReviewDetailsController.dataCacheConnector must be(DataCacheConnector)
     }
 
-    "unauthorised users" must {
-      "respond with a redirect" in {
-        businessDetailsWithUnAuthorisedUser { result =>
-          status(result) must be(SEE_OTHER)
-        }
-      }
+    "show details" when {
 
-      "be redirected to the unauthorised page" in {
-        businessDetailsWithUnAuthorisedUser { result =>
-          redirectLocation(result).get must include("/business-customer/unauthorised")
-        }
-      }
-    }
-    "throw an exception if we have no review details" in {
-      businessDetailsWithAuthorisedUserNotFound { result =>
-        val thrown = the[RuntimeException] thrownBy contentAsString(result)
-        thrown.getMessage must include("We could not find your details. Check and try again.")
-
-      }
-    }
-
-    "return Review Details view for a user, when user can't be directly found with login credentials" in {
-      businessDetailsWithAuthorisedUser(nonDirectMatchReviewDetails) { result =>
-        val document = Jsoup.parse(contentAsString(result))
-        document.select("h1").text must be("Check this is the business you want to register")
-      }
-    }
-
-    "return Review Details view for a user, when we directly found this user" in {
-      businessDetailsWithAuthorisedUser(directMatchReviewDetails) { result =>
-        val document = Jsoup.parse(contentAsString(result))
-        document.select("h1").text must be("Check this is the business you want to register")
-      }
-    }
-
-    "return Review Details view for an agent, when agent can't be directly found with login credentials" in {
-      businessDetailsWithAuthorisedAgent(nonDirectMatchReviewDetails) { result =>
-        val document = Jsoup.parse(contentAsString(result))
-        document.select("h1").text must be("Confirm your agency's details")
-      }
-    }
-
-    "return Review Details view for an agent, when we directly found this agent" in {
-      businessDetailsWithAuthorisedAgent(directMatchReviewDetails) { result =>
-        val document = Jsoup.parse(contentAsString(result))
-        document.select("h1").text must be("Confirm your agency's details")
-      }
-    }
-
-    "return Review Details view for an agent, when we directly found this agent with editable address" in {
-      businessDetailsWithAuthorisedAgent(directMatchReviewDetails.copy(isBusinessDetailsEditable = true)) { result =>
-        val document = Jsoup.parse(contentAsString(result))
-        document.select("h1").text must be("Check your agency details")
-      }
-    }
-
-    "read existing business details data from cache (without updating data)" in {
-      val testDetailsController = businessDetailsWithAuthorisedUser(nonDirectMatchReviewDetails) { result =>
-        status(result) must be(OK)
-      }
-      testDetailsController.dataCacheConnector.reads must be(1)
-    }
-
-  }
-
-
-  "continue " must {
-
-    "unauthorised users" must {
-      "respond with a redirect" in {
-        continueWithUnAuthorisedUser(service) { result =>
-          status(result) must be(SEE_OTHER)
-        }
-      }
-
-      "be redirected to the unauthorised page" in {
-        continueWithUnAuthorisedUser(service) { result =>
-          redirectLocation(result).get must include("/business-customer/unauthorised")
-        }
-      }
-    }
-
-
-
-    "Authorised Users" must {
-
-      "return service start page correctly for ATED Users" in {
-
-        continueWithAuthorisedUser(service) {
-          result =>
+      "unauthorised users" must {
+        "respond with a redirect" in {
+          businessDetailsWithUnAuthorisedUser { result =>
             status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include("/ated-subscription/registered-business-address")
+          }
+        }
+
+        "be redirected to the unauthorised page" in {
+          businessDetailsWithUnAuthorisedUser { result =>
+            redirectLocation(result).get must include("/business-customer/unauthorised")
+          }
+        }
+      }
+      "throw an exception if we have no review details" in {
+        businessDetailsWithAuthorisedUserNotFound { result =>
+          val thrown = the[RuntimeException] thrownBy contentAsString(result)
+          thrown.getMessage must include("We could not find your details. Check and try again.")
+
         }
       }
 
-      "return service start page correctly for AWRS Users" in {
+      "return Review Details view for a user, when user can't be directly found with login credentials" in {
+        businessDetailsWithAuthorisedUser(nonDirectMatchReviewDetails) { result =>
+          val document = Jsoup.parse(contentAsString(result))
+          document.select("h1").text must be("Check this is the business you want to register")
+        }
+      }
 
-        continueWithAuthorisedUser("AWRS") {
-          result =>
+      "return Review Details view for a user, when we directly found this user" in {
+        businessDetailsWithAuthorisedUser(directMatchReviewDetails) { result =>
+          val document = Jsoup.parse(contentAsString(result))
+          document.select("h1").text must be("Check this is the business you want to register")
+        }
+      }
+
+      "return Review Details view for an agent, when agent can't be directly found with login credentials" in {
+        businessDetailsWithAuthorisedAgent(nonDirectMatchReviewDetails) { result =>
+          val document = Jsoup.parse(contentAsString(result))
+          document.select("h1").text must be("Confirm your agency's details")
+        }
+      }
+
+      "return Review Details view for an agent, when we directly found this agent" in {
+        businessDetailsWithAuthorisedAgent(directMatchReviewDetails) { result =>
+          val document = Jsoup.parse(contentAsString(result))
+          document.select("h1").text must be("Confirm your agency's details")
+        }
+      }
+
+      "return Review Details view for an agent, when we directly found this agent with editable address" in {
+        businessDetailsWithAuthorisedAgent(directMatchReviewDetails.copy(isBusinessDetailsEditable = true)) { result =>
+          val document = Jsoup.parse(contentAsString(result))
+          document.select("h1").text must be("Check your agency details")
+        }
+      }
+
+      "read existing business details data from cache (without updating data)" in {
+        val testDetailsController = businessDetailsWithAuthorisedUser(nonDirectMatchReviewDetails) { result =>
+          status(result) must be(OK)
+        }
+        testDetailsController.dataCacheConnector.reads must be(1)
+      }
+
+    }
+
+
+    "continue " must {
+
+      "unauthorised users" must {
+        "respond with a redirect" in {
+          continueWithUnAuthorisedUser(service) { result =>
             status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include("/alcohol-wholesale-scheme")
+          }
+        }
+
+        "be redirected to the unauthorised page" in {
+          continueWithUnAuthorisedUser(service) { result =>
+            redirectLocation(result).get must include("/business-customer/unauthorised")
+          }
         }
       }
 
-      "redirect to the correspondence address page for capital-gains-tax-service" in {
-        continueWithAuthorisedUser("capital-gains-tax") {
-          result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include("/capital-gains-tax/subscription/company/correspondence-address-confirm")
-        }
-      }
 
-      "redirect to the confirmation for agents address page for capital-gains-tax-subscription service" in {
-        continueWithAuthorisedUser("capital-gains-tax-agents") {
-          result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include("/capital-gains-tax/subscription/agent/registered/subscribe")
-        }
-      }
+      "Authorised Users" must {
 
-      "return agent registration page correctly for Agents" in {
-        when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
-        continueWithAuthorisedAgent(service) {
-          result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include("/ated-subscription/agent-confirmation")
-        }
-      }
+        "enrolling for GG" when {
 
-      "throw an exception if status is not OK or BAD_GATEWAY" in {
-        when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
-        continueWithAAuthAgent("ATED") {
-          result =>
-            val thrown = the[RuntimeException] thrownBy redirectLocation(result).get
-            thrown.getMessage must include("We could not find your details. Check and try again.")
-        }
-      }
+          "return service start page correctly for ATED Users" in {
 
-      "respond with NotFound when invalid service is in uri" in {
-        when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq("unknownServiceTest"))).thenReturn(false)
-        continueWithAuthorisedUser("unknownServiceTest") {
-          result =>
-            status(result) must be (NOT_FOUND)
+            continueWithAuthorisedUser(service) {
+              result =>
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/ated-subscription/registered-business-address")
+            }
+          }
+
+          "return service start page correctly for AWRS Users" in {
+
+            continueWithAuthorisedUser("AWRS") {
+              result =>
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/alcohol-wholesale-scheme")
+            }
+          }
+
+          "redirect to the correspondence address page for capital-gains-tax-service" in {
+            continueWithAuthorisedUser("capital-gains-tax") {
+              result =>
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/capital-gains-tax/subscription/company/correspondence-address-confirm")
+            }
+          }
+
+          "redirect to the confirmation for agents address page for capital-gains-tax-subscription service" in {
+            continueWithAuthorisedUser("capital-gains-tax-agents") {
+              result =>
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/capital-gains-tax/subscription/agent/registered/subscribe")
+            }
+          }
+
+          "return agent registration page correctly for Agents" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            continueWithAuthorisedAgent(service) {
+              result =>
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/ated-subscription/agent-confirmation")
+            }
+          }
+
+          "respond with NotFound when invalid service is in uri" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq("unknownServiceTest"))).thenReturn(false)
+            continueWithAuthorisedUser("unknownServiceTest") {
+              result =>
+                status(result) must be(NOT_FOUND)
+            }
+          }
+
+          "throw an exception for any invalid user" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            continueWithInvalidAgent("ATED") {
+              result =>
+                val thrown = the[RuntimeException] thrownBy await(result)
+                thrown.getMessage must include("We could not find your details. Check and try again.")
+            }
+          }
+
+          "return error page for duplicate user" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            continueWithDuplicateAgent("ATED", badGatewayResponse) {
+              result =>
+                status(result) must be(OK)
+                val document = Jsoup.parse(contentAsString(result))
+                document.title() must be("Somebody has already registered from your agency - GOV.UK")
+            }
+          }
+
+          "throw an exception for invalid error code from GGr" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            continueWithDuplicateAgent("ATED", invalidBadGatewayResponse) {
+              result =>
+                val thrown = the[RuntimeException] thrownBy await(result)
+                thrown.getMessage must include("We could not find your details. Check and try again.")
+            }
+          }
+        }
+
+        "enrolling for EMAC" when {
+
+          "return service start page correctly for ATED Users" in {
+
+            continueWithAuthorisedUser(service) {
+              result =>
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/ated-subscription/registered-business-address")
+            }
+          }
+
+          "return service start page correctly for AWRS Users" in {
+
+            continueWithAuthorisedUser("AWRS") {
+              result =>
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/alcohol-wholesale-scheme")
+            }
+          }
+
+          "redirect to the correspondence address page for capital-gains-tax-service" in {
+            continueWithAuthorisedUser("capital-gains-tax") {
+              result =>
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/capital-gains-tax/subscription/company/correspondence-address-confirm")
+            }
+          }
+
+          "redirect to the confirmation for agents address page for capital-gains-tax-subscription service" in {
+            continueWithAuthorisedUser("capital-gains-tax-agents") {
+              result =>
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/capital-gains-tax/subscription/agent/registered/subscribe")
+            }
+          }
+
+          "return agent registration page correctly for Agents" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            continueWithAuthorisedAgentEMAC(service) {
+              result =>
+                status(result) must be(SEE_OTHER)
+                redirectLocation(result).get must include("/ated-subscription/agent-confirmation")
+            }
+          }
+
+          "return to error page for duplicate users" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            continueWithDuplicategentEmac("ATED") {
+              result =>
+                status(result) must be(OK)
+                val document = Jsoup.parse(contentAsString(result))
+                document.title() must be("Somebody has already registered from your agency - GOV.UK")
+            }
+          }
+
+          "return to error page for wrong role users" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            continueWithWrongRoleUserEmac("ATED") {
+              result =>
+                status(result) must be(OK)
+                val document = Jsoup.parse(contentAsString(result))
+                document.title() must be("You must be logged in as an administrator to submit an ATED return - GOV.UK")
+            }
+          }
+
+          "respond with NotFound when invalid service is in uri" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq("unknownServiceTest"))).thenReturn(false)
+            continueWithAuthorisedUser("unknownServiceTest") {
+              result =>
+                status(result) must be(NOT_FOUND)
+            }
+          }
+
+          "throw an exception for any invalid user" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            continueWithInvalidAgentEmac("ATED") {
+              result =>
+                val thrown = the[RuntimeException] thrownBy await(result)
+                thrown.getMessage must include("We could not find your details. Check and try again.")
+            }
+          }
         }
       }
     }
@@ -287,38 +397,69 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
   private def continueWithAuthorisedAgent(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
+    FeatureSwitch.enable(FeatureSwitch("registration.usingGG", true))
     when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    if(FeatureSwitch.isEnabled("registration.usingGG")) {
-      when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
-    } else {
-      when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
-    }
+    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
 
-  private def continueWithDuplicategent(service: String)(test: Future[Result] => Any) {
+  private def continueWithAuthorisedAgentEMAC(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
+
+    FeatureSwitch.disable(FeatureSwitch("registration.usingGG", true))
     when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    if(FeatureSwitch.isEnabled("registration.usingGG")) {
-      when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, Some(badGatewayResponse))))
-    } else {
-      when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, Some(badGatewayResponse))))
-    }
+    when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
 
-  private def continueWithAAuthAgent(service: String)(test: Future[Result] => Any) {
+  private def continueWithDuplicategentEmac(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
+    FeatureSwitch.disable(FeatureSwitch("registration.usingGG", true))
+    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
+    val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
+    test(result)
+  }
+
+  private def continueWithWrongRoleUserEmac(service: String)(test: Future[Result] => Any) {
+    val userId = s"user-${UUID.randomUUID}"
+    builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
+    FeatureSwitch.disable(FeatureSwitch("registration.usingGG", true))
+    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(FORBIDDEN)))
+    val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
+    test(result)
+  }
+  private def continueWithInvalidAgent(service: String)(test: Future[Result] => Any) {
+    val userId = s"user-${UUID.randomUUID}"
+    builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
+    FeatureSwitch.enable(FeatureSwitch("registration.usingGG", true))
     when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    if(FeatureSwitch.isEnabled("registration.usingGG")) {
-      when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
-    } else {
-      when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
-    }
+    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
+    val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
+    test(result)
+  }
+
+  private def continueWithInvalidAgentEmac(service: String)(test: Future[Result] => Any) {
+    val userId = s"user-${UUID.randomUUID}"
+    builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
+    FeatureSwitch.disable(FeatureSwitch("registration.usingGG", true))
+    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
+    val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
+    test(result)
+  }
+
+  private def continueWithDuplicateAgent(service: String, badGatewayResp: JsValue)(test: Future[Result] => Any) {
+    val userId = s"user-${UUID.randomUUID}"
+    builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
+    FeatureSwitch.enable(FeatureSwitch("registration.usingGG", true))
+    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, Some(badGatewayResp))))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
