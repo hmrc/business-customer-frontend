@@ -63,7 +63,7 @@ class update_overseas_company_registrationSpec extends FeatureSpec with OneServe
 
       Then("The company registration number fields should exist")
       assert(document.getElementById("businessUniqueId_field").text() === "Overseas company registration number")
-      assert(document.getElementById("issuingCountry_field").text() === "Country that issued the number")
+      assert(document.getElementById("issuingCountry_field").text() === "Country of issue")
       assert(document.getElementById("issuingInstitution_field").text() === "Institution that issued the number For example, an overseas tax department")
     }
   }
