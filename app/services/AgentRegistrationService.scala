@@ -57,7 +57,6 @@ trait AgentRegistrationService extends RunMode with Auditable {
 
   private def enrolAgent(serviceName: String, businessDetails: ReviewDetails)
                         (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
-
     val enrolReq = createEnrolRequest(serviceName, businessDetails)
     val knownFacts = createKnownFacts(businessDetails)
     for {

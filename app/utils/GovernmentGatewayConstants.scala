@@ -25,7 +25,10 @@ object GovernmentGatewayConstants {
 
   val KnownFactsAgentServiceName = "HMRC-AGENT-AGENT"
   val KnownFactsAgentRefNo = "AgentRefNumber"
-  val KnownFactsCompanyTax = "CTUTR"
-  val KnownFactsUtr = "UTR"
+  val KnownFactsCompanyTaxUTR = "CTUTR"
+  val KnownFactsSelfAssessmentTaxUTR = "CTUTR"
   val KnownFactsSafeId = "SAFEID"
+
+  val KnownFactsUKPostCode = "Postcode"
+  val KnownFactsNonUKPostCode = "NonUKPostalCode"
 }

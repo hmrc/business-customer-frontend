@@ -90,8 +90,19 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
 
   private def createEnrolmentVerifiers(businessDetails: ReviewDetails)(implicit bcContext: BusinessCustomerContext): Verifiers = {
     val agentRefNo = getArn(businessDetails)
-    val knownFacts = List(Verifier(GovernmentGatewayConstants.KnownFactsSafeId, businessDetails.safeId))
-    Verifiers(knownFacts)
+    val verifiers = if (businessDetails.utr.isDefined) {
+      val utrVerifiers = businessDetails.businessType match {
+        case Some("Sole Trader") => Verifier(GovernmentGatewayConstants.KnownFactsSelfAssessmentTaxUTR, businessDetails.utr.getOrElse(throw new RuntimeException("No SA UTR found for agent!")))
+        case _ => Verifier(GovernmentGatewayConstants.KnownFactsCompanyTaxUTR, businessDetails.utr.getOrElse(throw new RuntimeException("No CT UTR found for agent!")))
+      }
+      val ukPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsUKPostCode, businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered UK Postcode found for the agent!")))
+      List(utrVerifiers, ukPostCodeVerifier)
+    }
+    else {
+      val nonUkPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsNonUKPostCode, businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered Non UK Postalcode found for the agent!")))
+      List(nonUkPostCodeVerifier)
+    }
+    Verifiers(verifiers)
   }
 
   private def getUserAuthDetails(implicit hc: HeaderCarrier): Future[(String, String)] = {
