@@ -56,6 +56,9 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
     val postUrl = s"""$enrolmentUrl/groups/$groupId/enrolments/$enrolmentKey"""
     val jsonData = Json.toJson(enrolRequest)
 
+
+    println(s"++++Enrol data++++++JSONDATA++++++++++++++++${Json.prettyPrint(jsonData)}")
+
     val timerContext = metrics.startTimer(MetricsEnum.EMAC_AGENT_ENROL)
     http.POST[JsValue, HttpResponse](postUrl, jsonData) map { response =>
       timerContext.stop()

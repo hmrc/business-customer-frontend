@@ -62,6 +62,9 @@ trait NewBusinessCustomerConnector extends ServicesConfig with RawResponseReads 
     val authLink = bcContext.user.authLink
     val postUrl = s"""$serviceUrl$authLink/$baseUri/${GovernmentGatewayConstants.KnownFactsAgentServiceName}/$knownFactsUri/$arn"""
     val jsonData = Json.toJson(knownFacts)
+
+    println(s"++++ADD Known Facts++++++JSONDATA++++++++++++++++${Json.prettyPrint(jsonData)}")
+
     http.POST[JsValue, HttpResponse](postUrl, jsonData)
   }
 
@@ -114,6 +117,7 @@ trait NewBusinessCustomerConnector extends ServicesConfig with RawResponseReads 
     val authLink = bcContext.user.authLink
     val postUrl = s"""$serviceUrl$authLink/$baseUri/$registerUri"""
     val jsonData = Json.toJson(registerData)
+
     http.POST(postUrl, jsonData) map { response =>
       auditRegisterCall(registerData, response, service, isNonUKClientRegisteredByAgent)
       response.status match {
