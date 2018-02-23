@@ -72,7 +72,7 @@ trait NewBusinessCustomerConnector extends ServicesConfig with RawResponseReads 
     def auditRegisterCall(input: BusinessRegistrationRequest,
                           response: HttpResponse,
                           service: String,
-                          isNonUKClientRegisteredByAgent: Boolean = false)(implicit hc: HeaderCarrier) = {
+                          isNonUKClientRegisteredByAgent: Boolean = false)(implicit hc: HeaderCarrier): Unit = {
       val eventType = response.status match {
         case OK => EventTypes.Succeeded
         case _ => EventTypes.Failed
@@ -93,7 +93,7 @@ trait NewBusinessCustomerConnector extends ServicesConfig with RawResponseReads 
           "organisation" -> s"${input.organisation}",
           "responseStatus" -> s"${response.status}",
           "responseBody" -> s"${response.body}",
-          "status" ->  s"${eventType}"))
+          "status" ->  s"$eventType"))
 
       def getAddressPiece(piece: Option[String]):String = {
         if (piece.isDefined)

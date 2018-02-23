@@ -61,10 +61,11 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
   private def enrolAgent(serviceName: String, businessDetails: ReviewDetails)
                         (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
     val knownFacts = createEnrolmentVerifiers(businessDetails)
+    val arn = getArn(businessDetails)
     for {
       (groupId, ggCredId) <- getUserAuthDetails
-      _ <- businessCustomerConnector.addKnownFacts(knownFacts, getArn(businessDetails))
-      enrolResponse <- taxEnrolmentsConnector.enrol(createEnrolRequest(serviceName, knownFacts, ggCredId), groupId, getArn(businessDetails))
+      _ <- businessCustomerConnector.addKnownFacts(knownFacts, arn)
+      enrolResponse <- taxEnrolmentsConnector.enrol(createEnrolRequest(serviceName, knownFacts, ggCredId), groupId, arn)
     } yield {
       auditEnrolAgent(businessDetails, enrolResponse, createEnrolRequest(serviceName, knownFacts, ggCredId))
       enrolResponse
@@ -89,20 +90,18 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
   }
 
   private def createEnrolmentVerifiers(businessDetails: ReviewDetails)(implicit bcContext: BusinessCustomerContext): Verifiers = {
-    val verifiers = if (businessDetails.utr.isDefined) {
-      val utrVerifiers = businessDetails.businessType match {
-        case Some("Sole Trader") =>
-          Verifier(GovernmentGatewayConstants.KnownFactsSelfAssessmentTaxUTR, businessDetails.utr.getOrElse(throw new RuntimeException("No SA UTR found for agent!")))
-        case _ =>
-          Verifier(GovernmentGatewayConstants.KnownFactsCompanyTaxUTR, businessDetails.utr.getOrElse(throw new RuntimeException("No CT UTR found for agent!")))
-      }
-      val ukPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsUKPostCode, businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered UK Postcode found for the agent!")))
-      List(utrVerifiers, ukPostCodeVerifier)
-    } else Nil //NOTE: Non-UK agents DO NOT have UTRs or Postcode/Intl Postcode
-    /*else {
-      val nonUkPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsNonUKPostCode, businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered Non UK Postalcode found for the agent!")))
-      List(nonUkPostCodeVerifier)
-    }*/
+    val verifiers = businessDetails.utr match {
+      case Some(uniqueTaxRef) =>
+        val ukPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsUKPostCode,
+          businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered UK Postcode found for the agent!")))
+        businessDetails.businessType match {
+          case Some("Sole Trader") =>
+            ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsUniqueTaxRef, uniqueTaxRef))
+          case _ =>
+            ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsCompanyTaxRef, uniqueTaxRef))
+        }
+      case _ => Nil //NOTE: Non-UK agents DO NOT have UTRs and we don't capture any Postcode/Intl Postcode
+    }
     Verifiers(verifiers)
   }
 
