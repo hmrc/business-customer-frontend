@@ -120,7 +120,6 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     sendDataEvent("enrolAgent", detail = Map(
       "txName" -> "enrolAgent",
       "agentReferenceNumber" -> businessDetails.agentReferenceNumber.getOrElse(""),
-      "safeId" -> businessDetails.safeId,
       "service" -> GovernmentGatewayConstants.KnownFactsAgentServiceName,
       "status" -> status
     ))
