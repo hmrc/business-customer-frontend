@@ -273,3 +273,7 @@ bc.details-not-found.try-again = Try again
 bc.business-registration.error.other = EMAC Allocate an Enrolment to a Group failed
 bc.business-verification-error.general.businessAddress.postcode = There is a problem with the postal code
 bc.business-registration-error.general.businessAddress.postcode = There is a problem with the postal code
+bc.non-uk-reg-error.general.hasBusinessUniqueId = There is a problem with the overseas company registration number
+bc.non-uk-reg-error.general.businessUniqueId = There is a problem with the overseas company registration number
+bc.non-uk-reg-error.general.issuingCountry = There is a problem with the country of issue
+bc.non-uk-reg-error.general.issuingInstitution = There is a problem with the institution of issue
