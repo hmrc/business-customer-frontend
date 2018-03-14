@@ -67,7 +67,7 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with OneServerPerSu
       And("Overseas tax reference is correct")
       bizRegistrationDetails.get(2).text should include ("Overseas company registration number")
       bizRegistrationDetails.get(2).text should include("id")
-      bizRegistrationDetails.get(3).text should include("Country of issue")
+      bizRegistrationDetails.get(3).text should include("Country that issued the number")
       bizRegistrationDetails.get(3).text should include("France")
       bizRegistrationDetails.get(4).text should include("Institution that issued the number")
       bizRegistrationDetails.get(4).text should include("inst")
