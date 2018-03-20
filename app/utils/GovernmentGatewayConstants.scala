@@ -30,6 +30,7 @@ object GovernmentGatewayConstants {
   val KnownFactsUniqueTaxRef = "SAUTR"
   val KnownFactsUKPostCode = "Postcode"
   val KnownFactsNonUKPostCode = "NonUKPostalCode"
+  val KnownFactsAgentRef = "AgentRefNumber1"
 
   val KnownFactsSafeId = "SAFEID"
 }

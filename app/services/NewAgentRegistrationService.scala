@@ -60,8 +60,8 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
 
   private def enrolAgent(serviceName: String, businessDetails: ReviewDetails)
                         (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
-    val knownFacts = createEnrolmentVerifiers(businessDetails)
     val arn = getArn(businessDetails)
+    val knownFacts = createEnrolmentVerifiers(businessDetails, arn)
     for {
       (groupId, ggCredId) <- getUserAuthDetails
       _ <- businessCustomerConnector.addKnownFacts(knownFacts, arn)
@@ -89,24 +89,24 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     }
   }
 
-  private def createEnrolmentVerifiers(businessDetails: ReviewDetails)(implicit bcContext: BusinessCustomerContext): Verifiers = {
+  private def createEnrolmentVerifiers(businessDetails: ReviewDetails, arn: String)(implicit bcContext: BusinessCustomerContext): Verifiers = {
     val verifiers = businessDetails.utr match {
-      case Some(uniqueTaxRef) =>
+      case Some(utr) =>
         val ukPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsUKPostCode,
           businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered UK Postcode found for the agent!")))
         businessDetails.businessType match {
           case Some("Sole Trader") =>
-            ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsUniqueTaxRef, uniqueTaxRef))
+            ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsUniqueTaxRef, utr))
           case _ =>
-            ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsCompanyTaxRef, uniqueTaxRef))
+            ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsCompanyTaxRef, utr))
         }
-      case _ => Nil //NOTE: Non-UK agents DO NOT have UTRs and we don't capture any Postcode/Intl Postcode
+      case _ => List(Verifier(GovernmentGatewayConstants.KnownFactsAgentRef, arn)) //NOTE: Non-UK agents DO NOT have UTRs and we don't capture any Postcode/Intl Postcode
     }
     Verifiers(verifiers)
   }
 
   private def getUserAuthDetails(implicit hc: HeaderCarrier): Future[(String, String)] = {
-    authorised(AffinityGroup.Agent).retrieve(credentials and groupIdentifier) {
+    authorised().retrieve(credentials and groupIdentifier) {
       case Credentials(ggCredId, _) ~ Some(groupId) => Future.successful(BCUtils.validateGroupId(groupId), ggCredId)
       case _ => throw new RuntimeException("Failed to enrol -  no details found for the agent (not a valid GG user)")
     }
