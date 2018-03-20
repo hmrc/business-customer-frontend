@@ -60,11 +60,12 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
 
   private def enrolAgent(serviceName: String, businessDetails: ReviewDetails)
                         (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[HttpResponse] = {
-    val knownFacts = createEnrolmentVerifiers(businessDetails)
+    val arn = getArn(businessDetails)
+    val knownFacts = createEnrolmentVerifiers(businessDetails, arn)
     for {
       (groupId, ggCredId) <- getUserAuthDetails
-      _ <- businessCustomerConnector.addKnownFacts(knownFacts, getArn(businessDetails))
-      enrolResponse <- taxEnrolmentsConnector.enrol(createEnrolRequest(serviceName, knownFacts, ggCredId), groupId, getArn(businessDetails))
+      _ <- businessCustomerConnector.addKnownFacts(knownFacts, arn)
+      enrolResponse <- taxEnrolmentsConnector.enrol(createEnrolRequest(serviceName, knownFacts, ggCredId), groupId, arn)
     } yield {
       auditEnrolAgent(businessDetails, enrolResponse, createEnrolRequest(serviceName, knownFacts, ggCredId))
       enrolResponse
@@ -88,10 +89,20 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     }
   }
 
-  private def createEnrolmentVerifiers(businessDetails: ReviewDetails)(implicit bcContext: BusinessCustomerContext): Verifiers = {
-    val agentRefNo = getArn(businessDetails)
-    val knownFacts = List(Verifier(GovernmentGatewayConstants.KnownFactsSafeId, businessDetails.safeId))
-    Verifiers(knownFacts)
+  private def createEnrolmentVerifiers(businessDetails: ReviewDetails, arn: String)(implicit bcContext: BusinessCustomerContext): Verifiers = {
+    val verifiers = businessDetails.utr match {
+      case Some(utr) =>
+        val ukPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsUKPostCode,
+          businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered UK Postcode found for the agent!")))
+        businessDetails.businessType match {
+          case Some("Sole Trader") =>
+            ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsUniqueTaxRef, utr))
+          case _ =>
+            ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsCompanyTaxRef, utr))
+        }
+      case _ => List(Verifier(GovernmentGatewayConstants.KnownFactsAgentRef, arn)) //NOTE: Non-UK agents DO NOT have UTRs and we don't capture any Postcode/Intl Postcode
+    }
+    Verifiers(verifiers)
   }
 
   private def getUserAuthDetails(implicit hc: HeaderCarrier): Future[(String, String)] = {
@@ -109,7 +120,6 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
     sendDataEvent("enrolAgent", detail = Map(
       "txName" -> "enrolAgent",
       "agentReferenceNumber" -> businessDetails.agentReferenceNumber.getOrElse(""),
-      "safeId" -> businessDetails.safeId,
       "service" -> GovernmentGatewayConstants.KnownFactsAgentServiceName,
       "status" -> status
     ))
