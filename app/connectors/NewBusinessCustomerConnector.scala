@@ -63,8 +63,6 @@ trait NewBusinessCustomerConnector extends ServicesConfig with RawResponseReads 
     val postUrl = s"""$serviceUrl$authLink/$baseUri/${GovernmentGatewayConstants.KnownFactsAgentServiceName}/$knownFactsUri/$arn"""
     val jsonData = Json.toJson(knownFacts)
 
-    Logger.debug(s"++++++NewBusinessCustomerConnector.addKnownfacts++++++JsonData:::+++++++++++++${Json.prettyPrint(jsonData)}")
-
     http.POST[JsValue, HttpResponse](postUrl, jsonData)
   }
 
