@@ -27,7 +27,7 @@
 
 @headerNavLinks = {
   @if(userLoggedIn) {
-    <li><a id="logOutNavHref" href='@routes.ApplicationController.logout(service)'>Sign out</a></li>
+    <li><a id="logOutNavHref" href='@routes.ApplicationController.logout(service)'>@Messages("bc.sign-out")</a></li>
   }
 }
 
@@ -106,4 +106,3 @@
     footerTop = footerTop,
     footerLinks = Some(uiLayouts.footer_links()),
     nav = true)(content = content)
-
