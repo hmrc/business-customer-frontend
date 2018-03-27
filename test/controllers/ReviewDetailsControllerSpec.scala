@@ -420,7 +420,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     FeatureSwitch.disable(FeatureSwitch("registration.usingGG", true))
     when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
+    when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(CONFLICT)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
