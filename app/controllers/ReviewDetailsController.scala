@@ -89,7 +89,7 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
         newAgentRegistrationService.enrolAgent(serviceName).flatMap { response =>
           response.status match {
             case CREATED => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
-            case BAD_REQUEST | CONFLICT =>
+            case CONFLICT =>
               val errMessage = formatErrorMessage(DuplicateUserError, serviceName)
               Logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EMAC")
               Future.successful(Ok(views.html.global_error(errMessage._1, errMessage._2, errMessage._3)))
