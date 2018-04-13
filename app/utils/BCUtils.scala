@@ -118,7 +118,14 @@ object BCUtils {
     service.toLowerCase match {
       case "ated" if isAgent => isAtedAgentBusinessTypes.filterNot(p => p._1 == "UIB")
       case "ated" => fixedBusinessTypes.filterNot(p => p._1 == "UIB").filterNot(p => p._1 == "SOP") ++ atedExtraBusinessTypes
-      case "awrs" => Seq("GROUP" -> Messages("bc.business-verification.GROUP")) ++ fixedBusinessTypes
+      case "awrs" => Seq("OBP" -> Messages("bc.business-verification.PRT"),
+        "GROUP" -> Messages("bc.business-verification.GROUP"),
+        "LTD" -> Messages("bc.business-verification.LTD"),
+        "LLP" -> Messages("bc.business-verification.LLP"),
+        "LP" -> Messages("bc.business-verification.LP"),
+        "SOP" -> Messages("bc.business-verification.SOP"),
+        "UIB" -> Messages("bc.business-verification.UIB")
+      )
       case "amls" => Seq("LTD" -> Messages("bc.business-verification.LTD"),
         "SOP" -> Messages("bc.business-verification.amls.SOP"),
         "OBP" -> Messages("bc.business-verification.amls.PRT"),
