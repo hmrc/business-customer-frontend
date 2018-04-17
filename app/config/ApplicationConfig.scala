@@ -22,8 +22,6 @@ import uk.gov.hmrc.play.config.ServicesConfig
 trait ApplicationConfig {
 
   val defaultBetaFeedbackUrl: String
-  def betaFeedbackUrl(service: String, returnUri: String): String
-  val betaFeedbackUnauthenticatedUrl: String
   val analyticsToken: Option[String]
   val analyticsHost: String
   val reportAProblemPartialUrl: String
@@ -48,11 +46,6 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
   val contactFormServiceIdentifier = "BUSINESS-CUSTOMER"
 
   override lazy val defaultBetaFeedbackUrl = s"$contactHost/contact/beta-feedback"
-  override def betaFeedbackUrl(service: String, returnUri: String) = {
-    val feedbackUrl = if (service != "") configuration.getString(s"delegated-service.${service.toLowerCase}.beta-feedback-url").getOrElse(defaultBetaFeedbackUrl) else defaultBetaFeedbackUrl
-    feedbackUrl + "?return=" + returnUri
-  }
-  override lazy val betaFeedbackUnauthenticatedUrl = s"$contactHost/contact/beta-feedback-unauthenticated"
   override lazy val analyticsToken: Option[String] = configuration.getString(s"google-analytics.token")
   override lazy val analyticsHost: String = configuration.getString(s"google-analytics.host").getOrElse("auto")
   override lazy val reportAProblemPartialUrl = s"$contactHost/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
