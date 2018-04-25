@@ -134,7 +134,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
 
         editClientWithAuthorisedUser(serviceName) { result =>
           val thrown = the[RuntimeException] thrownBy await(result)
-          thrown.getMessage must be("No Registration Details found")
+          thrown.getMessage must be("No registration details found")
         }
       }
     }
@@ -195,7 +195,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
           val inputJson = createJson()
           registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", None, false) { result =>
             val thrown = the[RuntimeException] thrownBy await(result)
-            thrown.getMessage must be("No Registration Details found")
+            thrown.getMessage must be("No registration details found")
           }
         }
 
