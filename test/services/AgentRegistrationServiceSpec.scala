@@ -77,7 +77,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
 
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       val thrown = the[RuntimeException] thrownBy await(result)
-      thrown.getMessage must include("No Unique Authorisation Number Found")
+      thrown.getMessage must include("No unique authorisation number found")
     }
 
     "enrolAgent return the status OK if it worked" in {
@@ -144,7 +144,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
       when(mockBusinessCustomerConnector.addKnownFacts(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       val result = TestAgentRegistrationService.enrolAgent("INVALID_SERVICE_NAME")
       val thrown = the[RuntimeException] thrownBy await(result)
-      thrown.getMessage must startWith("Agent Enrolment Service Name does not exist for")
+      thrown.getMessage must startWith("Agent enrolment service name does not exist for")
     }
   }
 }
