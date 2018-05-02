@@ -16,9 +16,9 @@
 
 package utils
 
-import play.api.libs.json.Json
+import javax.xml.parsers.{SAXParser, SAXParserFactory}
 import uk.gov.hmrc.http.HttpResponse
-
+import scala.xml.XML
 
 object ErrorMessageUtils {
 
@@ -26,8 +26,16 @@ object ErrorMessageUtils {
   val multipleAgentErrorNum = "10004"
 
   def matchErrorResponse(resp: HttpResponse): Boolean = {
-     val msgToXml = scala.xml.XML.loadString((resp.json \ "message").as[String])
+     val msgToXml = XML.withSAXParser(secureSAXParser) loadString (resp.json \ "message").as[String]
        (msgToXml \\ "ErrorNumber").text == uniqueAgentErrorNum || (msgToXml \\ "ErrorNumber").text == multipleAgentErrorNum
+  }
+
+  def secureSAXParser: SAXParser = {
+    val saxParserFactory = SAXParserFactory.newInstance()
+    saxParserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false)
+    saxParserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+    saxParserFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+    saxParserFactory.newSAXParser()
   }
 
 }
