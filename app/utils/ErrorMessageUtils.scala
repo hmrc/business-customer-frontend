@@ -26,7 +26,7 @@ object ErrorMessageUtils {
   val multipleAgentErrorNum = "10004"
 
   def matchErrorResponse(resp: HttpResponse): Boolean = {
-     val msgToXml = XML.withSAXParser(secureSAXParser) loadString (resp.json \ "message").as[String]
+     val msgToXml = XML.withSAXParser(secureSAXParser).loadString((resp.json \ "message").as[String])
        (msgToXml \\ "ErrorNumber").text == uniqueAgentErrorNum || (msgToXml \\ "ErrorNumber").text == multipleAgentErrorNum
   }
 

@@ -16,21 +16,16 @@
 
 package utils
 
-import java.io.FileNotFoundException
-
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
-import utils.ErrorMessageUtils._
 import uk.gov.hmrc.http.HttpResponse
+import utils.ErrorMessageUtils._
+
 import scala.xml._
 
 class ErrorMessageUtilsSpec extends PlaySpec {
 
-  val FileSystemReadXxePayload = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" +
-    "  <!DOCTYPE foo [ " +
-    "  <!ELEMENT foo ANY >" +
-    "  <!ENTITY xxe SYSTEM \"file:///does/not/exist\" >]>" +
-    "<foo>&xxe;</foo>"
+  val FileSystemReadXxePayload = """<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> \n <!DOCTYPE foo [  \n <!ELEMENT foo ANY >  <!ENTITY xxe SYSTEM \"file:///does/not/exist\" >]>\n<foo>&xxe;</foo>"""
 
   "ErrorMessageUtils" must {
     "return true" when {
@@ -57,15 +52,11 @@ class ErrorMessageUtilsSpec extends PlaySpec {
       }
     }
 
-    "Show that scala.xml.XML tries to access file system with malicious payload " in {
-      intercept[FileNotFoundException] {
-        XML.loadString(FileSystemReadXxePayload)
-      }
-    }
 
     "Show that scala.xml.XML can protect against file access when securely configured" in {
       intercept[SAXParseException] {
-        XML.withSAXParser(secureSAXParser).loadString(FileSystemReadXxePayload)
+        val payload = Json.parse( s"""{"statusCode":502,"message":"$FileSystemReadXxePayload"}""")
+        matchErrorResponse(HttpResponse(502, Some(payload)))
       }
     }
   }
