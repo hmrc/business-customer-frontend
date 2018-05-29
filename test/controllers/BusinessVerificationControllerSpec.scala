@@ -212,7 +212,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
             |}
           """.stripMargin))) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("You are logged in as an organisation with your Government Gateway ID. You cannot select Sole Trader/Self-employed as your business type. You need to have an individual Government Gateway ID and enrol for Self Assessment")
+          contentAsString(result) must include("You are logged in as an organisation with your Government Gateway ID. You cannot select sole trader or self-employed as your business type. You need to have an individual Government Gateway ID and enrol for Self Assessment")
         }
       }
 
@@ -243,7 +243,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("saUTR_field").text() must include("Self Assessment Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("saUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("saUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }
@@ -262,7 +262,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("saUTR_field").text() must include("Self Assessment Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("saUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("saUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
 
@@ -289,7 +289,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
             |}
           """.stripMargin))) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select Limited company/Partnership as your business type. You need to have an organisation Government Gateway ID.")
+          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
         }
       }
 
@@ -320,7 +320,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("saUTR_field").text() must include("Self Assessment Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("saUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("saUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
 
@@ -340,7 +340,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("saUTR_field").text() must include("Self Assessment Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("saUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("saUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
 
@@ -368,7 +368,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
             |}
           """.stripMargin))) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select Limited company/Partnership as your business type. You need to have an organisation Government Gateway ID.")
+          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
         }
       }
 
@@ -399,7 +399,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("cotaxUTR_field").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
 
@@ -419,7 +419,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("cotaxUTR_field").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10.")
-          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }
@@ -446,7 +446,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
             |}
           """.stripMargin))) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select Limited company/Partnership as your business type. You need to have an organisation Government Gateway ID.")
+          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
         }
       }
 
@@ -477,7 +477,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("cotaxUTR_field").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
 
@@ -508,7 +508,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("cotaxUTR_field").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }
@@ -527,7 +527,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("cotaxUTR_field").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }
@@ -556,7 +556,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("psaUTR_field").text() must include("Partnership Self Assessment Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }
@@ -575,7 +575,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("psaUTR_field").text() must include("Partnership Self Assessment Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }
@@ -604,7 +604,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("psaUTR_field").text() must include("Partnership Self Assessment Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }
@@ -622,7 +622,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("psaUTR_field").text() must include("Partnership Self Assessment Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }
@@ -651,7 +651,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("psaUTR_field").text() must include("Partnership Self Assessment Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }
@@ -669,7 +669,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("psaUTR_field").text() must include("Partnership Self Assessment Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }
@@ -695,7 +695,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
             |}
           """.stripMargin))) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select Limited company/Partnership as your business type. You need to have an organisation Government Gateway ID.")
+          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
         }
       }
 
@@ -726,7 +726,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("cotaxUTR_field").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10. Your accountant or tax manager would normally have your UTR.")
-          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
 
@@ -746,7 +746,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
           document.getElementById("cotaxUTR_field").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
           document.getElementById("utr-help-question").text() must include(Messages("bc.business-verification.utr.help.question"))
           document.getElementById("utr-help-questionAnswer").text() must include("It is issued by HMRC when you register your business or for Self Assessment. Your UTR number is made up of 10 or 13 digits. If it is 13 digits only enter the last 10.")
-          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as 'Tax Reference', 'UTR' or 'Official Use'.")
+          document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
         }

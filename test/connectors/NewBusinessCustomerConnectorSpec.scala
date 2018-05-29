@@ -172,7 +172,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
 
         val result = TestNewBusinessCustomerConnector.register(businessRequestData, service)
         val thrown = the[InternalServerException] thrownBy await(result)
-        thrown.getMessage must include("Not Found")
+        thrown.getMessage must include("Not found")
       }
 
       "for Unknown Error, throw an exception" in {
@@ -266,7 +266,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
 
         val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown = the[InternalServerException] thrownBy await(result)
-        thrown.getMessage must include("Not Found")
+        thrown.getMessage must include("Not found")
       }
 
       "for Unknown Error, throw an exception" in {

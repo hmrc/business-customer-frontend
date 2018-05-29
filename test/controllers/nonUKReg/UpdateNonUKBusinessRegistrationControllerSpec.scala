@@ -149,7 +149,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
 
         editClientWithAuthorisedUser(serviceName, "NUK") { result =>
           val thrown = the[RuntimeException] thrownBy await(result)
-          thrown.getMessage must be("No Registration Details found")
+          thrown.getMessage must be("No registration details found")
         }
       }
     }
@@ -216,7 +216,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
 
         editAgentWithAuthorisedUser(serviceName, "NUK") { result =>
           val thrown = the[RuntimeException] thrownBy await(result)
-          thrown.getMessage must be("No Registration Details found")
+          thrown.getMessage must be("No registration details found")
         }
       }
     }
@@ -308,7 +308,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
           val inputJson = createJson()
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", None, false) { result =>
             val thrown = the[RuntimeException] thrownBy await(result)
-            thrown.getMessage must be("No Registration Details found")
+            thrown.getMessage must be("No registration details found")
           }
         }
 

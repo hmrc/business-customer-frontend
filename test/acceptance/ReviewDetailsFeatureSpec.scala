@@ -107,7 +107,7 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with OneServerPerSuite with M
       assert(document.getElementById("submit").text() === "Confirm")
 
       Then("The title should match - Confirm your agency's details")
-      assert(document.select("h1").text === ("Confirm your agency's details"))
+      assert(document.select("h1").text === ("Confirm your agency’s details"))
 
       assert(document.getElementById("wrong-account-title").text === ("Not the right details?"))
       assert(document.getElementById("bc.business-registration-agent.text").text() === ("This section is: ATED agency set up"))

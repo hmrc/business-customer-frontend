@@ -213,7 +213,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
       val regResult = TestBusinessRegistrationService.registerBusiness(busRegData, overseasCompany, isGroup = true, isNonUKClientRegisteredByAgent = false, service)
 
       val thrown = the[InternalServerException] thrownBy await(regResult)
-      thrown.getMessage must include("Registration Failed")
+      thrown.getMessage must include("Registration failed")
     }
   }
 
@@ -321,7 +321,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
       val regResult = TestBusinessRegistrationService.updateRegisterBusiness(busRegData, overseasCompany, isGroup = true, isNonUKClientRegisteredByAgent = false, service)
 
       val thrown = the[InternalServerException] thrownBy await(regResult)
-      thrown.getMessage must include("Update Registration Failed")
+      thrown.getMessage must include("Update registration failed")
     }
 
     "throw exception when registration fails" in {
@@ -345,7 +345,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
       val regResult = TestBusinessRegistrationService.updateRegisterBusiness(busRegData, overseasCompany, isGroup = true, isNonUKClientRegisteredByAgent = false, service)
 
       val thrown = the[InternalServerException] thrownBy await(regResult)
-      thrown.getMessage must include("Update Registration Failed")
+      thrown.getMessage must include("Update registration failed")
     }
   }
 }
