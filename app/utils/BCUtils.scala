@@ -76,6 +76,7 @@ object BCUtils {
       case "ated" => Some(Messages("bc.ated.serviceName"))
       case "awrs" => Some(Messages("bc.awrs.serviceName"))
       case "amls" => Some(Messages("bc.amls.serviceName"))
+      case "fhdds" => Some(Messages("bc.fhdds.serviceName"))
       case "investment-tax-relief" => Some(Messages("bc.investment-tax-relief.serviceName"))
       case _ => None
     }
