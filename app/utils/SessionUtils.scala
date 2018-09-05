@@ -23,9 +23,9 @@ object SessionUtils {
   def getUniqueAckNo: String = {
     val length = 32
     val nanoTime = System.nanoTime()
-    val restChars = length - nanoTime.toString.length
+    val restChars = (length - 1) - nanoTime.toString.length
     val randomChars = RandomStringUtils.randomAlphanumeric(restChars)
-    randomChars + nanoTime
+    randomChars + "-" + nanoTime
   }
 
 
