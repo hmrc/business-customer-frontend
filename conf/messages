@@ -101,9 +101,9 @@ bc.business-verification.submit = Register your agency
 bc.business-verification.submit.client = Continue
 
 bc.business-verification-error.firstname = You must enter a first name
-bc.business-verification-error.firstname.length = A first name cannot be more than 40 characters
+bc.business-verification-error.firstname.length = A first name cannot be more than 35 characters
 bc.business-verification-error.surname = You must enter a last name
-bc.business-verification-error.surname.length = A last name cannot be more than 40 characters
+bc.business-verification-error.surname.length = A last name cannot be more than 35 characters
 bc.business-verification-error.sautr = You must enter a Self Assessment Unique Taxpayer Reference
 bc.business-verification-error.sautr.length = Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10
 bc.business-verification-error.utr = Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10.

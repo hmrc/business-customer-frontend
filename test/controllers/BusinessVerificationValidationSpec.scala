@@ -309,8 +309,8 @@ class BusinessVerificationValidationSpec extends PlaySpec with OneServerPerSuite
         ("First name must not be empty", "SOP", saUtrRequest(matchUtr.utr, "", "b"), "You must enter a first name"),
         ("Last name must not be empty", "SOP", saUtrRequest(lastName = ""), "You must enter a last name"),
         ("SA UTR must not be empty", "SOP", saUtrRequest(sa = ""), "You must enter a Self Assessment Unique Taxpayer Reference"),
-        ("First Name must not be more than 40 characters", "SOP", saUtrRequest(firstName = "a" * 41), "A first name cannot be more than 40 characters"),
-        ("Last Name must not be more than 40 characters", "SOP", saUtrRequest(lastName = "a" * 41), "A last name cannot be more than 40 characters"),
+        ("First Name must not be more than 35 characters", "SOP", saUtrRequest(firstName = "a" * 36), "A first name cannot be more than 35 characters"),
+        ("Last Name must not be more than 35 characters", "SOP", saUtrRequest(lastName = "a" * 36), "A last name cannot be more than 35 characters"),
         ("SA UTR must be 10 digits", "SOP", saUtrRequest(sa = "12345678901"), "Self Assessment Unique Taxpayer Reference must be 10 digits"),
         ("SA UTR must contain only digits", "SOP", saUtrRequest(sa = "12345678aa"), "Self Assessment Unique Taxpayer Reference must be 10 digits"),
         ("SA UTR must be valid", "SOP", saUtrRequest(sa = "1234567890"), "The Self Assessment Unique Taxpayer Reference is not valid")
