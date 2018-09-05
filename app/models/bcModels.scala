@@ -29,7 +29,8 @@ case class MatchBusinessData(acknowledgementReference: String,
                              requiresNameMatch: Boolean = false,
                              isAnAgent: Boolean = false,
                              individual: Option[Individual],
-                             organisation: Option[Organisation])
+                             organisation: Option[Organisation],
+                             regime: Option[String] = None)
 
 object Individual {
   implicit val formats = Json.format[Individual]
