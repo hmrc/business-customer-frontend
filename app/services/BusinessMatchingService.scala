@@ -44,7 +44,7 @@ trait BusinessMatchingService {
       val (userUTR, userType) = userUtrAndType
       val trimmedUtr = userUTR.replaceAll(" ", "")
       val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
-        utr = trimmedUtr, requiresNameMatch = false, isAnAgent = isAnAgent, individual = None, organisation = None)
+        utr = trimmedUtr, requiresNameMatch = false, isAnAgent = isAnAgent, individual = None, organisation = None, regime = Some(service))
       businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
         validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr))
       }
@@ -56,7 +56,7 @@ trait BusinessMatchingService {
 
     val trimmedUtr = saUTR.replaceAll(" ", "")
     val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
-      utr = trimmedUtr, requiresNameMatch = true, isAnAgent = isAnAgent, individual = Some(individual), organisation = None)
+      utr = trimmedUtr, requiresNameMatch = true, isAnAgent = isAnAgent, individual = Some(individual), organisation = None, regime = Some(service))
     val userType = "sa"
     businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
       validateAndCache(dataReturned = dataReturned, directMatch = false, utr = Some(trimmedUtr))
@@ -67,7 +67,7 @@ trait BusinessMatchingService {
                                        (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[JsValue] = {
     val trimmedUtr = utr.replaceAll(" ", "")
     val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
-      utr = trimmedUtr, requiresNameMatch = true, isAnAgent = isAnAgent, individual = None, organisation = Some(organisation))
+      utr = trimmedUtr, requiresNameMatch = true, isAnAgent = isAnAgent, individual = None, organisation = Some(organisation), regime = Some(service))
     val userType = "org"
     businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
       validateAndCache(dataReturned = dataReturned, directMatch = false, Some(trimmedUtr))
