@@ -95,6 +95,8 @@ object BusinessVerificationForms {
   val length0 = 0
   val length105 = 105
   val utrRegex = """^[0-9]{10}$""".r
+  val nameRegex = "^[a-zA-Z &`\\-\'^]{1,35}$"
+  val businessNameRegex = "^[a-zA-Z0-9 '&\\\\/]{1,105}$"
 
   def validateBusinessType(businessTypeData: Form[BusinessType], service: String) = {
     val isSaAccount = businessTypeData.data.get("isSaAccount").fold(false)(x => x.toBoolean)
@@ -127,10 +129,10 @@ object BusinessVerificationForms {
   val soleTraderForm = Form(mapping(
     "firstName" -> text
       .verifying(Messages("bc.business-verification-error.firstname"), x => x.trim.length > length0)
-      .verifying(Messages("bc.business-verification-error.firstname.length"),x => x.trim.matches( "^[a-zA-Z &`\\-\'^]{1,35}$")),
+      .verifying(Messages("bc.business-verification-error.firstname.length"),x => x.trim.matches(nameRegex)),
     "lastName" -> text
       .verifying(Messages("bc.business-verification-error.surname"), x => x.trim.length > length0)
-      .verifying(Messages("bc.business-verification-error.surname.length"),x => x.trim.matches( "^[a-zA-Z &`\\-\'^]{1,35}$")),
+      .verifying(Messages("bc.business-verification-error.surname.length"),x => x.trim.matches(nameRegex)),
     "saUTR" -> text
       .verifying(Messages("bc.business-verification-error.sautr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.sautr.length"), x => {
@@ -146,7 +148,7 @@ object BusinessVerificationForms {
   val limitedCompanyForm = Form(mapping(
     "businessName" -> text
       .verifying(Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0)
-      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches("^[a-zA-Z0-9 '&\\\\/]{1,105}$")),
+      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches(businessNameRegex)),
     "cotaxUTR" -> text
       .verifying(Messages("bc.business-verification-error.cotaxutr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.cotaxutr.length"), x => {
@@ -162,7 +164,7 @@ object BusinessVerificationForms {
   val nonResidentLandlordForm = Form(mapping(
     "businessName" -> text
       .verifying(Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0)
-      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches("^[a-zA-Z0-9 '&\\\\/]{1,105}$")),
+      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches(businessNameRegex)),
     "saUTR" -> text
       .verifying(Messages("bc.business-verification-error.sautr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.sautr.length"), x => {
@@ -178,7 +180,7 @@ object BusinessVerificationForms {
   val unincorporatedBodyForm = Form(mapping(
     "businessName" -> text
       .verifying(Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0)
-      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches("^[a-zA-Z0-9 '&\\\\/]{1,105}$")),
+      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches(businessNameRegex)),
     "cotaxUTR" -> text
       .verifying(Messages("bc.business-verification-error.cotaxutr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.cotaxutr.length"), x => {
@@ -194,7 +196,7 @@ object BusinessVerificationForms {
   val ordinaryBusinessPartnershipForm = Form(mapping(
     "businessName" -> text
       .verifying(Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0)
-      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches("^[a-zA-Z0-9 '&\\\\/]{1,105}$")),
+      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches(businessNameRegex)),
     "psaUTR" -> text
       .verifying(Messages("bc.business-verification-error.psautr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.psautr.length"), x => {
@@ -210,7 +212,7 @@ object BusinessVerificationForms {
   val limitedLiabilityPartnershipForm = Form(mapping(
     "businessName" -> text
       .verifying(Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0)
-      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches("^[a-zA-Z0-9 '&\\\\/]{1,105}$")),
+      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches(businessNameRegex)),
     "psaUTR" -> text
       .verifying(Messages("bc.business-verification-error.psautr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.psautr.length"), x => {
@@ -225,7 +227,7 @@ object BusinessVerificationForms {
   val limitedPartnershipForm = Form(mapping(
     "businessName" -> text
       .verifying(Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0)
-      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches("^[a-zA-Z0-9 '&\\\\/]{1,105}$")),
+      .verifying(Messages("bc.business-verification-error.registeredName.length"), x => x.trim.matches(businessNameRegex)),
     "psaUTR" -> text
       .verifying(Messages("bc.business-verification-error.psautr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.psautr.length"), x => {
