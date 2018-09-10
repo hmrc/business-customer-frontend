@@ -23,13 +23,10 @@ import play.api.data.Forms._
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import play.api.i18n.Messages
-import play.api.libs.json.Json
 
 import utils.ValidationConstants
 
 object BusinessRegistrationForms extends ValidationConstants {
-
-
 
   val businessRegistrationForm = Form(
     mapping(
@@ -61,9 +58,9 @@ object BusinessRegistrationForms extends ValidationConstants {
     mapping(
       "hasBusinessUniqueId" -> optional(boolean).verifying(Messages("bc.business-registration-error.hasBusinessUniqueId.not-selected"), x => x.isDefined),
       "businessUniqueId" -> optional(text)
-        .verifying(Messages("bc.business-registration-error.businessUniqueId.length", length60), x => x.isEmpty || (x.nonEmpty && x.get.length <= length60)),
+        .verifying(Messages("bc.business-registration-error.businessUniqueId.length", length60), x => x.isEmpty || (x.nonEmpty && x.get.trim.matches(idNumberRegex))),
       "issuingInstitution" -> optional(text)
-        .verifying(Messages("bc.business-registration-error.issuingInstitution.length", length40), x => x.isEmpty || (x.nonEmpty && x.get.length <= length40)),
+        .verifying(Messages("bc.business-registration-error.issuingInstitution.length", length40), x => x.isEmpty || (x.nonEmpty && x.get.trim.matches(issuingInstitutionRegex))),
       "issuingCountry" -> optional(text)
     )(OverseasCompany.apply)(OverseasCompany.unapply)
   )
