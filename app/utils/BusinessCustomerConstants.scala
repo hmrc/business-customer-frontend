@@ -31,3 +31,22 @@ object BusinessCustomerConstants {
   val PaySaDetailsId = "Pay_Sa_Details"
   val NrlFormId = "NRL_Details"
 }
+
+trait ValidationConstants {
+  val countryUK = "GB"
+
+  val postcodeLength = 10
+  val length40 = 40
+  val length35 = 35
+  val length0 = 0
+  val length2 = 2
+  val length60 = 60
+  val length105 = 105
+
+  val postcodeRegex =
+    """(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9][abehmnprv-yABEHMNPRV-Y]))) {0,}[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}))$"""
+  val lineRegex = "^[A-Za-z0-9 \\-,.&']{1,35}$"
+  val utrRegex = """^[0-9]{10}$"""
+  val nameRegex = "^[a-zA-Z &`\\-\'^]{1,35}$"
+  val businessNameRegex = "^[a-zA-Z0-9 '&\\\\/]{1,105}$"
+}

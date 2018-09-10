@@ -24,7 +24,7 @@ import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.libs.json.Json
 import utils.BCUtils._
-
+import utils.ValidationConstants
 
 case class SoleTraderMatch(firstName: String, lastName: String, saUTR: String)
 
@@ -88,15 +88,7 @@ object BusinessDetails {
   implicit val formats = Json.format[BusinessDetails]
 }
 
-object BusinessVerificationForms {
-
-  val length40 = 40
-  val length35 = 35
-  val length0 = 0
-  val length105 = 105
-  val utrRegex = """^[0-9]{10}$""".r
-  val nameRegex = "^[a-zA-Z &`\\-\'^]{1,35}$"
-  val businessNameRegex = "^[a-zA-Z0-9 '&\\\\/]{1,105}$"
+object BusinessVerificationForms extends ValidationConstants {
 
   def validateBusinessType(businessTypeData: Form[BusinessType], service: String) = {
     val isSaAccount = businessTypeData.data.get("isSaAccount").fold(false)(x => x.toBoolean)
@@ -153,11 +145,11 @@ object BusinessVerificationForms {
       .verifying(Messages("bc.business-verification-error.cotaxutr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.cotaxutr.length"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches("""^[0-9]{10}$"""))}
+        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches(utrRegex))}
       )
       .verifying(Messages("bc.business-verification-error.invalidCOUTR"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches("""^[0-9]{10}$"""))
+        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches(utrRegex))
       })
   )(LimitedCompanyMatch.apply)(LimitedCompanyMatch.unapply))
 
@@ -169,11 +161,11 @@ object BusinessVerificationForms {
       .verifying(Messages("bc.business-verification-error.sautr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.sautr.length"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches("""^[0-9]{10}$"""))}
+        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches(utrRegex))}
       )
       .verifying(Messages("bc.business-verification-error.invalidSAUTR"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches("""^[0-9]{10}$"""))
+        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches(utrRegex))
       })
   )(NonResidentLandlordMatch.apply)(NonResidentLandlordMatch.unapply))
 
@@ -185,11 +177,11 @@ object BusinessVerificationForms {
       .verifying(Messages("bc.business-verification-error.cotaxutr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.cotaxutr.length"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches("""^[0-9]{10}$"""))}
+        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches(utrRegex))}
       )
       .verifying(Messages("bc.business-verification-error.invalidCOUTR"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches("""^[0-9]{10}$"""))
+        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches(utrRegex))
       })
   )(UnincorporatedMatch.apply)(UnincorporatedMatch.unapply))
 
@@ -201,11 +193,11 @@ object BusinessVerificationForms {
       .verifying(Messages("bc.business-verification-error.psautr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.psautr.length"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches("""^[0-9]{10}$"""))}
+        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches(utrRegex))}
       )
       .verifying(Messages("bc.business-verification-error.invalidPSAUTR"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches("""^[0-9]{10}$"""))
+        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches(utrRegex))
       })
   )(OrdinaryBusinessPartnershipMatch.apply)(OrdinaryBusinessPartnershipMatch.unapply))
 
@@ -217,11 +209,11 @@ object BusinessVerificationForms {
       .verifying(Messages("bc.business-verification-error.psautr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.psautr.length"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches("""^[0-9]{10}$"""))}
+        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches(utrRegex))}
       )
       .verifying(Messages("bc.business-verification-error.invalidPSAUTR"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches("""^[0-9]{10}$"""))
+        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches(utrRegex))
       })
   )(LimitedLiabilityPartnershipMatch.apply)(LimitedLiabilityPartnershipMatch.unapply))
   val limitedPartnershipForm = Form(mapping(
@@ -232,11 +224,11 @@ object BusinessVerificationForms {
       .verifying(Messages("bc.business-verification-error.psautr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.psautr.length"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches("""^[0-9]{10}$"""))}
+        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches(utrRegex))}
       )
       .verifying(Messages("bc.business-verification-error.invalidPSAUTR"), x => {
         val trimmedString = x.replaceAll(" ", "")
-        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches("""^[0-9]{10}$"""))
+        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches(utrRegex))
       })
   )(LimitedPartnershipMatch.apply)(LimitedPartnershipMatch.unapply))
 

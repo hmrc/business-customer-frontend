@@ -25,37 +25,28 @@ import play.api.Play.current
 import play.api.i18n.Messages
 import play.api.libs.json.Json
 
+import utils.ValidationConstants
 
-object BusinessRegistrationForms {
+object BusinessRegistrationForms extends ValidationConstants {
 
-  val postcodeLength = 10
-  val length40 = 40
-  val length35 = 35
-  val length0 = 0
-  val length2 = 2
-  val length60 = 60
-  val length105 = 105
-  val postcodeRegex =
-    """(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9][abehmnprv-yABEHMNPRV-Y]))) {0,}[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}))$"""
 
-  val countryUK = "GB"
 
   val businessRegistrationForm = Form(
     mapping(
       "businessName" -> text.
         verifying(Messages("bc.business-registration-error.businessName"), x => x.trim.length > length0)
-        .verifying(Messages("bc.business-registration-error.businessName.length", length105), x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
+        .verifying(Messages("bc.business-registration-error.businessName.length", length105), x => x.trim.matches(businessNameRegex)),
       "businessAddress" -> mapping(
         "line_1" -> text.
           verifying(Messages("bc.business-registration-error.line_1"), x => x.trim.length > length0)
-          .verifying(Messages("bc.business-registration-error.line_1.length", length35), x => x.isEmpty || (x.nonEmpty && x.length <= length35)),
+          .verifying(Messages("bc.business-registration-error.line_1.length", length35), x => x.trim.matches(lineRegex)),
         "line_2" -> text.
           verifying(Messages("bc.business-registration-error.line_2"), x => x.trim.length > length0)
-          .verifying(Messages("bc.business-registration-error.line_2.length", length35), x => x.isEmpty || (x.nonEmpty && x.length <= length35)),
+          .verifying(Messages("bc.business-registration-error.line_2.length", length35), x => x.trim.matches(lineRegex)),
         "line_3" -> optional(text)
-          .verifying(Messages("bc.business-registration-error.line_3.length", length35), x => x.isEmpty || (x.nonEmpty && x.get.length <= length35)),
+          .verifying(Messages("bc.business-registration-error.line_3.length", length35), x => x.isEmpty || (x.nonEmpty && x.get.trim.matches(lineRegex))),
         "line_4" -> optional(text)
-          .verifying(Messages("bc.business-registration-error.line_4.length", length35), x => x.isEmpty || (x.nonEmpty && x.get.length <= length35)),
+          .verifying(Messages("bc.business-registration-error.line_4.length", length35), x => x.isEmpty || (x.nonEmpty && x.get.trim.matches(lineRegex))),
         "postcode" -> optional(text)
           .verifying(Messages("bc.business-registration-error.postcode.length", postcodeLength),
             x => x.isEmpty || (x.nonEmpty && x.get.length <= postcodeLength)),
