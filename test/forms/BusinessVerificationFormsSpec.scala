@@ -79,4 +79,84 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
   }
+
+
+  "businessTypeForm form " should {
+    "validate empty business type" in {
+
+
+      val formData = Map("businessType" -> "Soletrader", "isSaAccount" -> "true", "isOrgAccount" -> "true")
+
+      BusinessVerificationForms.businessTypeForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length must be(0)
+        },
+        success = {
+          success => {
+            success.businessType must be(Some("Soletrader"))
+          }
+        }
+      )
+    }
+
+    "Catch empty businessType" in {
+      val formData = Map("isSaAccount" -> "true", "isOrgAccount" -> "true")
+
+      BusinessVerificationForms.businessTypeForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length must be(1)
+          formWithErrors.errors(0).message must be ("Please select a type of business")
+        },
+        success = {
+          success => {
+            fail("Form should give an error")
+          }
+        }
+      )
+    }
+  }
+
+  "limitedCompanyForm" should {
+    "validate correct limited company" in {
+      val formData = Map("businessName"->"Acme", "cotaxUTR"->"1111111111")
+      BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length must be (0)
+        },
+        success => {
+          success.businessName must be ("Acme")
+          success.cotaxUTR must be ("1111111111")
+        }
+      )
+
+    }
+
+    "Catch incorrect businessName" in {
+      val formData = Map("businessName"->"Acm&^$£e", "cotaxUTR"->"1111111111")
+      BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
+        formWithErrors => {
+          print(formWithErrors.toString)
+          formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "Catch incorrect ctUTR" in {
+      val formData = Map("businessName"->"Acme", "cotaxUTR"->"0111111")
+      BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
+        formWithErrors => {
+          print(formWithErrors.toString)
+          formWithErrors.errors(0).message must be ("Corporation Tax Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+  }
 }
