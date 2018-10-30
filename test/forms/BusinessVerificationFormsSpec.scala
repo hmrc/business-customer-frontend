@@ -39,7 +39,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("firstName"->"Ji*&m", "lastName"->"Last","saUTR"->"1123456789")
       BusinessVerificationForms.soleTraderForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("A first name cannot be more than 35 characters")
           formWithErrors.errors.length must be (1)
         },
@@ -54,7 +53,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("firstName"->"Jim", "lastName"->"Ji*&m","saUTR"->"1123456789")
       BusinessVerificationForms.soleTraderForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("A last name cannot be more than 35 characters")
           formWithErrors.errors.length must be (1)
         },
@@ -69,7 +67,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("firstName"->"Jim", "lastName"->"Last","saUTR"->"012345678")
       BusinessVerificationForms.soleTraderForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
           formWithErrors.errors.length must be (1)
         },
@@ -135,7 +132,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acm&^$£e", "cotaxUTR"->"1111111111")
       BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
           formWithErrors.errors.length must be (1)
         },
@@ -149,7 +145,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acme", "cotaxUTR"->"0111111")
       BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("Corporation Tax Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
           formWithErrors.errors.length must be (1)
         },
@@ -178,7 +173,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acm&^$£e", "saUTR"->"1111111111")
       BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
           formWithErrors.errors.length must be (1)
         },
@@ -192,7 +186,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acme", "saUTR"->"0111111")
       BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
           formWithErrors.errors.length must be (1)
         },
@@ -221,7 +214,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acm&^$£e", "cotaxUTR"->"1111111111")
       BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
           formWithErrors.errors.length must be (1)
         },
@@ -235,7 +227,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acme", "cotaxUTR"->"0111111")
       BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("Corporation Tax Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
           formWithErrors.errors.length must be (1)
         },
@@ -265,7 +256,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acm&^$£e", "psaUTR"->"1111111111")
       BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
           formWithErrors.errors.length must be (1)
         },
@@ -278,7 +268,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName" -> "Acme", "psaUTR" -> "0111111")
       BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be("Partnership Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
           formWithErrors.errors.length must be(1)
         },
@@ -307,7 +296,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
         val formData = Map("businessName"->"Acm&^$£e", "psaUTR"->"1111111111")
         BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
           formWithErrors => {
-            print(formWithErrors.toString)
             formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
             formWithErrors.errors.length must be (1)
           },
@@ -320,7 +308,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
         val formData = Map("businessName" -> "Acme", "psaUTR" -> "0111111")
         BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
           formWithErrors => {
-            print(formWithErrors.toString)
             formWithErrors.errors(0).message must be("Partnership Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
             formWithErrors.errors.length must be(1)
           },
@@ -350,7 +337,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acm&^$£e", "psaUTR"->"1111111111")
       BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
           formWithErrors.errors.length must be (1)
         },
@@ -363,7 +349,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName" -> "Acme", "psaUTR" -> "0111111")
       BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors(0).message must be("Partnership Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
           formWithErrors.errors.length must be(1)
         },
