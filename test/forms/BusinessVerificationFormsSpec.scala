@@ -79,7 +79,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
 
 
   "businessTypeForm form " should {
-    "validate empty business type" in {
+    "validate business type" in {
 
 
       val formData = Map("businessType" -> "Soletrader", "isSaAccount" -> "true", "isOrgAccount" -> "true")
