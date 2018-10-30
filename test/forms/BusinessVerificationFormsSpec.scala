@@ -159,4 +159,91 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
   }
+
+  "nonResidentLandlordForm" should {
+    "validate correct nonResidentLandlord" in {
+      val formData = Map("businessName"->"Acme", "saUTR"->"1111111111")
+      BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length must be (0)
+        },
+        success => {
+          success.businessName must be ("Acme")
+          success.saUTR must be ("1111111111")
+        }
+      )
+    }
+
+    "Catch incorrect businessName" in {
+      val formData = Map("businessName"->"Acm&^$£e", "saUTR"->"1111111111")
+      BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
+        formWithErrors => {
+          print(formWithErrors.toString)
+          formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "Catch incorrect saUTR" in {
+      val formData = Map("businessName"->"Acme", "saUTR"->"0111111")
+      BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
+        formWithErrors => {
+          print(formWithErrors.toString)
+          formWithErrors.errors(0).message must be ("Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+  }
+
+  "unincorporatedBodyForm" should {
+    "valid correct unincorporatedBody" in {
+      val formData = Map("businessName"->"Acme", "cotaxUTR"->"1111111111")
+      BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length must be (0)
+        },
+        success => {
+          success.businessName must be ("Acme")
+          success.cotaxUTR must be ("1111111111")
+        }
+      )
+    }
+
+    "Catch incorrect businessName" in {
+      val formData = Map("businessName"->"Acm&^$£e", "cotaxUTR"->"1111111111")
+      BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
+        formWithErrors => {
+          print(formWithErrors.toString)
+          formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "Catch incorrect ctUTR" in {
+      val formData = Map("businessName"->"Acme", "cotaxUTR"->"0111111")
+      BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
+        formWithErrors => {
+          print(formWithErrors.toString)
+          formWithErrors.errors(0).message must be ("Corporation Tax Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+  }
 }
