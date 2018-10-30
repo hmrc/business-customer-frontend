@@ -246,4 +246,133 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
 
   }
+
+  "ordinaryBusinessPartnershipForm" should {
+    "Validate correct ordinaryBusinessPartnership" in {
+      val formData = Map("businessName" -> "Acme", "psaUTR" -> "1111111111")
+      BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length must be (0)
+        },
+        success => {
+          success.businessName must be ("Acme")
+          success.psaUTR must be ("1111111111")
+        }
+      )
+    }
+
+    "fail with invalid businessName" in {
+      val formData = Map("businessName"->"Acm&^$£e", "psaUTR"->"1111111111")
+      BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          print(formWithErrors.toString)
+          formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+    "fail with invalid psaUTR" in {
+      val formData = Map("businessName" -> "Acme", "psaUTR" -> "0111111")
+      BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          print(formWithErrors.toString)
+          formWithErrors.errors(0).message must be("Partnership Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
+          formWithErrors.errors.length must be(1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+  }
+
+  "limitedLiabilityPartnershipForm" should {
+      "Validate correct limitedLiabilityPartnershipForm" in {
+        val formData = Map("businessName" -> "Acme", "psaUTR" -> "1111111111")
+        BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
+          formWithErrors => {
+            formWithErrors.errors.length must be (0)
+          },
+          success => {
+            success.businessName must be ("Acme")
+            success.psaUTR must be ("1111111111")
+          }
+        )
+      }
+
+      "fail with invalid businessName" in {
+        val formData = Map("businessName"->"Acm&^$£e", "psaUTR"->"1111111111")
+        BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
+          formWithErrors => {
+            print(formWithErrors.toString)
+            formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+            formWithErrors.errors.length must be (1)
+          },
+          success => {
+            fail("Form should give an error")
+          }
+        )
+      }
+      "fail with invalid psaUTR" in {
+        val formData = Map("businessName" -> "Acme", "psaUTR" -> "0111111")
+        BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
+          formWithErrors => {
+            print(formWithErrors.toString)
+            formWithErrors.errors(0).message must be("Partnership Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
+            formWithErrors.errors.length must be(1)
+          },
+          success => {
+            fail("Form should give an error")
+          }
+        )
+      }
+
+  }
+
+  "limitedPartnershipForm" should {
+    "Validate correct limitedPartnershipForm" in {
+      val formData = Map("businessName" -> "Acme", "psaUTR" -> "1111111111")
+      BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length must be (0)
+        },
+        success => {
+          success.businessName must be ("Acme")
+          success.psaUTR must be ("1111111111")
+        }
+      )
+    }
+
+    "fail with invalid businessName" in {
+      val formData = Map("businessName"->"Acm&^$£e", "psaUTR"->"1111111111")
+      BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          print(formWithErrors.toString)
+          formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+    "fail with invalid psaUTR" in {
+      val formData = Map("businessName" -> "Acme", "psaUTR" -> "0111111")
+      BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          print(formWithErrors.toString)
+          formWithErrors.errors(0).message must be("Partnership Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
+          formWithErrors.errors.length must be(1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+  }
+
+
 }
