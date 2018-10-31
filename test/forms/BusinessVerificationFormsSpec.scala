@@ -46,7 +46,22 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
           fail("Form should give an error")
         }
       )
+    }
 
+    "Catch empty firstName" in {
+      val formData = Map("firstName"->"", "lastName"->"Jim","saUTR"->"1123456789")
+      BusinessVerificationForms.soleTraderForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a first name")
+          formWithErrors.errors(1).message must be ("A first name cannot be more than 35 characters")
+          println(formWithErrors.errors(0).message)
+          println(formWithErrors.errors(1).message)
+          formWithErrors.errors.length must be (2)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
     }
 
     "Catch incorrect lastName" in {
@@ -60,7 +75,22 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
           fail("Form should give an error")
         }
       )
+    }
 
+    "Catch empty lastName" in {
+      val formData = Map("firstName"->"Jim", "lastName"->"","saUTR"->"1123456789")
+      BusinessVerificationForms.soleTraderForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a last name")
+          formWithErrors.errors(1).message must be ("A last name cannot be more than 35 characters")
+          println(formWithErrors.errors(0).message)
+          println(formWithErrors.errors(1).message)
+          formWithErrors.errors.length must be (2)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
     }
 
     "Catch invalid saUTR" in {
@@ -75,12 +105,23 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
         }
       )
     }
-  }
 
+    "Catch empty saUTR" in {
+      val formData = Map("firstName"->"Jim", "lastName"->"Last","saUTR"->"")
+      BusinessVerificationForms.soleTraderForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a Self Assessment Unique Taxpayer Reference")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+  }
 
   "businessTypeForm form " should {
     "validate business type" in {
-
 
       val formData = Map("businessType" -> "Soletrader", "isSaAccount" -> "true", "isOrgAccount" -> "true")
 
@@ -125,7 +166,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
           success.cotaxUTR must be ("1111111111")
         }
       )
-
     }
 
     "Catch incorrect businessName" in {
@@ -141,11 +181,38 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
+    "Catch empty businessName" in {
+      val formData = Map("businessName"->"", "cotaxUTR"->"1111111111")
+      BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a registered company name")
+          formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (2)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
     "Catch incorrect ctUTR" in {
       val formData = Map("businessName"->"Acme", "cotaxUTR"->"0111111")
       BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors(0).message must be ("Corporation Tax Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "Catch empty ctUTR" in {
+      val formData = Map("businessName"->"Acme", "cotaxUTR"->"")
+      BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a Corporation Tax Unique Taxpayer Reference")
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -182,11 +249,38 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
+    "Catch empty businessName" in {
+        val formData = Map("businessName"->"", "saUTR"->"1111111111")
+        BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
+          formWithErrors => {
+            formWithErrors.errors(0).message must be ("You must enter a registered company name")
+            formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
+            formWithErrors.errors.length must be (2)
+          },
+          success => {
+            fail("Form should give an error")
+          }
+        )
+    }
+
     "Catch incorrect saUTR" in {
       val formData = Map("businessName"->"Acme", "saUTR"->"0111111")
       BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors(0).message must be ("Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "Catch empty saUTR" in {
+      val formData = Map("businessName"->"Acme", "saUTR"->"")
+      BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a Self Assessment Unique Taxpayer Reference")
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -223,6 +317,20 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
+    "Catch empty businessName" in {
+      val formData = Map("businessName"->"", "cotaxUTR"->"1111111111")
+      BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a registered company name")
+          formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (2)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
     "Catch incorrect ctUTR" in {
       val formData = Map("businessName"->"Acme", "cotaxUTR"->"0111111")
       BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
@@ -236,6 +344,18 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
+    "Catch empty ctUTR" in {
+      val formData = Map("businessName"->"Acme", "cotaxUTR"->"")
+      BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a Corporation Tax Unique Taxpayer Reference")
+          formWithErrors.errors.length must be (1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
   }
 
   "ordinaryBusinessPartnershipForm" should {
@@ -264,11 +384,39 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
         }
       )
     }
+
+    "fail with empty businessName" in {
+      val formData = Map("businessName"->"", "psaUTR"->"1111111111")
+      BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a registered company name")
+          formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (2)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
     "fail with invalid psaUTR" in {
       val formData = Map("businessName" -> "Acme", "psaUTR" -> "0111111")
       BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors(0).message must be("Partnership Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10")
+          formWithErrors.errors.length must be(1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "fail with empty psaUTR" in {
+      val formData = Map("businessName" -> "Acme", "psaUTR" -> "")
+      BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be("You must enter a Partnership Self Assessment Unique Taxpayer Reference")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -304,6 +452,21 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
           }
         )
       }
+
+    "fail with empty businessName" in {
+      val formData = Map("businessName"->"", "psaUTR"->"1111111111")
+      BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a registered company name")
+          formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (2)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
       "fail with invalid psaUTR" in {
         val formData = Map("businessName" -> "Acme", "psaUTR" -> "0111111")
         BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
@@ -317,6 +480,18 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
         )
       }
 
+    "fail with empty psaUTR" in {
+      val formData = Map("businessName" -> "Acme", "psaUTR" -> "")
+      BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be("You must enter a Partnership Self Assessment Unique Taxpayer Reference")
+          formWithErrors.errors.length must be(1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
   }
 
   "limitedPartnershipForm" should {
@@ -345,6 +520,21 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
         }
       )
     }
+
+    "fail with empty businessName" in {
+      val formData = Map("businessName"->"", "psaUTR"->"1111111111")
+      BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a registered company name")
+          formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (2)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
     "fail with invalid psaUTR" in {
       val formData = Map("businessName" -> "Acme", "psaUTR" -> "0111111")
       BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(
@@ -357,7 +547,19 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
         }
       )
     }
-  }
 
+    "fail with empty psaUTR" in {
+      val formData = Map("businessName" -> "Acme", "psaUTR" -> "")
+      BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be("You must enter a Partnership Self Assessment Unique Taxpayer Reference")
+          formWithErrors.errors.length must be(1)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+  }
 
 }
