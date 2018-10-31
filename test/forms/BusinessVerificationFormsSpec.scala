@@ -54,8 +54,6 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
         formWithErrors => {
           formWithErrors.errors(0).message must be ("You must enter a first name")
           formWithErrors.errors(1).message must be ("A first name cannot be more than 35 characters")
-          println(formWithErrors.errors(0).message)
-          println(formWithErrors.errors(1).message)
           formWithErrors.errors.length must be (2)
         },
         success => {

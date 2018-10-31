@@ -21,16 +21,8 @@ import models.{Address, BusinessRegistration}
 
 class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
-  "Businessregistration form" should {
-    "validate businessRegistrationForm with plain test of correct length" in {
-
-        val formData = Map(
-          "businessName" -> "Acme",
-          "businessAddress.line_1" -> "Oxford house",
-          "businessAddress.line_2" -> "Oxford",
-          "businessAddress.postcode" -> "XX9 XX8",
-          "businessAddress.country" -> "GB"
-        )
+  "Businessegistration form" should {
+    "render businessRegistrationForm with plain test of correct length" in {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(formData).fold(
         formWithErrors => {
@@ -46,17 +38,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
         }
       )
     }
-    "validate businessRegistrationForm with allowed chars in name" in {
+    "render the form correctly" when {
+      "given allowed characters for businessName" in {
 
-        val formData = Map(
-          "businessName" -> "Acme& '/",
-          "businessAddress.line_1" -> "Oxford house",
-          "businessAddress.line_2" -> "Oxford",
-          "businessAddress.postcode" -> "XX9 XX8",
-          "businessAddress.country" -> "GB"
-        )
+         val newFormData = formData.updated("businessName", "Acme& '/")
 
-      BusinessRegistrationForms.businessRegistrationForm.bind(formData).fold(
+        BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
           print(formWithErrors.toString)
           formWithErrors.errors.length must be (0)
@@ -68,9 +55,27 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           success.businessAddress.postcode must be (Some("XX9 XX8"))
           success.businessAddress.country must be ("GB")
         }
+        )
+      }
+    }
+"throw an error" when {
+
+
+   " businessName is empty" in {
+      val newFormData = formData.updated("businessName", "")
+
+      BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be ("You must enter a business name")
+          formWithErrors.errors(1).message must be ("The business name cannot be more than 105 characters")
+          formWithErrors.errors.length must be (2)
+        },
+        success => {
+          fail("Form should give an error")
+        }
       )
     }
-    "fail regex for businessName with invalid characters" in {
+    "businessName is given invalid characters" in {
 
       val formData = Map(
         "businessName" -> "Acm^*e",
@@ -82,7 +87,6 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(formData).fold(
         formWithErrors => {
-          print(formWithErrors.toString)
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -90,5 +94,19 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
         }
       )
     }
+}
+
+
+
+
   }
+
+  val formData: Map[String, String] = Map(
+    "businessName" -> "Acme",
+    "businessAddress.line_1" -> "Oxford house",
+    "businessAddress.line_2" -> "Oxford",
+    "businessAddress.postcode" -> "XX9 XX8",
+    "businessAddress.country" -> "GB"
+
+  )
 }
