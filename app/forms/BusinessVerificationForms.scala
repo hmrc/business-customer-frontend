@@ -23,6 +23,8 @@ import play.api.data._
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.libs.json.Json
+import uk.gov.hmrc.play.mappers.StopOnFirstFail
+import uk.gov.hmrc.play.mappers.StopOnFirstFail.constraint
 import utils.BCUtils._
 import utils.ValidationConstants
 
@@ -119,12 +121,20 @@ object BusinessVerificationForms extends ValidationConstants {
   )
 
   val soleTraderForm = Form(mapping(
-    "firstName" -> text
-      .verifying(Messages("bc.business-verification-error.firstname"), x => x.trim.length > length0)
-      .verifying(Messages("bc.business-verification-error.firstname.length"),x => x.trim.matches(nameRegex)),
-    "lastName" -> text
-      .verifying(Messages("bc.business-verification-error.surname"), x => x.trim.length > length0)
-      .verifying(Messages("bc.business-verification-error.surname.length"),x => x.trim.matches(nameRegex)),
+    "firstName" -> text.verifying(
+      StopOnFirstFail(
+        constraint[String](Messages("bc.business-verification-error.firstname"), x => x.trim.length > length0),
+        constraint[String](Messages("bc.business-verification-error.firstname.length"), x => x.trim.length <= length35),
+        constraint[String](Messages("bc.business-verification-error.firstname.invalid"),x => x.trim.matches(nameRegex))
+      )
+    ),
+    "lastName" -> text.verifying(
+      StopOnFirstFail(
+        constraint[String](Messages("bc.business-verification-error.surname"), x => x.trim.length > length0),
+        constraint[String](Messages("bc.business-verification-error.surname.length"), x => x.trim.length <= length35),
+        constraint[String](Messages("bc.business-verification-error.surname.invalid"),x => x.trim.matches(nameRegex))
+      )
+    ),
     "saUTR" -> text
       .verifying(Messages("bc.business-verification-error.sautr"), x => x.replaceAll(" ", "").length > length0)
       .verifying(Messages("bc.business-verification-error.sautr.length"), x => {

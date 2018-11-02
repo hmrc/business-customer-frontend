@@ -39,7 +39,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("firstName"->"Ji*&m", "lastName"->"Last","saUTR"->"1123456789")
       BusinessVerificationForms.soleTraderForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("A first name cannot be more than 35 characters")
+          formWithErrors.errors(0).message must be ("bc.business-verification-error.firstname.invalid")
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -53,8 +53,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       BusinessVerificationForms.soleTraderForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors(0).message must be ("You must enter a first name")
-          formWithErrors.errors(1).message must be ("A first name cannot be more than 35 characters")
-          formWithErrors.errors.length must be (2)
+          formWithErrors.errors.length must be (1)
         },
         success => {
           fail("Form should give an error")
@@ -66,7 +65,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("firstName"->"Jim", "lastName"->"Ji*&m","saUTR"->"1123456789")
       BusinessVerificationForms.soleTraderForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("A last name cannot be more than 35 characters")
+          formWithErrors.errors(0).message must be ("bc.business-verification-error.surname.invalid")
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -80,10 +79,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       BusinessVerificationForms.soleTraderForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors(0).message must be ("You must enter a last name")
-          formWithErrors.errors(1).message must be ("A last name cannot be more than 35 characters")
-          println(formWithErrors.errors(0).message)
-          println(formWithErrors.errors(1).message)
-          formWithErrors.errors.length must be (2)
+          formWithErrors.errors.length must be (1)
         },
         success => {
           fail("Form should give an error")

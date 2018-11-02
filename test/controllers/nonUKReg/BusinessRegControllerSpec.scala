@@ -152,7 +152,7 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
                        line2: String = "line-2",
                        line3: String = "",
                        line4: String = "",
-                       postcode: String = "12345678",
+                       postcode: String = "AA1 1AA",
                        country: String = "FR") =
           Json.parse(
             s"""
