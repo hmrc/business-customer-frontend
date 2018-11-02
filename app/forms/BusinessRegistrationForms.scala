@@ -71,11 +71,15 @@ object BusinessRegistrationForms extends ValidationConstants {
   val overseasCompanyForm = Form(
     mapping(
       "hasBusinessUniqueId" -> optional(boolean).verifying(Messages("bc.business-registration-error.hasBusinessUniqueId.not-selected"), x => x.isDefined),
-      "businessUniqueId" -> optional(text)
-        .verifying(Messages("bc.business-registration-error.businessUniqueId.length", length60), x => x.isEmpty || (x.nonEmpty && x.get.trim.matches(idNumberRegex))),
-      "issuingInstitution" -> optional(text)
-        .verifying(Messages("bc.business-registration-error.issuingInstitution.length", length40), x => x.isEmpty || (x.nonEmpty && x.get.trim.matches(issuingInstitutionRegex))),
-      "issuingCountry" -> optional(text)
+      "businessUniqueId" -> optional(text).verifying(StopOnFirstFail(
+        constraint[Option[String]](Messages("bc.business-registration-error.businessUniqueId.length", length60), x => x.isEmpty || x.fold(false)(_.length <= length60)),
+        constraint[Option[String]](Messages("bc.business-registration-error.businessUniqueId.invalid"), x => x.isEmpty || x.fold(false)(_.trim.matches(idNumberRegex))))
+      ),
+      "issuingInstitution" -> optional(text).verifying(StopOnFirstFail(
+        constraint[Option[String]](Messages("bc.business-registration-error.issuingInstitution.length", length40), x => x.isEmpty || x.fold(false)(_.length <= length40)),
+        constraint[Option[String]](Messages("bc.business-registration-error.issuingInstitution.invalid"), x => x.isEmpty || x.fold(false)(_.trim.matches(issuingInstitutionRegex))))
+      ),
+      "issuingCountry" -> optional(text).verifying(Messages("bc.business-registration-error.issuingCountry.invalid"), x => x.isEmpty || x.fold(false)(_.trim.matches(issuingCountryRegex)))
     )(OverseasCompany.apply)(OverseasCompany.unapply)
   )
 

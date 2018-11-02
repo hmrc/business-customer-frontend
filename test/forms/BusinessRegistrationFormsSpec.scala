@@ -26,41 +26,41 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors.length must be (0)
+          formWithErrors.errors.length must be(0)
         },
         success => {
-          success.businessName must be ("Acme")
-          success.businessAddress.line_1 must be ("Oxford house")
-          success.businessAddress.line_2 must be ("Oxford")
-          success.businessAddress.postcode must be (Some("OX1 4BH"))
-          success.businessAddress.country must be ("GB")
+          success.businessName must be("Acme")
+          success.businessAddress.line_1 must be("Oxford house")
+          success.businessAddress.line_2 must be("Oxford")
+          success.businessAddress.postcode must be(Some("OX1 4BH"))
+          success.businessAddress.country must be("GB")
         }
       )
     }
 
     "render businessRegistrationForm correctly with allowed characters in businessName" in {
-        val newFormData = formData.updated("businessName", "Acme& '/")
+      val newFormData = formData.updated("businessName", "Acme& '/")
 
-        BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
-          formWithErrors => {
-            formWithErrors.errors.length must be (0)
-          },
-          success => {
-            success.businessName must be ("Acme& '/")
-            success.businessAddress.line_1 must be ("Oxford house")
-            success.businessAddress.line_2 must be ("Oxford")
-            success.businessAddress.postcode must be (Some("OX1 4BH"))
-            success.businessAddress.country must be ("GB")
-          }
-        )
+      BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length must be(0)
+        },
+        success => {
+          success.businessName must be("Acme& '/")
+          success.businessAddress.line_1 must be("Oxford house")
+          success.businessAddress.line_2 must be("Oxford")
+          success.businessAddress.postcode must be(Some("OX1 4BH"))
+          success.businessAddress.country must be("GB")
+        }
+      )
     }
 
-   "should throw error if businessName is empty" in {
+    "should throw error if businessName is empty" in {
       val newFormData = formData.updated("businessName", "")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -69,11 +69,11 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
 
     "should validate that businessName length is less than 105" in {
-      val newFormData = formData.updated("businessName", "Acme"*10000)
+      val newFormData = formData.updated("businessName", "Acme" * 10000)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -87,8 +87,8 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("Invalid Message")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("Invalid Message")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -103,11 +103,11 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
         formWithErrors => {
         },
         success => {
-          success.businessName must be ("Acme")
-          success.businessAddress.line_1 must be ("Oxford house& -,.")
-          success.businessAddress.line_2 must be ("Oxford")
-          success.businessAddress.postcode must be (Some("OX1 4BH"))
-          success.businessAddress.country must be ("GB")
+          success.businessName must be("Acme")
+          success.businessAddress.line_1 must be("Oxford house& -,.")
+          success.businessAddress.line_2 must be("Oxford")
+          success.businessAddress.postcode must be(Some("OX1 4BH"))
+          success.businessAddress.country must be("GB")
         }
       )
     }
@@ -117,8 +117,8 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("You must enter an address into Address line 1")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("You must enter an address into Address line 1")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -127,12 +127,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
 
     "should validate that businessAddress.line_1 length is less than 35" in {
-      val newFormData = formData.updated("businessAddress.line_1", "Oxford house"*10)
+      val newFormData = formData.updated("businessAddress.line_1", "Oxford house" * 10)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("Address line 1 cannot be more than 35 characters")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("Address line 1 cannot be more than 35 characters")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -146,8 +146,8 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("Invalid error message")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("Invalid error message")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -160,14 +160,14 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors.length must be (0)
+          formWithErrors.errors.length must be(0)
         },
         success => {
-          success.businessName must be ("Acme")
-          success.businessAddress.line_1 must be ("Oxford house")
-          success.businessAddress.line_2 must be ("Oxford& -,.")
-          success.businessAddress.postcode must be (Some("OX1 4BH"))
-          success.businessAddress.country must be ("GB")
+          success.businessName must be("Acme")
+          success.businessAddress.line_1 must be("Oxford house")
+          success.businessAddress.line_2 must be("Oxford& -,.")
+          success.businessAddress.postcode must be(Some("OX1 4BH"))
+          success.businessAddress.country must be("GB")
         }
       )
     }
@@ -177,8 +177,8 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("You must enter an address into Address line 2")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("You must enter an address into Address line 2")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -187,12 +187,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
 
     "should validate that businessAddress.line_2 length is less than 35" in {
-      val newFormData = formData.updated("businessAddress.line_2", "Oxford house"*10)
+      val newFormData = formData.updated("businessAddress.line_2", "Oxford house" * 10)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("Address line 2 cannot be more than 35 characters")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("Address line 2 cannot be more than 35 characters")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -220,25 +220,25 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors.length must be (0)
+          formWithErrors.errors.length must be(0)
         },
         success => {
-          success.businessName must be ("Acme")
-          success.businessAddress.line_1 must be ("Oxford house")
-          success.businessAddress.line_2 must be ("Oxford")
-          success.businessAddress.line_3 must be (Some("Address Line 3& -,."))
-          success.businessAddress.postcode must be (Some("OX1 4BH"))
-          success.businessAddress.country must be ("GB")
+          success.businessName must be("Acme")
+          success.businessAddress.line_1 must be("Oxford house")
+          success.businessAddress.line_2 must be("Oxford")
+          success.businessAddress.line_3 must be(Some("Address Line 3& -,."))
+          success.businessAddress.postcode must be(Some("OX1 4BH"))
+          success.businessAddress.country must be("GB")
         }
       )
     }
 
     "should validate that businessAddress.line_3 length is less than 35" in {
-      val newFormData = formData.updated("businessAddress.line_3", "Oxford house"*10)
+      val newFormData = formData.updated("businessAddress.line_3", "Oxford house" * 10)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("Address line 3 cannot be more than 35 characters")
+          formWithErrors.errors(0).message must be("Address line 3 cannot be more than 35 characters")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -253,8 +253,8 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("Invalid error message")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("Invalid error message")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -267,26 +267,26 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors.length must be (0)
+          formWithErrors.errors.length must be(0)
         },
         success => {
-          success.businessName must be ("Acme")
-          success.businessAddress.line_1 must be ("Oxford house")
-          success.businessAddress.line_2 must be ("Oxford")
-          success.businessAddress.line_4 must be (Some("Address Line 4& -,."))
-          success.businessAddress.postcode must be (Some("OX1 4BH"))
-          success.businessAddress.country must be ("GB")
+          success.businessName must be("Acme")
+          success.businessAddress.line_1 must be("Oxford house")
+          success.businessAddress.line_2 must be("Oxford")
+          success.businessAddress.line_4 must be(Some("Address Line 4& -,."))
+          success.businessAddress.postcode must be(Some("OX1 4BH"))
+          success.businessAddress.country must be("GB")
         }
       )
     }
 
     "should validate that businessAddress.line_4 length is less than 35" in {
-      val newFormData = formData.updated("businessAddress.line_4", "Oxford house"*10)
+      val newFormData = formData.updated("businessAddress.line_4", "Oxford house" * 10)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("Address line 4 cannot be more than 35 characters")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("Address line 4 cannot be more than 35 characters")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -300,8 +300,8 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("Invalid error message")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("Invalid error message")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -310,12 +310,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
 
     "should validate that postcode length is less than 10" in {
-      val newFormData = formData.updated("businessAddress.postcode", "XX"*10)
+      val newFormData = formData.updated("businessAddress.postcode", "XX" * 10)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("The postcode cannot be more than 10 characters")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("The postcode cannot be more than 10 characters")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -343,8 +343,8 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("You must enter a country")
-          formWithErrors.errors.length must be (1)
+          formWithErrors.errors(0).message must be("You must enter a country")
+          formWithErrors.errors.length must be(1)
         },
         success => {
           fail("Form should give an error")
@@ -364,17 +364,67 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
   "overseasCompanyForm form" should {
 
-    "render businessRegistrationForm correctly with plain test of correct length" in {
-
+    "render overseasCompanyForm successfully on entering valid input data" in {
+      BusinessRegistrationForms.overseasCompanyForm.bind(companyFormData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length must be(0)
+        },
+        success => {
+          success.businessUniqueId must be(Some("Unique&-Id"))
+          success.hasBusinessUniqueId must be(Some(true))
+          success.issuingInstitution must be(Some("institute&'/"))
+          success.issuingCountry must be(Some("EE"))
+        }
+      )
     }
 
-    "should throw error if businessAddress.country code is empty" in {
+    "throw overseasCompanyForm error on entering invalid input data" in {
+      BusinessRegistrationForms.overseasCompanyForm.bind(invalidCompanyFormData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be("bc.business-registration-error.businessUniqueId.invalid")
+          formWithErrors.errors(1).message must be("bc.business-registration-error.issuingInstitution.invalid")
+          formWithErrors.errors(2).message must be("bc.business-registration-error.issuingCountry.invalid")
+          formWithErrors.errors.length must be(3)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
 
+    "throw overseasCompanyForm error on entering input data which exceeds max length" in {
+      BusinessRegistrationForms.overseasCompanyForm.bind(maxLengthCompanyFormData).fold(
+        formWithErrors => {
+          formWithErrors.errors(0).message must be("The overseas company registration number cannot be more than 60 characters")
+          formWithErrors.errors(1).message must be("The institution that issued the overseas company registration number cannot be more than 40 characters")
+          formWithErrors.errors(2).message must be("bc.business-registration-error.issuingCountry.invalid")
+          formWithErrors.errors.length must be(3)
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
     }
   }
 
-  val formData: Map[String, String] = Map(
-    "businessUniqueId" -> "",
-    "issuingInstitution" -> "",
-    "issuingCountry" -> ""
+  val companyFormData: Map[String, String] = Map(
+    "hasBusinessUniqueId" -> "true",
+    "businessUniqueId" -> "Unique&-Id",
+    "issuingInstitution" -> "institute&'/",
+    "issuingCountry" -> "EE"
   )
+
+  val invalidCompanyFormData: Map[String, String] = Map(
+    "hasBusinessUniqueId" -> "true",
+    "businessUniqueId" -> "Unique&-Id***",
+    "issuingInstitution" -> "institute&'/$$",
+    "issuingCountry" -> "GB$"
+  )
+
+  val maxLengthCompanyFormData: Map[String, String] = Map(
+    "hasBusinessUniqueId" -> "true",
+    "businessUniqueId" -> "ab"*61,
+    "issuingInstitution" -> "abc"*42,
+    "issuingCountry" -> "GB"*2
+  )
+}

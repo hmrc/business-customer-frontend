@@ -163,7 +163,6 @@ bc.business-registration.country = Country
 bc.business-registration.issuingCountry = Country of issue
 bc.business-registration.country.select = please select one country
 bc.business-registration-error.general.hasBusinessUniqueId = There is a problem with the overseas company registration number
-bc.business-registration-error.hasBusinessUniqueId.not-selected = You must select one option
 bc.business-registration.hasBusinessUniqueId = Do you have an overseas company registration number?
 bc.business-registration.hasBusinessUniqueId.help.question = What is an overseas tax reference?
 bc.business-registration.hasBusinessUniqueId.help.answer = Enter any overseas reference related to the property (for example the company registration number or tax reference from an overseas country).

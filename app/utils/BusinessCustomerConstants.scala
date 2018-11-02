@@ -50,4 +50,5 @@ trait ValidationConstants {
   val businessNameRegex = "^[a-zA-Z0-9 '&\\\\/]{1,105}$"
   val idNumberRegex = "^[a-zA-Z0-9 '&\\-]{1,60}$"
   val issuingInstitutionRegex = "^[a-zA-Z0-9 '&\\-\\/]{1,40}$"
+  val issuingCountryRegex = "(?!^GB$)^[A-Z]{2}$"
 }
