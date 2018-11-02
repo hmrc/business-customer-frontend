@@ -180,8 +180,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors(0).message must be ("You must enter a registered company name")
-          formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
-          formWithErrors.errors.length must be (2)
+          formWithErrors.errors.length must be (1)
         },
         success => {
           fail("Form should give an error")
@@ -248,8 +247,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
         BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
           formWithErrors => {
             formWithErrors.errors(0).message must be ("You must enter a registered company name")
-            formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
-            formWithErrors.errors.length must be (2)
+            formWithErrors.errors.length must be (1)
           },
           success => {
             fail("Form should give an error")
@@ -316,8 +314,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors(0).message must be ("You must enter a registered company name")
-          formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
-          formWithErrors.errors.length must be (2)
+          formWithErrors.errors.length must be (1)
         },
         success => {
           fail("Form should give an error")
@@ -384,8 +381,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors(0).message must be ("You must enter a registered company name")
-          formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
-          formWithErrors.errors.length must be (2)
+          formWithErrors.errors.length must be (1)
         },
         success => {
           fail("Form should give an error")
@@ -452,8 +448,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors(0).message must be ("You must enter a registered company name")
-          formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
-          formWithErrors.errors.length must be (2)
+          formWithErrors.errors.length must be (1)
         },
         success => {
           fail("Form should give an error")
@@ -520,8 +515,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors(0).message must be ("You must enter a registered company name")
-          formWithErrors.errors(1).message must be ("The registered company name cannot be more than 105 characters")
-          formWithErrors.errors.length must be (2)
+          formWithErrors.errors.length must be (1)
         },
         success => {
           fail("Form should give an error")
