@@ -17,7 +17,6 @@
 package forms
 
 
-import forms.BusinessRegistrationForms.{businessNameRegex, length105}
 import play.api.Play.current
 import play.api.data.Forms._
 import play.api.data._
