@@ -39,7 +39,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("firstName"->"Ji*&m", "lastName"->"Last","saUTR"->"1123456789")
       BusinessVerificationForms.soleTraderForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("bc.business-verification-error.firstname.invalid")
+          formWithErrors.errors(0).message must be ("A first name must only include letters a to z, ampersands (&), apostrophes (‘) and hyphens (-)")
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -65,7 +65,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("firstName"->"Jim", "lastName"->"Ji*&m","saUTR"->"1123456789")
       BusinessVerificationForms.soleTraderForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("bc.business-verification-error.surname.invalid")
+          formWithErrors.errors(0).message must be ("A last name must only include letters a to z, ampersands (&), apostrophes (‘) and hyphens (-)")
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -166,7 +166,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acm&^$£e", "cotaxUTR"->"1111111111")
       BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors(0).message must be ("Business Name must only include letters a to z, numbers 0 to 9, apostrophes (‘), forward slashes (/) and ampersands (&)")
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -233,7 +233,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acm&^$£e", "saUTR"->"1111111111")
       BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors(0).message must be ("Business Name must only include letters a to z, numbers 0 to 9, apostrophes (‘), forward slashes (/) and ampersands (&)")
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -300,7 +300,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acm&^$£e", "cotaxUTR"->"1111111111")
       BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors(0).message must be ("Business Name must only include letters a to z, numbers 0 to 9, apostrophes (‘), forward slashes (/) and ampersands (&)")
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -367,7 +367,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acm&^$£e", "psaUTR"->"1111111111")
       BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors(0).message must be ("Business Name must only include letters a to z, numbers 0 to 9, apostrophes (‘), forward slashes (/) and ampersands (&)")
           formWithErrors.errors.length must be (1)
         },
         success => {
@@ -434,7 +434,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
         val formData = Map("businessName"->"Acm&^$£e", "psaUTR"->"1111111111")
         BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
           formWithErrors => {
-            formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+            formWithErrors.errors(0).message must be ("Business Name must only include letters a to z, numbers 0 to 9, apostrophes (‘), forward slashes (/) and ampersands (&)")
             formWithErrors.errors.length must be (1)
           },
           success => {
@@ -501,7 +501,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
       val formData = Map("businessName"->"Acm&^$£e", "psaUTR"->"1111111111")
       BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be ("The registered company name cannot be more than 105 characters")
+          formWithErrors.errors(0).message must be ("Business Name must only include letters a to z, numbers 0 to 9, apostrophes (‘), forward slashes (/) and ampersands (&)")
           formWithErrors.errors.length must be (1)
         },
         success => {

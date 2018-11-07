@@ -152,7 +152,7 @@ object BusinessVerificationForms extends ValidationConstants {
     "businessName" ->text.verifying(StopOnFirstFail(
       constraint[String](Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0),
       constraint[String](Messages("bc.business-verification-error.registeredName.length", length105), x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
-      constraint[String](Messages("bc.business-registration-error.registeredName.invalid"), x => x.trim.matches(businessNameRegex)))
+      constraint[String](Messages("bc.business-registration-error.businessName.invalid"), x => x.trim.matches(businessNameRegex)))
     ),
     "cotaxUTR" -> text
       .verifying(Messages("bc.business-verification-error.cotaxutr"), x => x.replaceAll(" ", "").length > length0)
@@ -170,7 +170,7 @@ object BusinessVerificationForms extends ValidationConstants {
     "businessName" -> text.verifying(StopOnFirstFail(
       constraint[String](Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0),
       constraint[String](Messages("bc.business-verification-error.registeredName.length", length105), x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
-      constraint[String](Messages("bc.business-registration-error.registeredName.invalid"), x => x.trim.matches(businessNameRegex)))
+      constraint[String](Messages("bc.business-registration-error.businessName.invalid"), x => x.trim.matches(businessNameRegex)))
     ),
     "saUTR" -> text
       .verifying(Messages("bc.business-verification-error.sautr"), x => x.replaceAll(" ", "").length > length0)
@@ -188,7 +188,7 @@ object BusinessVerificationForms extends ValidationConstants {
     "businessName" -> text.verifying(StopOnFirstFail(
       constraint[String](Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0),
       constraint[String](Messages("bc.business-verification-error.registeredName.length", length105), x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
-      constraint[String](Messages("bc.business-registration-error.registeredName.invalid"), x => x.trim.matches(businessNameRegex)))
+      constraint[String](Messages("bc.business-registration-error.businessName.invalid"), x => x.trim.matches(businessNameRegex)))
     ),
     "cotaxUTR" -> text
       .verifying(Messages("bc.business-verification-error.cotaxutr"), x => x.replaceAll(" ", "").length > length0)
@@ -206,7 +206,7 @@ object BusinessVerificationForms extends ValidationConstants {
     "businessName" -> text.verifying(StopOnFirstFail(
       constraint[String](Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0),
       constraint[String](Messages("bc.business-verification-error.registeredName.length", length105), x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
-      constraint[String](Messages("bc.business-registration-error.registeredName.invalid"), x => x.trim.matches(businessNameRegex)))
+      constraint[String](Messages("bc.business-registration-error.businessName.invalid"), x => x.trim.matches(businessNameRegex)))
     ),
     "psaUTR" -> text
       .verifying(Messages("bc.business-verification-error.psautr"), x => x.replaceAll(" ", "").length > length0)
@@ -224,7 +224,7 @@ object BusinessVerificationForms extends ValidationConstants {
     "businessName" -> text.verifying(StopOnFirstFail(
       constraint[String](Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0),
       constraint[String](Messages("bc.business-verification-error.registeredName.length", length105), x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
-      constraint[String](Messages("bc.business-registration-error.registeredName.invalid"), x => x.trim.matches(businessNameRegex)))
+      constraint[String](Messages("bc.business-registration-error.businessName.invalid"), x => x.trim.matches(businessNameRegex)))
     ),
     "psaUTR" -> text
       .verifying(Messages("bc.business-verification-error.psautr"), x => x.replaceAll(" ", "").length > length0)
@@ -241,7 +241,7 @@ object BusinessVerificationForms extends ValidationConstants {
     "businessName" -> text.verifying(StopOnFirstFail(
       constraint[String](Messages("bc.business-verification-error.businessName"), x => x.trim.length > length0),
       constraint[String](Messages("bc.business-verification-error.registeredName.length", length105), x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
-      constraint[String](Messages("bc.business-registration-error.registeredName.invalid"), x => x.trim.matches(businessNameRegex)))
+      constraint[String](Messages("bc.business-registration-error.businessName.invalid"), x => x.trim.matches(businessNameRegex)))
     ),
     "psaUTR" -> text
       .verifying(Messages("bc.business-verification-error.psautr"), x => x.replaceAll(" ", "").length > length0)

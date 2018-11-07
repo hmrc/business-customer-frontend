@@ -102,8 +102,10 @@ bc.business-verification.submit.client = Continue
 
 bc.business-verification-error.firstname = You must enter a first name
 bc.business-verification-error.firstname.length = A first name cannot be more than 35 characters
+bc.business-verification-error.firstname.invalid = A first name must only include letters a to z, ampersands (&), apostrophes (‘) and hyphens (-)
 bc.business-verification-error.surname = You must enter a last name
 bc.business-verification-error.surname.length = A last name cannot be more than 35 characters
+bc.business-verification-error.surname.invalid = A last name must only include letters a to z, ampersands (&), apostrophes (‘) and hyphens (-)
 bc.business-verification-error.sautr = You must enter a Self Assessment Unique Taxpayer Reference
 bc.business-verification-error.sautr.length = Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10
 bc.business-verification-error.utr = Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10.
@@ -129,6 +131,7 @@ bc.business-registration-error.wrong.role.title = You must be logged in as an ad
 bc.business-registration-error.wrong.role.message = If you require access you need to <a href="https://myaccount.gateway.gov.uk/Pages/Credentials/Admin/List.aspx" target="_blank">add administrators to your account in Government Gateway.</a>
 
 bc.business-verification-error.registeredName.length = The registered company name cannot be more than 105 characters
+bc.business-verification-error.registeredName.invalid = The registered company name cannot be more than 105 characters
 
 ##### UNAUTHORISED PAGE
 
