@@ -60,6 +60,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
+          formWithErrors.errors.head.message must be("You must enter a business name")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -73,6 +74,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
+          formWithErrors.errors.head.message must be("The business name cannot be more than 105 characters")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -81,7 +83,6 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    // TODO Error message needs to be updated
     "should catch invalid characters in businessName" in {
       val newFormData = formData.updated("businessName", "Acm^*e")
 
@@ -140,7 +141,6 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    // TODO Error message needs to be updated
     "should catch invalid characters in businessAddress.line_1" in {
       val newFormData = formData.updated("businessAddress.line_1", "Oxford hous^*e")
 
@@ -247,7 +247,6 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    // TODO Error message needs to be updated
     "should catch invalid characters in businessAddress.line_3" in {
       val newFormData = formData.updated("businessAddress.line_3", "^%&$%&$^*")
 
@@ -294,7 +293,6 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    // TODO Error message needs to be updated
     "should catch invalid characters in businessAddress.line_4" in {
       val newFormData = formData.updated("businessAddress.line_4", "^%&$%&$^*")
 
@@ -323,7 +321,6 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    //TODO Error message needs to be updated
     "should catch invalid characters in postcode" in {
       val newFormData = formData.updated("businessAddress.postcode", "XX9 XX^*8")
 
