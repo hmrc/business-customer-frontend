@@ -40,20 +40,24 @@ object BusinessRegistrationForms extends ValidationConstants {
         "line_1" -> text.verifying(StopOnFirstFail(
           constraint[String](Messages("bc.business-registration-error.line_1"), x => x.trim.length > length0),
           constraint[String](Messages("bc.business-registration-error.line_1.length", length35), x => x.isEmpty || (x.nonEmpty && x.length <= length35)),
-          constraint[String](Messages("bc.business-registration-error.line_1.invalid"), x => x.trim.matches(lineRegex)))
+          constraint[String](Messages("bc.business-registration-error.address.invalid", Messages("bc.business-registration.line_1")),
+            x => x.trim.matches(lineRegex)))
         ),
         "line_2" -> text.verifying(StopOnFirstFail(
           constraint[String](Messages("bc.business-registration-error.line_2"), x => x.trim.length > length0),
           constraint[String](Messages("bc.business-registration-error.line_2.length", length35), x => x.isEmpty || (x.nonEmpty && x.length <= length35)),
-          constraint[String](Messages("bc.business-registration-error.line_2.invalid"), x => x.trim.matches(lineRegex)))
+          constraint[String](Messages("bc.business-registration-error.address.invalid", Messages("bc.business-registration.line_2")),
+            x => x.trim.matches(lineRegex)))
         ),
         "line_3" -> optional(text).verifying(StopOnFirstFail(
           constraint[Option[String]](Messages("bc.business-registration-error.line_3.length", length35), x => x.isEmpty || x.fold(false)(_.length <= length35)),
-          constraint[Option[String]](Messages("bc.business-registration-error.line_3.invalid"), x => x.isEmpty || x.fold(false)(_.trim.matches(lineRegex))))
+          constraint[Option[String]](Messages("bc.business-registration-error.address.invalid", Messages("bc.business-registration.line_3")),
+            x => x.isEmpty || x.fold(false)(_.trim.matches(lineRegex))))
         ),
         "line_4" -> optional(text).verifying(StopOnFirstFail(
           constraint[Option[String]](Messages("bc.business-registration-error.line_4.length", length35), x => x.isEmpty || x.fold(false)(_.length <= length35)),
-          constraint[Option[String]](Messages("bc.business-registration-error.line_4.invalid"), x => x.isEmpty || x.fold(false)(_.trim.matches(lineRegex))))
+          constraint[Option[String]](Messages("bc.business-registration-error.address.invalid", Messages("bc.business-registration.line_4")),
+            x => x.isEmpty || x.fold(false)(_.trim.matches(lineRegex))))
         ),
         "postcode" -> optional(text).verifying(StopOnFirstFail(
           constraint[Option[String]](Messages("bc.business-registration-error.postcode.length", postcodeLength), x => x.isEmpty
@@ -79,7 +83,7 @@ object BusinessRegistrationForms extends ValidationConstants {
         constraint[Option[String]](Messages("bc.business-registration-error.issuingInstitution.length", length40), x => x.isEmpty || x.fold(false)(_.length <= length40)),
         constraint[Option[String]](Messages("bc.business-registration-error.issuingInstitution.invalid"), x => x.isEmpty || x.fold(false)(_.trim.matches(issuingInstitutionRegex))))
       ),
-      "issuingCountry" -> optional(text).verifying(Messages("bc.business-registration-error.issuingCountry.invalid"), x => x.isEmpty || x.fold(false)(_.trim.matches(issuingCountryRegex)))
+      "issuingCountry" -> optional(text).verifying(Messages("bc.business-registration-error.non-uk"), x => x.isEmpty || x.fold(false)(_.trim.matches(issuingCountryRegex)))
     )(OverseasCompany.apply)(OverseasCompany.unapply)
   )
 

@@ -87,7 +87,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("Invalid Message")
+          formWithErrors.errors(0).message must be("Business Name must only include letters a to z, numbers 0 to 9, apostrophes (‘), forward slashes (/) and ampersands (&)")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -146,7 +146,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("Invalid error message")
+          formWithErrors.errors(0).message must be("Address line 1 must only include letters a to z, numbers 0 to 9, commas (,), full stops (.), hyphens (-), spaces, apostrophes (‘) and ampersands (&)")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -206,7 +206,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("Invalid error")
+          formWithErrors.errors(0).message must be("Address line 2 must only include letters a to z, numbers 0 to 9, commas (,), full stops (.), hyphens (-), spaces, apostrophes (‘) and ampersands (&)")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -238,7 +238,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("Address line 3 cannot be more than 35 characters")
+          formWithErrors.errors.head.message must be("Address line 3 cannot be more than 35 characters")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -253,7 +253,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("Invalid error message")
+          formWithErrors.errors.head.message must be("Address line 3 (optional) must only include letters a to z, numbers 0 to 9, commas (,), full stops (.), hyphens (-), spaces, apostrophes (‘) and ampersands (&)")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -285,7 +285,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("Address line 4 cannot be more than 35 characters")
+          formWithErrors.errors.head.message must be("Address line 4 cannot be more than 35 characters")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -300,7 +300,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("Invalid error message")
+          formWithErrors.errors.head.message must be("Address line 4 (optional) must only include letters a to z, numbers 0 to 9, commas (,), full stops (.), hyphens (-), spaces, apostrophes (‘) and ampersands (&)")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -314,7 +314,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("The postcode cannot be more than 10 characters")
+          formWithErrors.errors.head.message must be("The postcode cannot be more than 10 characters")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -329,7 +329,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("The postcode is invalid")
+          formWithErrors.errors.head.message must be("The postcode is invalid")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -343,7 +343,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("You must enter a country")
+          formWithErrors.errors.head.message must be("You must enter a country")
           formWithErrors.errors.length must be(1)
         },
         success => {
@@ -381,9 +381,9 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
     "throw overseasCompanyForm error on entering invalid input data" in {
       BusinessRegistrationForms.overseasCompanyForm.bind(invalidCompanyFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("bc.business-registration-error.businessUniqueId.invalid")
-          formWithErrors.errors(1).message must be("bc.business-registration-error.issuingInstitution.invalid")
-          formWithErrors.errors(2).message must be("bc.business-registration-error.issuingCountry.invalid")
+          formWithErrors.errors.head.message must be("The overseas company registration number must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes (‘) and hyphens (-)")
+          formWithErrors.errors(1).message must be("Issuing institution must only include letters a to z, numbers 0 to 9, ampersands (&), apostrophes (‘), forward slashes (/) and hyphens (-)")
+          formWithErrors.errors(2).message must be("You cannot select United Kingdom when entering an overseas address")
           formWithErrors.errors.length must be(3)
         },
         success => {
@@ -395,9 +395,9 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
     "throw overseasCompanyForm error on entering input data which exceeds max length" in {
       BusinessRegistrationForms.overseasCompanyForm.bind(maxLengthCompanyFormData).fold(
         formWithErrors => {
-          formWithErrors.errors(0).message must be("The overseas company registration number cannot be more than 60 characters")
+          formWithErrors.errors.head.message must be("The overseas company registration number cannot be more than 60 characters")
           formWithErrors.errors(1).message must be("The institution that issued the overseas company registration number cannot be more than 40 characters")
-          formWithErrors.errors(2).message must be("bc.business-registration-error.issuingCountry.invalid")
+          formWithErrors.errors(2).message must be("You cannot select United Kingdom when entering an overseas address")
           formWithErrors.errors.length must be(3)
         },
         success => {
