@@ -131,7 +131,6 @@ bc.business-registration-error.wrong.role.title = You must be logged in as an ad
 bc.business-registration-error.wrong.role.message = If you require access you need to <a href="https://myaccount.gateway.gov.uk/Pages/Credentials/Admin/List.aspx" target="_blank">add administrators to your account in Government Gateway.</a>
 
 bc.business-verification-error.registeredName.length = The registered company name cannot be more than 105 characters
-bc.business-verification-error.registeredName.invalid = The registered company name cannot be more than 105 characters
 
 ##### UNAUTHORISED PAGE
 
