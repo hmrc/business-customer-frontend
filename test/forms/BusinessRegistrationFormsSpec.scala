@@ -361,6 +361,18 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
   "overseasCompanyForm form" should {
 
+    "throw overseasCompanyForm error on not electing hasBusinessUniqueId" in {
+      BusinessRegistrationForms.overseasCompanyForm.bind(Map[String,String]()).fold(
+        formWithErrors => {
+          formWithErrors.errors.head.message must be("You must select one option")
+          formWithErrors.errors.length must be(1)
+        },
+        _ => {
+
+        }
+      )
+    }
+
     "render overseasCompanyForm successfully on entering valid input data" in {
       BusinessRegistrationForms.overseasCompanyForm.bind(companyFormData).fold(
         formWithErrors => {
