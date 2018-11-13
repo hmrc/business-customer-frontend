@@ -55,7 +55,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    "should throw error if businessName is empty" in {
+    "throw error if businessName is empty" in {
       val newFormData = formData.updated("businessName", "")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -64,12 +64,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should validate that businessName length is less than 105" in {
+    "validate that businessName length is less than 105" in {
       val newFormData = formData.updated("businessName", "Acme" * 10000)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -78,12 +78,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should catch invalid characters in businessName" in {
+    "catch invalid characters in businessName" in {
       val newFormData = formData.updated("businessName", "Acm^*e")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -92,7 +92,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
@@ -113,7 +113,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    "should throw error if businessAddress.line_1 is empty" in {
+    "throw error if businessAddress.line_1 is empty" in {
       val newFormData = formData.updated("businessAddress.line_1", "")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -122,12 +122,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should validate that businessAddress.line_1 length is less than 35" in {
+    "validate that businessAddress.line_1 length is less than 35" in {
       val newFormData = formData.updated("businessAddress.line_1", "Oxford house" * 10)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -136,12 +136,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should catch invalid characters in businessAddress.line_1" in {
+    "catch invalid characters in businessAddress.line_1" in {
       val newFormData = formData.updated("businessAddress.line_1", "Oxford hous^*e")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -150,7 +150,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
@@ -172,7 +172,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    "should throw error if businessAddress.line_2 is empty" in {
+    "throw error if businessAddress.line_2 is empty" in {
       val newFormData = formData.updated("businessAddress.line_2", "")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -181,12 +181,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should validate that businessAddress.line_2 length is less than 35" in {
+    "validate that businessAddress.line_2 length is less than 35" in {
       val newFormData = formData.updated("businessAddress.line_2", "Oxford house" * 10)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -195,12 +195,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should catch invalid characters in businessAddress.line_2" in {
+    "catch invalid characters in businessAddress.line_2" in {
       val newFormData = formData.updated("businessAddress.line_2", "Oxfor^*d")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -209,7 +209,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
@@ -232,7 +232,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    "should validate that businessAddress.line_3 length is less than 35" in {
+    "validate that businessAddress.line_3 length is less than 35" in {
       val newFormData = formData.updated("businessAddress.line_3", "Oxford house" * 10)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -241,12 +241,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should catch invalid characters in businessAddress.line_3" in {
+    "catch invalid characters in businessAddress.line_3" in {
       val newFormData = formData.updated("businessAddress.line_3", "^%&$%&$^*")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -255,7 +255,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
@@ -278,7 +278,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    "should validate that businessAddress.line_4 length is less than 35" in {
+    "validate that businessAddress.line_4 length is less than 35" in {
       val newFormData = formData.updated("businessAddress.line_4", "Oxford house" * 10)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -287,12 +287,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should catch invalid characters in businessAddress.line_4" in {
+    "catch invalid characters in businessAddress.line_4" in {
       val newFormData = formData.updated("businessAddress.line_4", "^%&$%&$^*")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -301,12 +301,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should validate that postcode length is less than 10" in {
+    "must validate that postcode length is less than 10" in {
       val newFormData = formData.updated("businessAddress.postcode", "XX" * 10)
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -315,12 +315,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should catch invalid characters in postcode" in {
+    "catch invalid characters in postcode" in {
       val newFormData = formData.updated("businessAddress.postcode", "XX9 XX^*8")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -329,12 +329,12 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
 
-    "should throw error if businessAddress.country code is empty" in {
+    "must throw error if businessAddress.country code is empty" in {
       val newFormData = formData.updated("businessAddress.country", "")
 
       BusinessRegistrationForms.businessRegistrationForm.bind(newFormData).fold(
@@ -343,7 +343,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
@@ -358,7 +358,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
   )
 
-  "overseasCompanyForm form" should {
+  "overseasCompanyForm form" must {
 
     "throw overseasCompanyForm error on not electing hasBusinessUniqueId" in {
       BusinessRegistrationForms.overseasCompanyForm.bind(Map[String,String]()).fold(
@@ -367,7 +367,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         _ => {
-          fail("Form should give an error")
+          fail("Form must give an error")
 
         }
       )
@@ -396,7 +396,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(3)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
@@ -410,7 +410,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(3)
         },
         success => {
-          fail("Form should give an error")
+          fail("Form must give an error")
         }
       )
     }
