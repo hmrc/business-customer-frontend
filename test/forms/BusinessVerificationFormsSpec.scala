@@ -19,7 +19,7 @@ package forms
 import org.scalatestplus.play.{OneAppPerSuite, PlaySpec}
 
 class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
-  "Soletrader form " should {
+  "Soletrader form " must {
       "Validate correct data in all fields " in {
         val formData = Map("firstName"->"Jim", "lastName"->"Last","saUTR"->"1111111111")
 

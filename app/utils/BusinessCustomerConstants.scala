@@ -33,22 +33,22 @@ object BusinessCustomerConstants {
 }
 
 trait ValidationConstants {
-  val countryUK = "GB"
+  val CountryUK = "GB"
 
-  val postcodeLength = 10
-  val length40 = 40
-  val length35 = 35
-  val length0 = 0
-  val length2 = 2
-  val length60 = 60
-  val length105 = 105
+  val PostcodeLength = 10
+  val Length40 = 40
+  val Length35 = 35
+  val Length0 = 0
+  val Length2 = 2
+  val Length60 = 60
+  val Length105 = 105
 
-  val postcodeRegex = "^[A-Z]{1,2}[0-9][0-9A-Z]?\\s?[0-9][A-Z]{2}|BFPO\\s?[0-9]{1,10}$"
-  val lineRegex = "^[A-Za-z0-9 \\-,.&']{1,35}$"
-  val utrRegex = """^[0-9]{10}$"""
-  val nameRegex = "^[a-zA-Z &`\\-\'^]{1,35}$"
-  val businessNameRegex = "^[a-zA-Z0-9 '&\\\\/]{1,105}$"
-  val idNumberRegex = "^[a-zA-Z0-9 '&\\-]{1,60}$"
-  val issuingInstitutionRegex = "^[a-zA-Z0-9 '&\\-\\/]{1,40}$"
-  val issuingCountryRegex = "(?!^GB$)^[A-Z]{2}$"
+  val PostcodeRegex = "^[A-Z]{1,2}[0-9][0-9A-Z]?\\s?[0-9][A-Z]{2}|BFPO\\s?[0-9]{1,10}$"
+  val LineRegex = "^[A-Za-z0-9 \\-,.&']{1,35}$"
+  val UtrRegex = """^[0-9]{10}$"""
+  val NameRegex = "^[a-zA-Z &`\\-\'^]{1,35}$"
+  val BusinessNameRegex = "^[a-zA-Z0-9 '&\\\\/]{1,105}$"
+  val IdNumberRegex = "^[a-zA-Z0-9 '&\\-]{1,60}$"
+  val IssuingInstitutionRegex = "^[a-zA-Z0-9 '&\\-\\/]{1,40}$"
+  val IssuingCountryRegex = "(?!^GB$)^[A-Z]{2}$"
 }

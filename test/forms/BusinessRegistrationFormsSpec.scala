@@ -21,7 +21,7 @@ import models.{Address, BusinessRegistration}
 
 class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
-  "Businessegistration form" should {
+  "Businessegistration form" must {
     "render businessRegistrationForm correctly with plain test of correct length" in {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(formData).fold(
@@ -200,7 +200,6 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
       )
     }
 
-    // Error message needs to be updated
     "should catch invalid characters in businessAddress.line_2" in {
       val newFormData = formData.updated("businessAddress.line_2", "Oxfor^*d")
 
@@ -368,6 +367,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
           formWithErrors.errors.length must be(1)
         },
         _ => {
+          fail("Form should give an error")
 
         }
       )

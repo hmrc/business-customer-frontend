@@ -32,39 +32,39 @@ object BusinessRegistrationForms extends ValidationConstants {
   val businessRegistrationForm = Form(
     mapping(
       "businessName" -> text.verifying(StopOnFirstFail(
-        constraint[String](Messages("bc.business-registration-error.businessName"), x => x.trim.length > length0),
-        constraint[String](Messages("bc.business-registration-error.businessName.length", length105), x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
-        constraint[String](Messages("bc.business-registration-error.businessName.invalid"), x => x.trim.matches(businessNameRegex)))
+        constraint[String](Messages("bc.business-registration-error.businessName"), x => x.trim.length > Length0),
+        constraint[String](Messages("bc.business-registration-error.businessName.length", Length105), x => x.isEmpty || (x.nonEmpty && x.length <= Length105)),
+        constraint[String](Messages("bc.business-registration-error.businessName.invalid"), x => x.trim.matches(BusinessNameRegex)))
       ),
       "businessAddress" -> mapping(
         "line_1" -> text.verifying(StopOnFirstFail(
-          constraint[String](Messages("bc.business-registration-error.line_1"), x => x.trim.length > length0),
-          constraint[String](Messages("bc.business-registration-error.line_1.length", length35), x => x.isEmpty || (x.nonEmpty && x.length <= length35)),
+          constraint[String](Messages("bc.business-registration-error.line_1"), x => x.trim.length > Length0),
+          constraint[String](Messages("bc.business-registration-error.line_1.length", Length35), x => x.isEmpty || (x.nonEmpty && x.length <= Length35)),
           constraint[String](Messages("bc.business-registration-error.address.invalid", Messages("bc.business-registration.line_1")),
-            x => x.trim.matches(lineRegex)))
+            x => x.trim.matches(LineRegex)))
         ),
         "line_2" -> text.verifying(StopOnFirstFail(
-          constraint[String](Messages("bc.business-registration-error.line_2"), x => x.trim.length > length0),
-          constraint[String](Messages("bc.business-registration-error.line_2.length", length35), x => x.isEmpty || (x.nonEmpty && x.length <= length35)),
+          constraint[String](Messages("bc.business-registration-error.line_2"), x => x.trim.length > Length0),
+          constraint[String](Messages("bc.business-registration-error.line_2.length", Length35), x => x.isEmpty || (x.nonEmpty && x.length <= Length35)),
           constraint[String](Messages("bc.business-registration-error.address.invalid", Messages("bc.business-registration.line_2")),
-            x => x.trim.matches(lineRegex)))
+            x => x.trim.matches(LineRegex)))
         ),
         "line_3" -> optional(text).verifying(StopOnFirstFail(
-          constraint[Option[String]](Messages("bc.business-registration-error.line_3.length", length35), x => x.fold(true)(_.length <= length35)),
+          constraint[Option[String]](Messages("bc.business-registration-error.line_3.length", Length35), x => x.fold(true)(_.length <= Length35)),
           constraint[Option[String]](Messages("bc.business-registration-error.address.invalid", Messages("bc.business-registration.line_3")),
-            x => x.fold(true)(_.trim.matches(lineRegex))))
+            x => x.fold(true)(_.trim.matches(LineRegex))))
         ),
         "line_4" -> optional(text).verifying(StopOnFirstFail(
-          constraint[Option[String]](Messages("bc.business-registration-error.line_4.length", length35), x => x.fold(true)(_.length <= length35)),
+          constraint[Option[String]](Messages("bc.business-registration-error.line_4.length", Length35), x => x.fold(true)(_.length <= Length35)),
           constraint[Option[String]](Messages("bc.business-registration-error.address.invalid", Messages("bc.business-registration.line_4")),
-            x => x.fold(true)(_.trim.matches(lineRegex))))
+            x => x.fold(true)(_.trim.matches(LineRegex))))
         ),
         "postcode" -> optional(text).verifying(StopOnFirstFail(
-          constraint[Option[String]](Messages("bc.business-registration-error.postcode.length", postcodeLength), x =>  x.fold(true)(_.length <= postcodeLength)),
-          constraint[Option[String]](Messages("bc.business-registration-error.postcode.invalid"), x => x.fold(true)(_.trim.matches(postcodeRegex))))
+          constraint[Option[String]](Messages("bc.business-registration-error.postcode.length", PostcodeLength), x =>  x.fold(true)(_.length <= PostcodeLength)),
+          constraint[Option[String]](Messages("bc.business-registration-error.postcode.invalid"), x => x.fold(true)(_.trim.matches(PostcodeRegex))))
         ),
         "country" -> text.
-          verifying(Messages("bc.business-registration-error.country"), x => x.length > length0)
+          verifying(Messages("bc.business-registration-error.country"), x => x.length > Length0)
 
       )(Address.apply)(Address.unapply)
     )(BusinessRegistration.apply)(BusinessRegistration.unapply)
@@ -74,14 +74,14 @@ object BusinessRegistrationForms extends ValidationConstants {
     mapping(
       "hasBusinessUniqueId" -> optional(boolean).verifying(Messages("bc.business-registration-error.hasBusinessUniqueId.not-selected"), x => x.isDefined),
       "businessUniqueId" -> optional(text).verifying(StopOnFirstFail(
-        constraint[Option[String]](Messages("bc.business-registration-error.businessUniqueId.length", length60), x => x.fold(true)(_.length <= length60)),
-        constraint[Option[String]](Messages("bc.business-registration-error.businessUniqueId.invalid"), x => x.fold(true)(_.trim.matches(idNumberRegex))))
+        constraint[Option[String]](Messages("bc.business-registration-error.businessUniqueId.length", Length60), x => x.fold(true)(_.length <= Length60)),
+        constraint[Option[String]](Messages("bc.business-registration-error.businessUniqueId.invalid"), x => x.fold(true)(_.trim.matches(IdNumberRegex))))
       ),
       "issuingInstitution" -> optional(text).verifying(StopOnFirstFail(
-        constraint[Option[String]](Messages("bc.business-registration-error.issuingInstitution.length", length40), x => x.fold(true)(_.length <= length40)),
-        constraint[Option[String]](Messages("bc.business-registration-error.issuingInstitution.invalid"), x => x.fold(true)(_.trim.matches(issuingInstitutionRegex))))
+        constraint[Option[String]](Messages("bc.business-registration-error.issuingInstitution.length", Length40), x => x.fold(true)(_.length <= Length40)),
+        constraint[Option[String]](Messages("bc.business-registration-error.issuingInstitution.invalid"), x => x.fold(true)(_.trim.matches(IssuingInstitutionRegex))))
       ),
-      "issuingCountry" -> optional(text).verifying(Messages("bc.business-registration-error.non-uk"), x => x.fold(true)(_.trim.matches(issuingCountryRegex)))
+      "issuingCountry" -> optional(text).verifying(Messages("bc.business-registration-error.non-uk"), x => x.fold(true)(_.trim.matches(IssuingCountryRegex)))
     )(OverseasCompany.apply)(OverseasCompany.unapply)
   )
 
@@ -140,7 +140,7 @@ object BusinessRegistrationForms extends ValidationConstants {
     hasBusinessUniqueId match {
       case Some(true) if issuingCountry.isEmpty =>
         registrationData.withError(key = "issuingCountry", message = Messages("bc.business-registration-error.issuingCountry.select"))
-      case Some(true) if issuingCountry.isDefined && issuingCountry.fold("")(x => x).matches(countryUK) =>
+      case Some(true) if issuingCountry.isDefined && issuingCountry.fold("")(x => x).matches(CountryUK) =>
         registrationData.withError(key = "issuingCountry", message = Messages("bc.business-registration-error.non-uk"))
       case _ => registrationData
     }
@@ -176,7 +176,7 @@ object BusinessRegistrationForms extends ValidationConstants {
       registrationData.withError(key = "businessAddress.postcode",
         message = Messages("bc.business-registration-error.postcode"))
     } else {
-      if (!postCode.fold("")(x => x).matches(postcodeRegex)) {
+      if (!postCode.fold("")(x => x).matches(PostcodeRegex)) {
         registrationData.withError(key = "businessAddress.postcode",
           message = Messages("bc.business-registration-error.postcode.invalid"))
       } else {
@@ -192,7 +192,7 @@ object BusinessRegistrationForms extends ValidationConstants {
       _.isEmpty
     }
     val countryForm = {
-      if (country.fold("")(x => x).matches(countryUK)) {
+      if (country.fold("")(x => x).matches(CountryUK)) {
         registrationData.withError(key = "businessAddress.country", message = Messages("bc.business-registration-error.non-uk"))
       } else {
         registrationData

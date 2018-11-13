@@ -58,7 +58,6 @@ trait BusinessRegController extends BackLinkController {
   def send(service: String, businessType: String) = AuthAction(service).async { implicit bcContext =>
     BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, bcContext.user.isAgent).fold(
       formWithErrors => {
-        println(formWithErrors)
         currentBackLink.map(backLink =>
           BadRequest(views.html.nonUkReg.business_registration(formWithErrors, service, displayDetails(businessType, service), backLink, bcContext.user.isAgent))
         )
