@@ -148,7 +148,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
   }
 
-  "limitedCompanyForm" should {
+  "limitedCompanyForm" must {
     "validate correct limited company" in {
       val formData = Map("businessName"->"Acme", "cotaxUTR"->"1111111111")
       BusinessVerificationForms.limitedCompanyForm.bind(formData).fold(
@@ -215,7 +215,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
   }
 
-  "nonResidentLandlordForm" should {
+  "nonResidentLandlordForm" must {
     "validate correct nonResidentLandlord" in {
       val formData = Map("businessName"->"Acme", "saUTR"->"1111111111")
       BusinessVerificationForms.nonResidentLandlordForm.bind(formData).fold(
@@ -282,7 +282,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
   }
 
-  "unincorporatedBodyForm" should {
+  "unincorporatedBodyForm" must {
     "valid correct unincorporatedBody" in {
       val formData = Map("businessName"->"Acme", "cotaxUTR"->"1111111111")
       BusinessVerificationForms.unincorporatedBodyForm.bind(formData).fold(
@@ -349,7 +349,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
   }
 
-  "ordinaryBusinessPartnershipForm" should {
+  "ordinaryBusinessPartnershipForm" must {
     "Validate correct ordinaryBusinessPartnership" in {
       val formData = Map("businessName" -> "Acme", "psaUTR" -> "1111111111")
       BusinessVerificationForms.ordinaryBusinessPartnershipForm.bind(formData).fold(
@@ -416,7 +416,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
   }
 
-  "limitedLiabilityPartnershipForm" should {
+  "limitedLiabilityPartnershipForm" must {
       "Validate correct limitedLiabilityPartnershipForm" in {
         val formData = Map("businessName" -> "Acme", "psaUTR" -> "1111111111")
         BusinessVerificationForms.limitedLiabilityPartnershipForm.bind(formData).fold(
@@ -483,7 +483,7 @@ class BusinessVerificationFormsSpec extends PlaySpec with OneAppPerSuite {
     }
   }
 
-  "limitedPartnershipForm" should {
+  "limitedPartnershipForm" must {
     "Validate correct limitedPartnershipForm" in {
       val formData = Map("businessName" -> "Acme", "psaUTR" -> "1111111111")
       BusinessVerificationForms.limitedPartnershipForm.bind(formData).fold(

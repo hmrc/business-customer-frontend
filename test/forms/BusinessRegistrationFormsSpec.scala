@@ -21,7 +21,7 @@ import models.{Address, BusinessRegistration}
 
 class BusinessRegistrationFormsSpec extends PlaySpec with OneAppPerSuite {
 
-  "Businessegistration form" must {
+  "BusinessRegistration Forms" must {
     "render businessRegistrationForm correctly with plain test of correct length" in {
 
       BusinessRegistrationForms.businessRegistrationForm.bind(formData).fold(
