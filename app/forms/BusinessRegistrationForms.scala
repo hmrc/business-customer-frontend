@@ -202,7 +202,7 @@ object BusinessRegistrationForms {
     if (postCode.isEmpty && postCodeFlag) {
       countryForm.withError(key = "businessAddress.postcode",
         message = Messages("bc.business-registration-error.postcode"))
-    } else  if (!postCode.fold("")(x => x).matches(noUkPostCodeRegex)) {
+    } else  if (!postCode.fold("")(x => x).matches(noUkPostCodeRegex) && postCodeFlag) {
       registrationData.withError(key = "businessAddress.postcode",
         message = Messages("bc.business-registration-error.postcode.invalid"))
     } else {
