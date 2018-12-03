@@ -18,12 +18,11 @@ package forms
 
 import config.ApplicationConfig
 import models._
+import play.api.Play.current
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
 import play.api.i18n.Messages
-import play.api.libs.json.Json
+import play.api.i18n.Messages.Implicits._
 
 
 object BusinessRegistrationForms {
@@ -38,6 +37,7 @@ object BusinessRegistrationForms {
   val postcodeRegex =
     """(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9][abehmnprv-yABEHMNPRV-Y]))) {0,}[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}))$"""
 
+  val NonUkPostCodeRegex = "^[A-Za-z0-9 ]{1,10}$"
   val countryUK = "GB"
 
   val businessRegistrationForm = Form(
@@ -201,6 +201,9 @@ object BusinessRegistrationForms {
     if (postCode.isEmpty && validatePostCode) {
       countryForm.withError(key = "businessAddress.postcode",
         message = Messages("bc.business-registration-error.postcode"))
+    } else  if (!postCode.fold("")(x => x).matches(NonUkPostCodeRegex) && validatePostCode) {
+      registrationData.withError(key = "businessAddress.postcode",
+        message = Messages("bc.business-registration-error.postcode.invalid"))
     } else {
       countryForm
     }

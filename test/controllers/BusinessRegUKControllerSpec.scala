@@ -166,6 +166,17 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
           }
         }
 
+        "not contains special character(,) for a Group" in {
+          implicit val hc: HeaderCarrier = HeaderCarrier()
+          val inputJson = createJson(businessName = "some name", line1 = "line 1", line2 = "line 2", postcode = "AA, AA1")
+
+          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson)) {
+            result =>
+              status(result) must be(BAD_REQUEST)
+              contentAsString(result) must include("The postcode is invalid")
+          }
+        }
+
         // inputJson , test message, error message
         val formValidationInputDataSet: Seq[(InputJson, TestMessage, ErrorMessage)] = Seq(
           (createJson(businessName = "a" * 106), "If entered, Business name must be maximum of 105 characters", "The business name cannot be more than 105 characters"),
