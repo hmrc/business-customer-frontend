@@ -198,11 +198,11 @@ object BusinessRegistrationForms {
       _.isEmpty
     }
     
-    val PostCodeFlag = ApplicationConfig.validateNonUkClientPostCode(service) && !isAgent
-    if (postCode.isEmpty && PostCodeFlag) {
+    val checkPostCode = ApplicationConfig.validateNonUkClientPostCode(service) && !isAgent
+    if (postCode.isEmpty && checkPostCode) {
       countryForm.withError(key = "businessAddress.postcode",
         message = Messages("bc.business-registration-error.postcode"))
-    } else  if (!postCode.fold("")(x => x).matches(NonUkPostCodeRegex) && PostCodeFlag) {
+    } else  if (!postCode.fold("")(x => x).matches(NonUkPostCodeRegex) && checkPostCode) {
       registrationData.withError(key = "businessAddress.postcode",
         message = Messages("bc.business-registration-error.postcode.invalid"))
     } else {
