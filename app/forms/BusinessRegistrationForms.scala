@@ -198,7 +198,7 @@ object BusinessRegistrationForms {
       _.isEmpty
     }
     
-    val checkPostCode = ApplicationConfig.validateNonUkClientPostCode(service) && !isAgent
+    val checkPostCode = ApplicationConfig.getNonUkClientPostCodeFlag(service) && !isAgent
     if (postCode.isEmpty && checkPostCode) {
       countryForm.withError(key = "businessAddress.postcode",
         message = Messages("bc.business-registration-error.postcode"))

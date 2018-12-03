@@ -31,7 +31,7 @@ trait ApplicationConfig {
   val logoutUrl: String
 
   def serviceSignOutUrl(service: String): String
-  def validateNonUkClientPostCode(service: String): Boolean
+  def getNonUkClientPostCodeFlag(service: String): Boolean
 }
 
 object ApplicationConfig extends ApplicationConfig with ServicesConfig {
@@ -58,7 +58,7 @@ object ApplicationConfig extends ApplicationConfig with ServicesConfig {
     if (service != "") configuration.getString(s"delegated-service.${service.toLowerCase}.sign-out-url").getOrElse(logoutUrl) else logoutUrl
   }
 
-  override def validateNonUkClientPostCode(service: String) = {
-    configuration.getBoolean(s"microservice.services.${service.toLowerCase.trim}.validateNonUkClientPostCode").getOrElse(false)
+  override def getNonUkClientPostCodeFlag(service: String) = {
+    configuration.getBoolean(s"microservice.services.${service.toLowerCase.trim}.nonUkClientPostCodeFlag").getOrElse(false)
   }
 }
