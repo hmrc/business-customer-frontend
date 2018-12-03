@@ -177,7 +177,6 @@ object BusinessRegistrationForms {
     }
   }
 
-
   def validateCountryNonUKAndPostcode(registrationData: Form[BusinessRegistration], service: String, isAgent: Boolean) = {
     val country = registrationData.data.get("businessAddress.country") map {
       _.trim
@@ -198,11 +197,11 @@ object BusinessRegistrationForms {
       _.isEmpty
     }
     
-    val checkPostCode = ApplicationConfig.getNonUkClientPostCodeFlag(service) && !isAgent
-    if (postCode.isEmpty && checkPostCode) {
+    val validatePostCode = ApplicationConfig.validateNonUkClientPostCode(service) && !isAgent
+    if (postCode.isEmpty && validatePostCode) {
       countryForm.withError(key = "businessAddress.postcode",
         message = Messages("bc.business-registration-error.postcode"))
-    } else  if (!postCode.fold("")(x => x).matches(NonUkPostCodeRegex) && checkPostCode) {
+    } else  if (!postCode.fold("")(x => x).matches(NonUkPostCodeRegex) && validatePostCode) {
       registrationData.withError(key = "businessAddress.postcode",
         message = Messages("bc.business-registration-error.postcode.invalid"))
     } else {
