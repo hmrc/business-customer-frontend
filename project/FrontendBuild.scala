@@ -11,12 +11,12 @@ private object AppDependencies {
   import play.core.PlayVersion
   import play.sbt.PlayImport._
 
-  private val frontendBootstrapVersion = "8.24.0"
-  private val httpCachingClientVersion = "7.0.0"
-  private val playPartialsVersion = "6.1.0"
-  private val domainVersion = "4.1.0"
-  private val hmrcTestVersion = "2.3.0"
-  private val scalaTestPlusVersion = "1.5.1"
+  private val frontendBootstrapVersion = "12.4.0"
+  private val httpCachingClientVersion = "8.1.0"
+  private val playPartialsVersion = "6.5.0"
+  private val domainVersion = "5.3.0"
+  private val hmrcTestVersion = "3.6.0-play-25"
+  private val scalaTestPlusVersion = "2.0.1"
   private val pegdownVersion = "1.6.0"
 
   val compile = Seq(
@@ -25,7 +25,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "uk.gov.hmrc" %% "play-partials" % playPartialsVersion,
     "uk.gov.hmrc" %% "http-caching-client" % httpCachingClientVersion,
-    "uk.gov.hmrc" %% "auth-client" % "2.4.0"
+    "uk.gov.hmrc" %% "auth-client" % "2.20.0-play-25"
   )
 
   trait TestDependencies {

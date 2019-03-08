@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,19 @@ package controllers.nonUKReg
 
 import config.FrontendAuthConnector
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
-import controllers.{BackLinkController, BaseController}
+import controllers.BackLinkController
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
-import models.{BusinessRegistration, BusinessRegistrationDisplayDetails, OverseasCompany}
-import play.api.{Logger, Play}
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
+import models.{BusinessRegistration, BusinessRegistrationDisplayDetails}
+import play.api.Mode.Mode
 import play.api.i18n.Messages
-import services.BusinessRegistrationService
+import play.api.i18n.Messages.Implicits._
+import play.api.{Configuration, Logger, Play}
 import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import utils.BCUtils
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
-
-import scala.concurrent.Future
 
 object AgentRegisterNonUKClientController extends AgentRegisterNonUKClientController {
   // $COVERAGE-OFF$
@@ -42,6 +39,8 @@ object AgentRegisterNonUKClientController extends AgentRegisterNonUKClientContro
   override val controllerId: String = "AgentRegisterNonUKClientController"
   override val backLinkCacheConnector = BackLinkCacheConnector
   // $COVERAGE-ON$
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait AgentRegisterNonUKClientController extends BackLinkController with RunMode {

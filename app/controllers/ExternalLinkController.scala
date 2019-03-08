@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,18 @@
 package controllers
 
 import config.FrontendAuthConnector
-import connectors.{BackLinkCacheConnector, DataCacheConnector}
-import controllers.auth.ExternalUrls
-import models.{EnrolErrorResponse, EnrolResponse}
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
-import play.api.i18n.Messages
-import play.api.{Logger, Play}
-import services.AgentRegistrationService
+import connectors.BackLinkCacheConnector
+import play.api.Mode.Mode
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.play.config.RunMode
-
-import scala.concurrent.Future
 
 object ExternalLinkController extends ExternalLinkController {
 
   val authConnector = FrontendAuthConnector
   override val controllerId: String = "ExternalLinkController"
   override val backLinkCacheConnector = BackLinkCacheConnector
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait ExternalLinkController extends BackLinkController with RunMode {

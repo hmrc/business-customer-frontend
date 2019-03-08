@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,23 +18,21 @@ package controllers
 
 import java.util.UUID
 
-import config.BusinessCustomerSessionCache
-import connectors.{BackLinkCacheConnector, DataCacheConnector}
-import models.{Address, EnrolResponse, Identifier, ReviewDetails}
-import org.jsoup.Jsoup
+import connectors.BackLinkCacheConnector
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.Mode.Mode
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.AgentRegistrationService
+import play.api.{Configuration, Play}
+import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.SessionKeys
 
 
 class ExternalLinkControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
@@ -48,6 +46,8 @@ class ExternalLinkControllerSpec extends PlaySpec with OneServerPerSuite with Mo
     override val controllerId = "test"
     override val authConnector = mockAuthConnector
     override val backLinkCacheConnector = mockBackLinkCache
+    override protected def mode: Mode = Play.current.mode
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
 

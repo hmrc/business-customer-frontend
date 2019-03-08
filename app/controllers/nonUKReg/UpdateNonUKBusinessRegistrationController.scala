@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,12 @@ import config.{ApplicationConfig, FrontendAuthConnector}
 import controllers.BaseController
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
-import models.{BusinessCustomerContext, BusinessRegistrationDisplayDetails, OverseasCompany}
-import play.api.Logger
-import play.api.i18n.Messages.Implicits._
+import models.{BusinessCustomerContext, BusinessRegistrationDisplayDetails}
+import play.api.Mode.Mode
 import play.api.Play.current
 import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
+import play.api.{Configuration, Logger, Play}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.config.RunMode
@@ -38,6 +39,8 @@ object UpdateNonUKBusinessRegistrationController extends UpdateNonUKBusinessRegi
   override val authConnector: AuthConnector = FrontendAuthConnector
   override val businessRegistrationService = BusinessRegistrationService
   // $COVERAGE-ON$
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait UpdateNonUKBusinessRegistrationController extends BaseController with RunMode  {

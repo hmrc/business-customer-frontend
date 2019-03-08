@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,27 @@ import audit.Auditable
 import config.{BusinessCustomerFrontendAuditConnector, WSHttp}
 import metrics.{Metrics, MetricsEnum}
 import models._
-import play.api.Logger
+import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
+import play.api.{Configuration, Logger, Play}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
-import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
+import uk.gov.hmrc.play.config.ServicesConfig
 import utils.GovernmentGatewayConstants
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object TaxEnrolmentsConnector extends TaxEnrolmentsConnector {
-  val audit: Audit = new Audit(AppName.appName, BusinessCustomerFrontendAuditConnector)
-  val appName: String = AppName.appName
+  val audit: Audit = new Audit(appName, BusinessCustomerFrontendAuditConnector)
+  val appName: String = appName
   val metrics = Metrics
   val serviceUrl = baseUrl("tax-enrolments")
   val enrolmentUrl = s"$serviceUrl/tax-enrolments"
   val http: CoreGet with CorePost = WSHttp
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with Auditable {

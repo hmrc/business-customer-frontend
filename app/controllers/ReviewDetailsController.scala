@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@ package controllers
 import config.FrontendAuthConnector
 import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import controllers.auth.ExternalUrls
-import models.{EnrolErrorResponse, EnrolResponse}
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
+import play.api.Mode.Mode
 import play.api.i18n.Messages
-import play.api.{Logger, Play}
+import play.api.i18n.Messages.Implicits._
+import play.api.{Configuration, Logger, Play}
 import services.{AgentRegistrationService, NewAgentRegistrationService}
 import uk.gov.hmrc.play.config.RunMode
 import utils.ErrorMessageUtils._
@@ -38,6 +37,8 @@ object ReviewDetailsController extends ReviewDetailsController {
   val newAgentRegistrationService = NewAgentRegistrationService
   override val controllerId: String = "ReviewDetailsController"
   override val backLinkCacheConnector = BackLinkCacheConnector
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait ReviewDetailsController extends BackLinkController with RunMode {

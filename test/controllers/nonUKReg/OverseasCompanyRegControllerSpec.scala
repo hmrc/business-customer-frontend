@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,18 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.Mode.Mode
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, Result}
-import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.{Configuration, Play}
 import services.BusinessRegistrationService
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
 
 
 class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
@@ -53,6 +54,8 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
     override val businessRegistrationCache = mockBusinessRegistrationCache
     override val controllerId = "test"
     override val backLinkCacheConnector = mockBackLinkCache
+    override protected def mode: Mode = Play.current.mode
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   val serviceName: String = "ATED"

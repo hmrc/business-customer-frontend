@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,10 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.Mode.Mode
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.audit.model.Audit
@@ -43,16 +45,13 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with OneServerPerSuite with Mo
 
   object TestTaxEnrolmentsConnector extends TaxEnrolmentsConnector {
     override val http: CoreGet with CorePost = mockWSHttp
-
     override val audit: Audit = new TestAudit
-
     override val appName: String = "Test"
-
     override val enrolmentUrl: String = ""
-
     override def serviceUrl: String = ""
-
     override val metrics = Metrics
+    override protected def mode: Mode = Play.current.mode
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   override def beforeEach = {
