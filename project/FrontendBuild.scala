@@ -1,52 +1,29 @@
 import sbt._
-
 object FrontendBuild extends Build with MicroService {
-
   val appName = "business-customer-frontend"
-
-  override lazy val appDependencies: Seq[ModuleID] = AppDependencies()
-}
-
-private object AppDependencies {
-  import play.core.PlayVersion
-  import play.sbt.PlayImport._
-
+  override lazy val appDependencies: Seq[ModuleID] = appSpecificDependencies.all
   private val frontendBootstrapVersion = "12.4.0"
   private val httpCachingClientVersion = "8.1.0"
   private val playPartialsVersion = "6.5.0"
   private val domainVersion = "5.3.0"
   private val hmrcTestVersion = "3.6.0-play-25"
   private val scalaTestPlusVersion = "2.0.1"
-  private val pegdownVersion = "1.6.0"
-
-  val compile = Seq(
-    ws,
-    "uk.gov.hmrc" %% "frontend-bootstrap" % frontendBootstrapVersion,
-    "uk.gov.hmrc" %% "domain" % domainVersion,
-    "uk.gov.hmrc" %% "play-partials" % playPartialsVersion,
-    "uk.gov.hmrc" %% "http-caching-client" % httpCachingClientVersion,
-    "uk.gov.hmrc" %% "auth-client" % "2.20.0-play-25"
-  )
-
-  trait TestDependencies {
-    lazy val scope: String = "test"
-    lazy val test : Seq[ModuleID] = ???
+  object appSpecificDependencies {
+    import play.sbt.PlayImport.ws
+    val compile = Seq(
+      ws,
+      "uk.gov.hmrc" %% "frontend-bootstrap" % frontendBootstrapVersion,
+      "uk.gov.hmrc" %% "domain" % domainVersion,
+      "uk.gov.hmrc" %% "play-partials" % playPartialsVersion,
+      "uk.gov.hmrc" %% "http-caching-client" % httpCachingClientVersion,
+      "uk.gov.hmrc" %% "auth-client" % "2.4.0"
+    )
+    val test = Seq(
+      "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusVersion % "test",
+      "org.jsoup" % "jsoup" % "1.11.3" % "test",
+      "org.mockito" % "mockito-all" % "1.10.19" % "test",
+      "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % "test"
+    )
+    val all = compile ++ test
   }
-
-  object Test {
-    def apply() = new TestDependencies {
-      override lazy val test = Seq(
-        "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusVersion % scope,
-        "org.pegdown" % "pegdown" % pegdownVersion,
-        "org.jsoup" % "jsoup" % "1.8.3" % scope,
-        "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-all" % "1.10.19" % scope,
-        "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope
-      )
-    }.test
-  }
-
-  def apply() = compile ++ Test()
 }
-
-
