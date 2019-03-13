@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,15 @@ package controllers.nonUKReg
 import java.util.UUID
 
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
-import models.{BusinessRegistration, Address, ReviewDetails}
+import models.{Address, BusinessRegistration, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.{Configuration, Play}
+import play.api.Mode.Mode
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, Result}
 import play.api.test.FakeRequest
@@ -52,6 +54,8 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with OneServerPerS
     override val businessRegistrationCache = mockBusinessRegistrationCache
     override val controllerId = "test"
     override val backLinkCacheConnector = mockBackLinkCache
+    override protected def mode: Mode = Play.current.mode
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   override def beforeEach(): Unit = {

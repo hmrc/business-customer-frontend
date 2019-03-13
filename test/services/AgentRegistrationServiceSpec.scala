@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,13 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.Mode.Mode
 import play.api.test.Helpers._
+import play.api.{Configuration, Play}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.model.Audit
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfter {
 
@@ -43,6 +45,8 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
     val businessCustomerConnector = mockBusinessCustomerConnector
     override val audit: Audit = new TestAudit
     override val appName: String = "Test"
+    override protected def mode: Mode = Play.current.mode
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   "AgentRegistrationService" must {

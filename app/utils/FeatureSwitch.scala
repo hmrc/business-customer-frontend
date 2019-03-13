@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package utils
 
-import play.api.Play
+import play.api.Mode.Mode
 import play.api.libs.json.Json
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.play.config.RunMode
 
 case class FeatureSwitch(name: String, enabled: Boolean)
@@ -52,6 +53,8 @@ object FeatureSwitch extends RunMode {
   def systemPropertyName(name: String) = s"features.$name"
 
   implicit val format = Json.format[FeatureSwitch]
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 object BusinessCustomerFeatureSwitches {

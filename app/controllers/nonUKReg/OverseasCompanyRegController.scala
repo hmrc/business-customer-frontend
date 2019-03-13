@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,19 @@ package controllers.nonUKReg
 
 import config.{ApplicationConfig, FrontendAuthConnector}
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
-import controllers.{BackLinkController, BaseController, ReviewDetailsController}
+import controllers.{BackLinkController, ReviewDetailsController}
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
 import models.{BusinessRegistration, OverseasCompany}
-import play.api.{Logger, Play}
+import play.api.Mode.Mode
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
-import play.api.i18n.Messages
+import play.api.{Configuration, Play}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.config.RunMode
-import utils.{BCUtils, OverseasCompanyUtils}
 import utils.BusinessCustomerConstants.{BusinessRegDetailsId, OverseasRegDetailsId}
+import utils.{BCUtils, OverseasCompanyUtils}
 
 import scala.concurrent.Future
 
@@ -40,6 +40,8 @@ object OverseasCompanyRegController extends OverseasCompanyRegController {
   override val businessRegistrationCache = BusinessRegCacheConnector
   override val controllerId: String = "OverseasCompanyRegController"
   override val backLinkCacheConnector = BackLinkCacheConnector
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait OverseasCompanyRegController extends BackLinkController with RunMode {

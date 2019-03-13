@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 
 package controllers.auth
 
-import play.api.Play
+import play.api.Mode.Mode
 import play.api.Play.current
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.play.config.RunMode
 
 object ExternalUrls extends RunMode {
@@ -50,5 +51,6 @@ object ExternalUrls extends RunMode {
   }
 
   val addClientEmailPath = Play.configuration.getString(s"microservice.services.agent-client-mandate-frontend.select-service").getOrElse("#")
-
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

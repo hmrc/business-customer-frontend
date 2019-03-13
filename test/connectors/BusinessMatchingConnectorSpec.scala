@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,10 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.Mode.Mode
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.audit.model.Audit
@@ -48,6 +50,8 @@ class BusinessMatchingConnectorSpec extends PlaySpec with OneServerPerSuite with
     override val lookupUri = "lookupUri"
     override val baseUri = "baseUri"
     override val serviceUrl = "serviceUrl"
+    override protected def mode: Mode = Play.current.mode
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   val userType = "sa"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,13 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.Mode.Mode
 import play.api.test.Helpers._
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.model.Audit
-
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
-import uk.gov.hmrc.auth.core.retrieve.Retrievals._
-import uk.gov.hmrc.auth.core.{AuthConnector, _}
 
 import scala.concurrent.Future
 
@@ -52,6 +51,8 @@ class NewAgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite wi
     override val audit: Audit = new TestAudit
     override val appName: String = "Test"
     val authConnector: AuthConnector = mockAuthClientConnector
+    override protected def mode: Mode = Play.current.mode
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   "NewAgentRegistrationService" must {
