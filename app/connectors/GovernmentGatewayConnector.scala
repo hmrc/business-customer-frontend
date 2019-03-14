@@ -26,14 +26,14 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.{Configuration, Logger, Play}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object GovernmentGatewayConnector extends GovernmentGatewayConnector {
+  val appName: String = AppName(Play.current.configuration).appName
   val audit: Audit = new Audit(appName, BusinessCustomerFrontendAuditConnector)
-  val appName: String = appName
   val metrics = Metrics
   val serviceUrl = baseUrl("government-gateway")
   val enrolUri = "enrol"

@@ -28,7 +28,7 @@ import play.api.i18n.Messages.Implicits._
 import play.api.{Configuration, Logger, Play}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
-import uk.gov.hmrc.play.config.RunMode
+import uk.gov.hmrc.play.config.{AppName, RunMode}
 import utils.GovernmentGatewayConstants
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -114,11 +114,11 @@ trait AgentRegistrationService extends RunMode with Auditable {
 }
 
 object AgentRegistrationService extends AgentRegistrationService {
+  val appName: String = AppName(Play.current.configuration).appName
   val governmentGatewayConnector = GovernmentGatewayConnector
   val dataCacheConnector = DataCacheConnector
   val businessCustomerConnector = BusinessCustomerConnector
   val audit: Audit = new Audit(appName, BusinessCustomerFrontendAuditConnector)
-  val appName: String = appName
   override protected def mode: Mode = Play.current.mode
   override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
