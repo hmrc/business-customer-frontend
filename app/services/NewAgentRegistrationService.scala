@@ -31,7 +31,7 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AuthConnector, _}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
-import uk.gov.hmrc.play.config.RunMode
+import uk.gov.hmrc.play.config.{AppName, RunMode}
 import utils.{BCUtils, GovernmentGatewayConstants}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -133,11 +133,11 @@ trait NewAgentRegistrationService extends RunMode with Auditable with Authorised
 }
 
 object NewAgentRegistrationService extends NewAgentRegistrationService {
+  val appName: String = AppName(Play.current.configuration).appName
   val taxEnrolmentsConnector = TaxEnrolmentsConnector
   val dataCacheConnector = DataCacheConnector
   val businessCustomerConnector = NewBusinessCustomerConnector
   val audit: Audit = new Audit(appName, BusinessCustomerFrontendAuditConnector)
-  val appName: String = appName
   val authConnector: AuthConnector = AuthClientConnector
   override protected def mode: Mode = Play.current.mode
   override protected def runModeConfiguration: Configuration = Play.current.configuration

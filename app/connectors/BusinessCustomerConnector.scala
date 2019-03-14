@@ -28,15 +28,15 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.{Configuration, Logger, Play}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 import utils.GovernmentGatewayConstants
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object BusinessCustomerConnector extends BusinessCustomerConnector {
+  val appName: String = AppName(Play.current.configuration).appName
   val audit: Audit = new Audit(appName, BusinessCustomerFrontendAuditConnector)
-  val appName: String = appName
   val serviceUrl = baseUrl("business-customer")
   val baseUri = "business-customer"
   val registerUri = "register"

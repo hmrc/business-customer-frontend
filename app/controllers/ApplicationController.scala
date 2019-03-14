@@ -26,12 +26,12 @@ import play.api.mvc.DiscardingCookie
 import play.api.{Configuration, Play}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
-import uk.gov.hmrc.play.config.RunMode
+import uk.gov.hmrc.play.config.{AppName, RunMode}
 import uk.gov.hmrc.play.frontend.controller.{FrontendController, UnauthorisedAction}
 
 object ApplicationController extends ApplicationController {
+  val appName: String = AppName(Play.current.configuration).appName
   override val audit: Audit = new Audit(appName, BusinessCustomerFrontendAuditConnector)
-  override val appName: String = appName
   override protected def mode: Mode = Play.current.mode
   override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
