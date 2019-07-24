@@ -2,11 +2,11 @@ import sbt._
 object FrontendBuild extends Build with MicroService {
   val appName = "business-customer-frontend"
   override lazy val appDependencies: Seq[ModuleID] = appSpecificDependencies.all
-  private val frontendBootstrapVersion = "12.4.0"
-  private val httpCachingClientVersion = "8.1.0"
+  private val frontendBootstrapVersion = "12.9.0"
+  private val httpCachingClientVersion = "8.3.0"
   private val playPartialsVersion = "6.5.0"
   private val domainVersion = "5.3.0"
-  private val hmrcTestVersion = "3.6.0-play-25"
+  private val hmrcTestVersion = "3.9.0-play-25"
   private val scalaTestPlusVersion = "2.0.1"
   object appSpecificDependencies {
     import play.sbt.PlayImport.ws

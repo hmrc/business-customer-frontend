@@ -23,10 +23,8 @@ import play.api.Mode.Mode
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.{Configuration, Logger, Play}
-import services.{AgentRegistrationService, NewAgentRegistrationService}
+import services.{AgentRegistrationService}
 import uk.gov.hmrc.play.config.RunMode
-import utils.ErrorMessageUtils._
-import utils.FeatureSwitch
 
 import scala.concurrent.Future
 
@@ -34,7 +32,6 @@ object ReviewDetailsController extends ReviewDetailsController {
   val dataCacheConnector = DataCacheConnector
   val authConnector = FrontendAuthConnector
   val agentRegistrationService = AgentRegistrationService
-  val newAgentRegistrationService = NewAgentRegistrationService
   override val controllerId: String = "ReviewDetailsController"
   override val backLinkCacheConnector = BackLinkCacheConnector
   override protected def mode: Mode = Play.current.mode
@@ -47,9 +44,8 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
 
   def dataCacheConnector: DataCacheConnector
 
-  def agentRegistrationService: AgentRegistrationService
 
-  def newAgentRegistrationService: NewAgentRegistrationService
+  def agentRegistrationService: AgentRegistrationService
 
   private val DuplicateUserError = "duplicate user error"
   private val WrongRoleUserError = "wrong role user error"
@@ -71,23 +67,10 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
   }
 
   def continue(serviceName: String) = AuthAction(serviceName).async { implicit bcContext =>
-    if (bcContext.user.isAgent && agentRegistrationService.isAgentEnrolmentAllowed(serviceName)) {
-      if(FeatureSwitch.isEnabled("registration.usingGG")) {
+    if (bcContext.user.isAgent && AgentRegistrationService.isAgentEnrolmentAllowed(serviceName))
+
+      {
         agentRegistrationService.enrolAgent(serviceName).flatMap { response =>
-          response.status match {
-            case OK => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
-            case BAD_GATEWAY if matchErrorResponse(response) =>
-              val errMessage = formatErrorMessage(DuplicateUserError, serviceName)
-              Logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EMAC")
-              Future.successful(Ok(views.html.global_error(errMessage._1, errMessage._2, errMessage._3)))
-            case _ =>
-              Logger.warn(s"[ReviewDetailsController][continue] - Exception other than status - OK and BAD_GATEWAY")
-              throw new RuntimeException(Messages("bc.business-review.error.not-found"))
-          }
-        }
-      }
-      else {
-        newAgentRegistrationService.enrolAgent(serviceName).flatMap { response =>
           response.status match {
             case CREATED => RedirectToExernal(ExternalUrls.agentConfirmationPath(serviceName), Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
             case BAD_REQUEST | CONFLICT =>
@@ -104,7 +87,7 @@ trait ReviewDetailsController extends BackLinkController with RunMode {
           }
         }
       }
-    } else {
+     else {
       val serviceRedirectUrl: Option[String] = Play.configuration.getString(s"microservice.services.${serviceName.toLowerCase}.serviceRedirectUrl")
       serviceRedirectUrl match {
         case Some(serviceUrl) => RedirectToExernal(serviceUrl, Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
