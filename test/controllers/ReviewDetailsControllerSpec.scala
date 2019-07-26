@@ -33,10 +33,9 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Configuration, Play}
-import services.{AgentRegistrationService, NewAgentRegistrationService}
+import services.{AgentRegistrationService}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionKeys}
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import utils.FeatureSwitch
 
 import scala.concurrent.Future
 
@@ -47,7 +46,6 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
 
   val mockAuthConnector = mock[AuthConnector]
   val mockAgentRegistrationService = mock[AgentRegistrationService]
-  val mockNewAgentRegistrationService = mock[NewAgentRegistrationService]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
 
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
@@ -75,7 +73,6 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
       override def dataCacheConnector = mockDataCacheConnector
       override val authConnector = mockAuthConnector
       override val agentRegistrationService = mockAgentRegistrationService
-      override val newAgentRegistrationService = mockNewAgentRegistrationService
       override val controllerId = "test"
       override val backLinkCacheConnector = mockBackLinkCache
       override protected def mode: Mode = Play.current.mode
@@ -99,7 +96,6 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
       override def dataCacheConnector = mockDataCacheConnector
       override val authConnector = mockAuthConnector
       override val agentRegistrationService = mockAgentRegistrationService
-      override val newAgentRegistrationService = mockNewAgentRegistrationService
       override val controllerId = "test"
       override val backLinkCacheConnector = mockBackLinkCache
       override protected def mode: Mode = Play.current.mode
@@ -108,9 +104,9 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
   }
 
   override def beforeEach = {
-    reset(mockAgentRegistrationService)
     reset(mockAuthConnector)
     reset(mockBackLinkCache)
+    reset(mockAgentRegistrationService)
   }
 
   "ReviewDetailsController" must {
@@ -205,88 +201,6 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
 
 
       "Authorised Users" must {
-
-        "enrolling for GG" when {
-
-          "return service start page correctly for ATED Users" in {
-
-            continueWithAuthorisedUser(service) {
-              result =>
-                status(result) must be(SEE_OTHER)
-                redirectLocation(result).get must include("/ated-subscription/registered-business-address")
-            }
-          }
-
-          "return service start page correctly for AWRS Users" in {
-
-            continueWithAuthorisedUser("AWRS") {
-              result =>
-                status(result) must be(SEE_OTHER)
-                redirectLocation(result).get must include("/alcohol-wholesale-scheme")
-            }
-          }
-
-          "redirect to the correspondence address page for capital-gains-tax-service" in {
-            continueWithAuthorisedUser("capital-gains-tax") {
-              result =>
-                status(result) must be(SEE_OTHER)
-                redirectLocation(result).get must include("/capital-gains-tax/subscription/company/correspondence-address-confirm")
-            }
-          }
-
-          "redirect to the confirmation for agents address page for capital-gains-tax-subscription service" in {
-            continueWithAuthorisedUser("capital-gains-tax-agents") {
-              result =>
-                status(result) must be(SEE_OTHER)
-                redirectLocation(result).get must include("/capital-gains-tax/subscription/agent/registered/subscribe")
-            }
-          }
-
-          "return agent registration page correctly for Agents" in {
-            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
-            continueWithAuthorisedAgent(service) {
-              result =>
-                status(result) must be(SEE_OTHER)
-                redirectLocation(result).get must include("/ated-subscription/agent-confirmation")
-            }
-          }
-
-          "respond with NotFound when invalid service is in uri" in {
-            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq("unknownServiceTest"))).thenReturn(false)
-            continueWithAuthorisedUser("unknownServiceTest") {
-              result =>
-                status(result) must be(NOT_FOUND)
-            }
-          }
-
-          "throw an exception for any invalid user" in {
-            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
-            continueWithInvalidAgent("ATED") {
-              result =>
-                val thrown = the[RuntimeException] thrownBy await(result)
-                thrown.getMessage must include("We could not find your details. Check and try again.")
-            }
-          }
-
-          "return error page for duplicate user" in {
-            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
-            continueWithDuplicateAgent("ATED", badGatewayResponse) {
-              result =>
-                status(result) must be(OK)
-                val document = Jsoup.parse(contentAsString(result))
-                document.title() must be("Somebody has already registered from your agency - GOV.UK")
-            }
-          }
-
-          "throw an exception for invalid error code from GGr" in {
-            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
-            continueWithDuplicateAgent("ATED", invalidBadGatewayResponse) {
-              result =>
-                val thrown = the[RuntimeException] thrownBy await(result)
-                thrown.getMessage must include("We could not find your details. Check and try again.")
-            }
-          }
-        }
 
         "enrolling for EMAC" when {
 
@@ -398,23 +312,14 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
     test(result)
   }
 
-  private def continueWithAuthorisedAgent(service: String)(test: Future[Result] => Any) {
-    val userId = s"user-${UUID.randomUUID}"
-    builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    FeatureSwitch.enable(FeatureSwitch("registration.usingGG", true))
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
-    val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
-    test(result)
-  }
+
 
   private def continueWithAuthorisedAgentEMAC(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
-    FeatureSwitch.disable(FeatureSwitch("registration.usingGG", true))
     when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
+    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
@@ -422,9 +327,8 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
   private def continueWithDuplicategentEmac(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    FeatureSwitch.disable(FeatureSwitch("registration.usingGG", true))
     when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
+    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
@@ -432,41 +336,22 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
   private def continueWithWrongRoleUserEmac(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    FeatureSwitch.disable(FeatureSwitch("registration.usingGG", true))
     when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(FORBIDDEN)))
+    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(FORBIDDEN)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
-  private def continueWithInvalidAgent(service: String)(test: Future[Result] => Any) {
+
+
+  private def continueWithInvalidAgentEmac(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    FeatureSwitch.enable(FeatureSwitch("registration.usingGG", true))
     when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
     when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
 
-  private def continueWithInvalidAgentEmac(service: String)(test: Future[Result] => Any) {
-    val userId = s"user-${UUID.randomUUID}"
-    builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    FeatureSwitch.disable(FeatureSwitch("registration.usingGG", true))
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockNewAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
-    val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
-    test(result)
-  }
-
-  private def continueWithDuplicateAgent(service: String, badGatewayResp: JsValue)(test: Future[Result] => Any) {
-    val userId = s"user-${UUID.randomUUID}"
-    builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    FeatureSwitch.enable(FeatureSwitch("registration.usingGG", true))
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, Some(badGatewayResp))))
-    val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
-    test(result)
-  }
 
   def businessDetailsWithAuthorisedAgent(reviewDetails: ReviewDetails)(test: Future[Result] => Any) = {
     val userId = s"user-${UUID.randomUUID}"

@@ -19,7 +19,6 @@ package connectors
 import config.BusinessCustomerSessionCache
 import models.BackLinkModel
 import uk.gov.hmrc.http.cache.client.SessionCache
-import utils.BusinessCustomerFeatureSwitches
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
