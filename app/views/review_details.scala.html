@@ -14,11 +14,11 @@
  * limitations under the License.
  *@
 
-@(service: String, isAgent: Boolean, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages)
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
-@import utils._
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import config._
 @import views.html.helpers._
+
+@(service: String, isAgent: Boolean, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @headingId = @{
     isAgent match {
@@ -29,8 +29,8 @@
 
 @headingText = @{
     isAgent match {
-        case true => Messages("business-review.agent.header")
-        case false => Messages("business-review.user.header")
+        case true => messages("business-review.agent.header")
+        case false => messages("business-review.user.header")
     }
 }
 
@@ -43,22 +43,22 @@
 
 @headingSecondaryText = @{
     isAgent match {
-        case true => Messages("bc.business-registration.text.agent", service.toUpperCase)
-        case false => Messages("bc.business-registration.text.client", service.toUpperCase)
+        case true => messages("bc.business-registration.text.agent", service.toUpperCase)
+        case false => messages("bc.business-registration.text.client", service.toUpperCase)
     }
 }
 
 @businessDetailsMatchTextQuestion = @{
     businessDetails.directMatch match {
-        case true => Messages("business-review.invalid-business.header")
-        case false => Messages("business-review.invalid-address.header")
+        case true => messages("business-review.invalid-business.header")
+        case false => messages("business-review.invalid-address.header")
     }
 }
 
 @businessDetailsMatchText = @{
     businessDetails.directMatch match {
-        case true => Messages("business-review.invalid-business.text")
-        case false => Messages("business-review.invalid-address.text")
+        case true => messages("business-review.invalid-business.text")
+        case false => messages("business-review.invalid-address.text")
     }
 }
 
@@ -82,7 +82,7 @@
             @businessDetails.businessAddress.line_3.map { line_3 => @line_3<br> }
             @businessDetails.businessAddress.line_4.map { line_4 => @line_4<br> }
             @businessDetails.businessAddress.postcode.map { postcode => @postcode<br> }
-            @BCUtils.getSelectedCountry(businessDetails.businessAddress.country)
+            @appConfig.getSelectedCountry(businessDetails.businessAddress.country)
         </p>
 
         @if(businessDetails.businessAddress.country.toUpperCase == "GB") {
@@ -95,8 +95,8 @@
                         @businessDetailsMatchText
                     </p>
                     <ul class="list-bullet">
-                        <li id="wrong-account-text-item-1">@Html(Messages("business-review.registered-with-companies-house.text"))</li>
-                        <li id="wrong-account-text-item-2">@Html(Messages("business-review.sole-trader.text"))</li>
+                        <li id="wrong-account-text-item-1">@Html(messages("business-review.registered-with-companies-house.text"))</li>
+                        <li id="wrong-account-text-item-2">@Html(messages("business-review.sole-trader.text"))</li>
                     </ul>
                 </div>
             </details>
@@ -105,7 +105,7 @@
     </div>
 
     <a href="@controllers.routes.ReviewDetailsController.continue(service)" class="button" role="button" id="submit" @if(isAgent){onclick="ga('send', 'event', 'Agent - registration - end', 'button clicked')"}>
-        @Messages("business-review.registration-button")
+        @messages("business-review.registration-button")
     </a>
 }
 

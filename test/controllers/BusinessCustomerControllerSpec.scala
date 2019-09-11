@@ -18,20 +18,22 @@ package controllers
 
 import java.util.UUID
 
+import builders.AuthBuilder
+import config.ApplicationConfig
 import connectors.DataCacheConnector
 import models.{Address, ReviewDetails}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.libs.json.Json
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.{HttpResponse, SessionKeys}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HttpResponse, SessionKeys }
 
 class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
@@ -45,10 +47,15 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
     reset(mockAuthConnector)
   }
 
-  object TestBusinessCustomerController extends BusinessCustomerController {
-    override val authConnector = mockAuthConnector
-    override val dataCacheConnector = mockDataCacheConnector
-  }
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+
+  object TestBusinessCustomerController extends BusinessCustomerController(
+    mockAuthConnector,
+    appConfig,
+    mockDataCacheConnector,
+    mcc
+  )
 
   private def fakeRequestWithSession(userId: String) = {
     val sessionId = s"session-${UUID.randomUUID}"
@@ -62,7 +69,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
     "unauthorised users trying to clear cache" must {
       "respond with a redirect to unauthorized page" in {
         val userId = s"user-${UUID.randomUUID}"
-        builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
+        AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
 
         status(result) must be(SEE_OTHER)
@@ -73,7 +80,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
     "authorized users" must {
       "clearCache successfully" in {
         val userId = s"user-${UUID.randomUUID}"
-        builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
+        AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
         when(mockDataCacheConnector.clearCache(Matchers.any())) thenReturn Future.successful(HttpResponse(OK))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(OK)
@@ -81,7 +88,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
 
       "clearCache gives error" in {
         val userId = s"user-${UUID.randomUUID}"
-        builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
+        AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
         when(mockDataCacheConnector.clearCache(Matchers.any())) thenReturn Future.successful(HttpResponse(INTERNAL_SERVER_ERROR))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(INTERNAL_SERVER_ERROR)
@@ -91,7 +98,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
     "unauthorised users trying to get business details" must {
       "respond with a redirect to unauthorized page" in {
         val userId = s"user-${UUID.randomUUID}"
-        builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
+        AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
         val result = TestBusinessCustomerController.getReviewDetails(service).apply(fakeRequestWithSession(userId))
 
         status(result) must be(SEE_OTHER)
@@ -102,7 +109,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
     "authorized users" must {
       "getReviewDetails successfully" in {
         val userId = s"user-${UUID.randomUUID}"
-        builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
+        AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
         val address = Address("", "", None, None, None, "")
 
@@ -129,7 +136,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
 
       "getReviewDetails cannot find details" in {
         val userId = s"user-${UUID.randomUUID}"
-        builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
+        AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
         when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())) thenReturn Future.successful(None)
         val result = TestBusinessCustomerController.getReviewDetails(service).apply(fakeRequestWithSession(userId))
         status(result) must be(NOT_FOUND)

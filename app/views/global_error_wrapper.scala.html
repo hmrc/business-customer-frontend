@@ -14,7 +14,10 @@
  * limitations under the License.
  *@
 
-@(appConfig: config.ApplicationConfig,
+@import play.twirl.api.HtmlFormat
+@import config._
+
+@(appConfig: ApplicationConfig,
   title: String,
   mainClass: Option[String] = None,
   mainDataAttributes: Option[Html] = None,
@@ -30,10 +33,9 @@
 @import layouts.{govuk_template => hmrcGovUkTemplate}
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 @import uk.gov.hmrc.play.views.html.{helpers => uiHelpers}
-@import utils.BCUtils
 
 @linkElement = {
-<link rel="stylesheet" href='@controllers.routes.AssetsController.at("stylesheets/main.css")'/>
+<link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/main.css")'/>
 }
 
 @head = {
@@ -44,13 +46,13 @@
 }
 
 @headerNavLinks = {
-  <li><a href="@appConfig.serviceSignOutUrl(delegatedService)" id="errorLogOutNavHref">@Messages("bc.sign-out")</a></li>
+  <li><a href="@appConfig.serviceSignOutUrl(delegatedService)" id="errorLogOutNavHref">@messages("bc.sign-out")</a></li>
 }
 
 
 @scriptElement = {
-  <script type="text/javascript" src='@controllers.routes.AssetsController.at("jquery/jquery-ui-1.12.1.min.js")'></script>
-  <script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/timeout-dialog.js")'></script>
+  <script type="text/javascript" src='@controllers.routes.Assets.versioned("jquery/jquery-ui-1.12.1.min.js")'></script>
+  <script type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/timeout-dialog.js")'></script>
   <script type="text/javascript" charset="utf-8">
   @if(userLoggedIn) {
      $.timeoutDialog({timeout: @appConfig.defaultTimeoutSeconds, countdown: @appConfig.timeoutCountdown, keep_alive_url: '/business-customer/keep-alive', logout_url: '@appConfig.serviceSignOutUrl(delegatedService)', logout_redirect_url: '@appConfig.serviceSignOutUrl(delegatedService)', restart_on_yes: true, background_no_scroll: true});
@@ -67,7 +69,7 @@
 
 @insideHeader = {
     @uiLayouts.header_nav(
-      navTitle = BCUtils.getNavTitle(delegatedService),
+      navTitle = appConfig.getNavTitle(delegatedService).map(s => messages(s)),
       navTitleLink = None,
       showBetaLink = false,
       navLinks = Some(headerNavLinks))

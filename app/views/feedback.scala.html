@@ -14,73 +14,75 @@
  * limitations under the License.
  *@
 
-@(feedbackForm: Form[models.FeedBack], service: String)(implicit request : Request[_], messages: Messages)
-
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
+@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers._
 @import controllers.auth._
+@import models.FeedBack
+@import config._
 
-@bcMain(title = Messages("label.signed_out", service.toUpperCase), userLoggedIn = false) {
+@(feedbackForm: Form[FeedBack], service: String, welcomeLink: String)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+
+@bcMain(title = messages("label.signed_out", service.toUpperCase), userLoggedIn = false) {
 
   <div class="logged-out-page">
 
-    <h1 class="heading-xlarge"> @Messages("label.youre_signed_out") </h1>
+    <h1 class="heading-xlarge"> @messages("label.youre_signed_out") </h1>
 
-    <p> @Messages("label.youre_now_signed_out_of_your_service_account", service.toUpperCase) </p>
+    <p> @messages("label.youre_now_signed_out_of_your_service_account", service.toUpperCase) </p>
 
-    <a href="@ExternalUrls.serviceWelcomePath(service)" data-journey-click="business-customer:click:external-urls-link"> @Messages("feedback.redirect-startpage") </a>
+    <a href="@welcomeLink" data-journey-click="business-customer:click:external-urls-link"> @messages("feedback.redirect-startpage") </a>
 
-    <p><a href="http://www.gov.uk" data-journey-click="business-customer:click:gov-uk-link"> @Messages("label.explore_gov_uk") </a></p>
+    <p><a href="http://www.gov.uk" data-journey-click="business-customer:click:gov-uk-link"> @messages("label.explore_gov_uk") </a></p>
 
     <hr class="ated-hr" />
 
-    <h2 class="heading-medium"> @Messages("label.satisfaction_survey") </h2>
+    <h2 class="heading-medium"> @messages("label.satisfaction_survey") </h2>
 
-    @helpers.form(action = controllers.routes.ApplicationController.submitFeedback(service)) {
+    @form(action = controllers.routes.ApplicationController.submitFeedback(service)) {
 
       @bcInputRadioGroup(
         feedbackForm("easyToUse"),
         Seq(
-          "4" -> Messages("label.very_easy"),
-          "3" -> Messages("label.easy"),
-          "2" -> Messages("label.neither_easy_or_difficult"),
-          "1" -> Messages("label.difficult"),
-          "0" -> Messages("label.very_difficult")
+          "four" -> "label.very_easy",
+          "three" -> "label.easy",
+          "two" -> "label.neither_easy_or_difficult",
+          "one" -> "label.difficult",
+          "zero" -> "label.very_difficult"
         ),
-        '_legend -> Messages("label.how_easy_was_the_service_to_use"),
+        '_legend -> "label.how_easy_was_the_service_to_use",
         '_labelAfter -> true,
         '_fieldsetAttributes -> "id=easyToUseFieldset")
 
       @bcInputRadioGroup(
         feedbackForm("satisfactionLevel"),
         Seq(
-          "4" -> Messages("label.very_satisfied"),
-          "3" -> Messages("title.satisfied"),
-          "2" -> Messages("label.neither_satisfied_or_dissatisfied"),
-          "1" -> Messages("title.dissatisfied"),
-          "0" -> Messages("label.very_dissatisfied")
+          "four" -> "label.very_satisfied",
+          "three" -> "title.satisfied",
+          "two" -> "label.neither_satisfied_or_dissatisfied",
+          "one" -> "title.dissatisfied",
+          "zero" -> "label.very_dissatisfied"
         ),
-        '_legend -> Messages("label.how_satisfied_were_you_with_the_service"),
+        '_legend -> messages("label.how_satisfied_were_you_with_the_service"),
         '_labelAfter -> true)
 
       @helper.textarea(
         feedbackForm("howCanWeImprove"),
         args = 'rows -> 3,
-        '_help -> Messages("label.limit_is_1200_characters"),
-        '_label -> Messages("label.what_else_would_you_like_to_see_in_the_service"),
+        '_help -> messages("label.limit_is_1200_characters"),
+        '_label -> messages("label.what_else_would_you_like_to_see_in_the_service"),
         'maxlength -> 1200)
 
-      @bcInput(feedbackForm("referer"),
+      @bcInput(
+        feedbackForm("referer"),
         '_label -> Html("referer"),
         '_labelClass -> "visuallyhidden",
         '_id -> "referrer",
         '_type -> "hidden",
         '_showConstraints -> false)
 
-      <p> @Messages("label.please_dont_include_any_personal_or_financial_information") </p>
+      <p> @messages("label.please_dont_include_any_personal_or_financial_information") </p>
 
-      <button id="submit" type="submit" class="button"> @Messages("label.send_feedback") </button>
+      <button id="submit" type="submit" class="button"> @messages("label.send_feedback") </button>
 
     }
 

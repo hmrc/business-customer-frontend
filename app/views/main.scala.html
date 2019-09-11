@@ -14,7 +14,13 @@
  * limitations under the License.
  *@
 
-@(applicationConfig: config.ApplicationConfig = config.ApplicationConfig,
+@import play.twirl.api.HtmlFormat
+@import layouts.{govuk_template => hmrcGovUkTemplate}
+@import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
+@import uk.gov.hmrc.play.views.html.{helpers => uiHelpers}
+@import config._
+
+@(applicationConfig: ApplicationConfig,
     supportLinkEnabled: Boolean = false,
     title: String,
     sidebarLinks: Option[Html] = None,
@@ -24,12 +30,7 @@
     userLoggedIn: Boolean = false,
     scriptElement: Option[Html] = None,
     linkElement : Option[Html] = None
-    )(mainContent: Html = HtmlFormat.empty)(implicit request : Request[_], messages: Messages)
-
-@import layouts.{govuk_template => hmrcGovUkTemplate}
-@import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
-@import uk.gov.hmrc.play.views.html.{helpers => uiHelpers}
-@import utils.BCUtils
+    )(mainContent: Html = HtmlFormat.empty)(implicit request : Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @head = {
   @uiLayouts.head(
@@ -43,7 +44,7 @@
 
 @headerNavLinks = {
   @if(userLoggedIn) {
-    <li><a id="logOutNavHref" href='@routes.ApplicationController.logout(service)'>@Messages("bc.sign-out")</a></li>
+    <li><a id="logOutNavHref" href='@routes.ApplicationController.logout(service)'>@messages("bc.sign-out")</a></li>
   }
 }
 
@@ -57,7 +58,7 @@
 
 @insideHeader = {
   @uiLayouts.header_nav(
-  navTitle = BCUtils.getNavTitle(service),
+  navTitle = applicationConfig.getNavTitle(service).map(s => messages(s)),
   navTitleLink = None,
   showBetaLink = false,
   navLinks = Some(headerNavLinks))
@@ -88,7 +89,7 @@
 
 @getHelpForm = {
   @if(supportLinkEnabled) {
-    @{uiHelpers.reportAProblemLink(config.ApplicationConfig.reportAProblemPartialUrl, config.ApplicationConfig.reportAProblemNonJSUrl)}
+    @{uiHelpers.reportAProblemLink(applicationConfig.reportAProblemPartialUrl, applicationConfig.reportAProblemNonJSUrl)}
   }
 }
 

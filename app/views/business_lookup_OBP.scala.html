@@ -14,17 +14,15 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import views.html.helpers._
+@import config._
+
 @(ordinaryBusinessPartnershipForm: Form[forms.OrdinaryBusinessPartnershipMatch],
  isAgent: Boolean,
  service: String,
  businessType: String,
- backLink: Option[String])(implicit request: Request[_], messages: Messages)
-
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
-@import views.html.helpers._
-
-@implicitFormInstance = @{ Some(ordinaryBusinessPartnershipForm) }
+ backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @headingId = @{
     isAgent match {
@@ -35,8 +33,8 @@
 
 @headingText = @{
     isAgent match {
-        case true => Messages("bc.business-verification-selected-agent-header")
-        case false => Messages("bc.business-verification-selected-user-header")
+        case true => messages("bc.business-verification-selected-agent-header")
+        case false => messages("bc.business-verification-selected-user-header")
     }
 }
 
@@ -49,8 +47,8 @@
 
 @headingSecondaryText = @{
     isAgent match {
-        case true => Messages("bc.business-verification.agent.text", service.toUpperCase)
-        case false => Messages("bc.business-verification.client.text", service.toUpperCase)
+        case true => messages("bc.business-verification.agent.text", service.toUpperCase)
+        case false => messages("bc.business-verification.client.text", service.toUpperCase)
     }
 }
 
@@ -69,30 +67,30 @@
         @bcCheckAgency()
     }
 
-    <p id="business-type-paragraph">@Messages("bc.business-verification-lede")</p>
+    <p id="business-type-paragraph">@messages("bc.business-verification-lede")</p>
 
     @form(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
 
             @bcInput(ordinaryBusinessPartnershipForm("businessName"),
-                '_label -> Messages("bc.business-verification.partnerNameField"),
+                '_label -> messages("bc.business-verification.partnerNameField"),
                 '_labelClass -> "form-label-bold",
-                '_hintText -> Messages("bc.business-verification.partnerNameHint"),
+                '_hintText -> messages("bc.business-verification.partnerNameHint"),
                 '_id -> "businessName",
                 '_showConstraints -> false
             )
 
             @bcInput(ordinaryBusinessPartnershipForm("psaUTR"),
-                '_label -> Messages("bc.business-verification.partnerUTRField"),
+                '_label -> messages("bc.business-verification.partnerUTRField"),
                 '_labelClass -> "form-label-bold",
-                '_hintText -> Messages("bc.business-verification.utr.hint"),
+                '_hintText -> messages("bc.business-verification.utr.hint"),
                 '_id -> "psaUTR",
                 '_type -> "text",
                 '_fieldsetAttributesHelpQuestion -> "utr-help-question",
-                '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
-                '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
+                '_fieldsetQuestion -> messages("bc.business-verification.utr.help.question"),
+                '_HelpQuestionAnswer -> Html(messages("bc.business-verification.utr.help.answer")),
                 '_showConstraints -> false
             )
 
-        <button id="submit" type="submit">@Messages("bc.business-registration.submit")</button>
+        <button id="submit" type="submit">@messages("bc.business-registration.submit")</button>
     }
 }

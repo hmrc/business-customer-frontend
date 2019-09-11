@@ -16,83 +16,91 @@
 
 package utils
 
+import config.{ApplicationConfig, BCUtils}
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
+
 
 class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
+
+  val bcUtils: BCUtils = app.injector.instanceOf[ApplicationConfig]
+
+  implicit val lang: Lang = Lang.defaultLang
 
   "BCUtils" must {
 
     "validateUTR" must {
       "given valid UTR return true" in {
-        BCUtils.validateUTR("1111111111") must be(true)
-        BCUtils.validateUTR("1111111112") must be(true)
-        BCUtils.validateUTR("8111111113") must be(true)
-        BCUtils.validateUTR("6111111114") must be(true)
-        BCUtils.validateUTR("4111111115") must be(true)
-        BCUtils.validateUTR("2111111116") must be(true)
-        BCUtils.validateUTR("2111111117") must be(true)
-        BCUtils.validateUTR("9111111118") must be(true)
-        BCUtils.validateUTR("7111111119") must be(true)
-        BCUtils.validateUTR("5111111123") must be(true)
-        BCUtils.validateUTR("3111111124") must be(true)
+        bcUtils.validateUTR("1111111111") must be(true)
+        bcUtils.validateUTR("1111111112") must be(true)
+        bcUtils.validateUTR("8111111113") must be(true)
+        bcUtils.validateUTR("6111111114") must be(true)
+        bcUtils.validateUTR("4111111115") must be(true)
+        bcUtils.validateUTR("2111111116") must be(true)
+        bcUtils.validateUTR("2111111117") must be(true)
+        bcUtils.validateUTR("9111111118") must be(true)
+        bcUtils.validateUTR("7111111119") must be(true)
+        bcUtils.validateUTR("5111111123") must be(true)
+        bcUtils.validateUTR("3111111124") must be(true)
       }
       "given invalid UTR return false" in {
-        BCUtils.validateUTR("2111111111") must be(false)
-        BCUtils.validateUTR("211111111") must be(false)
-        BCUtils.validateUTR("211111 111 ") must be(false)
-        BCUtils.validateUTR("211111ab111 ") must be(false)
+        bcUtils.validateUTR("2111111111") must be(false)
+        bcUtils.validateUTR("211111111") must be(false)
+        bcUtils.validateUTR("211111 111 ") must be(false)
+        bcUtils.validateUTR("211111ab111 ") must be(false)
       }
     }
 
     "getSelectedCountry" must {
       "bring the correct country from the file" in {
-        BCUtils.getSelectedCountry("GB") must be("United Kingdom")
-        BCUtils.getSelectedCountry("US") must be("USA")
-        BCUtils.getSelectedCountry("VG") must be("British Virgin Islands")
-        BCUtils.getSelectedCountry("UG") must be("Uganda")
-        BCUtils.getSelectedCountry("zz") must be("zz")
+        bcUtils.getSelectedCountry("GB") must be("United Kingdom")
+        bcUtils.getSelectedCountry("US") must be("USA")
+        bcUtils.getSelectedCountry("VG") must be("British Virgin Islands")
+        bcUtils.getSelectedCountry("UG") must be("Uganda")
+        bcUtils.getSelectedCountry("zz") must be("zz")
       }
     }
 
     "getIsoCodeMap" must {
       "return map of country iso-code to country name" in {
-        BCUtils.getIsoCodeTupleList must contain(("US", "USA :United States of America"))
-        BCUtils.getIsoCodeTupleList must contain(("GB", "United Kingdom :UK, GB, Great Britain"))
-        BCUtils.getIsoCodeTupleList must contain(("UG", "Uganda"))
+        bcUtils.getIsoCodeTupleList must contain(("US", "USA :United States of America"))
+        bcUtils.getIsoCodeTupleList must contain(("GB", "United Kingdom :UK, GB, Great Britain"))
+        bcUtils.getIsoCodeTupleList must contain(("UG", "Uganda"))
       }
     }
 
-
     "getNavTitle" must {
       "for ated as service name, return ated" in {
-        BCUtils.getNavTitle("ated") must be(Some("Submit and view your ATED returns"))
+        bcUtils.getNavTitle("ated") must be(Some("bc.ated.serviceName"))
       }
       "for awrs as service name, return awrs" in {
-        BCUtils.getNavTitle("awrs") must be(Some("Register as an alcohol wholesaler or producer"))
+        bcUtils.getNavTitle("awrs") must be(Some("bc.awrs.serviceName"))
       }
       "for amls as service name, return amls" in {
-        BCUtils.getNavTitle("amls") must be(Some("Anti Money Laundering Supervision"))
+        bcUtils.getNavTitle("amls") must be(Some("bc.amls.serviceName"))
       }
       "for investment-tax-relief as service name, return investment-tax-relief" in {
-        BCUtils.getNavTitle("investment-tax-relief") must be(Some("Apply for Enterprise Investment Scheme"))
+        bcUtils.getNavTitle("investment-tax-relief") must be(Some("bc.investment-tax-relief.serviceName"))
+      }
+      "for fhdds as service name, return investment-tax-relief" in {
+        bcUtils.getNavTitle("fhdds") must be(Some("bc.fhdds.serviceName"))
       }
       "for other as service name, return None" in {
-        BCUtils.getNavTitle("abcd") must be(None)
+        bcUtils.getNavTitle("abcd") must be(None)
       }
     }
 
     "businessTypeMap" must {
 
       "return the correct map for ated" in {
-        val typeMap = BCUtils.businessTypeMap("ated", false)
+        val typeMap = bcUtils.businessTypeMap("ated", false)
         typeMap.size must be(7)
         typeMap.head._1 must be("LTD")
         typeMap(1)._1 must be("OBP")
       }
 
       "return the correct map for awrs" in {
-        val typeMap = BCUtils.businessTypeMap("awrs", false)
+        val typeMap = bcUtils.businessTypeMap("awrs", false)
         typeMap.size must be(7)
         typeMap.head._1 must be("OBP")
         typeMap(1)._1 must be("GROUP")
@@ -100,65 +108,65 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
 
       "return the correct map for amls" in {
         implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
-        val typeMap = BCUtils.businessTypeMap("amls", false)
+        val typeMap = bcUtils.businessTypeMap("amls", false)
         typeMap.size must be(5)
         typeMap mustBe Seq(
-          "LTD" -> Messages("bc.business-verification.LTD"),
-          "SOP" -> Messages("bc.business-verification.amls.SOP"),
-          "OBP" -> Messages("bc.business-verification.amls.PRT"),
-          "LLP" -> Messages("bc.business-verification.amls.LP.LLP"),
-          "UIB" -> Messages("bc.business-verification.amls.UIB")
+          "LTD" -> "bc.business-verification.LTD",
+          "SOP" -> "bc.business-verification.amls.SOP",
+          "OBP" -> "bc.business-verification.amls.PRT",
+          "LLP" -> "bc.business-verification.amls.LP.LLP",
+          "UIB" -> "bc.business-verification.amls.UIB"
         )
       }
 
       "return the correct map for investment-tax-relief" in {
         implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
-        val typeMap = BCUtils.businessTypeMap("investment-tax-relief", false)
+        val typeMap = bcUtils.businessTypeMap("investment-tax-relief", false)
         typeMap.size must be(1)
         typeMap mustBe Seq(
-          "LTD" -> Messages("bc.business-verification.LTD")
+          "LTD" -> "bc.business-verification.LTD"
         )
       }
 
       "return the correct map for capital-gains-tax" in {
         implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
-        val typeMap = BCUtils.businessTypeMap("capital-gains-tax", false)
+        val typeMap = bcUtils.businessTypeMap("capital-gains-tax", false)
         typeMap.size must be(6)
         typeMap mustBe Seq(
-          "NUK" -> Messages("bc.business-verification.NUK"),
-          "LTD" -> Messages("bc.business-verification.LTD"),
-          "OBP" -> Messages("bc.business-verification.PRT"),
-          "LP" -> Messages("bc.business-verification.LP"),
-          "LLP" -> Messages("bc.business-verification.LLP"),
-          "UIB" -> Messages("bc.business-verification.UIB")
+          "NUK" -> "bc.business-verification.NUK",
+          "LTD" -> "bc.business-verification.LTD",
+          "OBP" -> "bc.business-verification.PRT",
+          "LP" -> "bc.business-verification.LP",
+          "LLP" -> "bc.business-verification.LLP",
+          "UIB" -> "bc.business-verification.UIB"
         )
       }
 
       "return the correct sequence for capital-gains-tax-agents" in {
         implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
-        val typeMap = BCUtils.businessTypeMap("capital-gains-tax-agents", false)
+        val typeMap = bcUtils.businessTypeMap("capital-gains-tax-agents", false)
         typeMap.size must be(6)
         typeMap mustBe Seq(
-          "LTD" -> Messages("bc.business-verification.LTD"),
-          "LLP" -> Messages("bc.business-verification.LLP"),
-          "SOP" -> Messages("bc.business-verification.SOP"),
-          "OBP" -> Messages("bc.business-verification.PRT"),
-          "LP" -> Messages("bc.business-verification.LP"),
-          "NUK" -> Messages("bc.business-verification.NUK")
+          "LTD" -> "bc.business-verification.LTD",
+          "LLP" -> "bc.business-verification.LLP",
+          "SOP" -> "bc.business-verification.SOP",
+          "OBP" -> "bc.business-verification.PRT",
+          "LP" -> "bc.business-verification.LP",
+          "NUK" -> "bc.business-verification.NUK"
         )
       }
 
       "return default map when passed nothing" in {
         implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
-        val typeMap = BCUtils.businessTypeMap("", false)
+        val typeMap = bcUtils.businessTypeMap("", false)
         typeMap.size must be(6)
         typeMap mustBe Seq(
-          "SOP" -> Messages("bc.business-verification.SOP"),
-          "LTD" -> Messages("bc.business-verification.LTD"),
-          "OBP" -> Messages("bc.business-verification.PRT"),
-          "LP" -> Messages("bc.business-verification.LP"),
-          "LLP" -> Messages("bc.business-verification.LLP"),
-          "UIB" -> Messages("bc.business-verification.UIB")
+          "SOP" -> "bc.business-verification.SOP",
+          "LTD" -> "bc.business-verification.LTD",
+          "OBP" -> "bc.business-verification.PRT",
+          "LP" -> "bc.business-verification.LP",
+          "LLP" -> "bc.business-verification.LLP",
+          "UIB" -> "bc.business-verification.UIB"
         )
       }
     }
@@ -167,19 +175,19 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
 
       "throw an exception" when {
         "invalid string is passed" in {
-          val thrown = the[RuntimeException] thrownBy BCUtils.validateGroupId("abc-def-ghi")
+          val thrown = the[RuntimeException] thrownBy bcUtils.validateGroupId("abc-def-ghi")
           thrown.getMessage must include("Invalid groupId from auth")
         }
       }
 
       "return groupId" when {
         "valid string is passed" in {
-          val result = BCUtils.validateGroupId("42424200-0000-0000-0000-000000000000")
+          val result = bcUtils.validateGroupId("42424200-0000-0000-0000-000000000000")
           result must be("42424200-0000-0000-0000-000000000000")
         }
 
         "string with testGroupId- is passed" in {
-          val result = BCUtils.validateGroupId("testGroupId-0000-0000-0000-000000000000")
+          val result = bcUtils.validateGroupId("testGroupId-0000-0000-0000-000000000000")
           result must be("0000-0000-0000-000000000000")
         }
       }

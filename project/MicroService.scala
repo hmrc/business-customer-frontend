@@ -1,15 +1,18 @@
-import play.routes.compiler.StaticRoutesGenerator
-import play.sbt.routes.RoutesKeys.routesGenerator
+import play.routes.compiler.InjectedRoutesGenerator
 import sbt.Keys._
 import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
+
 trait MicroService {
+
   import uk.gov.hmrc._
   import DefaultBuildSettings.{defaultSettings, scalaSettings}
   import uk.gov.hmrc.SbtAutoBuildPlugin
   import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
   import uk.gov.hmrc.versioning.SbtGitVersioning
+  import play.sbt.routes.RoutesKeys.routesGenerator
+
   val appName: String
   val appDependencies : Seq[ModuleID]
   lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
@@ -17,16 +20,18 @@ trait MicroService {
   lazy val scoverageSettings = {
     import scoverage.ScoverageKeys
     Seq(
-      ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;views.html.*;app.Routes.*;prod.*;uk.gov.hmrc.*;testOnlyDoNotUseInAppConf.*;forms.*;config.*;models.*;views.*",
+      ScoverageKeys.coverageExcludedPackages :=
+        "<empty>;Reverse.*;views.html.*;app.Routes.*;prod.*;uk.gov.hmrc.*;testOnlyDoNotUseInAppConf.*;forms.*;config.*;models.*;views.*",
       ScoverageKeys.coverageMinimum := 99,
       ScoverageKeys.coverageFailOnMinimum := true,
       ScoverageKeys.coverageHighlighting := true
     )
   }
-  lazy val microservice = Project(appName, file("."))
+  lazy val microservice: Project = Project(appName, file("."))
     .enablePlugins(plugins : _*)
     .settings(
       playSettings,
+      routesGenerator := InjectedRoutesGenerator,
       scalaSettings,
       publishingSettings,
       defaultSettings(),
@@ -35,7 +40,6 @@ trait MicroService {
       libraryDependencies ++= appDependencies,
       retrieveManaged := true,
       evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
-      routesGenerator := StaticRoutesGenerator,
       majorVersion := 4
     )
     .settings(
