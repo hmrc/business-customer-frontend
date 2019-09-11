@@ -14,43 +14,43 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import views.html.helpers._
+@import config._
+
 @(isAgent: Boolean,
  service: String,
  businessType: String,
- backLink: Option[String])(implicit request: Request[_], messages: Messages)
+ backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
-@import views.html.helpers._
-
-@bcMain(title = Messages("bc.details-not-found.header"), service = service) {
+@bcMain(title = messages("bc.details-not-found.header"), service = service) {
 
   @if(isAgent) {
-    <a id="backLinkHref" class="link-back" data-journey-click="business-customer:click:try-matching-again" href='@backLink'>@Messages("bc.business-verification.back")</a>
-    <div class="heading-sub" id="business-verification-agent-text">@Messages("bc.business-verification.agent.text", service.toUpperCase)</div>
+    <a id="backLinkHref" class="link-back" data-journey-click="business-customer:click:try-matching-again" href='@backLink'>@messages("bc.business-verification.back")</a>
+    <div class="heading-sub" id="business-verification-agent-text">@messages("bc.business-verification.agent.text", service.toUpperCase)</div>
   } else {
-    <a id="backLinkHref" class="link-back" data-journey-click="business-customer:click:try-matching-again" href='@backLink'>@Messages("bc.business-verification.back")</a>
-    <div class="heading-sub" id="business-verification-text">@Messages("bc.business-verification.client.text", service.toUpperCase)</div>
+    <a id="backLinkHref" class="link-back" data-journey-click="business-customer:click:try-matching-again" href='@backLink'>@messages("bc.business-verification.back")</a>
+    <div class="heading-sub" id="business-verification-text">@messages("bc.business-verification.client.text", service.toUpperCase)</div>
   }
 
-  <h1 class="heading-xlarge" id="details-not-found-header"> @Messages("bc.details-not-found.header") </h1>
+  <h1 class="heading-xlarge" id="details-not-found-header"> @messages("bc.details-not-found.header") </h1>
 
-  <p id="details-not-found-subheader">@Messages("bc.details-not-found.subheader")</p>
+  <p id="details-not-found-subheader">@messages("bc.details-not-found.subheader")</p>
 
-  <h2 class="heading-small" id="details-not-found-exact-match-reason-header">@Messages("bc.details-not-found.exact-match-reason.header")</h2>
-  <p id="details-not-found-exact-match-reason-text">@Messages("bc.details-not-found.exact-match-reason.text")</p>
+  <h2 class="heading-small" id="details-not-found-exact-match-reason-header">@messages("bc.details-not-found.exact-match-reason.header")</h2>
+  <p id="details-not-found-exact-match-reason-text">@messages("bc.details-not-found.exact-match-reason.text")</p>
 
-  <h2 class="heading-small" id="details-not-found-name-changed-reason-header">@Messages("bc.details-not-found.name-changed-reason.header")</h2>
-  <p id="details-not-found-name-changed-reason-text">@Messages("bc.details-not-found.name-changed-reason.text")</p>
+  <h2 class="heading-small" id="details-not-found-name-changed-reason-header">@messages("bc.details-not-found.name-changed-reason.header")</h2>
+  <p id="details-not-found-name-changed-reason-text">@messages("bc.details-not-found.name-changed-reason.text")</p>
   <ul class="list list-bullet">
-    <li>@Html(Messages("bc.details-not-found.name-changed-reason.text.li1"))</li>
-    <li>@Html(Messages("bc.details-not-found.name-changed-reason.text.li2"))</li>
+    <li>@Html(messages("bc.details-not-found.name-changed-reason.text.li1"))</li>
+    <li>@Html(messages("bc.details-not-found.name-changed-reason.text.li2"))</li>
   </ul>
-  <p id="details-not-found-name-changed-reason-text-24-hours">@Messages("bc.details-not-found.name-changed-reason.text.24-hours")</p>
+  <p id="details-not-found-name-changed-reason-text-24-hours">@messages("bc.details-not-found.name-changed-reason.text.24-hours")</p>
 
-  <h2 class="heading-small" id="details-not-found-utr-reason-header">@Messages("bc.details-not-found.utr-reason.header")</h2>
-  <p id="details-not-found-utr-reason-text">@Messages("bc.details-not-found.utr-reason.text")</p>
+  <h2 class="heading-small" id="details-not-found-utr-reason-header">@messages("bc.details-not-found.utr-reason.header")</h2>
+  <p id="details-not-found-utr-reason-text">@messages("bc.details-not-found.utr-reason.text")</p>
 
-  <a class="button" role="button" data-journey-click="business-customer:click:try-matching-again" href="@controllers.routes.BusinessVerificationController.businessForm(service, businessType)">@Messages("bc.details-not-found.try-again")</a>
+  <a class="button" role="button" data-journey-click="business-customer:click:try-matching-again" href="@controllers.routes.BusinessVerificationController.businessForm(service, businessType)">@messages("bc.details-not-found.try-again")</a>
 
 }

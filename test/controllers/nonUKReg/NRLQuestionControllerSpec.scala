@@ -19,38 +19,48 @@ package controllers.nonUKReg
 import java.util.UUID
 
 import builders.SessionBuilder
-import config.FrontendAuthConnector
+import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import models.NRLQuestion
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsJson, Result}
+import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.SessionKeys
 
 
 class NRLQuestionControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
   val mockAuthConnector = mock[AuthConnector]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
+  val mockPaySAController = mock[PaySAQuestionController]
+  val mockBusRegController = mock[BusinessRegController]
   val service = "amls"
   val invalidService = "scooby-doo"
   val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
 
-  object TestNRLQuestionController extends NRLQuestionController {
-    override val authConnector = mockAuthConnector
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+
+  object TestNRLQuestionController extends NRLQuestionController(
+    mockAuthConnector,
+    mockBackLinkCache,
+    appConfig,
+    mockBusRegController,
+    mcc,
+    mockPaySAController,
+    mockBusinessRegistrationCache
+  ) {
     override val controllerId = "test"
-    override val backLinkCacheConnector = mockBackLinkCache
-    override val businessRegistrationCache = mockBusinessRegistrationCache
   }
 
   override def beforeEach = {
@@ -59,10 +69,6 @@ class NRLQuestionControllerSpec extends PlaySpec with OneServerPerSuite with Moc
   }
 
   "NRLQuestionController" must {
-
-    "use correct DelegationConnector" in {
-      NRLQuestionController.authConnector must be(FrontendAuthConnector)
-    }
 
     "view" must {
 

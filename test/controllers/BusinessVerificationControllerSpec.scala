@@ -19,24 +19,24 @@ package controllers
 import java.util.UUID
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
+import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
+import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.i18n.{Lang, Messages, MessagesProvider}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsFormUrlEncoded, AnyContentAsJson, Result}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, AnyContentAsJson, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessMatchingService
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
-import scala.concurrent.Future
+import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.SessionKeys
+
+import scala.concurrent.Future
 
 class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
 
@@ -47,28 +47,32 @@ class BusinessVerificationControllerSpec extends PlaySpec with OneServerPerSuite
   val service = "ATED"
   val invalidService = "scooby-doo"
 
-  object TestBusinessVerificationController extends BusinessVerificationController {
-    override val authConnector = mockAuthConnector
-    override val businessMatchingService = mockBusinessMatchingService
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang.defaultLang))
+
+  val businessRegUKController = mock[BusinessRegUKController]
+  val busRegController = mock[BusinessRegController]
+  val nrlQuestionController = mock[NRLQuestionController]
+  val reviewDetailsController = mock[ReviewDetailsController]
+  val homeController = mock[HomeController]
+
+  object TestBusinessVerificationController extends BusinessVerificationControllerImpl(
+    appConfig,
+    mockAuthConnector,
+    mockBackLinkCache,
+    mockBusinessMatchingService,
+    businessRegUKController,
+    busRegController,
+    nrlQuestionController,
+    reviewDetailsController,
+    homeController,
+    mcc
+  ) {
     override val controllerId = "test"
-    override val backLinkCacheConnector = mockBackLinkCache
   }
 
   "BusinessVerificationController" must {
-    "use the correct connectors" in {
-      BusinessVerificationController.authConnector must be(FrontendAuthConnector)
-      BusinessVerificationController.businessMatchingService must be(BusinessMatchingService)
-    }
-
-    "respond to businessVerification" in {
-      val result = route(FakeRequest(GET, s"/business-customer/business-verification/$service")).get
-      status(result) must not be NOT_FOUND
-    }
-
-    "respond to hello" in {
-      val result = route(FakeRequest(GET, "/business-customer/hello")).get
-      status(result) must be(NOT_FOUND)
-    }
 
     "businessVerification" must {
 

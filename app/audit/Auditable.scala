@@ -16,20 +16,21 @@
 
 package audit
 
+import javax.inject.Inject
 import uk.gov.hmrc.play.audit.AuditExtensions
 import uk.gov.hmrc.play.audit.model.{Audit, DataEvent}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.audit.DefaultAuditConnector
 
-trait Auditable {
+class Auditable @Inject()(val appName: String,
+                          val auditConnector: DefaultAuditConnector) {
 
-  def appName: String
-
-  def audit: Audit
+  def audit: Audit = new Audit(appName, auditConnector)
 
   def sendDataEvent(transactionName: String,
                     path: String = "N/A",
                     tags: Map[String, String] = Map.empty[String, String],
-                    detail: Map[String, String])(implicit hc: HeaderCarrier) =
+                    detail: Map[String, String])(implicit hc: HeaderCarrier): Unit =
     audit.sendDataEvent(
       DataEvent(
         appName,

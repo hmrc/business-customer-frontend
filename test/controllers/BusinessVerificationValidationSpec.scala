@@ -18,21 +18,23 @@ package controllers
 
 import java.util.UUID
 
+import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
+import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsFormUrlEncoded, Result}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessMatchingService
-import uk.gov.hmrc.domain.SaUtrGenerator
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.SessionKeys
 
 
 class BusinessVerificationValidationSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
@@ -42,8 +44,32 @@ class BusinessVerificationValidationSpec extends PlaySpec with OneServerPerSuite
   val mockAuthConnector = mock[AuthConnector]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
   val service = "ATED"
-  val matchUtr = new SaUtrGenerator().nextSaUtr
-  val noMatchUtr = new SaUtrGenerator().nextSaUtr
+  val matchUtr: SaUtr = new SaUtrGenerator().nextSaUtr
+  val noMatchUtr: SaUtr = new SaUtrGenerator().nextSaUtr
+
+  val mockBusinessRegUKController = mock[BusinessRegUKController]
+  val mockBusinessRegController = mock[BusinessRegController]
+  val mockNrlQuestionConnector = mock[NRLQuestionController]
+  val mockReviewDetailsController = mock[ReviewDetailsController]
+  val mockHomeController = mock[HomeController]
+
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+
+  object TestBusinessVerificationController extends BusinessVerificationControllerImpl (
+    appConfig,
+    mockAuthConnector,
+    mockBackLinkCache,
+    mockBusinessMatchingService,
+    mockBusinessRegUKController,
+    mockBusinessRegController,
+    mockNrlQuestionConnector,
+    mockReviewDetailsController,
+    mockHomeController,
+    mcc
+  ) {
+    override val controllerId = "test"
+  }
 
   val matchSuccessResponseUIB = Json.parse(
     """
@@ -515,10 +541,12 @@ class BusinessVerificationValidationSpec extends PlaySpec with OneServerPerSuite
     when(mockBusinessMatchingService.matchBusinessWithOrganisationName(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
     (Matchers.any(), Matchers.any())).thenReturn(Future.successful(matchSuccessResponse))
 
-    val result = TestBusinessVerificationController.submit(service, businessType).apply(fakeRequest.withSession(
+    val fullReq = fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+
+    val result = TestBusinessVerificationController.submit(service, businessType).apply(fullReq)
 
     test(result)
   }
@@ -574,13 +602,6 @@ class BusinessVerificationValidationSpec extends PlaySpec with OneServerPerSuite
       SessionKeys.userId -> userId))
 
     test(result)
-  }
-
-  object TestBusinessVerificationController extends BusinessVerificationController {
-    override val businessMatchingService = mockBusinessMatchingService
-    val authConnector = mockAuthConnector
-    override val controllerId = "test"
-    override val backLinkCacheConnector = mockBackLinkCache
   }
 
 }

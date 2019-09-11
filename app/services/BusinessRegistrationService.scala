@@ -17,37 +17,26 @@
 package services
 
 import connectors.{BusinessCustomerConnector, DataCacheConnector}
+import javax.inject.Inject
 import models._
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
-import play.api.i18n.Messages
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import utils.SessionUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, InternalServerException }
-object BusinessRegistrationService extends BusinessRegistrationService {
 
-  val businessCustomerConnector: BusinessCustomerConnector = BusinessCustomerConnector
-  val dataCacheConnector = DataCacheConnector
+
+class BusinessRegistrationService @Inject()(val businessCustomerConnector: BusinessCustomerConnector,
+                                            val dataCacheConnector: DataCacheConnector){
+
   val nonUKBusinessType = "Non UK-based Company"
-}
-
-trait BusinessRegistrationService {
-
-  def businessCustomerConnector: BusinessCustomerConnector
-
-  def dataCacheConnector: DataCacheConnector
-
-  def nonUKBusinessType: String
-
   def registerBusiness(registerData: BusinessRegistration,
                        overseasCompany: OverseasCompany,
                        isGroup: Boolean,
                        isNonUKClientRegisteredByAgent: Boolean = false,
                        service: String,
                        isBusinessDetailsEditable: Boolean = false)
-                      (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[ReviewDetails] = {
+                      (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[ReviewDetails] = {
 
     val businessRegisterDetails = createBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
 
@@ -59,7 +48,7 @@ trait BusinessRegistrationService {
         dataCacheConnector.saveReviewDetails(reviewDetails)
       }
     } yield {
-      reviewDetailsCache.getOrElse(throw new InternalServerException(Messages("bc.connector.error.registration-failed")))
+      reviewDetailsCache.getOrElse(throw new InternalServerException("Registration failed"))
     }
   }
 
@@ -70,15 +59,15 @@ trait BusinessRegistrationService {
                              isNonUKClientRegisteredByAgent: Boolean = false,
                              service: String,
                              isBusinessDetailsEditable: Boolean = false)
-                            (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[ReviewDetails] = {
+                            (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[ReviewDetails] = {
 
     val updateRegisterDetails = createUpdateBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
 
     for {
-      oldReviewDetialsLookup <- dataCacheConnector.fetchAndGetBusinessDetailsForSession
-      oldReviewDetails <-  oldReviewDetialsLookup match {
+      oldReviewDetailsLookup <- dataCacheConnector.fetchAndGetBusinessDetailsForSession
+      oldReviewDetails       <- oldReviewDetailsLookup match {
         case Some(reviewDetails) => Future.successful(reviewDetails)
-        case _ => throw new InternalServerException(Messages("bc.connector.error.update-registration-failed"))
+        case _ => throw new InternalServerException("Update registration failed")
       }
       _ <- businessCustomerConnector.updateRegistrationDetails(oldReviewDetails.safeId, updateRegisterDetails)
       reviewDetailsCache <- {
@@ -92,12 +81,12 @@ trait BusinessRegistrationService {
         dataCacheConnector.saveReviewDetails(updatedReviewDetails)
       }
     } yield {
-      reviewDetailsCache.getOrElse(throw new InternalServerException(Messages("bc.connector.error.update-registration-failed")))
+      reviewDetailsCache.getOrElse(throw new InternalServerException("Registration failed"))
     }
   }
 
 
-  def getDetails()(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
+  def getDetails()(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
 
     def createBusinessRegistration(reviewDetailsOpt: Option[ReviewDetails]) : Option[(String, BusinessRegistration, OverseasCompany)] = {
       reviewDetailsOpt.flatMap( details =>
@@ -112,7 +101,7 @@ trait BusinessRegistrationService {
         }
       )
     }
-    dataCacheConnector.fetchAndGetBusinessDetailsForSession.map( createBusinessRegistration(_) )
+    dataCacheConnector.fetchAndGetBusinessDetailsForSession map createBusinessRegistration
   }
 
 
@@ -122,7 +111,7 @@ trait BusinessRegistrationService {
                                                       overseasCompany: OverseasCompany,
                                                       isGroup: Boolean,
                                                       isNonUKClientRegisteredByAgent: Boolean = false)
-                                                     (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): UpdateRegistrationDetailsRequest = {
+                                                     (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): UpdateRegistrationDetailsRequest = {
 
     UpdateRegistrationDetailsRequest(
       acknowledgementReference = SessionUtils.getUniqueAckNo,
@@ -131,7 +120,7 @@ trait BusinessRegistrationService {
       organisation = Some(EtmpOrganisation(organisationName = registerData.businessName)),
       address = getEtmpBusinessAddress(registerData.businessAddress),
       contactDetails = EtmpContactDetails(),
-      isAnAgent = if (isNonUKClientRegisteredByAgent) false else bcContext.user.isAgent,
+      isAnAgent = if (isNonUKClientRegisteredByAgent) false else authContext.isAgent,
       isAGroup = isGroup,
       identification = getEtmpIdentification(overseasCompany, registerData.businessAddress)
     )
@@ -141,13 +130,13 @@ trait BusinessRegistrationService {
                                                 overseasCompany: OverseasCompany,
                                                 isGroup: Boolean,
                                                 isNonUKClientRegisteredByAgent: Boolean = false)
-                                               (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): BusinessRegistrationRequest = {
+                                               (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): BusinessRegistrationRequest = {
 
     BusinessRegistrationRequest(
       acknowledgementReference = SessionUtils.getUniqueAckNo,
       organisation = EtmpOrganisation(organisationName = registerData.businessName),
       address = getEtmpBusinessAddress(registerData.businessAddress),
-      isAnAgent = if (isNonUKClientRegisteredByAgent) false else bcContext.user.isAgent,
+      isAnAgent = if (isNonUKClientRegisteredByAgent) false else authContext.isAgent,
       isAGroup = isGroup,
       identification = getEtmpIdentification(overseasCompany, registerData.businessAddress),
       contactDetails = EtmpContactDetails()
@@ -192,13 +181,15 @@ trait BusinessRegistrationService {
       countryCode = businessAddress.country)
   }
 
-  private def getEtmpIdentification(overseasCompany: OverseasCompany, businessAddress: Address) = {
+  private def getEtmpIdentification(overseasCompany: OverseasCompany, businessAddress: Address): Option[EtmpIdentification] = {
     if (overseasCompany.businessUniqueId.isDefined || overseasCompany.issuingInstitution.isDefined) {
-      Some(EtmpIdentification(idNumber = overseasCompany.businessUniqueId.getOrElse(""),
-        issuingInstitution = overseasCompany.issuingInstitution.getOrElse(""),
-        issuingCountryCode = overseasCompany.issuingCountry.getOrElse(businessAddress.country)))
-    } else {
-      None
-    }
+      Some(
+        EtmpIdentification(
+          idNumber = overseasCompany.businessUniqueId.getOrElse(""),
+          issuingInstitution = overseasCompany.issuingInstitution.getOrElse(""),
+          issuingCountryCode = overseasCompany.issuingCountry.getOrElse(businessAddress.country)
+        )
+      )
+    } else None
   }
 }

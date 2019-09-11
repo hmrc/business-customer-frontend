@@ -14,24 +14,23 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.binders.ContinueUrl
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import views.html.helpers._
+@import config.ApplicationConfig
+
 @(businessRegistrationForm: Form[models.BusinessRegistration],
   service: String,
   displayDetails: models.BusinessRegistrationDisplayDetails,
-  redirectUrl: Option[uk.gov.hmrc.play.binders.ContinueUrl],
+  redirectUrl: Option[String],
   isRegisterClient: Boolean,
   backLink: Option[String],
-  isAgent: Boolean)(implicit request: Request[_], messages: Messages)
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
-@import views.html.helpers._
-@import config.ApplicationConfig
+  isAgent: Boolean)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @implicitFormInstance = @{ Some(businessRegistrationForm) }
 
 @pageScripts = {
-<script src='@controllers.routes.AssetsController.at("javascript/accessible-autocomplete.min.js")'></script>
-<script>
+  <script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
+  <script>
     $(document).ready(function() {
       accessibleAutocomplete.enhanceSelectElement({
         selectElement: document.querySelector('#businessAddress\\.country')
@@ -40,12 +39,16 @@
   </script>
 }
 
-@bcMain(title = displayDetails.businessRegHeader, service = service, pageScripts = Some(pageScripts)) {
-  @pageHeadersAndError(backLink, "business-verification-text", displayDetails.businessRegSubHeader, "business-reg-header", displayDetails.businessRegHeader,
+@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts)) {
+  @pageHeadersAndError(backLink,
+    "business-verification-text",
+    messages(displayDetails.businessRegSubHeader, service),
+    "business-reg-header",
+    messages(displayDetails.businessRegHeader),
     Some(bcErrorSummary(businessRegistrationForm, "bc.non-uk-reg-error.general")))
 
   @displayDetails.businessRegLede.map { businessRegLede =>
-    <p class="paragraph" id="business-reg-lede">@Html(businessRegLede)</p>
+    <p class="paragraph" id="business-reg-lede">@Html(messages(businessRegLede))</p>
   }
 
   @form(action = controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.update(service, redirectUrl, isRegisterClient)) {
@@ -54,38 +57,38 @@
   <div id="non-uk-reg-form">
 
     @bcInput(businessRegistrationForm("businessName"),
-    '_label ->  Html(Messages("bc.non-uk-reg.businessName")),
+    '_label ->  Html(messages("bc.non-uk-reg.businessName")),
     '_labelClass -> "form-label-bold",
     '_id -> "businessName",
     '_showConstraints -> false)
 
     @bcInput(businessRegistrationForm("businessAddress.line_1"),
-    '_label ->  Html(Messages("bc.non-uk-reg.line_1")),
+    '_label ->  Html(messages("bc.non-uk-reg.line_1")),
     '_labelClass -> "form-label-bold",
     '_id -> "businessAddress.line_1",
     '_showConstraints -> false)
 
     @bcInput(businessRegistrationForm("businessAddress.line_2"),
-    '_label ->  Html(Messages("bc.non-uk-reg.line_2")),
+    '_label ->  Html(messages("bc.non-uk-reg.line_2")),
     '_labelClass -> "form-label-bold",
     '_id -> "businessAddress.line_2",
     '_showConstraints -> false)
 
     @bcInput(businessRegistrationForm("businessAddress.line_3"),
-    '_label ->  Html(Messages("bc.non-uk-reg.line_3")),
+    '_label ->  Html(messages("bc.non-uk-reg.line_3")),
     '_labelClass -> "form-label-bold",
     '_id -> "businessAddress.line_3",
     '_showConstraints -> false)
 
     @bcInput(businessRegistrationForm("businessAddress.line_4"),
-    '_label ->  Html(Messages("bc.non-uk-reg.line_4")),
+    '_label ->  Html(messages("bc.non-uk-reg.line_4")),
     '_labelClass -> "form-label-bold",
     '_id -> "businessAddress.line_4",
     '_showConstraints -> false)
 
     @if(!isAgent) {
       @bcInput(businessRegistrationForm("businessAddress.postcode"),
-      '_label ->  Html(Messages("bc.non-uk-reg.postcode")),
+      '_label ->  Html(messages("bc.non-uk-reg.postcode")),
       '_labelClass -> "form-label-bold",
       '_id -> "businessAddress.postcode",
       '_inputClass -> "input--small",
@@ -98,13 +101,13 @@
       displayEmptyValue = true,
       '_id -> "businessAddress.country",
       '_labelClass -> "form-label-bold",
-      '_label -> Html(Messages("bc.non-uk-reg.country"))
+      '_label -> Html(messages("bc.non-uk-reg.country"))
     )
 
 
   </div>
 
-  <button class="button" id="submit" type="submit">@Messages("bc.continue")</button>
+  <button class="button" id="submit" type="submit">@messages("bc.continue")</button>
 
 }
 
