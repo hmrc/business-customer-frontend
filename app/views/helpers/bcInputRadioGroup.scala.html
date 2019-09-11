@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(field: Field, radioOptions: Seq[(String, String)], args: (Symbol, Any)*)(implicit lang: play.api.i18n.Lang, formInstance: Option[Form[_]] = None, messages: Messages)
+@(field: Field, radioOptions: Seq[(String, String)], args: (Symbol, Any)*)(implicit messages: Messages)
 
 @import play.api.i18n._
 @import views.html.helper._
@@ -26,6 +26,7 @@
 @fieldsetClass = { @elements.args.get('_groupClass) @if(errors.nonEmpty){ form-field--error} }
 @labelAfter = @{ elements.args.getOrElse('_labelAfter, false).asInstanceOf[Boolean] }
 @trackGA = @{ elements.args.get('_trackGA).getOrElse(false).asInstanceOf[Boolean] }
+@refinedRadioOptions = @{ radioOptions map { case (a, b) => (messages(a), messages(b))} }
 
 <fieldset @if(elements.args.get('_groupClass).isDefined){ class="@fieldsetClass" } @if(elements.args.get('_fieldsetAttributes).isDefined) { @elements.args.get('_fieldsetAttributes) }>
 
@@ -37,11 +38,9 @@
     </legend>
   }
 
-
-
   @commonHelper(field,errors)
 
-  @radioOptions.map { case (value, label) =>
+  @refinedRadioOptions.map { case (value, label) =>
     @defining(s"${elements.field.name}-${value.toLowerCase.replace(" ","_")}") { inputId =>
       <label for="@inputId" @elements.args.get('_labelClass).map { labelClass => class="@labelClass@field.value.filter( _ == value).map{ _ => selected}" }>
         @if(!labelAfter) {

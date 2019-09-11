@@ -16,36 +16,34 @@
 
 package connectors
 
-import config.BusinessCustomerSessionCache
+import config.ApplicationConfig
+import javax.inject.Inject
 import models.ReviewDetails
 import uk.gov.hmrc.http.cache.client.SessionCache
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
-object DataCacheConnector extends DataCacheConnector {
-  val sessionCache: SessionCache = BusinessCustomerSessionCache
+class DataCacheConnector @Inject()(val http: DefaultHttpClient,
+                                   val config: ApplicationConfig) extends SessionCache {
+
+  val baseUri: String = config.baseUri
+  val defaultSource: String = config.defaultSource
+  val domain: String = config.domain
+
   val sourceId: String = "BC_Business_Details"
-}
 
-trait DataCacheConnector {
-
-  def sessionCache: SessionCache
-
-  def sourceId: String
-
-  def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier): Future[Option[ReviewDetails]] = sessionCache.fetchAndGetEntry[ReviewDetails](sourceId)
+  def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier): Future[Option[ReviewDetails]] =
+    fetchAndGetEntry[ReviewDetails](sourceId)
 
   def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier): Future[Option[ReviewDetails]] = {
-    val result = sessionCache.cache[ReviewDetails](sourceId, reviewDetails)
-    result flatMap {
-      data => Future.successful(data.getEntry[ReviewDetails](sourceId))
+    cache[ReviewDetails](sourceId, reviewDetails) map {
+      _.getEntry[ReviewDetails](sourceId)
     }
   }
 
-  def clearCache(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    sessionCache.remove()
-  }
+  def clearCache(implicit hc: HeaderCarrier): Future[HttpResponse] = remove()
 
 }

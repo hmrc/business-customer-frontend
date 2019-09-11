@@ -19,20 +19,21 @@ package controllers
 import java.util.UUID
 
 import builders.{AuthBuilder, SessionBuilder}
-import config.FrontendAuthConnector
+import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
+import javax.inject.Provider
 import models.{Address, ReviewDetails}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessMatchingService
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.auth.core.AuthConnector
 
 import scala.concurrent.Future
 
@@ -46,16 +47,27 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
   val mockAuthConnector = mock[AuthConnector]
   val mockBusinessMatchingService = mock[BusinessMatchingService]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
+  val mockBusinessVerificationControllerProv = mock[Provider[BusinessVerificationController]]
+  val mockBusinessVerificationController = mock[BusinessVerificationController]
+  val mockReviewDetailsController = mock[ReviewDetailsController]
 
   val testAddress = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
 
   val testReviewDetails = ReviewDetails("ACME", Some("Limited"), testAddress, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
-  object TestHomeController extends HomeController {
-    override val businessMatchService: BusinessMatchingService = mockBusinessMatchingService
-    override val authConnector = mockAuthConnector
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+
+  object TestHomeController extends HomeController(
+    mockAuthConnector,
+    mockBackLinkCache,
+    appConfig,
+    mockBusinessMatchingService,
+    mockBusinessVerificationControllerProv,
+    mockReviewDetailsController,
+    mcc
+  ) {
     override val controllerId = "test"
-    override val backLinkCacheConnector = mockBackLinkCache
   }
 
   override def beforeEach = {
@@ -65,14 +77,6 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
   }
 
   "HomeController" must {
-
-    "implement correct Auth connector" in {
-      HomeController.authConnector must be(FrontendAuthConnector)
-    }
-
-    "implement correct BusinessMatching service" in {
-      HomeController.businessMatchService must be(BusinessMatchingService)
-    }
 
     "homePage" must {
       "unauthorised users" must {
@@ -101,6 +105,11 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
           }
 
           "if match is Not found, be redirected to Business verification page" in {
+            when(mockBusinessVerificationControllerProv.get())
+              .thenReturn(mockBusinessVerificationController)
+            when(mockBusinessVerificationController.controllerId)
+              .thenReturn("test")
+
             getWithAuthorisedUserNotMatched {
               result =>
                 status(result) must be(SEE_OTHER)
@@ -110,6 +119,11 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
           }
         }
         "if has no UTR, be redirected to Business verification page" in {
+          when(mockBusinessVerificationControllerProv.get())
+            .thenReturn(mockBusinessVerificationController)
+          when(mockBusinessVerificationController.controllerId)
+            .thenReturn("test")
+
           getWithAuthorisedUserNoUTR {
             result =>
               status(result) must be(SEE_OTHER)

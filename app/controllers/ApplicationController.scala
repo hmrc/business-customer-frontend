@@ -17,61 +17,56 @@
 package controllers
 
 import audit.Auditable
-import config.BusinessCustomerFrontendAuditConnector
+import config.ApplicationConfig
+import javax.inject.Inject
 import models.FeedBack
 import models.FeedbackForm.feedbackForm
-import play.api.Mode.Mode
-import play.api.i18n.Messages.Implicits._
-import play.api.mvc.DiscardingCookie
-import play.api.{Configuration, Play}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, DiscardingCookie, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
-import uk.gov.hmrc.play.config.{AppName, RunMode}
-import uk.gov.hmrc.play.frontend.controller.{FrontendController, UnauthorisedAction}
+import uk.gov.hmrc.play.audit.model.EventTypes
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-object ApplicationController extends ApplicationController {
-  val appName: String = AppName(Play.current.configuration).appName
-  override val audit: Audit = new Audit(appName, BusinessCustomerFrontendAuditConnector)
-  override protected def mode: Mode = Play.current.mode
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-}
+class ApplicationController @Inject()(val config: ApplicationConfig,
+                                      audit: Auditable,
+                                      mcc: MessagesControllerComponents)
+  extends FrontendController(mcc) with I18nSupport {
 
-trait ApplicationController extends FrontendController with RunMode with Auditable {
+  implicit val appConfig: ApplicationConfig = config
+  lazy val serviceRedirectUrl: String = appConfig.conf.getConfString("cancelRedirectUrl", "https://www.gov.uk/")
 
-  import play.api.Play.current
-
-  def unauthorised() = UnauthorisedAction {
+  def unauthorised(): Action[AnyContent] = Action {
     implicit request =>
       Ok(views.html.unauthorised())
   }
 
-  def cancel = UnauthorisedAction { implicit request =>
-    val serviceRedirectUrl: Option[String] = Play.configuration.getString(s"cancelRedirectUrl")
-    Redirect(serviceRedirectUrl.getOrElse("https://www.gov.uk/"))
+  def cancel: Action[AnyContent] = Action { implicit request =>
+    Redirect(serviceRedirectUrl)
   }
 
-  def logout(service: String) = UnauthorisedAction { implicit request =>
+  def logout(service: String): Action[AnyContent] = Action { implicit request =>
     service.toUpperCase match {
-      case "ATED" => {
-        Redirect(Play.configuration.getString(s"microservice.services.${service.toLowerCase}.logoutUrl").getOrElse("/ated/logout")).withNewSession
-      }
-      case _ => Redirect(controllers.routes.ApplicationController.signedOut).withNewSession
+      case "ATED" =>
+        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", "/ated/logout")).withNewSession
+      case _ =>
+        Redirect(controllers.routes.ApplicationController.signedOut()).withNewSession
     }
   }
 
-  def feedback(service: String) = UnauthorisedAction { implicit request =>
+  def feedback(service: String): Action[AnyContent] = Action { implicit request =>
     service.toUpperCase match {
-      case "ATED" => Ok(views.html.feedback(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER))), service))
-      case _ => Redirect(controllers.routes.ApplicationController.signedOut).withNewSession
+      case "ATED" =>
+        Ok(views.html.feedback(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER))), service, appConfig.serviceWelcomePath(service)))
+      case _ => Redirect(controllers.routes.ApplicationController.signedOut()).withNewSession
     }
   }
 
-  def submitFeedback(service: String) = UnauthorisedAction { implicit request =>
+  def submitFeedback(service: String): Action[AnyContent] = Action { implicit request =>
     feedbackForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.feedback(formWithErrors, service)),
+      formWithErrors => BadRequest(views.html.feedback(formWithErrors, service, appConfig.serviceWelcomePath(service))),
       feedback => {
-        def auditFeedback(feedBack: FeedBack)(implicit hc: HeaderCarrier) = {
-          sendDataEvent(s"$service-exit-survey", detail = Map(
+        def auditFeedback(feedBack: FeedBack)(implicit hc: HeaderCarrier): Unit = {
+          audit.sendDataEvent(s"$service-exit-survey", detail = Map(
             "easyToUse" -> feedback.easyToUse.mkString,
             "satisfactionLevel" -> feedback.satisfactionLevel.mkString,
             "howCanWeImprove" -> feedback.howCanWeImprove.mkString,
@@ -85,19 +80,13 @@ trait ApplicationController extends FrontendController with RunMode with Auditab
     )
   }
 
-  def feedbackThankYou(service: String) = UnauthorisedAction { implicit request =>
-    Ok(views.html.feedbackThankYou(service))
+  def feedbackThankYou(service: String): Action[AnyContent] = Action { implicit request =>
+    Ok(views.html.feedbackThankYou(service, appConfig.serviceWelcomePath(service)))
   }
+  def keepAlive: Action[AnyContent] = Action { implicit request => Ok("OK")}
+  def signedOut: Action[AnyContent] = Action { implicit request => Ok(views.html.logout())}
 
-  def keepAlive = UnauthorisedAction { implicit request =>
-    Ok("OK")
-    }
-
-  def signedOut = UnauthorisedAction { implicit request =>
-    Ok(views.html.logout())
-  }
-
-  def logoutAndRedirectToHome(service: String) = UnauthorisedAction { implicit request =>
+  def logoutAndRedirectToHome(service: String): Action[AnyContent] = Action { implicit request =>
     Redirect(controllers.routes.HomeController.homePage(service)).discardingCookies(DiscardingCookie("mdtp"))
   }
 }

@@ -16,58 +16,70 @@
 
 package controllers.nonUKReg
 
-import config.FrontendAuthConnector
+import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
-import controllers.{BackLinkController, BaseController}
+import controllers.BackLinkController
+import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms._
+import javax.inject.Inject
 import models.NRLQuestion
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.BusinessCustomerConstants.NrlFormId
 
-object NRLQuestionController extends NRLQuestionController {
-  val authConnector = FrontendAuthConnector
-  override val controllerId: String = "NRLQuestionController"
-  override val backLinkCacheConnector = BackLinkCacheConnector
-  override val businessRegistrationCache = BusinessRegCacheConnector
-}
+import scala.concurrent.ExecutionContext
 
-trait NRLQuestionController extends BackLinkController {
-  def businessRegistrationCache: BusinessRegCacheConnector
+class NRLQuestionController @Inject()(val authConnector: AuthConnector,
+                                      val backLinkCacheConnector: BackLinkCacheConnector,
+                                      config: ApplicationConfig,
+                                      businessRegController: BusinessRegController,
+                                      mcc: MessagesControllerComponents,
+                                      paySAQuestionController: PaySAQuestionController,
+                                      businessRegistrationCache: BusinessRegCacheConnector)
+  extends FrontendController(mcc) with AuthActions with BackLinkController {
 
-  def view(service: String) = AuthAction(service).async { implicit bcContext =>
-    if (bcContext.user.isAgent)
-      ForwardBackLinkToNextPage(BusinessRegController.controllerId, controllers.nonUKReg.routes.BusinessRegController.register(service, "NUK"))
-    else
-      for{
-        backLink <- currentBackLink
-        savedNRL <- businessRegistrationCache.fetchAndGetCachedDetails[NRLQuestion](NrlFormId)
-      }yield
-        Ok(views.html.nonUkReg.nrl_question(nrlQuestionForm.fill(savedNRL.getOrElse(NRLQuestion())), service, backLink))
+  implicit val appConfig: ApplicationConfig = config
+  implicit val executionContext: ExecutionContext = mcc.executionContext
+  val controllerId: String = "NRLQuestionController"
 
+  def view(service: String): Action[AnyContent] = Action.async { implicit request =>
+    authorisedFor(service) { implicit authContext =>
+      if (authContext.isAgent) {
+        forwardBackLinkToNextPage(businessRegController.controllerId, controllers.nonUKReg.routes.BusinessRegController.register(service, businessType = "NUK"))
+      } else {
+        for {
+          backLink <- currentBackLink
+          savedNRL <- businessRegistrationCache.fetchAndGetCachedDetails[NRLQuestion](NrlFormId)
+        } yield
+          Ok(views.html.nonUkReg.nrl_question(nrlQuestionForm.fill(savedNRL.getOrElse(NRLQuestion())), service, backLink))
+      }
+    }
   }
 
-
-  def continue(service: String) = AuthAction(service).async { implicit bcContext =>
-    nrlQuestionForm.bindFromRequest.fold(
-      formWithErrors =>
-        currentBackLink.map(backLink => BadRequest(views.html.nonUkReg.nrl_question(formWithErrors, service, backLink))),
-      formData => {
-        businessRegistrationCache.cacheDetails[NRLQuestion](NrlFormId, formData)
-        val paysSa = formData.paysSA.getOrElse(false)
-        if (paysSa)
-          RedirectWithBackLink(PaySAQuestionController.controllerId,
-            controllers.nonUKReg.routes.PaySAQuestionController.view(service),
-            Some(controllers.nonUKReg.routes.NRLQuestionController.view(service).url)
-          )
-        else
-          RedirectWithBackLink(BusinessRegController.controllerId,
-            controllers.nonUKReg.routes.BusinessRegController.register(service, "NUK"),
-            Some(controllers.nonUKReg.routes.NRLQuestionController.view(service).url)
-          )
-
-      }
-    )
+  def continue(service: String): Action[AnyContent] = Action.async { implicit request =>
+    authorisedFor(service){ implicit authContext =>
+      nrlQuestionForm.bindFromRequest.fold(
+        formWithErrors =>
+          currentBackLink.map(backLink => BadRequest(views.html.nonUkReg.nrl_question(formWithErrors, service, backLink))),
+        formData => {
+          businessRegistrationCache.cacheDetails[NRLQuestion](NrlFormId, formData)
+          val paysSa = formData.paysSA.getOrElse(false)
+          if (paysSa) {
+            redirectWithBackLink(paySAQuestionController.controllerId,
+              controllers.nonUKReg.routes.PaySAQuestionController.view(service),
+              Some(controllers.nonUKReg.routes.NRLQuestionController.view(service).url)
+            )
+          } else {
+            redirectWithBackLink(businessRegController.controllerId,
+              controllers.nonUKReg.routes.BusinessRegController.register(service, businessType = "NUK"),
+              Some(controllers.nonUKReg.routes.NRLQuestionController.view(service).url)
+            )
+          }
+        }
+      )
+    }
   }
 
 }

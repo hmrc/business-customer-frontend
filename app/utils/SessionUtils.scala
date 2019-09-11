@@ -16,7 +16,7 @@
 
 package utils
 
-import org.apache.commons.lang3.RandomStringUtils
+import scala.util.Random
 
 object SessionUtils {
 
@@ -24,9 +24,8 @@ object SessionUtils {
     val length = 32
     val nanoTime = System.nanoTime()
     val restChars = length - nanoTime.toString.length
-    val randomChars = RandomStringUtils.randomAlphanumeric(restChars)
+    val randomChars = Random.alphanumeric.take(restChars).mkString
     randomChars + nanoTime
   }
-
 
 }

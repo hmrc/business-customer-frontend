@@ -14,16 +14,14 @@
  * limitations under the License.
  *@
 
-@(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages)
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
+@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers._
 @import config.ApplicationConfig
 
-@implicitFormInstance = @{ Some(businessRegistrationForm) }
+@(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
-<script src='@controllers.routes.AssetsController.at("javascript/accessible-autocomplete.min.js")'></script>
+<script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
 <script>
     $(document).ready(function() {
 
@@ -35,46 +33,46 @@
   </script>
 }
 
-@bcMain(title = displayDetails.businessRegHeader, service = service, pageScripts = Some(pageScripts)) {
+@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts)) {
 
-  @pageHeadersAndError(backLink, "business-verification-text", displayDetails.businessRegSubHeader, "non-uk-reg-header", displayDetails.businessRegHeader,
+  @pageHeadersAndError(backLink, "business-verification-text", messages(displayDetails.businessRegSubHeader), "non-uk-reg-header", messages(displayDetails.businessRegHeader),
     Some(bcErrorSummary(businessRegistrationForm, "bc.non-uk-reg-error.general")))
 
   @displayDetails.businessRegLede.map { businessRegLede =>
-  <p id="non-uk-reg-lede">@Html(businessRegLede)</p>
+      <p id="non-uk-reg-lede">@Html(messages(businessRegLede))</p>
   }
 
  @form(action = controllers.nonUKReg.routes.AgentRegisterNonUKClientController.submit(service)) {
   <div id="non-uk-reg-form">
     <fieldset>
-      <legend class="visuallyhidden">@displayDetails.businessRegHeader</legend>
+      <legend class="visuallyhidden">@messages(displayDetails.businessRegHeader)</legend>
 
       @bcInput(businessRegistrationForm("businessName"),
-      '_label ->  Html(Messages("bc.non-uk-reg.businessName")),
+      '_label ->  Html(messages("bc.non-uk-reg.businessName")),
       '_labelClass -> "form-label-bold",
       '_id -> "businessName",
       '_showConstraints -> false)
 
       @bcInput(businessRegistrationForm("businessAddress.line_1"),
-      '_label ->  Html(Messages("bc.non-uk-reg.line_1")),
+      '_label ->  Html(messages("bc.non-uk-reg.line_1")),
        '_labelClass -> "form-label-bold",
       '_id -> "businessAddress.line_1",
       '_showConstraints -> false)
 
       @bcInput(businessRegistrationForm("businessAddress.line_2"),
-      '_label ->  Html(Messages("bc.non-uk-reg.line_2")),
+      '_label ->  Html(messages("bc.non-uk-reg.line_2")),
       '_labelClass -> "form-label-bold",
       '_id -> "businessAddress.line_2",
       '_showConstraints -> false)
 
       @bcInput(businessRegistrationForm("businessAddress.line_3"),
-      '_label ->  Html(Messages("bc.non-uk-reg.line_3")),
+      '_label ->  Html(messages("bc.non-uk-reg.line_3")),
       '_labelClass -> "form-label-bold",
       '_id -> "businessAddress.line_3",
       '_showConstraints -> false)
 
       @bcInput(businessRegistrationForm("businessAddress.line_4"),
-      '_label ->  Html(Messages("bc.non-uk-reg.line_4")),
+      '_label ->  Html(messages("bc.non-uk-reg.line_4")),
       '_labelClass -> "form-label-bold",
       '_id -> "businessAddress.line_4",
       '_showConstraints -> false)
@@ -84,7 +82,7 @@
         displayEmptyValue = true,
         '_id -> "businessAddress.country",
         '_labelClass -> "form-label-bold",
-        '_label -> Html(Messages("bc.non-uk-reg.country"))
+        '_label -> Html(messages("bc.non-uk-reg.country"))
       )
 
     </fieldset>

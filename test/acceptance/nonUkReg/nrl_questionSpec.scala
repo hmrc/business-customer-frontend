@@ -16,16 +16,21 @@
 
 package acceptance.nonUkReg
 
+import config.ApplicationConfig
 import forms.BusinessRegistrationForms._
 import org.jsoup.Jsoup
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen}
 import org.scalatestplus.play.OneServerPerSuite
+import play.api.i18n.Lang
 import play.api.test.FakeRequest
 
 class nrl_questionSpec extends FeatureSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen{
 
   val service = "ATED"
+
+  implicit val lang = Lang.defaultLang
+  implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
 
   feature("The user can the nrl question") {
 
