@@ -20,9 +20,6 @@ object ValidateUri {
 
   private val whiteList: Seq[String] = Seq("capital-gains-tax", "investment-tax-relief", "capital-gains-tax-agents")
 
-  def isValid(x: Seq[String], n: String): Boolean = {
+  def isValid(x: Seq[String], n: String): Boolean = (x ++ whiteList).toSet(n.toLowerCase)
 
-    val h = x ++ whiteList
-    h.contains(n.toLowerCase)
-  }
 }

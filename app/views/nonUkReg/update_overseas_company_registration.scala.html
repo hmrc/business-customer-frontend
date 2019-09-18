@@ -14,23 +14,21 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.binders.ContinueUrl
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import views.html.helpers._
+@import config.ApplicationConfig
+
 @(overseasCompanyForm: Form[models.OverseasCompany],
   service: String,
   displayDetails: OverseasCompanyDisplayDetails,
   countryList: List[(String, String)],
-  redirectUrl: Option[ContinueUrl],
-  backLink: Option[String])(implicit request: Request[_], messages: Messages)
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
-@import views.html.helpers._
-@import config.ApplicationConfig
-@implicitFormInstance = @{ Some(overseasCompanyForm) }
+  redirectUrl: Option[String],
+  backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
-<script src='@controllers.routes.AssetsController.at("javascript/accessible-autocomplete.min.js")'></script>
-<script src='@controllers.routes.AssetsController.at("javascript/overseas-company-registration.js")'></script>
-<script src='@controllers.routes.AssetsController.at("javascript/show-hide-content.js")'></script>
+<script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
+<script src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
+<script src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
 <script>
     $(document).ready(function() {
 
@@ -49,8 +47,8 @@
   </script>
 }
 
-@bcMain(title = displayDetails.title, service = service, pageScripts = Some(pageScripts)) {
-  @pageHeadersAndError(backLink, "overseas-subheader", displayDetails.subHeader, "overseas-header", displayDetails.header,
+@bcMain(title = messages(displayDetails.title), service = service, pageScripts = Some(pageScripts)) {
+  @pageHeadersAndError(backLink, "overseas-subheader", messages(displayDetails.subHeader, service.toUpperCase), "overseas-header", messages(displayDetails.header),
     Some(bcErrorSummary(overseasCompanyForm, "bc.non-uk-reg-error.general")))
 
 @form(action = controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.update(service, displayDetails.addClient, redirectUrl)) {
@@ -60,10 +58,12 @@
     <div class="form-group" id="hasBusinessUniqueId">
 
       @bcInputRadioGroupReveal(overseasCompanyForm("hasBusinessUniqueId"),
-        Seq("true" -> (Messages("bc.radio.yes.label"), Some("overseas-company-registration")),
-        "false" -> (Messages("bc.radio.no.label"), None)),
+        Seq(
+          "true" -> (messages("bc.radio.yes.label") -> Some("overseas-company-registration")),
+          "false" -> (messages("bc.radio.no.label") -> None)
+        ),
         '_groupClass -> "inline",
-        '_legend -> displayDetails.header,
+        '_legend -> messages(displayDetails.header),
         '_legendClass -> "visuallyhidden",
         '_labelClass -> "block-label",
         '_labelAfter -> true
@@ -75,7 +75,7 @@
       <div id="overseas-company-registration" class="panel-indent">
 
         @bcInput(overseasCompanyForm("businessUniqueId"),
-        '_label ->  Html(Messages("bc.non-uk-reg.businessUniqueId")),
+        '_label ->  Html(messages("bc.non-uk-reg.businessUniqueId")),
         '_labelClass -> "form-label-bold",
         '_id -> "businessUniqueId",
         '_showConstraints -> false)
@@ -84,15 +84,15 @@
         elementOptions = countryList,
         displayEmptyValue = true,
         '_id -> "issuingCountry",
-        '_emptyValueText -> Messages("bc.non-uk-reg.country.select"),
+        '_emptyValueText -> messages("bc.non-uk-reg.country.select"),
         '_labelClass -> "form-label-bold",
-        '_label -> Html(Messages("bc.non-uk-reg.issuingCountry")))
+        '_label -> Html(messages("bc.non-uk-reg.issuingCountry")))
 
         @bcInput(overseasCompanyForm("issuingInstitution"),
-        '_label ->  Html(Messages("bc.non-uk-reg.issuingInstitution")),
+        '_label ->  Html(messages("bc.non-uk-reg.issuingInstitution")),
         '_labelClass -> "form-label-bold",
         '_id -> "issuingInstitution",
-        '_hintText -> Messages("bc.non-uk-reg.issuingInstitution.hint"),
+        '_hintText -> messages("bc.non-uk-reg.issuingInstitution.hint"),
         '_showConstraints -> false)
 
       </div>
@@ -101,7 +101,7 @@
 
   </div>
 
-  <button class="button" id="submit" type="submit">@Messages("bc.continue")</button>
+  <button class="button" id="submit" type="submit">@messages("bc.continue")</button>
 
 
 }

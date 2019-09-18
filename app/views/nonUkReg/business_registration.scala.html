@@ -14,15 +14,18 @@
  * limitations under the License.
  *@
 
-@(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String], isAgent: Boolean)(implicit request: Request[_], messages: Messages)
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
+@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers._
+@import config.ApplicationConfig
 
-@implicitFormInstance = @{ Some(businessRegistrationForm) }
+@(businessRegistrationForm: Form[models.BusinessRegistration],
+  service: String,
+  displayDetails: models.BusinessRegistrationDisplayDetails,
+  backLink: Option[String],
+  isAgent: Boolean)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
-  <script src='@controllers.routes.AssetsController.at("javascript/accessible-autocomplete.min.js")'></script>
+  <script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
   <script>
     $(document).ready(function() {
 
@@ -36,61 +39,61 @@
 
 @submitButtonText = @{
   isAgent match {
-    case true => Messages("bc.business-verification.submit")
-    case false => Messages("bc.business-verification.submit.client")
+    case true => messages("bc.business-verification.submit")
+    case false => messages("bc.business-verification.submit.client")
   }
 }
 
-@bcMain(title = displayDetails.businessRegHeader, service = service, pageScripts = Some(pageScripts)) {
+@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts)) {
 
   @pageHeadersAndError(
     backLink,
     "business-verification-text",
-    displayDetails.businessRegSubHeader,
+    messages(displayDetails.businessRegSubHeader, service),
     "business-registration-header",
-    displayDetails.businessRegHeader,
+    messages(displayDetails.businessRegHeader),
     Some(bcErrorSummary(businessRegistrationForm, "bc.business-registration-error.general"))
   )
 
   @displayDetails.businessRegLede.map { businessRegLede =>
-    <p class="lede" id="business-registration-lede">@Html(businessRegLede)</p>
+    <p class="lede" id="business-registration-lede">@Html(messages(businessRegLede))</p>
   }
 
-  @form(action = controllers.nonUKReg.routes.BusinessRegController.send(service, displayDetails.businessType)) {
+  @form(action = controllers.nonUKReg.routes.BusinessRegController.send(service, messages(displayDetails.businessType))) {
     <div id="business-registration-form">
 
       <fieldset>
-        <legend class="visuallyhidden">@displayDetails.businessRegHeader</legend>
+        <legend class="visuallyhidden">@messages(displayDetails.businessRegHeader)</legend>
         @bcInput(businessRegistrationForm("businessName"),
-          '_label ->  Html(Messages("bc.business-registration.businessName")),
+          '_label ->  Html(messages("bc.business-registration.businessName")),
           '_labelClass -> "form-label-bold",
           '_id -> "businessName",
           '_showConstraints -> false
         )
 
         @bcInput(businessRegistrationForm("businessAddress.line_1"),
-          '_label ->  Html(Messages("bc.business-registration.line_1")),
+          '_label ->  Html(messages("bc.business-registration.line_1")),
           '_labelClass -> "form-label-bold",
           '_id -> "businessAddress.line_1",
           '_showConstraints -> false
         )
 
         @bcInput(businessRegistrationForm("businessAddress.line_2"),
-          '_label ->  Html(Messages("bc.business-registration.line_2")),
+          '_label ->  Html(messages("bc.business-registration.line_2")),
           '_labelClass -> "form-label-bold",
           '_id -> "businessAddress.line_2",
           '_showConstraints -> false
         )
 
         @bcInput(businessRegistrationForm("businessAddress.line_3"),
-          '_label ->  Html(Messages("bc.business-registration.line_3")),
+          '_label ->  Html(messages("bc.business-registration.line_3")),
           '_labelClass -> "form-label-bold",
           '_id -> "businessAddress.line_3",
           '_showConstraints -> false
         )
 
         @bcInput(businessRegistrationForm("businessAddress.line_4"),
-          '_label ->  Html(Messages("bc.business-registration.line_4")),
+          '_label ->  Html(messages("bc.business-registration.line_4")),
           '_labelClass -> "form-label-bold",
           '_id -> "businessAddress.line_4",
           '_showConstraints -> false
@@ -98,7 +101,7 @@
 
         @if(!isAgent) {
           @bcInput(businessRegistrationForm("businessAddress.postcode"),
-            '_label ->  Html(Messages("bc.non-uk-reg.postcode")),
+            '_label ->  Html(messages("bc.non-uk-reg.postcode")),
             '_labelClass -> "form-label-bold",
             '_id -> "businessAddress.postcode",
             '_inputClass -> "input--small",
@@ -108,10 +111,10 @@
 
           <details>
             <summary aria-controls="details-content-0" tabindex="0" class="summary" id="email-risk-question" data-journey-click="ated-subscription:click:email-risk-question">
-              @Messages("bc.non-uk-reg.postcode.help.question")
+              @messages("bc.non-uk-reg.postcode.help.question")
             </summary>
             <div id="details-content-0" class="panel-indent font-xsmall">
-              <p id="email-risk-ans">@Html(Messages("bc.non-uk-reg.postcode.help.answer"))</p>
+              <p id="email-risk-ans">@Html(messages("bc.non-uk-reg.postcode.help.answer"))</p>
             </div>
           </details>
 
@@ -122,7 +125,7 @@
           displayEmptyValue = true,
           '_id -> "businessAddress.country",
           '_labelClass -> "form-label-bold",
-          '_label -> Html(Messages("bc.business-registration.country"))
+          '_label -> Html(messages("bc.business-registration.country"))
         )
 
       </fieldset>

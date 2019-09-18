@@ -16,29 +16,32 @@
 
 package controllers
 
-import config.FrontendAuthConnector
+import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
-import play.api.Mode.Mode
-import play.api.{Configuration, Play}
-import uk.gov.hmrc.play.config.RunMode
+import controllers.auth.AuthActions
+import javax.inject.Inject
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-object ExternalLinkController extends ExternalLinkController {
+import scala.concurrent.ExecutionContext
 
-  val authConnector = FrontendAuthConnector
-  override val controllerId: String = "ExternalLinkController"
-  override val backLinkCacheConnector = BackLinkCacheConnector
-  override protected def mode: Mode = Play.current.mode
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-}
+class ExternalLinkController @Inject()(val authConnector: AuthConnector,
+                                       val backLinkCacheConnector: BackLinkCacheConnector,
+                                       config: ApplicationConfig,
+                                       mcc: MessagesControllerComponents)
+  extends FrontendController(mcc) with BackLinkController with AuthActions with I18nSupport {
 
-trait ExternalLinkController extends BackLinkController with RunMode {
+  implicit val appConfig: ApplicationConfig = config
+  implicit val executionContext: ExecutionContext = mcc.executionContext
+  val controllerId: String = "ExternalLinkController"
 
-  def backLink(serviceName: String) = AuthAction(serviceName).async { implicit bcContext =>
-    currentBackLink.map(backLink =>
-      backLink match {
-        case Some(x) => Redirect(x)
-        case None => throw new RuntimeException(s"[ExternalLinkController][backLink] No Back Link found. Service: $serviceName")
-      }
-    )
+  def backLink(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
+    authorisedFor(serviceName){ implicit authContext =>
+      currentBackLink.map(_.map(Redirect(_))
+        .getOrElse(throw new RuntimeException(s"[ExternalLinkController][backLink] No Back Link found. Service: $serviceName"))
+      )
+    }
   }
 }

@@ -18,43 +18,42 @@ package connectors
 
 import java.util.UUID
 
-import builders.{AuthBuilder, TestAudit}
+import audit.Auditable
+import builders.AuthBuilder
+import config.ApplicationConfig
 import models._
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.Mode.Mode
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import play.api.{Configuration, Play}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.play.audit.model.Audit
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.Future
 
 class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
-  trait MockedVerbs extends CoreGet with CorePost
-  val mockWSHttp: CoreGet with CorePost = mock[MockedVerbs]
+  val mockHttpClient = mock[DefaultHttpClient]
+  val mockAuditable = mock[Auditable]
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
 
-  override def beforeEach(): Unit = {
-    reset(mockWSHttp)
-  }
-
-  object TestNewBusinessCustomerConnector extends NewBusinessCustomerConnector {
-    override val http: CoreGet with CorePost = mockWSHttp
-    override val audit: Audit = new TestAudit
-    override val appName: String = "Test"
-    override val serviceUrl = ""
+  object TestNewBusinessCustomerConnector extends NewBusinessCustomerConnector(
+    appConfig,
+    mockAuditable,
+    mockHttpClient
+  ) {
     override val baseUri = "business-customer"
     override val registerUri = "register"
     override val updateRegistrationDetailsURI = "update"
     override val knownFactsUri = "known-facts"
-    override protected def mode: Mode = Play.current.mode
-    override protected def runModeConfiguration: Configuration = Play.current.configuration
+  }
+
+  override def beforeEach(): Unit = {
+    reset(mockHttpClient)
   }
 
   implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
@@ -73,7 +72,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
         val successResponse = Json.toJson(knownFacts)
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
 
         val result = TestNewBusinessCustomerConnector.addKnownFacts(knownFacts, "JARN123456")
@@ -85,7 +84,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(matchFailureResponse))))
 
         val result = TestNewBusinessCustomerConnector.addKnownFacts(knownFacts, "JARN123456")
@@ -122,7 +121,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
         val successResponse = Json.toJson(businessResponseData)
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
 
         val result = TestNewBusinessCustomerConnector.register(businessRequestData, service)
@@ -135,7 +134,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
         val successResponse = Json.toJson(businessResponseData)
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
 
         val result = TestNewBusinessCustomerConnector.register(businessRequestDataNonUK, service)
@@ -148,7 +147,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
         val successResponse = Json.toJson(businessResponseData)
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
 
         val result = TestNewBusinessCustomerConnector.register(businessRequestDataNonUK, service, isNonUKClientRegisteredByAgent = true)
@@ -159,36 +158,36 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(matchFailureResponse))))
 
         val result = TestNewBusinessCustomerConnector.register(businessRequestData, service)
         val thrown = the[ServiceUnavailableException] thrownBy await(result)
-        thrown.getMessage must include("Service unavailable")
+        thrown.getMessage must include("Service Unavailable")
       }
 
       "for Not Found, throw an exception" in {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(matchFailureResponse))))
 
         val result = TestNewBusinessCustomerConnector.register(businessRequestData, service)
         val thrown = the[InternalServerException] thrownBy await(result)
-        thrown.getMessage must include("Not found")
+        thrown.getMessage must include("Not Found")
       }
 
       "for Unknown Error, throw an exception" in {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(999, Some(matchFailureResponse))))
 
         val result = TestNewBusinessCustomerConnector.register(businessRequestData, service)
         val thrown = the[InternalServerException] thrownBy await(result)
-        thrown.getMessage must include("Unknown response status: 999")
+        thrown.getMessage must include("Unknown Status 999")
       }
     }
 
@@ -222,7 +221,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
       "for successful save, return Response as Json" in {
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(successResponse))
 
         val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
@@ -232,7 +231,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
       "for successful save with non-uk address, return Response as Json" in {
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(successResponse))
 
         val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestDataNonUk)
@@ -242,7 +241,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
       "for successful registration of NON-UK based client by an agent, return Response as Json" in {
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(successResponse))
 
         val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestDataNonUk)
@@ -253,36 +252,36 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with OneServerPerSuite w
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(matchFailureResponse))))
 
         val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown = the[ServiceUnavailableException] thrownBy await(result)
-        thrown.getMessage must include("Service unavailable")
+        thrown.getMessage must include("Service Unavailable")
       }
 
       "for Not Found, throw an exception" in {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(matchFailureResponse))))
 
         val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown = the[InternalServerException] thrownBy await(result)
-        thrown.getMessage must include("Not found")
+        thrown.getMessage must include("Not Found")
       }
 
       "for Unknown Error, throw an exception" in {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockWSHttp.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(HttpResponse(999, Some(matchFailureResponse))))
 
         val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown = the[InternalServerException] thrownBy await(result)
-        thrown.getMessage must include("Unknown response status: 999")
+        thrown.getMessage must include("Unknown Status 999")
       }
     }
   }

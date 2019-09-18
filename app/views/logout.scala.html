@@ -14,14 +14,16 @@
  * limitations under the License.
  *@
 
-@()(implicit request: Request[_], messages: Messages)
+@import config._
 
-@bcMain(title = Messages("bc.signout-title"), userLoggedIn = false) {
+@()(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-    <h1 id="bc-signout-header" class="heading-xlarge">@Messages("bc.signout-header")</h1>
+@bcMain(title = messages("bc.signout-title"), userLoggedIn = false) {
 
-    <p>@Messages("bc.signout-info")</p>
+    <h1 id="bc-signout-header" class="heading-xlarge">@messages("bc.signout-header")</h1>
 
-    <p><a href="http://www.gov.uk">@Messages("bc.signout-explore-gov-uk")</a></p>
+    <p>@messages("bc.signout-info")</p>
+
+    <p><a href="http://www.gov.uk">@messages("bc.signout-explore-gov-uk")</a></p>
 
 }

@@ -16,43 +16,35 @@
 
 package metrics
 
-import com.codahale.metrics.Timer
+import com.codahale.metrics.{Counter, MetricRegistry, Timer}
 import com.codahale.metrics.Timer.Context
-import uk.gov.hmrc.play.graphite.MicroserviceMetrics
+import com.kenshoo.play.metrics.Metrics
+import javax.inject.Inject
 import metrics.MetricsEnum.MetricsEnum
 
-trait Metrics {
 
-  def startTimer(api: MetricsEnum): Timer.Context
+class MetricsService @Inject()(val metrics: Metrics)  {
 
-  def incrementSuccessCounter(api: MetricsEnum): Unit
+  val registry: MetricRegistry = metrics.defaultRegistry
 
-  def incrementFailedCounter(api: MetricsEnum): Unit
-
-}
-
-object Metrics extends Metrics  with MicroserviceMetrics {
-  val registry = metrics.defaultRegistry
-
-  val timers = Map(
+  val timers: Map[MetricsEnum, Timer] = Map(
     MetricsEnum.GG_AGENT_ENROL -> registry.timer("gg-enrol-agent-ated-response-timer"),
     MetricsEnum.EMAC_AGENT_ENROL -> registry.timer("emac-enrol-agent-ated-response-timer")
   )
 
-  val successCounters = Map(
+  val successCounters: Map[MetricsEnum, Counter] = Map(
     MetricsEnum.GG_AGENT_ENROL -> registry.counter("gg-enrol-agent-ated-success-counter"),
     MetricsEnum.EMAC_AGENT_ENROL -> registry.counter("emac-enrol-agent-ated-success-counter")
   )
 
-  val failedCounters = Map(
+  val failedCounters: Map[MetricsEnum, Counter] = Map(
     MetricsEnum.GG_AGENT_ENROL -> registry.counter("gg-enrol-agent-ated-failed-counter"),
     MetricsEnum.EMAC_AGENT_ENROL -> registry.counter("emac-enrol-agent-ated-failed-counter")
   )
 
-  override def startTimer(api: MetricsEnum): Context = timers(api).time()
+  def startTimer(api: MetricsEnum): Context = timers(api).time()
 
-  override def incrementSuccessCounter(api: MetricsEnum): Unit = successCounters(api).inc()
+  def incrementSuccessCounter(api: MetricsEnum): Unit = successCounters(api).inc()
 
-  override def incrementFailedCounter(api: MetricsEnum): Unit = failedCounters(api).inc()
-
+  def incrementFailedCounter(api: MetricsEnum): Unit = failedCounters(api).inc()
 }

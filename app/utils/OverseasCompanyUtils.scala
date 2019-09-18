@@ -17,33 +17,32 @@
 package utils
 
 import models.OverseasCompanyDisplayDetails
-import play.api.Play.current
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
 
-object OverseasCompanyUtils {
-  def displayDetails(isAgent: Boolean, addClient: Boolean, service: String) = {
+trait OverseasCompanyUtils {
 
+  def displayDetails(isAgent: Boolean, addClient: Boolean, service: String): OverseasCompanyDisplayDetails = {
     (isAgent, addClient) match {
       case (true, true) =>
         OverseasCompanyDisplayDetails(
-          Messages("bc.nonuk.overseas.agent.add-client.title"),
-          Messages("bc.nonuk.overseas.agent.add-client.header"),
-          Messages("bc.nonuk.overseas.agent.add-client.subheader", service.toUpperCase),
-          addClient)
+          "bc.nonuk.overseas.agent.add-client.title",
+          "bc.nonuk.overseas.agent.add-client.header",
+          "bc.nonuk.overseas.agent.add-client.subheader",
+          addClient
+        )
       case (true, false) =>
         OverseasCompanyDisplayDetails(
-          Messages("bc.nonuk.overseas.agent.title"),
-          Messages("bc.nonuk.overseas.agent.header"),
-          Messages("bc.nonuk.overseas.agent.subheader", service.toUpperCase),
-          addClient)
+          "bc.nonuk.overseas.agent.title",
+          "bc.nonuk.overseas.agent.header",
+          "bc.nonuk.overseas.agent.subheader",
+          addClient
+        )
       case (_, _) =>
         OverseasCompanyDisplayDetails(
-          Messages("bc.nonuk.overseas.client.title"),
-          Messages("bc.nonuk.overseas.client.header"),
-          Messages("bc.nonuk.overseas.client.subheader", service.toUpperCase),
-          addClient)
+          "bc.nonuk.overseas.client.title",
+          "bc.nonuk.overseas.client.header",
+          "bc.nonuk.overseas.client.subheader",
+          addClient
+        )
     }
-
   }
 }
