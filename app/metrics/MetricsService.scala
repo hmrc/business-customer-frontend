@@ -42,9 +42,11 @@ class MetricsService @Inject()(val metrics: Metrics)  {
     MetricsEnum.EMAC_AGENT_ENROL -> registry.counter("emac-enrol-agent-ated-failed-counter")
   )
 
+  // $COVERAGE-OFF$
   def startTimer(api: MetricsEnum): Context = timers(api).time()
 
   def incrementSuccessCounter(api: MetricsEnum): Unit = successCounters(api).inc()
 
   def incrementFailedCounter(api: MetricsEnum): Unit = failedCounters(api).inc()
+  // $COVERAGE-ON$
 }

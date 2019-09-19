@@ -764,6 +764,19 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
   }
 
+  "detailsNotFound" should {
+    "display the details not found page" when {
+      "called" in new Setup {
+        AuthBuilder.mockAuthorisedUser("test", mockAuthConnector)
+
+        status(controller.detailsNotFound("ated", "businessType").apply(FakeRequest().withSession(
+          SessionKeys.sessionId -> "test",
+          "token" -> "RANDOMTOKEN",
+          SessionKeys.userId -> "userId"))) mustBe OK
+      }
+    }
+  }
+
 
   def businessVerificationWithAuthorisedUser(controller: BusinessVerificationController)
                                             (test: Future[Result] => Any,
