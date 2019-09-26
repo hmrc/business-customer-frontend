@@ -18,18 +18,19 @@ package controllers
 
 import java.util.UUID
 
-import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.mvc.{MessagesControllerComponents, Result}
+import play.api.Mode.Mode
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.AuthConnector
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
 
@@ -41,16 +42,12 @@ class ExternalLinkControllerSpec extends PlaySpec with OneServerPerSuite with Mo
   val mockAuthConnector = mock[AuthConnector]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
-
-  object TestExternalLinkController extends ExternalLinkController(
-    mockAuthConnector,
-    mockBackLinkCache,
-    appConfig,
-    mcc
-  ) {
+  object TestExternalLinkController extends ExternalLinkController {
     override val controllerId = "test"
+    override val authConnector = mockAuthConnector
+    override val backLinkCacheConnector = mockBackLinkCache
+    override protected def mode: Mode = Play.current.mode
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
 
@@ -60,6 +57,10 @@ class ExternalLinkControllerSpec extends PlaySpec with OneServerPerSuite with Mo
   }
 
   "ExternalLinkController" must {
+
+    "use the correctbackLinkCacheConnector" in {
+      controllers.ExternalLinkController.backLinkCacheConnector must be(BackLinkCacheConnector)
+    }
 
     "Redirect if we have a value set in Back Link Cache" in {
       backLink(Some("http://backLInk")) { result =>

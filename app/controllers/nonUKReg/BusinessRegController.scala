@@ -16,97 +16,78 @@
 
 package controllers.nonUKReg
 
-import config.{ApplicationConfig, BCUtils}
+import config.{ApplicationConfig, FrontendAuthConnector}
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
-import controllers.BackLinkController
-import controllers.auth.AuthActions
+import controllers.{BackLinkController, BaseController}
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
-import javax.inject.Inject
-import models.{BusinessRegistration, BusinessRegistrationDisplayDetails, StandardAuthRetrievals}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import models.{BusinessCustomerContext, BusinessRegistration, BusinessRegistrationDisplayDetails}
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
+import play.api.i18n.Messages
+import utils.BCUtils
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
-class BusinessRegController @Inject()(val authConnector: AuthConnector,
-                                      val backLinkCacheConnector: BackLinkCacheConnector,
-                                      config: ApplicationConfig,
-                                      businessRegistrationCache: BusinessRegCacheConnector,
-                                      overseasCompanyRegController: OverseasCompanyRegController,
-                                      mcc: MessagesControllerComponents)
-  extends FrontendController(mcc) with AuthActions with BackLinkController {
+object BusinessRegController extends BusinessRegController {
+  override val authConnector = FrontendAuthConnector
+  override val businessRegistrationCache = BusinessRegCacheConnector
+  override val controllerId: String = "BusinessRegController"
+  override val backLinkCacheConnector = BackLinkCacheConnector
+}
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
-  val controllerId: String = "BusinessRegController"
+trait BusinessRegController extends BackLinkController {
 
+  def businessRegistrationCache: BusinessRegCacheConnector
 
-  def register(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      for {
-        backLink <- currentBackLink
-        businessRegistration <- businessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](BusinessRegDetailsId)
-      } yield {
-        businessRegistration match {
-          case Some(businessReg) =>
-            Ok(views.html.nonUkReg.business_registration(
-              businessRegistrationForm.fill(businessReg),
-              service,
-              displayDetails(businessType, service),
-              backLink,
-              authContext.isAgent
-            ))
-          case None =>
-            Ok(views.html.nonUkReg.business_registration(
-              businessRegistrationForm, service, displayDetails(businessType, service), backLink, authContext.isAgent
-            ))
-        }
+  def register(service: String, businessType: String) = AuthAction(service).async { implicit bcContext =>
+    for {
+      backLink <- currentBackLink
+      businessRegistration <- businessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](BusinessRegDetailsId)
+    } yield {
+      businessRegistration match {
+        case Some(businessReg) =>
+          Ok(views.html.nonUkReg.business_registration(businessRegistrationForm.fill(businessReg), service, displayDetails(businessType, service), backLink, bcContext.user.isAgent))
+        case None =>
+          Ok(views.html.nonUkReg.business_registration(businessRegistrationForm, service, displayDetails(businessType, service), backLink, bcContext.user.isAgent))
       }
     }
   }
 
-  def send(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, authContext.isAgent, appConfig).fold(
-        formWithErrors => {
-          currentBackLink.map(backLink =>
-            BadRequest(views.html.nonUkReg.business_registration(formWithErrors, service, displayDetails(businessType, service), backLink, authContext.isAgent))
-          )
-        },
-        registrationData => {
-          businessRegistrationCache.cacheDetails[BusinessRegistration](BusinessRegDetailsId, registrationData).flatMap { _ =>
-              redirectWithBackLink(
-                overseasCompanyRegController.controllerId,
-                controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, addClient = false),
-                Some(controllers.nonUKReg.routes.BusinessRegController.register(service, businessType).url)
-              )
-          }
+  def send(service: String, businessType: String) = AuthAction(service).async { implicit bcContext =>
+    BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, bcContext.user.isAgent).fold(
+      formWithErrors => {
+        currentBackLink.map(backLink =>
+          BadRequest(views.html.nonUkReg.business_registration(formWithErrors, service, displayDetails(businessType, service), backLink, bcContext.user.isAgent))
+        )
+      },
+      registrationData => {
+        businessRegistrationCache.cacheDetails[BusinessRegistration](BusinessRegDetailsId,registrationData).flatMap {
+          registrationSuccessResponse =>
+            RedirectWithBackLink(
+              OverseasCompanyRegController.controllerId,
+              controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, false),
+              Some(controllers.nonUKReg.routes.BusinessRegController.register(service, businessType).url)
+            )
         }
-      )
-    }
+      }
+    )
   }
 
-  private def displayDetails(businessType: String, service: String)(implicit authContext: StandardAuthRetrievals) = {
-    if (authContext.isAgent) {
-      BusinessRegistrationDisplayDetails(
-        businessType,
-        "bc.business-registration.agent.non-uk.header",
-        "bc.business-registration.text.agent",
+  private def displayDetails(businessType: String, service: String)(implicit bcContext: BusinessCustomerContext) = {
+    if (bcContext.user.isAgent) {
+      BusinessRegistrationDisplayDetails(businessType,
+        Messages("bc.business-registration.agent.non-uk.header"),
+        Messages("bc.business-registration.text.agent", service),
         None,
-        appConfig.getIsoCodeTupleList
-      )
+        BCUtils.getIsoCodeTupleList)
     } else {
-      BusinessRegistrationDisplayDetails(
-        businessType,
-        "bc.business-registration.user.non-uk.header",
-        "bc.business-registration.text.client",
-        Some("bc.business-registration.lede.text"),
-        appConfig.getIsoCodeTupleList
-      )
+      BusinessRegistrationDisplayDetails(businessType,
+        Messages("bc.business-registration.user.non-uk.header"),
+        Messages("bc.business-registration.text.client", service),
+        Some(Messages("bc.business-registration.lede.text")),
+        BCUtils.getIsoCodeTupleList)
     }
   }
 }

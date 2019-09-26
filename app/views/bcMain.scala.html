@@ -14,8 +14,6 @@
  * limitations under the License.
  *@
 
-@import config.ApplicationConfig
-
 @(title: String,
   userLoggedIn: Boolean = true,
   supportLinkEnabled: Boolean = true,
@@ -23,30 +21,32 @@
   pageScripts: Option[Html] = None,
   sidebarLinks: Option[Html] = None,
   sidebarClass: Option[String] = None
-)(mainContent: Html)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+)(mainContent: Html)(implicit request: Request[_], messages: Messages)
+
+@import uk.gov.hmrc.play.views.html.layouts
 
 @scriptElement = {
-  <script src='@controllers.routes.Assets.versioned("jquery/jquery-ui.min.js")'></script>
-  <script src='@controllers.routes.Assets.versioned("jquery/jquery-ui-1.12.1.min.js")'></script>
-  <script src='@controllers.routes.Assets.versioned("javascript/timeout-dialog.js")'></script>
+  <script src='@controllers.routes.AssetsController.at("jquery/jquery-ui.min.js")'></script>
+  <script src='@controllers.routes.AssetsController.at("jquery/jquery-ui-1.12.1.min.js")'></script>
+  <script src='@controllers.routes.AssetsController.at("javascript/timeout-dialog.js")'></script>
 
   @pageScripts
   <script>
     @if(userLoggedIn) {
-        $.timeoutDialog({timeout: @appConfig.defaultTimeoutSeconds, countdown: @appConfig.timeoutCountdown, keep_alive_url: '@controllers.routes.ApplicationController.keepAlive', logout_url: '@controllers.routes.ApplicationController.logout(service)', logout_redirect_url: '@controllers.routes.ApplicationController.logout(service)', restart_on_yes: true, background_no_scroll: true});
+        $.timeoutDialog({timeout: @config.ApplicationConfig.defaultTimeoutSeconds, countdown: @config.ApplicationConfig.timeoutCountdown, keep_alive_url: '@controllers.routes.ApplicationController.keepAlive', logout_url: '@controllers.routes.ApplicationController.logout(service)', logout_redirect_url: '@controllers.routes.ApplicationController.logout(service)', restart_on_yes: true, background_no_scroll: true});
         var dialogOpen;
     }
   </script>
 }
 
 @linkElement = {
-  <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/business-customer.css")'/>
-  <link rel="stylesheet" href='@controllers.routes.Assets.versioned("jquery/jquery-ui.min.css")'/>
-  <link rel="stylesheet" href='@controllers.routes.Assets.versioned("jquery/jquery-ui.structure.min.css")'/>
+  <link rel="stylesheet" href='@controllers.routes.AssetsController.at("stylesheets/business-customer.css")'/>
+  <link rel="stylesheet" href='@controllers.routes.AssetsController.at("jquery/jquery-ui.min.css")'/>
+  <link rel="stylesheet" href='@controllers.routes.AssetsController.at("jquery/jquery-ui.structure.min.css")'/>
 }
 
 @main(
-  appConfig,
+  applicationConfig = config.ApplicationConfig,
   supportLinkEnabled = supportLinkEnabled,
   title = title,
   service = service,

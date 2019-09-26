@@ -17,36 +17,48 @@
 package controllers
 
 import connectors.BackLinkCacheConnector
-import play.api.mvc.Results.Redirect
-import play.api.mvc.{Call, Result}
+import models.{BackLinkModel, BusinessCustomerContext}
+import play.api.mvc.{AnyContent, Request, Call, Result}
+import play.mvc.Http.Response
+import uk.gov.hmrc.http.cache.client.CacheMap
+
+import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-
-trait BackLinkController {
+trait BackLinkController extends BaseController {
   val controllerId: String
   val backLinkCacheConnector: BackLinkCacheConnector
 
-  def setBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier): Future[Option[String]] =
+  def setBackLink(pageId: String, returnUrl: Option[String])(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier) : Future[Option[String]] = {
     backLinkCacheConnector.saveBackLink(pageId, returnUrl)
+  }
 
-  def currentBackLink(implicit hc: HeaderCarrier):Future[Option[String]] =
+  def currentBackLink(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier):Future[Option[String]] = {
     backLinkCacheConnector.fetchAndGetBackLink(controllerId)
+  }
 
-  def redirectToExernal(redirectCall: String, returnUrl: Option[String])(implicit hc: HeaderCarrier): Future[Result] =
-    setBackLink("ExternalLinkController", returnUrl) map (_ => Redirect(redirectCall))
-
-  def forwardBackLinkToNextPage(nextPageId: String, redirectCall: Call)(implicit hc: HeaderCarrier): Future[Result] = {
+  def RedirectToExernal(redirectCall: String, returnUrl: Option[String])(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier) = {
     for {
-      currentBackLink <- currentBackLink
-      _ <- setBackLink(nextPageId, currentBackLink)
+      cache <- setBackLink(ExternalLinkController.controllerId, returnUrl)
     } yield{
       Redirect(redirectCall)
     }
   }
 
-  def redirectWithBackLink(nextPageId: String, redirectCall: Call, backCall: Option[String])
-                          (implicit hc: HeaderCarrier): Future[Result] =
-    setBackLink(nextPageId, backCall) map (_ => Redirect(redirectCall))
+  def ForwardBackLinkToNextPage(nextPageId: String, redirectCall: Call)(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[Result] = {
+    for {
+      currentBackLink <- currentBackLink
+      cache <- setBackLink(nextPageId, currentBackLink)
+    } yield{
+      Redirect(redirectCall)
+    }
+  }
+
+  def RedirectWithBackLink(nextPageId: String, redirectCall: Call, backCall: Option[String])(implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[Result] = {
+    for {
+      cache <- setBackLink(nextPageId, backCall)
+    } yield{
+      Redirect(redirectCall)
+    }
+  }
 }

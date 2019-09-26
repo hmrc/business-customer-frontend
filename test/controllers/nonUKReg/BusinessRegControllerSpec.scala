@@ -20,21 +20,22 @@ import java.util.UUID
 
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
-import models.{Address, BusinessRegistration}
+import models.{Address, BusinessRegistration, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsJson, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import services.BusinessRegistrationService
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 
 
 class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
@@ -45,20 +46,12 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
   val mockAuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
-  val mockOverseasCompanyRegController = mock[OverseasCompanyRegController]
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
-
-  object TestBusinessRegController extends BusinessRegController(
-    mockAuthConnector,
-    mockBackLinkCache,
-    appConfig,
-    mockBusinessRegistrationCache,
-    mockOverseasCompanyRegController,
-    mcc
-  ) {
+  object TestBusinessRegController extends BusinessRegController {
+    override val authConnector = mockAuthConnector
+    override val businessRegistrationCache = mockBusinessRegistrationCache
     override val controllerId = "test"
+    override val backLinkCacheConnector = mockBackLinkCache
   }
 
   override def beforeEach(): Unit = {
@@ -68,6 +61,11 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
   }
 
   "BusinessRegController" must {
+
+    "respond to /register" in {
+      val result = route(FakeRequest(GET, s"/business-customer/register/$serviceName/NUK")).get
+      status(result) must not be NOT_FOUND
+    }
 
     "unauthorised users" must {
       "respond with a redirect for /register & be redirected to the unauthorised page" in {

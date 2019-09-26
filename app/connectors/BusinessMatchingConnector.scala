@@ -17,40 +17,54 @@
 package connectors
 
 import audit.Auditable
-import config.ApplicationConfig
-import javax.inject.Inject
-import models.{MatchBusinessData, StandardAuthRetrievals}
-import play.api.Logger
+import com.fasterxml.jackson.core.JsonParseException
+import config.{BusinessCustomerFrontendAuditConnector, WSHttp}
+import models.{BusinessCustomerContext, MatchBusinessData}
+import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
+import play.api.{Configuration, Logger, Play}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.audit.model.EventTypes
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
+import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
 
-class BusinessMatchingConnector @Inject()(val audit: Auditable,
-                                          val http: DefaultHttpClient,
-                                          val conf: ApplicationConfig) extends RawResponseReads {
-
+object BusinessMatchingConnector extends BusinessMatchingConnector {
+  val appName: String = AppName(Play.current.configuration).appName
+  val audit: Audit = new Audit(appName, BusinessCustomerFrontendAuditConnector)
   val baseUri = "business-matching"
   val lookupUri = "business-lookup"
+  val serviceUrl = baseUrl("business-matching")
+  val http: CoreGet with CorePost = WSHttp
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+}
+
+trait BusinessMatchingConnector extends ServicesConfig with RawResponseReads with Auditable {
+
+  def serviceUrl: String
+
+  def baseUri: String
+
+  def lookupUri: String
+
+  def http: CoreGet with CorePost
 
   def lookup(lookupData: MatchBusinessData, userType: String, service: String)
-            (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[JsValue] = {
-    val authLink = authContext.authLink
-    val url = s"""${conf.businessMatching}/$authLink/$baseUri/$lookupUri/${lookupData.utr}/$userType"""
+            (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[JsValue] = {
+    val authLink = bcContext.user.authLink
+    val url = s"""$serviceUrl$authLink/$baseUri/$lookupUri/${lookupData.utr}/$userType"""
     http.POST[JsValue, HttpResponse](url, Json.toJson(lookupData)) map { response =>
       auditMatchCall(lookupData, userType, response, service)
       response.status match {
         case OK | NOT_FOUND =>
-          Try{
+          //try catch added to handle JsonParseException in case ETMP/DES response with contact Details with ',' in it
+          try {
             Json.parse(response.body)
-          } match {
-            case Success(s) => s
-            case Failure(_) => truncateContactDetails(response.body)
+          } catch {
+            case jse: JsonParseException => truncateContactDetails(response.body)
           }
         case SERVICE_UNAVAILABLE =>
           Logger.warn(s"[BusinessMatchingConnector][lookup] - Service unavailableException ${lookupData.utr}")
@@ -77,15 +91,13 @@ class BusinessMatchingConnector @Inject()(val audit: Auditable,
   }
 
   private def auditMatchCall(input: MatchBusinessData, userType: String, response: HttpResponse, service: String)
-                            (implicit hc: HeaderCarrier): Any = {
+                            (implicit hc: HeaderCarrier) = {
     val eventType = response.status match {
       case OK | NOT_FOUND => EventTypes.Succeeded
       case _ => EventTypes.Failed
     }
-    audit.sendDataEvent(
-      transactionName = "etmpMatchCall",
-      detail = Map(
-        "txName" -> "etmpMatchCall",
+    sendDataEvent(transactionName = "etmpMatchCall",
+      detail = Map("txName" -> "etmpMatchCall",
         "userType" -> s"$userType",
         "service" -> s"$service",
         "utr" -> input.utr,
@@ -95,31 +107,30 @@ class BusinessMatchingConnector @Inject()(val audit: Auditable,
         "organisation" -> s"${input.organisation}",
         "responseStatus" -> s"${response.status}",
         "responseBody" -> s"${response.body}",
-        "status" ->  s"$eventType"
-      )
-    )
+        "status" ->  s"${eventType}"))
 
-    def getAddressPiece(piece: Option[JsValue]):String = piece.map(_.toString).getOrElse("")
+    def getAddressPiece(piece: Option[JsValue]):String = {
+      if (piece.isDefined)
+        piece.get.toString()
+      else
+        ""
+    }
 
     if (eventType == EventTypes.Succeeded) {
-      val data = Try {
+      val data = try {
         Json.parse(response.body)
-      } match {
-        case Success(s) => s
-        case Failure(_) => truncateContactDetails(response.body)
+      } catch {
+        case jse: JsonParseException => truncateContactDetails(response.body)
       }
-      (data \\ "address").headOption.map { _ =>
-        audit.sendDataEvent(
-          transactionName = "postcodeAddressSubmitted",
+      (data \\ "address").headOption.map { x =>
+        sendDataEvent(transactionName = "postcodeAddressSubmitted",
           detail = Map(
             "submittedLine1" -> (data \\ "addressLine1").head.as[String],
             "submittedLine2" -> (data \\ "addressLine2").head.as[String],
             "submittedLine3" -> getAddressPiece((data \\ "addressLine3").headOption),
             "submittedLine4" -> getAddressPiece((data \\ "addressLine4").headOption),
             "submittedPostcode" -> getAddressPiece((data \\ "postalCode").headOption),
-            "submittedCountry" -> (data \\ "countryCode").head.as[String]
-          )
-        )
+            "submittedCountry" -> (data \\ "countryCode").head.as[String]))
       }
     }
   }

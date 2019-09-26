@@ -16,35 +16,35 @@
 
 package models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.Json
 
 case class EnrolRequest(portalId: String, serviceName: String, friendlyName: String, knownFacts: Seq[String])
 
 object EnrolRequest {
-  implicit val formats: Format[EnrolRequest] = Json.format[EnrolRequest]
+  implicit val formats = Json.format[EnrolRequest]
 }
 
 case class Identifier(`type`: String, value: String)
 
 object Identifier {
-  implicit val formats: Format[Identifier] = Json.format[Identifier]
+  implicit val formats = Json.format[Identifier]
 }
 
 case class EnrolResponse(serviceName: String, state: String, identifiers: Seq[Identifier])
 
 object EnrolResponse {
-  implicit val formats: Format[EnrolResponse] = Json.format[EnrolResponse]
+  implicit val formats = Json.format[EnrolResponse]
 }
 
 case class EnrolErrorResponse(statusCode: String, message: String)
 
 object EnrolErrorResponse {
-  implicit val formats: Format[EnrolErrorResponse] = Json.format[EnrolErrorResponse]
+  implicit val formats = Json.format[EnrolErrorResponse]
 }
 
 
 case class NewEnrolRequest(userId: String, friendlyName: String, `type`: String, verifiers: List[Verifier])
 
 object NewEnrolRequest {
-  implicit val formats: Format[NewEnrolRequest] = Json.format[NewEnrolRequest]
+  implicit val formats = Json.format[NewEnrolRequest]
 }

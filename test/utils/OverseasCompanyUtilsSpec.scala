@@ -20,33 +20,29 @@ import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 
 class OverseasCompanyUtilsSpec extends PlaySpec  with OneServerPerSuite {
 
-  trait Setup {
-    val utils: OverseasCompanyUtils = new OverseasCompanyUtils {}
-  }
-
   "OverseasCompanyUtils" must {
-    "return the correct data for a client" in new Setup {
-      val details = utils.displayDetails(false, false, "awrs")
+    "return the correct data for a client" in {
+      val details = OverseasCompanyUtils.displayDetails(false, false, "awrs")
       details.addClient must be (false)
-      details.title must be ("bc.nonuk.overseas.client.title")
-      details.header must be ("bc.nonuk.overseas.client.header")
-      details.subHeader must be ("bc.nonuk.overseas.client.subheader")
+      details.title must be ("Do you have an overseas company registration number?")
+      details.header must be ("Do you have an overseas company registration number?")
+      details.subHeader must be ("AWRS registration")
     }
 
-    "return the correct data for an agent" in new Setup {
-      val details = utils.displayDetails(true, false, "ated")
+    "return the correct data for an agent" in {
+      val details = OverseasCompanyUtils.displayDetails(true, false, "ated")
       details.addClient must be (false)
-      details.title must be ("bc.nonuk.overseas.agent.title")
-      details.header must be ("bc.nonuk.overseas.agent.header")
-      details.subHeader must be ("bc.nonuk.overseas.agent.subheader")
+      details.title must be ("Do you have an overseas company registration number?")
+      details.header must be ("Do you have an overseas company registration number?")
+      details.subHeader must be ("ATED agency set up")
     }
 
-    "return the correct data for an agent adding a client" in new Setup {
-      val details = utils.displayDetails(true, true, "ated")
+    "return the correct data for an agent adding a client" in {
+      val details = OverseasCompanyUtils.displayDetails(true, true, "ated")
       details.addClient must be (true)
-      details.title must be ("bc.nonuk.overseas.agent.add-client.title")
-      details.header must be ("bc.nonuk.overseas.agent.add-client.header")
-      details.subHeader must be ("bc.nonuk.overseas.agent.add-client.subheader")
+      details.title must be ("Does your client have an overseas company registration number?")
+      details.header must be ("Does your client have an overseas company registration number?")
+      details.subHeader must be ("Add a client")
     }
   }
 }

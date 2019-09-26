@@ -17,9 +17,7 @@
 package models
 
 import org.joda.time.LocalDate
-import play.api.libs.json.{Format, Json}
-import play.api.libs.json.JodaReads.DefaultJodaLocalDateReads
-import play.api.libs.json.JodaWrites.DefaultJodaLocalDateWrites
+import play.api.libs.json.Json
 
 case class EtmpAddress(addressLine1: String,
                        addressLine2: String,
@@ -29,23 +27,22 @@ case class EtmpAddress(addressLine1: String,
                        countryCode: String)
 
 object EtmpAddress {
-  implicit val formats: Format[EtmpAddress] = Json.format[EtmpAddress]
+  implicit val formats = Json.format[EtmpAddress]
 }
 
 case class EtmpOrganisation(organisationName: String)
 
 object EtmpOrganisation {
-  implicit val formats: Format[EtmpOrganisation] = Json.format[EtmpOrganisation]
+  implicit val formats = Json.format[EtmpOrganisation]
 }
 
 case class EtmpIndividual(firstName: String,
-                          middleName: Option[String] = None,
-                          lastName: String,
-                          dateOfBirth: LocalDate)
+                      middleName: Option[String] = None,
+                      lastName: String,
+                      dateOfBirth: LocalDate)
 
 object EtmpIndividual {
-  implicit val dateFormat: Format[LocalDate] = Format(DefaultJodaLocalDateReads, DefaultJodaLocalDateWrites)
-  implicit val formats: Format[EtmpIndividual] = Json.format[EtmpIndividual]
+  implicit val formats = Json.format[EtmpIndividual]
 }
 
 case class EtmpContactDetails(phoneNumber: Option[String] = None,
@@ -54,13 +51,13 @@ case class EtmpContactDetails(phoneNumber: Option[String] = None,
                               emailAddress: Option[String] = None)
 
 object EtmpContactDetails {
-  implicit val formats: Format[EtmpContactDetails] = Json.format[EtmpContactDetails]
+  implicit val formats = Json.format[EtmpContactDetails]
 }
 
 case class EtmpIdentification(idNumber: String, issuingInstitution: String, issuingCountryCode: String)
 
 object EtmpIdentification {
-  implicit val formats: Format[EtmpIdentification] = Json.format[EtmpIdentification]
+  implicit val formats = Json.format[EtmpIdentification]
 }
 
 case class BusinessRegistrationRequest(acknowledgementReference: String,
@@ -72,7 +69,7 @@ case class BusinessRegistrationRequest(acknowledgementReference: String,
                                        contactDetails: EtmpContactDetails)
 
 object BusinessRegistrationRequest {
-  implicit val formats: Format[BusinessRegistrationRequest] = Json.format[BusinessRegistrationRequest]
+  implicit val formats = Json.format[BusinessRegistrationRequest]
 }
 
 
@@ -82,7 +79,7 @@ case class BusinessRegistrationResponse(processingDate: String,
                                         agentReferenceNumber: Option[String])
 
 object BusinessRegistrationResponse {
-  implicit val formats: Format[BusinessRegistrationResponse] = Json.format[BusinessRegistrationResponse]
+  implicit val formats = Json.format[BusinessRegistrationResponse]
 }
 
 
@@ -98,5 +95,5 @@ case class UpdateRegistrationDetailsRequest(acknowledgementReference: String,
 }
 
 object UpdateRegistrationDetailsRequest {
-  implicit val formats: Format[UpdateRegistrationDetailsRequest] = Json.format[UpdateRegistrationDetailsRequest]
+  implicit val formats = Json.format[UpdateRegistrationDetailsRequest]
 }

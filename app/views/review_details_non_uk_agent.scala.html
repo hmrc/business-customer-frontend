@@ -14,42 +14,40 @@
  * limitations under the License.
  *@
 
+@(service: String, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import utils._
 @import views.html.helpers._
-@import config._
 
-@(service: String, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[AnyContent], messages: Messages, appConfig: ApplicationConfig)
-
-@import uk.gov.hmrc.play.views.html.helpers.form
-
-@bcMain(title = messages("business-review.agent-editable.title", service), service = service) {
-
-  @pageHeadersAndError(backLink, "bc.business-registration-agent.text", messages("bc.business-registration.text.agent", service.toUpperCase), "bc.business-registration-agent.header", messages("business-review.agent-editable.title"))
+@bcMain(title = Messages("business-review.agent-editable.title", service), service = service) {
+  @pageHeadersAndError(backLink, "bc.business-registration-agent.text", Messages("bc.business-registration.text.agent", service.toUpperCase), "bc.business-registration-agent.header", Messages("business-review.agent-editable.title"))
 
   <div class="form-group">
     <div class="confirmation-notice">
       <div class="icon-important"></div>
-      <div class="ated-icon-important-text" id="check-agency-details"><strong>@messages("business-review.check-agency.text")</strong></div>
+      <div class="ated-icon-important-text" id="check-agency-details"><strong>@Messages("business-review.check-agency.text")</strong></div>
     </div>
   </div>
 
   <table id="business-details">
       <tr>
         <th scope="row" id="business-name-title">
-          @messages("business-review.business-name")
+          @Messages("business-review.business-name")
         </th>
         <td id="business-name">
           @businessDetails.businessName
         </td>
         <td>
-          <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="business-name-edit" data-journey-click="business-customer:click:bus-name-edit-link">@messages("bc.edit")
-            <span class="visuallyhidden">@messages("business-review.business-name")</span>
+          <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="business-name-edit" data-journey-click="business-customer:click:bus-name-edit-link">@Messages("bc.edit")
+            <span class="visuallyhidden">@Messages("business-review.business-name")</span>
           </a>
         </td>
       </tr>
 
       <tr>
         <th scope="row" id="business-address-title">
-          @messages("business-review.address")
+          @Messages("business-review.address")
         </th>
         <td id="business-address">
             @businessDetails.businessAddress.line_1<br>
@@ -63,12 +61,12 @@
             @businessDetails.businessAddress.postcode.map {postcode =>
               @postcode<br>
             }
-            @appConfig.getSelectedCountry(businessDetails.businessAddress.country)
+            @BCUtils.getSelectedCountry(businessDetails.businessAddress.country)
         </td>
 
         <td>
-          <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="business-reg-edit" data-journey-click="business-customer:click:bus-reg-edit-link">@messages("bc.edit")
-            <span class="visuallyhidden">@messages("business-review.address")</span>
+          <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="business-reg-edit" data-journey-click="business-customer:click:bus-reg-edit-link">@Messages("bc.edit")
+            <span class="visuallyhidden">@Messages("business-review.address")</span>
           </a>
         </td>
 
@@ -77,31 +75,31 @@
       @businessDetails.identification.map { identification =>
 
         <tr>
-          <th scope="row">@messages("bc.non-uk-reg.businessUniqueId")</th>
+          <th scope="row">@Messages("bc.non-uk-reg.businessUniqueId")</th>
           <td>@identification.idNumber</td>
           <td>
-            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@messages("bc.edit")
-              <span class="visuallyhidden">@messages("bc.non-uk-reg.businessUniqueId")</span>
+            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@Messages("bc.edit")
+              <span class="visuallyhidden">@Messages("bc.non-uk-reg.businessUniqueId")</span>
             </a>
           </td>
         </tr>
 
         <tr>
-          <th scope="row">@messages("bc.non-uk-reg.issuingCountry")</th>
-          <td>@appConfig.getSelectedCountry(identification.issuingCountryCode)</td>
+          <th scope="row">@Messages("bc.non-uk-reg.issuingCountry")</th>
+          <td>@BCUtils.getSelectedCountry(identification.issuingCountryCode)</td>
           <td>
-            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@messages("bc.edit")
-              <span class="visuallyhidden">@messages("bc.non-uk-reg.issuingCountry")</span>
+            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@Messages("bc.edit")
+              <span class="visuallyhidden">@Messages("bc.non-uk-reg.issuingCountry")</span>
             </a>
           </td>
         </tr>
 
         <tr>
-          <th scope="row">@messages("bc.non-uk-reg.issuingInstitution")</th>
+          <th scope="row">@Messages("bc.non-uk-reg.issuingInstitution")</th>
           <td>@identification.issuingInstitution</td>
           <td>
-            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@messages("bc.edit")
-              <span class="visuallyhidden">@messages("bc.non-uk-reg.issuingInstitution")</span>
+            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@Messages("bc.edit")
+              <span class="visuallyhidden">@Messages("bc.non-uk-reg.issuingInstitution")</span>
             </a>
           </td>
         </tr>
@@ -109,11 +107,11 @@
       }.getOrElse {
 
         <tr>
-          <th scope="row">@messages("business-review.overseas-tax-reference")</th>
-          <td>@messages("business-review.overseas-tax-reference.not-provided")</td>
+          <th scope="row">@Messages("business-review.overseas-tax-reference")</th>
+          <td>@Messages("business-review.overseas-tax-reference.not-provided")</td>
           <td>
-            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@messages("bc.edit")
-              <span class="visuallyhidden">@messages("business-review.overseas-tax-reference")</span>
+            <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)' data-journey-click="business-customer:click:overseas-edit-link">@Messages("bc.edit")
+              <span class="visuallyhidden">@Messages("business-review.overseas-tax-reference")</span>
             </a>
           </td>
         </tr>
@@ -125,7 +123,7 @@
   <div class="form-group">
     @form(action = controllers.routes.ReviewDetailsController.continue(service)) {
       <button class="button" id="submit" type="submit" onclick="ga('send', 'event', 'Agent - registration - end', 'button clicked')">
-        @messages("business-review.registration-button")
+        @Messages("business-review.registration-button")
       </button>
     }
   </div>

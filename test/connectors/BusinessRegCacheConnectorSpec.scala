@@ -16,22 +16,18 @@
 
 package connectors
 
-import config.ApplicationConfig
-import models.ReviewDetails
+import config.BusinessCustomerSessionCache
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.Json
-import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
-import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class BusinessRegCacheConnectorSpec extends PlaySpec with OneServerPerSuite with MockitoSugar  with BeforeAndAfterEach{
 
@@ -42,6 +38,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with OneServerPerSuite with
   object FormData {
     implicit val formats = Json.format[FormData]
   }
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val formId = "form-id"
   val formIdNotExist = "no-form-id"
@@ -56,29 +53,25 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with OneServerPerSuite with
     reset(mockSessionCache)
   }
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
-
-  val mockHttpClient = mock[DefaultHttpClient]
-
-  object TestDataCacheConnector extends BusinessRegCacheConnector(
-    mockHttpClient,
-    appConfig
-  ) {
-    override val sourceId: String = "BC_NonUK_Business_Details"
+  object TestDataCacheConnector extends BusinessRegCacheConnector {
+    override val sessionCache: SessionCache = mockSessionCache
+    override val sourceId: String = ""
   }
-
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test")))
 
   "BusinessRegCacheConnector" must {
 
     "fetchAndGetBusinessDetailsForSession" must {
 
+      "use the correct session cache" in {
+        DataCacheConnector.sessionCache must be(BusinessCustomerSessionCache)
+      }
+
       "return Some" when {
         "formId of the cached form does exist for defined data type" in {
-          when(mockHttpClient.GET[CacheMap](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
-            .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
+          when(mockSessionCache.fetchAndGetEntry[FormData](key = Matchers.eq(formIdNotExist))(Matchers.any(), Matchers.any(), Matchers.any())) thenReturn {
+            Future.successful(Some(formData))
+          }
           await(TestDataCacheConnector.fetchAndGetCachedDetails[FormData](formIdNotExist)) must be(Some(formData))
         }
       }
@@ -86,9 +79,9 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with OneServerPerSuite with
 
     "save form data" when {
       "valid form data with a valid form id is passed" in {
-        when(mockHttpClient.PUT[FormData, CacheMap](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
-
+        when(mockSessionCache.cache[FormData](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())) thenReturn {
+          Future.successful(cacheMap)
+        }
         await(TestDataCacheConnector.cacheDetails[FormData](formId, formData)) must be(formData)
       }
     }

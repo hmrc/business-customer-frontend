@@ -16,13 +16,11 @@
 
 package acceptance
 
-import config.ApplicationConfig
-import models.{Address, Identification, ReviewDetails}
+import models.{Identification, Address, ReviewDetails}
 import org.jsoup.Jsoup
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen, Matchers}
 import org.scalatestplus.play.OneServerPerSuite
-import play.api.i18n.Lang
 import play.api.test.FakeRequest
 
 class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Matchers{
@@ -30,9 +28,6 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with OneServerPerSu
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
   val reviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true,
     agentReferenceNumber = Some("agent123"), identification = Some(Identification("id","inst", "FR")))
-
-  implicit val lang = Lang.defaultLang
-  implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
 
   feature("The user can view the review details page for a non uk agent") {
 

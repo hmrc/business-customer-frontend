@@ -14,16 +14,16 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
+@(paySAQuestionForm: Form[models.PaySAQuestion], service: String, backLink: Option[String])(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
 @import views.html.helpers._
-@import config._
-
-@(paySAQuestionForm: Form[models.PaySAQuestion], service: String, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@import utils.BCUtils
 
 @implicitFormInstance = @{ Some(paySAQuestionForm) }
 
-@bcMain(title = messages("bc.nonuk.paySA.title"), service = service) {
-    @pageHeadersAndError(backLink, "paySa-subheader", messages("bc.nonuk.paySA.subheader", service.toUpperCase), "paySa-header", messages("bc.nonuk.paySA.header"),
+@bcMain(title = Messages("bc.nonuk.paySA.title"), service = service) {
+    @pageHeadersAndError(backLink, "paySa-subheader", Messages("bc.nonuk.paySA.subheader", service.toUpperCase), "paySa-header", Messages("bc.nonuk.paySA.header"),
         Some(bcErrorSummary(paySAQuestionForm, "bc.nonuk.paySA.error.general")))
 
 @form(action = controllers.nonUKReg.routes.PaySAQuestionController.continue(service)) {
@@ -31,12 +31,10 @@
 <div class="form-group" id="paySA">
     @bcInputRadioGroup(
         paySAQuestionForm("paySA"),
-        Seq(
-            "true" -> "bc.radio.yes.label",
-            "false" -> "bc.radio.no.label"
-        ),
+        Seq("true" -> Messages("bc.radio.yes.label"),
+        "false" -> Messages("bc.radio.no.label")),
         '_groupClass -> "inline",
-        '_legend -> messages("bc.nonuk.paySA.title"),
+        '_legend -> Messages("bc.nonuk.paySA.title"),
         '_legendClass -> "visuallyhidden",
         '_labelClass -> "block-label",
         '_labelAfter -> true,
@@ -44,7 +42,7 @@
     )
 </div>
 
-<button class="button" id="submit" type="submit"> @messages("bc.continue") </button>
+<button class="button" id="submit" type="submit"> @Messages("bc.continue") </button>
 
 }
 

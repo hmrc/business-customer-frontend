@@ -16,70 +16,62 @@
 
 package controllers.nonUKReg
 
-import config.ApplicationConfig
+import config.FrontendAuthConnector
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
-import controllers.auth.AuthActions
-import controllers.{BackLinkController, BusinessVerificationController}
 import forms.BusinessRegistrationForms._
-import javax.inject.{Inject, Provider}
+import controllers.{BackLinkController, BaseController, BusinessVerificationController}
 import models.PaySAQuestion
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 import utils.BusinessCustomerConstants.PaySaDetailsId
 
-import scala.concurrent.ExecutionContext
+object PaySAQuestionController extends PaySAQuestionController {
+  val authConnector = FrontendAuthConnector
+  override val controllerId: String = "PaySAQuestionController"
+  override val backLinkCacheConnector = BackLinkCacheConnector
+  override val businessRegistrationCache = BusinessRegCacheConnector
+}
 
-class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
-                                        val backLinkCacheConnector: BackLinkCacheConnector,
-                                        config: ApplicationConfig,
-                                        businessRegController: BusinessRegController,
-                                        mcc: MessagesControllerComponents,
-                                        businessVerificationController: Provider[BusinessVerificationController],
-                                        businessRegistrationCache: BusinessRegCacheConnector)
-  extends FrontendController(mcc) with AuthActions with BackLinkController {
+trait PaySAQuestionController extends BackLinkController {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
-  val controllerId: String = "PaySAQuestionController"
+  def businessRegistrationCache: BusinessRegCacheConnector
 
-  def view(service: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      if (authContext.isAgent) {
-        forwardBackLinkToNextPage(businessRegController.controllerId, controllers.nonUKReg.routes.BusinessRegController.register(service, businessType = "NUK"))
-      } else {
-        for {
+  def view(service: String) = AuthAction(service).async { implicit bcContext =>
+    if (bcContext.user.isAgent)
+      ForwardBackLinkToNextPage(BusinessRegController.controllerId, controllers.nonUKReg.routes.BusinessRegController.register(service, "NUK"))
+    else
+      for{
           backLink <- currentBackLink
           savedPaySa <- businessRegistrationCache.fetchAndGetCachedDetails[PaySAQuestion](PaySaDetailsId)
-        } yield
-          Ok(views.html.nonUkReg.paySAQuestion(paySAQuestionForm.fill(savedPaySa.getOrElse(PaySAQuestion())), service, backLink))
-      }
-    }
+        }yield
+        Ok(views.html.nonUkReg.paySAQuestion(paySAQuestionForm.fill(savedPaySa.getOrElse(PaySAQuestion())), service, backLink))
+
   }
 
-  def continue(service: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      paySAQuestionForm.bindFromRequest.fold(
-        formWithErrors => currentBackLink.map(backLink =>
+
+
+
+  def continue(service: String) = AuthAction(service).async { implicit bcContext =>
+    paySAQuestionForm.bindFromRequest.fold(
+      formWithErrors =>
+        currentBackLink.map(backLink =>
           BadRequest(views.html.nonUkReg.paySAQuestion(formWithErrors, service, backLink))
         ),
-        formData => {
-          businessRegistrationCache.cacheDetails[PaySAQuestion](PaySaDetailsId, formData)
+      formData => {
+        businessRegistrationCache.cacheDetails[PaySAQuestion](PaySaDetailsId, formData)
           val paysSa = formData.paySA.getOrElse(false)
-          if (paysSa) {
-            redirectWithBackLink(businessVerificationController.get.controllerId,
-              controllers.routes.BusinessVerificationController.businessForm(service, businessType = "NRL"),
+          if (paysSa)
+            RedirectWithBackLink(BusinessVerificationController.controllerId,
+              controllers.routes.BusinessVerificationController.businessForm(service, "NRL"),
               Some(controllers.nonUKReg.routes.PaySAQuestionController.view(service).url)
             )
-          } else {
-            redirectWithBackLink(businessRegController.controllerId,
-              controllers.nonUKReg.routes.BusinessRegController.register(service, businessType = "NUK"),
+          else
+            RedirectWithBackLink(BusinessRegController.controllerId,
+              controllers.nonUKReg.routes.BusinessRegController.register(service, "NUK"),
               Some(controllers.nonUKReg.routes.PaySAQuestionController.view(service).url)
             )
-          }
         }
-      )
-    }
+    )
+      }
+
   }
-}

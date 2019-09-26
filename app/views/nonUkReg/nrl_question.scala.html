@@ -14,16 +14,18 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
+@(nrlQuestionForm: Form[models.NRLQuestion], service: String, backLink: Option[String])(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
 @import views.html.helpers._
-@import config._
+@import utils.BCUtils
 
-@(nrlQuestionForm: Form[models.NRLQuestion], service: String, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@implicitFormInstance = @{ Some(nrlQuestionForm) }
 
-@bcMain(title = messages("bc.nrl.title"), service = service) {
+@bcMain(title = Messages("bc.nrl.title"), service = service) {
 
   @form(action = controllers.nonUKReg.routes.NRLQuestionController.continue(service)) {
-    @pageHeadersAndError(backLink, "client-appoint-subheader", messages("bc.nrl.subheader", service.toUpperCase), "nrl-question-header", messages("bc.nrl.header"),
+    @pageHeadersAndError(backLink, "client-appoint-subheader", Messages("bc.nrl.subheader", service.toUpperCase), "nrl-question-header", Messages("bc.nrl.header"),
       Some(bcErrorSummary(nrlQuestionForm, "bc.nrl-error.general")))
 
     <p>@Messages("bc.nrl-answer")</p>
@@ -32,12 +34,10 @@
 
       @bcInputRadioGroup(
         nrlQuestionForm("paysSA"),
-        Seq(
-          "true" -> "bc.radio.yes.label",
-          "false" -> "bc.radio.no.label"
-        ),
+        Seq("true" -> Messages("bc.radio.yes.label"),
+        "false" -> Messages("bc.radio.no.label")),
         '_labelClass -> "block-label",
-        '_legend -> messages("bc.nrl.header"),
+        '_legend -> Messages("bc.nrl.header"),
         '_legendClass -> "visuallyhidden",
         '_labelAfter -> true,
         '_groupClass -> "inline",
@@ -46,6 +46,6 @@
 
     </div>
 
-    <button class="button" id="submit" type="submit"> @messages("bc.continue") </button>
+    <button class="button" id="submit" type="submit"> @Messages("bc.continue") </button>
   }
 }

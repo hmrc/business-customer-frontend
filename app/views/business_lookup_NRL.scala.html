@@ -14,15 +14,15 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
-@import views.html.helpers._
-@import config._
-
 @(nrlForm: Form[forms.NonResidentLandlordMatch],
  isAgent: Boolean,
  service: String,
  businessType: String,
- backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+ backLink: Option[String])(implicit request: Request[_], messages: Messages)
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import views.html.helpers._
 
 @implicitFormInstance = @{ Some(nrlForm) }
 
@@ -35,8 +35,8 @@
 
 @headingText = @{
     isAgent match {
-        case true => messages("bc.business-verification-selected-agent-header")
-        case false => messages("bc.business-verification-selected-user-NRL-header")
+        case true => Messages("bc.business-verification-selected-agent-header")
+        case false => Messages("bc.business-verification-selected-user-NRL-header")
     }
 }
 
@@ -49,15 +49,15 @@
 
 @headingSecondaryText = @{
     isAgent match {
-        case true => messages("bc.business-verification.agent.text", service.toUpperCase)
-        case false => messages("bc.business-verification.client.text", service.toUpperCase)
+        case true => Messages("bc.business-verification.agent.text", service.toUpperCase)
+        case false => Messages("bc.business-verification.client.text", service.toUpperCase)
     }
 }
 
 @ledeParagraph = @{
     isAgent match {
-        case true => messages("bc.business-verification-lede")
-        case false => messages("bc.business-verification-lede.nrl")
+        case true => Messages("bc.business-verification-lede")
+        case false => Messages("bc.business-verification-lede.nrl")
     }
 }
 
@@ -77,25 +77,25 @@
     @form(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
 
             @bcInput(nrlForm("businessName"),
-                '_label -> messages("bc.business-verification.businessNamefield"),
+                '_label -> Messages("bc.business-verification.businessNamefield"),
                 '_labelClass -> "form-label-bold",
-                '_hintText -> messages("bc.business-verification.registered-name.hint"),
+                '_hintText -> Messages("bc.business-verification.registered-name.hint"),
                 '_id -> "businessName",
                 '_showConstraints -> false
             )
 
             @bcInput(nrlForm("saUTR"),
-                '_label -> messages("bc.business-verification.saUTRField"),
+                '_label -> Messages("bc.business-verification.saUTRField"),
                 '_labelClass -> "form-label-bold",
-                '_hintText -> messages("bc.business-verification.utr.hint"),
+                '_hintText -> Messages("bc.business-verification.utr.hint"),
                 '_id -> "saUTR",
                 '_type -> "text",
                 '_fieldsetAttributesHelpQuestion -> "utr-help-question",
-                '_fieldsetQuestion -> messages("bc.business-verification.utr.help.question"),
-                '_HelpQuestionAnswer -> Html(messages("bc.business-verification.utr.help.answer")),
+                '_fieldsetQuestion -> Messages("bc.business-verification.utr.help.question"),
+                '_HelpQuestionAnswer -> Html(Messages("bc.business-verification.utr.help.answer")),
                 '_showConstraints -> false
             )
 
-        <button id="submit" type="submit">@messages("bc.business-registration.submit")</button>
+        <button id="submit" type="submit">@Messages("bc.business-registration.submit")</button>
     }
 }

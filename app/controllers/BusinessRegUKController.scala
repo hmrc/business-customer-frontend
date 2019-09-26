@@ -16,85 +16,77 @@
 
 package controllers
 
-import config.ApplicationConfig
+import config.FrontendAuthConnector
 import connectors.BackLinkCacheConnector
-import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
-import javax.inject.Inject
-import models.{BusinessRegistrationDisplayDetails, OverseasCompany}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import models.{OverseasCompany, BusinessRegistrationDisplayDetails}
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
+import play.api.i18n.Messages
 import services.BusinessRegistrationService
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.BCUtils
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
+object BusinessRegUKController extends BusinessRegUKController {
+  val authConnector = FrontendAuthConnector
+  val businessRegistrationService = BusinessRegistrationService
+  override val controllerId: String = "BusinessRegUKController"
+  override val backLinkCacheConnector = BackLinkCacheConnector
+}
 
-class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
-                                        val backLinkCacheConnector: BackLinkCacheConnector,
-                                        config: ApplicationConfig,
-                                        businessRegistrationService: BusinessRegistrationService,
-                                        reviewDetailsController: ReviewDetailsController,
-                                        mcc: MessagesControllerComponents)
-  extends FrontendController(mcc) with BackLinkController with AuthActions {
+trait BusinessRegUKController extends BackLinkController {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
-  val controllerId: String = "BusinessRegUKController"
+  def businessRegistrationService: BusinessRegistrationService
 
-  def register(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
-      currentBackLink map (backLink =>
-        Ok(views.html.business_group_registration(businessRegistrationForm.copy(data = newMapping), service, displayDetails(businessType, service), backLink))
-      )
-    }
+  def register(service: String, businessType: String) = AuthAction(service).async { implicit bcContext =>
+    val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
+    currentBackLink.map(backLink =>
+      Ok(views.html.business_group_registration(businessRegistrationForm.copy(data = newMapping), service, displayDetails(businessType, service), backLink))
+    )
   }
 
-  def send(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service){ implicit authContext =>
-      BusinessRegistrationForms.validateUK(businessRegistrationForm.bindFromRequest).fold(
-        formWithErrors => currentBackLink map (backLink =>
-          BadRequest(views.html.business_group_registration(formWithErrors, service, displayDetails(businessType, service), backLink))
-        ),
-        registrationData => {
-          businessRegistrationService.registerBusiness(
-            registrationData,
-            OverseasCompany(),
-            isGroup(businessType),
-            isNonUKClientRegisteredByAgent = false,
-            service
-          ) flatMap { _ =>
-            redirectWithBackLink(
-              reviewDetailsController.controllerId,
+  def send(service: String, businessType: String) = AuthAction(service).async { implicit bcContext =>
+    BusinessRegistrationForms.validateUK(businessRegistrationForm.bindFromRequest).fold(
+      formWithErrors => {
+        currentBackLink.map(backLink => BadRequest(views.html.business_group_registration(formWithErrors, service, displayDetails(businessType, service), backLink)))
+      },
+      registrationData => {
+        businessRegistrationService.registerBusiness(registrationData,
+          OverseasCompany(),
+          isGroup(businessType),
+          isNonUKClientRegisteredByAgent = false,
+          service,
+          isBusinessDetailsEditable = false).flatMap {
+          registrationSuccessResponse =>
+            RedirectWithBackLink(
+              ReviewDetailsController.controllerId,
               controllers.routes.ReviewDetailsController.businessDetails(service),
-              Some(controllers.routes.BusinessRegUKController.register(service, businessType).url)
-            )
-          }
+              Some(controllers.routes.BusinessRegUKController.register(service, businessType).url))
         }
-      )
-    }
+      }
+    )
   }
 
-  private def isGroup(businessType: String) = businessType equals "GROUP"
+  private def isGroup(businessType: String) = {
+    businessType.equals("GROUP")
+  }
 
   private def displayDetails(businessType: String, service: String) = {
     if (isGroup(businessType)) {
-      BusinessRegistrationDisplayDetails(
-        businessType,
-        "bc.business-registration.user.group.header",
-        "bc.business-registration.group.subheader",
+      BusinessRegistrationDisplayDetails(businessType,
+        Messages("bc.business-registration.user.group.header", service.toUpperCase),
+        Messages("bc.business-registration.group.subheader"),
         None,
-        appConfig.getIsoCodeTupleList)
+        BCUtils.getIsoCodeTupleList)
     }
     else {
-      BusinessRegistrationDisplayDetails(
-        businessType,
-        "bc.business-registration.user.new-business.header",
-        "bc.business-registration.business.subheader",
+      BusinessRegistrationDisplayDetails(businessType,
+        Messages("bc.business-registration.user.new-business.header"),
+        Messages("bc.business-registration.business.subheader"),
         None,
-        appConfig.getIsoCodeTupleList)
+        BCUtils.getIsoCodeTupleList)
     }
   }
 }

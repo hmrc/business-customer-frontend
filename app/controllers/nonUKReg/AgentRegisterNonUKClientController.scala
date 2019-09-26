@@ -16,84 +16,91 @@
 
 package controllers.nonUKReg
 
-import config.ApplicationConfig
+import config.FrontendAuthConnector
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.BackLinkController
-import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
-import javax.inject.Inject
 import models.{BusinessRegistration, BusinessRegistrationDisplayDetails}
-import play.api.Logger
+import play.api.Mode.Mode
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import play.api.i18n.Messages.Implicits._
+import play.api.{Configuration, Logger, Play}
+import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.config.RunMode
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import utils.BCUtils
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
 
-import scala.concurrent.ExecutionContext
-import scala.util.{Success, Try}
+object AgentRegisterNonUKClientController extends AgentRegisterNonUKClientController {
+  // $COVERAGE-OFF$
+  override val authConnector: AuthConnector = FrontendAuthConnector
+  override val businessRegistrationCache = BusinessRegCacheConnector
+  override val controllerId: String = "AgentRegisterNonUKClientController"
+  override val backLinkCacheConnector = BackLinkCacheConnector
+  // $COVERAGE-ON$
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+}
 
-class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnector,
-                                                   val backLinkCacheConnector: BackLinkCacheConnector,
-                                                   config: ApplicationConfig,
-                                                   businessRegistrationCache: BusinessRegCacheConnector,
-                                                   overseasCompanyRegController: OverseasCompanyRegController,
-                                                   mcc: MessagesControllerComponents)
-  extends FrontendController(mcc) with AuthActions with BackLinkController {
+trait AgentRegisterNonUKClientController extends BackLinkController with RunMode {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
-  val controllerId: String = "AgentRegisterNonUKClientController"
+  import play.api.Play.current
 
-  def view(service: String, backLinkUrl: Option[String]): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      for {
-        backLink <- currentBackLink
-        businessRegistration <- businessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](BusinessRegDetailsId)
-      } yield {
-        val backLinkOption = if (backLinkUrl.isDefined) backLinkUrl else backLink
-        businessRegistration match {
-          case Some(businessReg) =>
-            Ok(views.html.nonUkReg.nonuk_business_registration(businessRegistrationForm.fill(businessReg), service, displayDetails, backLinkOption))
-          case None =>
-            Ok(views.html.nonUkReg.nonuk_business_registration(businessRegistrationForm, service, displayDetails, backLinkOption))
+  def businessRegistrationCache: BusinessRegCacheConnector
+
+  def view(service: String, backLinkUrl: Option[String]) = AuthAction(service).async { implicit bcContext =>
+
+    for {
+      backLink <- currentBackLink
+      businessRegistration <- businessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](BusinessRegDetailsId)
+    } yield {
+      val backlinkOption = if (backLinkUrl.isDefined) backLinkUrl else backLink
+      businessRegistration match {
+        case Some(busninessReg) =>
+            Ok(views.html.nonUkReg.nonuk_business_registration(businessRegistrationForm.fill(busninessReg), service, displayDetails, backlinkOption))
+        case None =>
+            Ok(views.html.nonUkReg.nonuk_business_registration(businessRegistrationForm, service, displayDetails, backlinkOption))
+
         }
       }
     }
-  }
 
-  def submit(service: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit userContext =>
-      BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, isAgent = true, appConfig).fold(
-        formWithErrors => {
-          currentBackLink.map(backLink =>
-            BadRequest(views.html.nonUkReg.nonuk_business_registration(formWithErrors, service, displayDetails, backLink))
-          )
-        },
-        registerData => {
-          businessRegistrationCache.cacheDetails[BusinessRegistration](BusinessRegDetailsId, registerData).flatMap { _ =>
-            val redirectUrl: Option[String] = Some(appConfig.conf.getConfString(s"${service.toLowerCase}.serviceRedirectUrl", {
+
+  def submit(service: String) = AuthAction(service).async { implicit bcContext =>
+    BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, true).fold(
+      formWithErrors => {
+        currentBackLink.map(backLink =>
+          BadRequest(views.html.nonUkReg.nonuk_business_registration(formWithErrors, service, displayDetails, backLink))
+        )
+      },
+      registerData => {
+        businessRegistrationCache.cacheDetails[BusinessRegistration](BusinessRegDetailsId,registerData).flatMap {
+          registrationSuccessResponse =>
+            val serviceRedirectUrl: Option[String] = Play.configuration.getString(s"microservice.services.${service.toLowerCase}.serviceRedirectUrl")
+            serviceRedirectUrl match {
+              case Some(redirectUrl) =>
+                RedirectWithBackLink(OverseasCompanyRegController.controllerId,
+                  controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, true, Some(ContinueUrl(redirectUrl))),
+                  Some(controllers.nonUKReg.routes.AgentRegisterNonUKClientController.view(service).url)
+                )
+              case _ =>
+                // $COVERAGE-OFF$
                 Logger.warn(s"[ReviewDetailsController][submit] - No Service config found for = $service")
                 throw new RuntimeException(Messages("bc.business-review.error.no-service", service, service.toLowerCase))
-            }))
-            redirectWithBackLink(overseasCompanyRegController.controllerId,
-              controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, addClient = true, redirectUrl),
-              Some(controllers.nonUKReg.routes.AgentRegisterNonUKClientController.view(service).url)
-            )
-          }
+                // $COVERAGE-ON$
+            }
         }
-      )
-    }
+      }
+    )
   }
 
-  private val displayDetails = BusinessRegistrationDisplayDetails(
-      "NUK",
-      "bc.non-uk-reg.header",
-      "bc.non-uk-reg.sub-header",
-      Some("bc.non-uk-reg.lede.text"),
-      appConfig.getIsoCodeTupleList
-    )
+  private def displayDetails = {
+    BusinessRegistrationDisplayDetails("NUK",
+      Messages("bc.non-uk-reg.header"),
+      Messages("bc.non-uk-reg.sub-header"),
+      Some(Messages("bc.non-uk-reg.lede.text")),
+      BCUtils.getIsoCodeTupleList)
+  }
 
 }

@@ -18,23 +18,25 @@ package controllers.nonUKReg
 
 import java.util.UUID
 
-import config.ApplicationConfig
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.{Configuration, Play}
+import play.api.Mode.Mode
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsJson, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 
 
 class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
@@ -44,15 +46,14 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
   val mockAuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService = mock[BusinessRegistrationService]
 
-  implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  object TestNonUKController extends UpdateNonUKBusinessRegistrationController {
+    override val authConnector = mockAuthConnector
+    override val businessRegistrationService = mockBusinessRegistrationService
 
-  object TestNonUKController extends UpdateNonUKBusinessRegistrationController(
-    mockAuthConnector,
-    appConfig,
-    mockBusinessRegistrationService,
-    mcc
-  )
+    override protected def mode: Mode = Play.current.mode
+
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
+  }
 
   override def beforeEach(): Unit = {
     reset(mockAuthConnector)
@@ -62,6 +63,11 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
   val serviceName: String = "ATED"
 
   "UpdateNonUKBusinessRegistrationController" must {
+
+    "respond to /register" in {
+      val result = route(FakeRequest(GET, s"/business-customer/register/$serviceName/NUK")).get
+      status(result) must not be NOT_FOUND
+    }
 
     "unauthorised users" must {
       "respond with a redirect for /register & be redirected to the unauthorised page" in {
@@ -138,12 +144,13 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
       }
 
       "redirect url is invalid format" in {
-        editClientWithAuthorisedAgent(serviceName, "NUK", Some("http://website.com")) { result =>
+        editClientWithAuthorisedAgent(serviceName, "NUK", Some(ContinueUrl("http://website.com"))) { result =>
           status(result) must be(BAD_REQUEST)
         }
       }
 
       "throw an exception if we have no data" in {
+
         when(mockBusinessRegistrationService.getDetails()(Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
 
         editClientWithAuthorisedUser(serviceName, "NUK") { result =>
@@ -288,7 +295,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
 
-          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some("/ated-subscription/registered-business-address")) { result =>
+          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(ContinueUrl("/ated-subscription/registered-business-address"))) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result) must be(Some("/ated-subscription/registered-business-address"))
           }
@@ -297,7 +304,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
         "redirect url is invalid format" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
-          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some("http://website.com")) { result =>
+          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(ContinueUrl("http://website.com"))) { result =>
             status(result) must be(BAD_REQUEST)
           }
         }
@@ -368,7 +375,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     test(result)
   }
 
-  def editClientWithAuthorisedAgent(service: String, businessType: String, redirectUrl: Option[String] = None)(test: Future[Result] => Any) {
+  def editClientWithAuthorisedAgent(service: String, businessType: String, redirectUrl: Option[ContinueUrl] = None)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -440,7 +447,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     test(result)
   }
 
-  def submitWithUnAuthorisedUser(businessType: String = "NUK", redirectUrl: Option[String] = Some("/api/anywhere"))(test: Future[Result] => Any) {
+  def submitWithUnAuthorisedUser(businessType: String = "NUK", redirectUrl: Option[ContinueUrl] = Some(ContinueUrl("/api/anywhere")))(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -454,7 +461,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     test(result)
   }
 
-  def submitWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsJson], service: String = service, redirectUrl: Option[String] = Some("/api/anywhere"), hasCache: Boolean = true)(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsJson], service: String = service, redirectUrl: Option[ContinueUrl] = Some(ContinueUrl("/api/anywhere")), hasCache: Boolean = true)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -486,7 +493,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     test(result)
   }
 
-  def submitWithAuthorisedAgent(fakeRequest: FakeRequest[AnyContentAsJson], service: String = service, redirectUrl: Option[String] = Some("/api/anywhere"), hasCache: Boolean = true)(test: Future[Result] => Any) {
+  def submitWithAuthorisedAgent(fakeRequest: FakeRequest[AnyContentAsJson], service: String = service, redirectUrl: Option[ContinueUrl] = Some(ContinueUrl("/api/anywhere")), hasCache: Boolean = true)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -518,7 +525,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     test(result)
   }
 
-  def submitWithAuthorisedUserFailure(fakeRequest: FakeRequest[AnyContentAsJson], redirectUrl: Option[String] = Some("/api/anywhere"))(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserFailure(fakeRequest: FakeRequest[AnyContentAsJson], redirectUrl: Option[ContinueUrl] = Some(ContinueUrl("/api/anywhere")))(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 

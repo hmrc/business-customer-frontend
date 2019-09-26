@@ -18,25 +18,24 @@ package controllers
 
 import java.util.UUID
 
-import config.ApplicationConfig
+import config.BusinessCustomerSessionCache
 import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.Mode.Mode
-import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Result}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Configuration, Play}
-import services.AgentRegistrationService
-import uk.gov.hmrc.auth.core.AuthConnector
+import services.{AgentRegistrationService}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionKeys}
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
 
@@ -48,10 +47,6 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
   val mockAuthConnector = mock[AuthConnector]
   val mockAgentRegistrationService = mock[AgentRegistrationService]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
-  val mockHttpClient = mock[DefaultHttpClient]
-
-  implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
 
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
 
@@ -62,11 +57,9 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
   val badGatewayResponse = Json.parse( """{"statusCode":502,"message":"<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/03/addressing\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"><soap:Header><wsa:Action>http://schemas.xmlsoap.org/ws/2004/03/addressing/fault</wsa:Action><wsa:MessageID>uuid:199814d0-9758-49d1-a2c0-d24300f67e2c</wsa:MessageID><wsa:RelatesTo>uuid:d1894fa0-b97d-4707-a814-e0c5ea79a01a</wsa:RelatesTo><wsa:To>http://schemas.xmlsoap.org/ws/2004/03/addressing/role/anonymous</wsa:To><wsse:Security><wsu:Timestamp wsu:Id=\"Timestamp-0fdb513d-1da4-4804-80b5-d04530653fac\"><wsu:Created>2017-03-22T14:23:00Z</wsu:Created><wsu:Expires>2017-03-22T14:28:00Z</wsu:Expires></wsu:Timestamp></wsse:Security></soap:Header><soap:Body><soap:Fault><faultcode>soap:Client</faultcode><faultstring>Business Rule Error</faultstring><faultactor>http://www.gateway.gov.uk/soap/2007/02/portal</faultactor><detail><GatewayDetails xmlns=\"urn:GSO-System-Services:external:SoapException\"><ErrorNumber>9001</ErrorNumber><Message>The service HMRC-AGENT-AGENT requires unique identifiers</Message><RequestID>0753B23CA0C14D23A4BBFC129795C42E</RequestID></GatewayDetails></detail></soap:Fault></soap:Body></soap:Envelope>"}	""")
   val invalidBadGatewayResponse = Json.parse( """{"statusCode":502,"message":"<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/03/addressing\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"><soap:Header><wsa:Action>http://schemas.xmlsoap.org/ws/2004/03/addressing/fault</wsa:Action><wsa:MessageID>uuid:199814d0-9758-49d1-a2c0-d24300f67e2c</wsa:MessageID><wsa:RelatesTo>uuid:d1894fa0-b97d-4707-a814-e0c5ea79a01a</wsa:RelatesTo><wsa:To>http://schemas.xmlsoap.org/ws/2004/03/addressing/role/anonymous</wsa:To><wsse:Security><wsu:Timestamp wsu:Id=\"Timestamp-0fdb513d-1da4-4804-80b5-d04530653fac\"><wsu:Created>2017-03-22T14:23:00Z</wsu:Created><wsu:Expires>2017-03-22T14:28:00Z</wsu:Expires></wsu:Timestamp></wsse:Security></soap:Header><soap:Body><soap:Fault><faultcode>soap:Client</faultcode><faultstring>Business Rule Error</faultstring><faultactor>http://www.gateway.gov.uk/soap/2007/02/portal</faultactor><detail><GatewayDetails xmlns=\"urn:GSO-System-Services:external:SoapException\"><ErrorNumber>1111</ErrorNumber><Message>The service HMRC-AGENT-AGENT requires unique identifiers</Message><RequestID>0753B23CA0C14D23A4BBFC129795C42E</RequestID></GatewayDetails></detail></soap:Fault></soap:Body></soap:Envelope>"}	""")
 
-  def testReviewDetailsController(reviewDetails: ReviewDetails): ReviewDetailsController = {
-    val mockDataCacheConnector: DataCacheConnector = new DataCacheConnector(
-      mockHttpClient,
-      appConfig
-    ) {
+  def testReviewDetailsController(reviewDetails: ReviewDetails) = {
+    val mockDataCacheConnector = new DataCacheConnector {
+      val sessionCache = BusinessCustomerSessionCache
       override val sourceId: String = "Test"
 
       var reads: Int = 0
@@ -76,23 +69,20 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
         Future.successful(Some(reviewDetails))
       }
     }
-    new ReviewDetailsController(
-      mockAuthConnector,
-      mockBackLinkCache,
-      appConfig,
-      mockDataCacheConnector,
-      mockAgentRegistrationService,
-      mcc
-    ) {
+    new ReviewDetailsController {
+      override def dataCacheConnector = mockDataCacheConnector
+      override val authConnector = mockAuthConnector
+      override val agentRegistrationService = mockAgentRegistrationService
       override val controllerId = "test"
+      override val backLinkCacheConnector = mockBackLinkCache
+      override protected def mode: Mode = Play.current.mode
+      override protected def runModeConfiguration: Configuration = Play.current.configuration
     }
   }
 
-  def testReviewDetailsControllerNotFound: ReviewDetailsController = {
-    val mockDataCacheConnector: DataCacheConnector = new DataCacheConnector(
-      mockHttpClient,
-      appConfig
-    ) {
+  def testReviewDetailsControllerNotFound = {
+    val mockDataCacheConnector = new DataCacheConnector {
+      override val sessionCache = BusinessCustomerSessionCache
       override val sourceId: String = "Test"
 
       var reads: Int = 0
@@ -102,15 +92,14 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
         Future.successful(None)
       }
     }
-    new ReviewDetailsController(
-      mockAuthConnector,
-      mockBackLinkCache,
-      appConfig,
-      mockDataCacheConnector,
-      mockAgentRegistrationService,
-      mcc
-    ) {
+    new ReviewDetailsController {
+      override def dataCacheConnector = mockDataCacheConnector
+      override val authConnector = mockAuthConnector
+      override val agentRegistrationService = mockAgentRegistrationService
       override val controllerId = "test"
+      override val backLinkCacheConnector = mockBackLinkCache
+      override protected def mode: Mode = Play.current.mode
+      override protected def runModeConfiguration: Configuration = Play.current.configuration
     }
   }
 
@@ -121,6 +110,10 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
   }
 
   "ReviewDetailsController" must {
+
+    "use the correct data cache connector" in {
+      controllers.ReviewDetailsController.dataCacheConnector must be(DataCacheConnector)
+    }
 
     "show details" when {
 
@@ -184,7 +177,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
         val testDetailsController = businessDetailsWithAuthorisedUser(nonDirectMatchReviewDetails) { result =>
           status(result) must be(OK)
         }
-//        testDetailsController.dataCacheConnector.reads must be(1)
+        testDetailsController.dataCacheConnector.reads must be(1)
       }
 
     }
@@ -260,7 +253,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
               result =>
                 status(result) must be(OK)
                 val document = Jsoup.parse(contentAsString(result))
-                document.title() must be("bc.business-registration-error.duplicate.identifier.header - GOV.UK")
+                document.title() must be("Somebody has already registered from your agency - GOV.UK")
             }
           }
 
@@ -270,7 +263,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with OneServerPerSuite with M
               result =>
                 status(result) must be(OK)
                 val document = Jsoup.parse(contentAsString(result))
-                document.title() must be("bc.business-registration-error.wrong.role.header - GOV.UK")
+                document.title() must be("You must be logged in as an administrator to submit an ATED return - GOV.UK")
             }
           }
 

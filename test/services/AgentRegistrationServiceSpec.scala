@@ -16,57 +16,61 @@
 
 package services
 
-import audit.Auditable
-import builders.AuthBuilder
-import config.ApplicationConfig
+import builders.{AuthBuilder, TestAudit}
 import connectors._
 import models._
 import org.mockito.Matchers
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.mvc.MessagesControllerComponents
+import play.api.Mode.Mode
 import play.api.test.Helpers._
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.audit.model.Audit
 
 import scala.concurrent.Future
 
 class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfter {
 
-
+  implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
   val mockTaxEnrolmentConnector = mock[TaxEnrolmentsConnector]
   val mockDataCacheConnector = mock[DataCacheConnector]
   val mockNewBusinessCustomerConnector = mock[NewBusinessCustomerConnector]
   val mockAuthClientConnector = mock[AuthConnector]
-  val mockAuditable = mock[Auditable]
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
 
-  object TestAgentRegistrationService extends AgentRegistrationService(
-    mockTaxEnrolmentConnector,
-    mockDataCacheConnector,
-    mockAuditable,
-    appConfig,
-    mockNewBusinessCustomerConnector
-  )
+  object TestAgentRegistrationService extends AgentRegistrationService {
+    val taxEnrolmentsConnector: TaxEnrolmentsConnector = mockTaxEnrolmentConnector
+    val dataCacheConnector = mockDataCacheConnector
+    val businessCustomerConnector = mockNewBusinessCustomerConnector
+    override val audit: Audit = new TestAudit
+    override val appName: String = "Test"
+    val authConnector: AuthConnector = mockAuthClientConnector
+    override protected def mode: Mode = Play.current.mode
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
+  }
 
   "AgentRegistrationService" must {
 
+    "use the correct connector" in {
+      AgentRegistrationService.taxEnrolmentsConnector must be(TaxEnrolmentsConnector)
+    }
+
     "isAgentEnrolmentAllowed is true if the configuration is setup" in {
-      TestAgentRegistrationService.isAgentEnrolmentAllowed("ATED") must be(true)
+      TestAgentRegistrationService.isAgentEnrolmentAllowed("ATED") must be (true)
     }
 
     "isAgentEnrolmentAllowed is false if the configuration is setup" in {
-      TestAgentRegistrationService.isAgentEnrolmentAllowed("AWRS") must be(false)
-      TestAgentRegistrationService.isAgentEnrolmentAllowed("AMLS") must be(false)
+      TestAgentRegistrationService.isAgentEnrolmentAllowed("AWRS") must be (false)
+      TestAgentRegistrationService.isAgentEnrolmentAllowed("AMLS") must be (false)
     }
 
-    "enrolAgent throw exception if we have no agent ref no" in {
+  "enrolAgent throw exception if we have no agent ref no" in {
       val returnedReviewDetails = new ReviewDetails(businessName = "Bus Name", businessType = None,
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
@@ -75,10 +79,8 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
         directMatch = false,
         agentReferenceNumber = None)
 
-      implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
-
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
+       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
 
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       val thrown = the[RuntimeException] thrownBy await(result)
@@ -93,11 +95,9 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
         utr = Some("1111111111"),
         agentReferenceNumber = Some("agent123"))
 
-      implicit val user = AuthBuilder.createSaUser()
-
       implicit val hc: HeaderCarrier = HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       when(mockTaxEnrolmentConnector.enrol(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
 
@@ -113,11 +113,9 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
         utr = Some("1111111111"),
         agentReferenceNumber = Some("agent123"))
 
-      implicit val user = AuthBuilder.createAgentAuthContext("userid", "username")
-
       implicit val hc: HeaderCarrier = HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       when(mockTaxEnrolmentConnector.enrol(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
 
@@ -133,11 +131,9 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
         utr = Some("1111111111"),
         agentReferenceNumber = Some("agent123"))
 
-      implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
-
       implicit val hc: HeaderCarrier = HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       when(mockTaxEnrolmentConnector.enrol(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
 
@@ -153,11 +149,9 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
         safeId = "safe123",
         agentReferenceNumber = Some("agent123"))
 
-      implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
-
       implicit val hc: HeaderCarrier = HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), None)))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), None)))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       when(mockTaxEnrolmentConnector.enrol(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
 
@@ -175,11 +169,9 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
         directMatch = false,
         agentReferenceNumber = Some("agent123"))
 
-      implicit val user = AuthBuilder.createAgentAuthContext("userid", "username")
-
       implicit val hc: HeaderCarrier = HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       when(mockTaxEnrolmentConnector.enrol(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY)))
 
@@ -191,10 +183,8 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
       val enrolSuccessResponse = EnrolResponse(serviceName = "ATED", state = "NotYetActivated", identifiers = List(Identifier("ATED", "Ated_Ref_No")))
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
-
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(None))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       val thrown = the[RuntimeException] thrownBy await(result)
@@ -212,10 +202,8 @@ class AgentRegistrationServiceSpec extends PlaySpec with OneServerPerSuite with 
         agentReferenceNumber = Some("agent123"))
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      implicit val user = AuthBuilder.createAgentAuthContext("userid", "username")
-
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~ (Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
       when(mockNewBusinessCustomerConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK)))
       val result = TestAgentRegistrationService.enrolAgent("INVALID_SERVICE_NAME")
       val thrown = the[RuntimeException] thrownBy await(result)

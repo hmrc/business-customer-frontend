@@ -24,9 +24,13 @@ object FormHelpers {
    * This function finds all the errors belonging to the parent that have the child field as an argument.
    */
   def getErrors(field: Field, parent: Field): Seq[FormError] = {
-      parent.errors.foldLeft(field.errors) { (errors, error) =>
-        val hasError = error.args.map(arg => parent.name + "." + arg).contains(field.name)
-        if(hasError) error +: errors else errors
+    parent.errors.foldLeft(field.errors) { (errors, error) =>
+      error.args.map { arg =>
+        parent.name + "." + arg
+      }.contains(field.name) match {
+        case true => error +: errors
+        case _ => errors
+      }
     }
   }
 

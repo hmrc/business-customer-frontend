@@ -16,15 +16,12 @@
 
 package forms
 
-import config.ApplicationConfig
 import models.BusinessRegistration
 import org.scalatest.MustMatchers
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.data.Form
 
 class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with OneServerPerSuite {
-
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
 
   "BusinessRegistrationForms" must {
     "pass validation for when valid non uk post code" in {
@@ -36,7 +33,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with OneS
       "businessAddress.country" -> "IN")
 
       val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(input)
-      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", false, appConfig).fold(
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", false).fold(
         hasErrors => {
           hasErrors.errors.length mustBe 0
         },
@@ -55,10 +52,10 @@ class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with OneS
         "businessAddress.country" -> "IN")
 
       val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(input)
-      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", false, appConfig).fold(
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", false).fold(
         hasErrors => {
           hasErrors.errors.length mustBe 1
-          hasErrors.errors.head.message mustBe "bc.business-registration-error.postcode.invalid"
+          hasErrors.errors.head.message mustBe "The postcode is invalid"
         },
         _ => {
           fail("There is a problem")
@@ -75,10 +72,10 @@ class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with OneS
         "businessAddress.country" -> "IN")
 
       val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(input)
-      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", false, appConfig).fold(
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", false).fold(
         hasErrors => {
           hasErrors.errors.length mustBe 1
-          hasErrors.errors.head.message mustBe "bc.business-registration-error.postcode"
+          hasErrors.errors.head.message mustBe "You must enter a postcode"
         },
         _ => {
           fail("There is a problem")

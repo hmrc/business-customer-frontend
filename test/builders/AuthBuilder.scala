@@ -16,13 +16,14 @@
 
 package builders
 
-import models.StandardAuthRetrievals
+import models.{BusinessCustomerUser, BusinessCustomerContext}
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
+import play.api.test.FakeRequest
 import uk.gov.hmrc.domain._
-
+import uk.gov.hmrc.play.frontend.auth._
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.play.frontend.auth.connectors.domain._
 import scala.concurrent.Future
 
 object AuthBuilder {
@@ -30,142 +31,84 @@ object AuthBuilder {
   val saUtr = new SaUtrGenerator().nextSaUtr
   val nino = new Generator().nextNino
 
-  type RetrievalType = Enrolments ~
-    Option[AffinityGroup] ~
-    Option[Credentials] ~
-    Option[String]
-
-  def buildRetrieval(retrievals: StandardAuthRetrievals): RetrievalType = {
-    new ~(
-      new ~(
-        new ~(
-          Enrolments(retrievals.enrolments),
-          retrievals.affinityGroup
-        ),
-        Some(Credentials("mockProvi", "type"))
-      ),
-      retrievals.groupId
-    )
+  def createUserAuthContext(userId: String, userName: String): BusinessCustomerContext = {
+    val ac = AuthContext(authority = createUserAuthority(userId),  nameFromSession = Some(userName))
+    BusinessCustomerContext(FakeRequest(), BusinessCustomerUser(ac))
   }
 
-  def createUserAuthContext(userId: String, userName: String): StandardAuthRetrievals = {
-    val authData: StandardAuthRetrievals = StandardAuthRetrievals(
-      Set(),
-      Some(AffinityGroup.Organisation),
-      None,
-      None
-    )
-
-    authData
+  def createSaAuthContext(userId: String, userName: String): BusinessCustomerContext = {
+    val ac = AuthContext(authority = createSaAuthority(userId), nameFromSession = Some(userName))
+    BusinessCustomerContext(FakeRequest(), BusinessCustomerUser(ac))
   }
 
-  def createAgentAuthContext(userId: String, userName: String): StandardAuthRetrievals = {
-    createAgentAuthority(agentRefNo = Some("JARN1234567"))
+  def createAgentAuthContext(userId: String, userName: String): BusinessCustomerContext = {
+    val ac = AuthContext(authority = createAgentAuthority(userId, AgentAdmin), nameFromSession = Some(userName))
+    BusinessCustomerContext(FakeRequest(), BusinessCustomerUser(ac))
   }
 
-  def createAgentAssistantAuthContext(userId: String, userName: String): StandardAuthRetrievals = {
-    createAgentAuthority(Assistant, agentRefNo = Some("JARN1234567"))
+  def createAgentAssistantAuthContext(userId: String, userName: String): BusinessCustomerContext = {
+    val ac = AuthContext(authority = createAgentAuthority(userId, AgentAssistant), nameFromSession = Some(userName))
+    BusinessCustomerContext(FakeRequest(), BusinessCustomerUser(ac))
   }
-
-  def mergeAuthRetrievals(arone: StandardAuthRetrievals, artwo: StandardAuthRetrievals): StandardAuthRetrievals = {
-    arone.copy(
-      enrolments = arone.enrolments ++ artwo.enrolments
-    )
-  }
-
-  def createSaUser(): StandardAuthRetrievals = {
-    StandardAuthRetrievals(
-      Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated")),
-      Some(AffinityGroup.Individual),
-      Some(Credentials("provID", "provType")),
-      Some("groupId")
-    )
-  }
-
-  def createCtUser(): StandardAuthRetrievals = {
-    StandardAuthRetrievals(
-      Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated")),
-      Some(AffinityGroup.Organisation),
-      None,
-      None
-    )
-  }
-
-  def createOrgUser(): StandardAuthRetrievals = {
-    StandardAuthRetrievals(
-      Set(),
-      Some(AffinityGroup.Organisation),
-      None,
-      None
-    )
+  def createInvalidAuthContext(userId: String, userName: String): BusinessCustomerContext = {
+    val ac = AuthContext(authority = createInvalidAuthority(userId),  nameFromSession = Some(userName))
+    BusinessCustomerContext(FakeRequest(), BusinessCustomerUser(ac))
   }
 
   def mockAuthorisedUser(userId:String, mockAuthConnector: AuthConnector) {
-    val authData: StandardAuthRetrievals = StandardAuthRetrievals(
-      Set(),
-      Some(AffinityGroup.Organisation),
-      None,
-      None
-    )
-
-    when(mockAuthConnector.authorise[RetrievalType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-      .thenReturn(Future.successful(buildRetrieval(authData)))
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any())) thenReturn {
+      Future.successful(Some(createUserAuthority(userId)))
+    }
   }
 
   def mockAuthorisedSaUser(userId:String, mockAuthConnector: AuthConnector) {
-    val authData: StandardAuthRetrievals = StandardAuthRetrievals(
-      Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated")),
-      Some(AffinityGroup.Individual),
-      None,
-      None
-    )
-
-    when(mockAuthConnector.authorise[RetrievalType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-      .thenReturn(Future.successful(buildRetrieval(authData)))
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any())) thenReturn {
+      Future.successful(Some(createSaAuthority(userId)))
+    }
   }
 
   def mockAuthorisedSaOrgUser(userId:String, mockAuthConnector: AuthConnector) {
-    val authData: StandardAuthRetrievals = StandardAuthRetrievals(
-      Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated")),
-      Some(AffinityGroup.Organisation),
-      None,
-      None
-    )
-
-    when(mockAuthConnector.authorise[RetrievalType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-      .thenReturn(Future.successful(buildRetrieval(authData)))
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any())) thenReturn {
+      Future.successful(Some(createSaOrgAuthority(userId)))
+    }
   }
 
   def mockAuthorisedAgent(userId:String, mockAuthConnector: AuthConnector) {
-    val authData: StandardAuthRetrievals = createAgentAuthority(agentRefNo = Some("JARN1234567"))
-
-    when(mockAuthConnector.authorise[RetrievalType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-      .thenReturn(Future.successful(buildRetrieval(authData)))
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any())) thenReturn {
+      Future.successful(Some(createAgentAuthority(userId, AgentAdmin)))
+    }
   }
 
   def mockUnAuthorisedUser(userId:String, mockAuthConnector: AuthConnector) {
-    when(mockAuthConnector.authorise[RetrievalType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-      .thenReturn(Future.failed(InsufficientEnrolments("message")))
-  }
-
-  def produceAgentEnrolment(agentRef: String): Enrolment = {
-    Enrolment("HMRC-AGENT-AGENT", Seq(EnrolmentIdentifier("AgentRefNumber", agentRef)), "Activated")
-  }
-
-  private def createAgentAuthority(agentRole: CredentialRole = User, agentRefNo: Option[String] = None): StandardAuthRetrievals = {
-
-    val agentEnrolment: Option[Enrolment] = agentRefNo.map { agentRef =>
-      produceAgentEnrolment(agentRef)
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any())) thenReturn {
+      Future.successful(Some(createInvalidAuthority(userId)))
     }
+  }
 
-    val authData = StandardAuthRetrievals(
-      Set(agentEnrolment).flatten,
-      Some(AffinityGroup.Agent),
-      Some(Credentials("provId", "provType")),
-      Some("groupID")
-    )
+  private def createInvalidAuthority(userId: String): Authority = {
+    Authority(userId, Accounts(paye = Some(PayeAccount(s"paye/$nino", nino))), None, None, CredentialStrength.Weak, ConfidenceLevel.L50, Some(""), Some(""), Some(""), "")
+  }
 
-    authData
+  private def createUserAuthority(userId: String): Authority = {
+    Authority(userId, Accounts(org = Some(OrgAccount("org/1234", Org("1234")))), None, None, CredentialStrength.Weak, ConfidenceLevel.L50, Some(""), Some(""), Some(""), "")
+  }
+
+  private def createSaAuthority(userId: String): Authority = {
+    Authority(userId, Accounts(sa = Some(SaAccount(s"sa/individual/$saUtr", saUtr))), None, None, CredentialStrength.Weak, ConfidenceLevel.L50, Some(""), Some(""), Some(""), "")
+  }
+
+  private def createSaOrgAuthority(userId: String): Authority = {
+    Authority(userId, Accounts(sa = Some(SaAccount("sa/individual/1234567890", saUtr)),
+      org = Some(OrgAccount("org/1234", Org("1234")))), None, None, CredentialStrength.Weak, ConfidenceLevel.L50, Some(""), Some(""), Some(""), "")
+  }
+
+  private def createAgentAuthority(userId: String, agentRole : AgentRole): Authority = {
+    val agentAccount = AgentAccount(link = "agent/1234",
+      agentCode = AgentCode(""),
+      agentUserId = AgentUserId(userId),
+      agentUserRole = agentRole,
+      payeReference = None)
+    Authority(userId, Accounts(agent = Some(agentAccount)), None, None, CredentialStrength.Weak, ConfidenceLevel.L50, Some(""), Some(""), Some(""), "")
   }
 
 }

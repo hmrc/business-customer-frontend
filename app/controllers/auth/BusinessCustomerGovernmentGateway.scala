@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package filters
+package controllers.auth
 
-import javax.inject.Inject
-import play.api.http.DefaultHttpFilters
-import uk.gov.hmrc.play.bootstrap.filters.{AuditFilter, FrontendFilters}
+import uk.gov.hmrc.play.frontend.auth.GovernmentGateway
 
-class BCFilter @Inject()(defaultFilters: FrontendFilters, auditFilter: AuditFilter)
-  extends DefaultHttpFilters(defaultFilters.filters :+ auditFilter: _*)
+case class BusinessCustomerGovernmentGateway(serviceName: String) extends GovernmentGateway {
+
+  override def loginURL = ExternalUrls.loginURL
+
+  override def continueURL = ExternalUrls.continueURL(serviceName)
+
+}

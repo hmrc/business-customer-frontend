@@ -16,51 +16,43 @@
 
 package controllers
 
-import config.ApplicationConfig
+import config.FrontendAuthConnector
 import connectors.DataCacheConnector
-import controllers.auth.AuthActions
-import javax.inject.Inject
 import play.api.Logger
-import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.ExecutionContext
 
-class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
-                                           config: ApplicationConfig,
-                                           dataCacheConnector: DataCacheConnector,
-                                           mcc: MessagesControllerComponents) extends FrontendController(mcc) with AuthActions with I18nSupport {
+object BusinessCustomerController extends BusinessCustomerController {
+  // $COVERAGE-OFF$
+  override val authConnector = FrontendAuthConnector
+  override val dataCacheConnector = DataCacheConnector
+  // $COVERAGE-ON$
+}
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+trait BusinessCustomerController extends BaseController {
 
-  def clearCache(service: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      dataCacheConnector.clearCache.map { x =>
-        x.status match {
-          case OK | NO_CONTENT =>
-            Ok
-          case errorStatus =>
-            Logger.error(s"session has not been cleared for $service. Status: $errorStatus, Error: ${x.body}")
-            InternalServerError
+  def dataCacheConnector: DataCacheConnector
+
+  def clearCache(service: String) = AuthAction(service).async { implicit bcContext =>
+    dataCacheConnector.clearCache.map { x =>
+      x.status match {
+        case OK | NO_CONTENT =>
+          Ok
+        case errorStatus => {
+          Logger.error(s"session has not been cleared for $service. Status: $errorStatus, Error: ${x.body}")
+          InternalServerError
         }
       }
     }
   }
 
-  def getReviewDetails(service: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      dataCacheConnector.fetchAndGetBusinessDetailsForSession.map {
-        case Some(businessDetails) =>
-          Ok(Json.toJson(businessDetails))
-        case _ =>
-          Logger.warn(s"could not retrieve business details for $service")
-          NotFound
-      }
+  def getReviewDetails(service: String) = AuthAction(service).async { implicit bcContext =>
+    dataCacheConnector.fetchAndGetBusinessDetailsForSession.map {
+      case Some(businessDetails) =>
+        Ok(Json.toJson(businessDetails))
+      case _ =>
+        Logger.warn(s"could not retrieve business details for $service")
+        NotFound
     }
   }
 

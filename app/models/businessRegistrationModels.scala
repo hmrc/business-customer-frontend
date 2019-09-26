@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.Json
 
 case class OverseasCompanyDisplayDetails(title: String,
                                          header: String,
@@ -35,7 +35,7 @@ case class Address(line_1: String,
                    line_4: Option[String],
                    postcode: Option[String] = None,
                    country: String) {
-  override def toString: String = {
+  override def toString = {
     val line3display = line_3.map(line3 => s"$line3, ").getOrElse("")
     val line4display = line_4.map(line4 => s"$line4, ").getOrElse("")
     val postcodeDisplay = postcode.map(postcode1 => s"$postcode1, ").getOrElse("")
@@ -44,22 +44,22 @@ case class Address(line_1: String,
 }
 
 object Address {
-  implicit val formats: Format[Address] = Json.format[Address]
+  implicit val formats = Json.format[Address]
 }
 
 case class BusinessRegistration(businessName: String,
                                 businessAddress: Address)
 
 object BusinessRegistration {
-  implicit val formats: Format[BusinessRegistration] = Json.format[BusinessRegistration]
+  implicit val formats = Json.format[BusinessRegistration]
 }
 
 
 case class OverseasCompany(hasBusinessUniqueId: Option[Boolean] = Some(false),
-                           businessUniqueId: Option[String] = None,
-                           issuingInstitution: Option[String] = None,
-                           issuingCountry: Option[String] = None)
+                          businessUniqueId: Option[String] = None,
+                          issuingInstitution: Option[String] = None,
+                          issuingCountry: Option[String] = None)
 
 object OverseasCompany {
-  implicit val formats: Format[OverseasCompany] = Json.format[OverseasCompany]
+  implicit val formats = Json.format[OverseasCompany]
 }

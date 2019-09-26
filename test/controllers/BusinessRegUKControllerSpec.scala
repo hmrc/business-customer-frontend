@@ -18,23 +18,22 @@ package controllers
 
 import java.util.UUID
 
-import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsJson, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
 
 
 class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
@@ -44,20 +43,10 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
   val mockAuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService = mock[BusinessRegistrationService]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
-  val mockReviewDetailController = mock[ReviewDetailsController]
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
-
-  object TestBusinessRegController extends BusinessRegUKController(
-    mockAuthConnector,
-    mockBackLinkCache,
-    appConfig,
-    mockBusinessRegistrationService,
-    mockReviewDetailController,
-    mcc
-  ) {
+  object TestBusinessRegController extends BusinessRegUKController {
     override val authConnector = mockAuthConnector
+    override val businessRegistrationService = mockBusinessRegistrationService
     override val controllerId = "test"
     override val backLinkCacheConnector = mockBackLinkCache
   }
@@ -65,6 +54,11 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
   val serviceName: String = "ATED"
 
   "BusinessGBController" must {
+
+    "respond to /register" in {
+      val result = route(FakeRequest(GET, s"/business-customer/register-gb/$serviceName/GROUP")).get
+      status(result) must not be NOT_FOUND
+    }
 
     "unauthorised users" must {
       "respond with a redirect for /register & be redirected to the unauthorised page" in {

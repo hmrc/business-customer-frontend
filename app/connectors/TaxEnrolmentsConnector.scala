@@ -17,29 +17,44 @@
 package connectors
 
 import audit.Auditable
-import config.ApplicationConfig
-import javax.inject.Inject
-import metrics.{MetricsEnum, MetricsService}
+import config.{BusinessCustomerFrontendAuditConnector, WSHttp}
+import metrics.{Metrics, MetricsEnum}
 import models._
-import play.api.Logger
+import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
+import play.api.{Configuration, Logger, Play}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.audit.model.EventTypes
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
+import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 import utils.GovernmentGatewayConstants
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
-                                       implicit val config: ApplicationConfig,
-                                       val audit: Auditable,
-                                       val http: DefaultHttpClient) extends RawResponseReads {
+object TaxEnrolmentsConnector extends TaxEnrolmentsConnector {
+  val appName: String = AppName(Play.current.configuration).appName
+  val audit: Audit = new Audit(appName, BusinessCustomerFrontendAuditConnector)
+  val metrics = Metrics
+  val serviceUrl = baseUrl("tax-enrolments")
+  val enrolmentUrl = s"$serviceUrl/tax-enrolments"
+  val http: CoreGet with CorePost = WSHttp
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+}
 
-  val enrolmentUrl = s"${config.taxEnrolments}/tax-enrolments"
+trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with Auditable {
+
+  def serviceUrl: String
+
+  def enrolmentUrl: String
+
+  def http: CoreGet with CorePost
+
+  def metrics: Metrics
 
   def enrol(enrolRequest: NewEnrolRequest, groupId: String, arn: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+
     val enrolmentKey = s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}~${GovernmentGatewayConstants.KnownFactsAgentRefNo}~$arn"
     val postUrl = s"""$enrolmentUrl/groups/$groupId/enrolments/$enrolmentKey"""
     val jsonData = Json.toJson(enrolRequest)
@@ -59,26 +74,22 @@ class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
         response
       case _ =>
         metrics.incrementFailedCounter(MetricsEnum.EMAC_AGENT_ENROL)
-        Logger.warn(
-          s"[TaxEnrolmentsConnector][enrol] - " +
+        Logger.warn(s"[TaxEnrolmentsConnector][enrol] - " +
           s"emac url: $postUrl, " +
           s"service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}, " +
           s"verfiers sent: ${enrolRequest.verifiers}, " +
-          s"response: ${response.body}"
-        )
+          s"response: ${response.body}")
         response
     }
   }
 
-  private def auditEnrolCall(postUrl: String, input: NewEnrolRequest, response: HttpResponse)(implicit hc: HeaderCarrier): Unit = {
+  private def auditEnrolCall(postUrl: String, input: NewEnrolRequest, response: HttpResponse)(implicit hc: HeaderCarrier) = {
     val eventType = response.status match {
       case CREATED => EventTypes.Succeeded
       case _ => EventTypes.Failed
     }
-    audit.sendDataEvent(
-      transactionName = "emacEnrolCallES08",
-      detail = Map(
-        "txName" -> "emacAllocateEnrolmentToGroup",
+    sendDataEvent(transactionName = "emacEnrolCallES08",
+      detail = Map("txName" -> "emacAllocateEnrolmentToGroup",
         "friendlyName" -> s"${input.friendlyName}",
         "serviceName" -> s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}",
         "postUrl" -> s"$postUrl",
@@ -86,9 +97,7 @@ class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
         "verifiers" -> s"${input.verifiers}",
         "responseStatus" -> s"${response.status}",
         "responseBody" -> s"${response.body}",
-        "status" -> s"$eventType"
-      )
-    )
+        "status" -> s"$eventType"))
   }
 
 }
