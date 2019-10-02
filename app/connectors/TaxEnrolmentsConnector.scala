@@ -74,11 +74,7 @@ trait TaxEnrolmentsConnector extends ServicesConfig with RawResponseReads with A
         response
       case _ =>
         metrics.incrementFailedCounter(MetricsEnum.EMAC_AGENT_ENROL)
-        Logger.warn(s"[TaxEnrolmentsConnector][enrol] - " +
-          s"emac url: $postUrl, " +
-          s"service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}, " +
-          s"verfiers sent: ${enrolRequest.verifiers}, " +
-          s"response: ${response.body}")
+        Logger.warn(s"[TaxEnrolmentsConnector][enrol] - status: ${response.status} response: ${response.body}")
         response
     }
   }
