@@ -772,7 +772,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         status(controller.detailsNotFound("ated", "businessType").apply(FakeRequest().withSession(
           SessionKeys.sessionId -> "test",
           "token" -> "RANDOMTOKEN",
-          SessionKeys.userId -> "userId"))) mustBe OK
+          SessionKeys.userId -> "userId")
+          .withHeaders(Headers("Authorization" -> "value"))
+        )) mustBe OK
       }
     }
   }
@@ -790,7 +792,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val result = controller.businessVerification(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -806,7 +810,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val result = controller.businessVerification(service).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -823,7 +829,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val result = controller.businessForm(serviceName, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -838,7 +846,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val result = controller.businessVerification(service).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -856,7 +866,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val result = controller.continue(service).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -872,7 +884,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val result = controller.continue(service).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -889,7 +903,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val result = controller.continue(service).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -906,7 +922,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val result = controller.continue(service).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -922,7 +940,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val result = controller.businessForm(service, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }

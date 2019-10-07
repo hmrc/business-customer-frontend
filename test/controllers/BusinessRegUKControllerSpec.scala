@@ -27,7 +27,7 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
@@ -227,7 +227,9 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
     val result = TestBusinessRegController.register(serviceName, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -242,7 +244,9 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -258,7 +262,9 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
     val result = TestBusinessRegController.send(service, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -279,7 +285,9 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }

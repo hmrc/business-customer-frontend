@@ -28,10 +28,13 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 
@@ -41,14 +44,22 @@ import scala.concurrent.Future
 class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
   val service = "ATED"
-  val invalidService = "scooby-doo"
+  val invalidService = "test"
 
+  implicit val hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization("fake")))
   private val mockAuthConnector: DefaultAuthConnector = mock[DefaultAuthConnector]
   private val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   private val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
   private val mockOverseasController: OverseasCompanyRegController = mock[OverseasCompanyRegController]
   private val mockMCC: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   private val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
+  override lazy val app: Application = new GuiceApplicationBuilder()
+    .configure(Map(
+      "microservice.services.names" -> List("ated", "test"),
+      "microservice.services.test.chez" -> "x"
+    ))
+    .build()
 
   class Setup {
     val controller = new AgentRegisterNonUKClientController(
@@ -230,9 +241,18 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
         "respond with NotFound when invalid service is in uri" in new Setup {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
-          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), invalidService, None, controller = controller) { result =>
+          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "scooby-doo", None, controller = controller) { result =>
             status(result) must be(NOT_FOUND)
           }
+        }
+
+        "respond with exception when testing a service without a redirection url" in new Setup {
+          implicit val hc: HeaderCarrier = HeaderCarrier()
+          val inputJson = createJson()
+
+          intercept[RuntimeException](submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "test", None, controller = controller) { result =>
+            status(result) must be(NOT_FOUND)
+          })
         }
       }
     }
@@ -248,7 +268,9 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -263,7 +285,8 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -280,7 +303,8 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -298,7 +322,8 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -314,7 +339,8 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     val result = controller.submit(service).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -336,7 +362,8 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     val result = controller.submit(service).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -350,7 +377,8 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     val result = controller.submit(service).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }

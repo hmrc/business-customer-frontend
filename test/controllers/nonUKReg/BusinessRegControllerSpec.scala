@@ -26,9 +26,10 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsEmpty, AnyContentAsJson, Headers, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -37,18 +38,18 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import scala.concurrent.Future
 
 
-class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
-  val request = FakeRequest()
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val serviceName = "ATED"
   val invalidService = "scooby-doo"
-  val mockAuthConnector = mock[AuthConnector]
-  val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
-  val mockBackLinkCache = mock[BackLinkCacheConnector]
-  val mockOverseasCompanyRegController = mock[OverseasCompanyRegController]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockOverseasCompanyRegController: OverseasCompanyRegController = mock[OverseasCompanyRegController]
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   object TestBusinessRegController extends BusinessRegController(
     mockAuthConnector,
@@ -290,7 +291,8 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestBusinessRegController.register(serviceName, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -307,7 +309,8 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -325,7 +328,8 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -344,7 +348,8 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -360,7 +365,8 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestBusinessRegController.send(service, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -380,7 +386,8 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -399,7 +406,8 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -414,7 +422,8 @@ class BusinessRegControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
