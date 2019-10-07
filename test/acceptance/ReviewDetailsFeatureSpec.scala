@@ -16,17 +16,22 @@
 
 package acceptance
 
-import models.{ReviewDetails, Address}
+import config.ApplicationConfig
+import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen}
 import org.scalatestplus.play.OneServerPerSuite
+import play.api.i18n.Lang
 import play.api.test.FakeRequest
 
 class ReviewDetailsFeatureSpec extends FeatureSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen{
 
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
   val reviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true, Some("agent123"))
+
+  implicit val lang = Lang.defaultLang
+  implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
 
   feature("The user can view the review details page") {
 
@@ -54,8 +59,10 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with OneServerPerSuite with M
       assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
       assert(document.getElementById("wrong-account-title").text === ("Not the right details?"))
       assert(document.getElementById("wrong-account-text").text === ("If this is not the right business, you should sign out and change to another account"))
-      assert(document.getElementById("wrong-account-text-item-1").text().startsWith("If you are registered with Companies House, you must tell Companies House about changes to your details.") === true)
-      assert(document.getElementById("wrong-account-text-item-2").text().startsWith("If you are not registered with Companies House, you must tell HMRC about a change to your personal details.") === true)
+      assert(document.getElementById("wrong-account-text-item-1").text()
+        .startsWith("If you are registered with Companies House, you must tell Companies House about changes to your details.") === true)
+      assert(document.getElementById("wrong-account-text-item-2").text()
+        .startsWith("If you are not registered with Companies House, you must tell HMRC about a change to your personal details.") === true)
       assert(document.getElementById("check-agency-details") === null)
 
       assert(document.select(".button").text === ("Confirm"))

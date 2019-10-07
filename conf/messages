@@ -42,7 +42,7 @@ business-review.registered-with-companies-house.text = If you are registered wit
 business-review.sole-trader.text = If you are not registered with Companies House, you must <a href="https://www.gov.uk/tell-hmrc-change-of-details/change-name-or-address" data-journey-click="business-customer:click:not-registered-link">tell HMRC about a change to your personal details</a>.
 business-review.check-agency.text = You are setting up your agency. These should be your company details not your clients.
 
-bc.business-review.error.not-found = We could not find your details. Check and try again.
+
 bc.business-verification.cancel = Cancel
 
 bc.business-verification.text = {0} account registration
@@ -117,7 +117,6 @@ bc.business-verification-error.invalidSAUTR = The Self Assessment Unique Taxpaye
 bc.business-verification-error.invalidCOUTR = The Corporation Tax Unique Taxpayer Reference is not valid
 bc.business-verification-error.invalidPSAUTR = The Partnership Self Assessment Unique Taxpayer Reference is not valid
 bc.business-verification-error.not-found = Your business details have not been found. Check that your details are correct and try again.
-bc.business-registration-error.hasBusinessUniqueId.not-selected = You must select one option
 bc.business-registration-error.businessUniqueId.select = You must enter an overseas company registration number
 bc.business-registration-error.issuingCountry.select = You must enter a country that issued the overseas company registration number
 bc.business-registration-error.issuingInstitution.select = You must enter an institution that issued the overseas company registration number
@@ -141,7 +140,7 @@ bc.business-registration.agent.non-uk.header = What is the registered business n
 bc.business-registration.lede.text = This is the registered name and address of your overseas business, you can enter a different address for correspondence on a later page.
 bc.business-registration.lede.update-text = This is the registered address of your overseas business.
 bc.business-registration.user.new-business.header = New business details
-business-registration.group.title = Create {0} group
+bc.business-registration.group.title = Create {0} group
 bc.business-registration.user.group.header = Create {0} group
 bc.business-registration.group.businessName = Group representative name
 bc.business-registration.group.businessName.hintText = This is your registered company name
@@ -160,7 +159,6 @@ bc.business-registration.group.line_3 = Address line 3 (Optional)
 bc.business-registration.group.line_4 = Address line 4 (Optional)
 bc.business-registration.postcode = Postcode
 bc.business-registration.country = Country
-bc.business-registration.issuingCountry = Country of issue
 bc.business-registration.country.select = please select one country
 bc.business-registration-error.general.hasBusinessUniqueId = There is a problem with the overseas company registration number
 bc.business-registration-error.hasBusinessUniqueId.not-selected = You must select one option
@@ -181,16 +179,15 @@ bc.business-registration-error.businessName = You must enter a business name
 bc.business-registration-error.line_1 = You must enter an address into Address line 1
 bc.business-registration-error.line_2 = You must enter an address into Address line 2
 bc.business-registration-error.country = You must enter a country
-bc.business-registration-error.businessName.length = The business name cannot be more than {0} characters
-bc.business-registration-error.line_1.length = Address line 1 cannot be more than {0} characters
-bc.business-registration-error.line_2.length = Address line 2 cannot be more than {0} characters
-bc.business-registration-error.line_3.length = Address line 3 cannot be more than {0} characters
-bc.business-registration-error.line_3.length = Address line 3 cannot be more than {0} characters
-bc.business-registration-error.line_4.length = Address line 4 cannot be more than {0} characters
-bc.business-registration-error.postcode.length = The postcode cannot be more than {0} characters
-bc.business-registration-error.businessUniqueId.length = The overseas company registration number cannot be more than {0} characters
+bc.business-registration-error.businessName.length = The business name cannot be more than 105 characters
+bc.business-registration-error.line_1.length = Address line 1 cannot be more than 35 characters
+bc.business-registration-error.line_2.length = Address line 2 cannot be more than 35 characters
+bc.business-registration-error.line_3.length = Address line 3 cannot be more than 35 characters
+bc.business-registration-error.line_4.length = Address line 4 cannot be more than 35 characters
+bc.business-registration-error.postcode.length = The postcode cannot be more than 10 characters
+bc.business-registration-error.businessUniqueId.length = The overseas company registration number cannot be more than 60 characters
 bc.business-registration-error.utr.length = The Unique Taxpayer Reference cannot be more than {0} characters
-bc.business-registration-error.issuingInstitution.length = The institution that issued the overseas company registration number cannot be more than {0} characters
+bc.business-registration-error.issuingInstitution.length = The institution that issued the overseas company registration number cannot be more than 40 characters
 bc.business-registration-error.summaryHeader = There is a problem with this page
 bc.business-registration-error.non-uk = You cannot select United Kingdom when entering an overseas address
 
@@ -200,16 +197,11 @@ bc.business-registration-error.businessUniqueId = You must enter an overseas com
 
 ##### ERRORS
 
-bc.connector.error.service-unavailable = Service unavailable
 bc.connector.error.bad-request = Bad request or internal server error
-bc.connector.error.not-found = Not found
-bc.connector.error.registration-failed = Registration failed
-bc.connector.error.unknown-response = Unknown response status: {0}
-bc.connector.error.update-registration-failed = Update registration failed
+
 bc.subscription.error.not-found = No subscription details found
-bc.business-review.error.no-service = Service does not exist for : {0}. This should be in the conf file against 'services.{1}.serviceRedirectUrl'
-bc.agent-service.error.no-agent-enrolment-service-name = Agent enrolment service name does not exist for : {0}. This should be in the conf file against 'services.{1}.agentEnrolmentService'
-bc.agent-service.error.no-agent-reference = {0} - No unique authorisation number found
+bc.business-review.error.no-service = Service does not exist for : {0}. This should be in the conf file against ''services.{1}.serviceRedirectUrl''
+bc.agent-service.error.no-agent-enrolment-service-name = Agent enrolment service name does not exist for : {0}. This should be in the conf file against ''services.{1}.agentEnrolmentService''
 bc.agent-service.error.no-registration-details = No registration details found
 
 bc.business-registration-error.general.businessName = There is a problem with the business name
@@ -374,7 +366,6 @@ bc.non-uk-reg-error.general.businessAddress.line_3 = There is a problem with the
 bc.non-uk-reg-error.general.businessAddress.line_4 = There is a problem with the address line 4
 bc.non-uk-reg-error.general.businessAddress.country = There is a problem with the country field
 bc.non-uk-reg-error.general.businessAddress.postcode = There is a problem with the postal code
-bc.non-uk-reg.issuingCountry = Country of issue
 bc.non-uk-reg.country.select = please select one country
 bc.non-uk-reg-error.general.businessUniqueId = There is a problem with the overseas company registration number
 bc.non-uk-reg-error.general.issuingCountry = There is a problem with the country of issue
@@ -405,3 +396,11 @@ bc.details-not-found.utr-reason.text = Your UTR number is made up of 10 or 13 di
 bc.details-not-found.try-again = Try again
 
 bc.business-registration.error.other = EMAC allocate an enrolment to a group failed
+
+zero = 0
+one = 1
+two = 2
+three = 3
+four = 4
+true = true
+false = false

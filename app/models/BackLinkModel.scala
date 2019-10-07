@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package controllers.auth
+package models
 
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.libs.json.{Format, Json}
 
-class BusinessCustomerGovernmentGatewaySpec extends PlaySpec with OneServerPerSuite {
+case class BackLinkModel(backLink: Option[String])
 
-  val serviceName: String = "ATED"
-  
-  "BusinessCustomerGovernmentGateway" must {
-    
-    "have loginURL value overridden" in {
-      BusinessCustomerGovernmentGateway(serviceName).loginURL must be(ExternalUrls.loginURL)
-    }
-
-    "have continueURL value overridden" in {
-      BusinessCustomerGovernmentGateway(serviceName).continueURL must be(ExternalUrls.continueURL(serviceName))
-    }
-    
-  }
-  
+object BackLinkModel {
+  implicit val formats: Format[BackLinkModel] = Json.format[BackLinkModel]
 }

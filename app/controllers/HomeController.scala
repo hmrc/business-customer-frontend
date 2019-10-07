@@ -16,36 +16,58 @@
 
 package controllers
 
-import config.FrontendAuthConnector
+import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
+import controllers.auth.AuthActions
+import javax.inject.{Inject, Provider}
 import models.ReviewDetails
 import play.api.libs.json.{JsError, JsSuccess}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessMatchingService
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
-object HomeController extends HomeController {
-  val businessMatchService: BusinessMatchingService = BusinessMatchingService
-  val authConnector = FrontendAuthConnector
-  override val controllerId: String = "HomeController"
-  override val backLinkCacheConnector = BackLinkCacheConnector
-}
 
-trait HomeController extends BackLinkController {
+class HomeController @Inject()(val authConnector: AuthConnector,
+                               val backLinkCacheConnector: BackLinkCacheConnector,
+                               config: ApplicationConfig,
+                               businessMatchService: BusinessMatchingService,
+                               businessVerificationController: Provider[BusinessVerificationController],
+                               reviewDetailsController: ReviewDetailsController,
+                               mcc: MessagesControllerComponents)
+  extends FrontendController(mcc) with BackLinkController with AuthActions {
 
-  def businessMatchService: BusinessMatchingService
+  implicit val appConfig: ApplicationConfig = config
+  implicit val executionContext: ExecutionContext = mcc.executionContext
+  val controllerId: String = "HomeController"
 
-  def homePage(service: String, backLinkUrl: Option[String]) = AuthAction(service).async { implicit bcContext =>
-
-    businessMatchService.matchBusinessWithUTR(isAnAgent = bcContext.user.isAgent, service) match {
-      case Some(futureJsValue) =>
-        futureJsValue flatMap {
-          jsValue => jsValue.validate[ReviewDetails] match {
-            case success: JsSuccess[ReviewDetails] => RedirectWithBackLink(ReviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), backLinkUrl)
-            case failure: JsError => RedirectWithBackLink(BusinessVerificationController.controllerId, controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl)
+  def homePage(service: String, backLinkUrl: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+    authorisedFor(service) { implicit authContext =>
+      businessMatchService.matchBusinessWithUTR(isAnAgent = authContext.isAgent, service) match {
+        case Some(futureJsValue) =>
+          futureJsValue flatMap {
+            jsValue =>
+              jsValue.validate[ReviewDetails] match {
+                case _: JsSuccess[ReviewDetails] =>
+                  redirectWithBackLink(
+                    reviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), backLinkUrl
+                  )
+                case _: JsError =>
+                  redirectWithBackLink(
+                    businessVerificationController.get.controllerId,
+                    controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl
+                  )
+              }
           }
-        }
-      case None => RedirectWithBackLink(BusinessVerificationController.controllerId, controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl)
+        case None =>
+          redirectWithBackLink(
+            businessVerificationController.get.controllerId,
+            controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl
+          )
+      }
     }
   }
 

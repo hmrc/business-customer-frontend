@@ -17,34 +17,25 @@
 package services
 
 import connectors.{BusinessMatchingConnector, DataCacheConnector}
-import models._
-import play.api.Logger
+import javax.inject.Inject
+import models.{Individual, _}
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.SessionUtils
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
-object BusinessMatchingService extends BusinessMatchingService {
-  val businessMatchingConnector: BusinessMatchingConnector = BusinessMatchingConnector
-  val dataCacheConnector: DataCacheConnector = DataCacheConnector
-}
-
-trait BusinessMatchingService {
-
-  def businessMatchingConnector: BusinessMatchingConnector
-
-  def dataCacheConnector: DataCacheConnector
+class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessMatchingConnector,
+                                        val dataCacheConnector: DataCacheConnector) {
 
   def matchBusinessWithUTR(isAnAgent: Boolean, service: String)
-                          (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Option[Future[JsValue]] = {
+                          (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Option[Future[JsValue]] = {
     getUserUtrAndType map { userUtrAndType =>
       val (userUTR, userType) = userUtrAndType
       val trimmedUtr = userUTR.replaceAll(" ", "")
       val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
-        utr = trimmedUtr, requiresNameMatch = false, isAnAgent = isAnAgent, individual = None, organisation = None)
+        utr = trimmedUtr, isAnAgent = isAnAgent, individual = None, organisation = None)
       businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
         validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr))
       }
@@ -52,7 +43,7 @@ trait BusinessMatchingService {
   }
 
   def matchBusinessWithIndividualName(isAnAgent: Boolean, individual: Individual, saUTR: String, service: String)
-                                     (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[JsValue] = {
+                                     (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[JsValue] = {
 
     val trimmedUtr = saUTR.replaceAll(" ", "")
     val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
@@ -64,7 +55,7 @@ trait BusinessMatchingService {
   }
 
   def matchBusinessWithOrganisationName(isAnAgent: Boolean, organisation: Organisation, utr: String, service: String)
-                                       (implicit bcContext: BusinessCustomerContext, hc: HeaderCarrier): Future[JsValue] = {
+                                       (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[JsValue] = {
     val trimmedUtr = utr.replaceAll(" ", "")
     val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
       utr = trimmedUtr, requiresNameMatch = true, isAnAgent = isAnAgent, individual = None, organisation = Some(organisation))
@@ -74,10 +65,10 @@ trait BusinessMatchingService {
     }
   }
 
-  private def getUserUtrAndType(implicit bcContext: BusinessCustomerContext): Option[(String, String)] = {
-    (bcContext.user.authContext.principal.accounts.sa, bcContext.user.authContext.principal.accounts.ct) match {
-      case (Some(sa), None) => Some((sa.utr.utr.toString, "sa"))
-      case (None, Some(ct)) => Some((ct.utr.utr.toString, "org"))
+  private def getUserUtrAndType(implicit authContext: StandardAuthRetrievals): Option[(String, String)] = {
+    (authContext.saUtr, authContext.ctUtr) match {
+      case (Some(sa), None) => Some(sa -> "sa")
+      case (None, Some(ct)) => Some(ct -> "org")
       case _ => None
     }
   }
@@ -115,8 +106,9 @@ trait BusinessMatchingService {
       lastName = Some(individual.lastName),
       utr = utr
     )
-    dataCacheConnector.saveReviewDetails(reviewDetails) flatMap { reviewDetailsReturned =>
-      Future.successful(Json.toJson(reviewDetails))
+
+    dataCacheConnector.saveReviewDetails(reviewDetails) map { _ =>
+      Json.toJson(reviewDetails)
     }
   }
 
@@ -129,7 +121,8 @@ trait BusinessMatchingService {
     val address = Address(line_1 = addressReturned.addressLine1, line_2 = addressReturned.addressLine2,
       line_3 = addressReturned.addressLine3, line_4 = addressReturned.addressLine4,
       postcode = addressReturned.postalCode, country = addressReturned.countryCode)
-    val reviewDetails = ReviewDetails(businessName = businessName,
+    val reviewDetails = ReviewDetails(
+      businessName = businessName,
       businessType = businessType,
       isAGroup = isAGroup.getOrElse(false),
       directMatch = directMatch,
@@ -137,9 +130,11 @@ trait BusinessMatchingService {
       sapNumber = getSapNumber(dataReturned),
       safeId = getSafeId(dataReturned),
       agentReferenceNumber = getAgentRefNum(dataReturned),
-      utr = utr)
-    dataCacheConnector.saveReviewDetails(reviewDetails) flatMap { reviewDetailsReturned =>
-      Future.successful(Json.toJson(reviewDetails))
+      utr = utr
+    )
+
+    dataCacheConnector.saveReviewDetails(reviewDetails) map { _ =>
+      Json.toJson(reviewDetails)
     }
   }
 

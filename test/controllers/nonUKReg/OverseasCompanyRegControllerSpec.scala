@@ -18,23 +18,23 @@ package controllers.nonUKReg
 
 import java.util.UUID
 
+import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import controllers.ReviewDetailsController
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.Mode.Mode
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, Result}
+import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Configuration, Play}
 import services.BusinessRegistrationService
+import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
 
@@ -48,24 +48,26 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
   val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
 
-  object TestController extends OverseasCompanyRegController {
-    override val authConnector = mockAuthConnector
-    override val businessRegistrationService = mockBusinessRegistrationService
-    override val businessRegistrationCache = mockBusinessRegistrationCache
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+
+  val mockReviewDetailsController = mock[ReviewDetailsController]
+
+  object TestController extends OverseasCompanyRegController(
+    mockAuthConnector,
+    mockBackLinkCache,
+    appConfig,
+    mockBusinessRegistrationService,
+    mockBusinessRegistrationCache,
+    mockReviewDetailsController,
+    mcc
+  ) {
     override val controllerId = "test"
-    override val backLinkCacheConnector = mockBackLinkCache
-    override protected def mode: Mode = Play.current.mode
-    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   val serviceName: String = "ATED"
 
   "OverseasCompanyRegController" must {
-
-    "respond to /view" in {
-      val result = route(FakeRequest(GET, s"/business-customer/register/non-uk-client/overseas-company/$serviceName/true")).get
-      status(result) must not be NOT_FOUND
-    }
 
     "unauthorised users" must {
       "respond with a redirect for /view & be redirected to the unauthorised page" in {
@@ -90,7 +92,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
 
       "redirect url is invalid format" in {
         implicit val hc: HeaderCarrier = HeaderCarrier()
-        viewWithAuthorisedUser(serviceName, Some(ContinueUrl("http://website.com"))) { result =>
+        viewWithAuthorisedUser(serviceName, Some("http://website.com")) { result =>
           status(result) must be(BAD_REQUEST)
         }
       }
@@ -185,7 +187,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
         "If registration details entered are valid, continue button must redirect with to next page if no redirectUrl" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
-          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(businessReg),overseasDetails, reviewDetails, Some(ContinueUrl("/api/anywhere"))) { result =>
+          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(businessReg),overseasDetails, reviewDetails, Some("/api/anywhere")) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result) must be(Some("/api/anywhere"))
           }
@@ -194,7 +196,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
         "redirect url is invalid format" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
-          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(businessReg),overseasDetails, reviewDetails, Some(ContinueUrl("http://website.com"))) { result =>
+          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(businessReg),overseasDetails, reviewDetails, Some("http://website.com")) { result =>
             status(result) must be(BAD_REQUEST)
           }
         }
@@ -254,7 +256,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
   }
 
 
-  def viewWithAuthorisedUser(service: String, redirectUrl: Option[ContinueUrl] = None)(test: Future[Result] => Any) {
+  def viewWithAuthorisedUser(service: String, redirectUrl: Option[String] = None)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -277,7 +279,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
                                     busRegCache : Option[BusinessRegistration] = None,
                                     overseasSave : OverseasCompany,
                                     reviewDetails : ReviewDetails,
-                                    redirectUrl: Option[ContinueUrl] = None)(test: Future[Result] => Any) {
+                                    redirectUrl: Option[String] = None)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 

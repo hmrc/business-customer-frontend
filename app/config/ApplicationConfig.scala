@@ -16,54 +16,73 @@
 
 package config
 
-import play.api.Mode.Mode
-import play.api.Play._
-import play.api.{Configuration, Play}
-import uk.gov.hmrc.play.config.ServicesConfig
+import java.io.File
 
-trait ApplicationConfig {
+import javax.inject.{Inject, Named, Singleton}
+import play.api.{Configuration, Environment}
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 
-  val defaultBetaFeedbackUrl: String
-  val analyticsToken: Option[String]
-  val analyticsHost: String
-  val reportAProblemPartialUrl: String
-  val reportAProblemNonJSUrl: String
-  val defaultTimeoutSeconds: Int
-  val timeoutCountdown: Int
-  val logoutUrl: String
+import scala.util.Try
 
-  def serviceSignOutUrl(service: String): String
-  def validateNonUkClientPostCode(service: String): Boolean
-}
+@Singleton
+class ApplicationConfig @Inject()(val conf: ServicesConfig,
+                                  val runMode: RunMode,
+                                  val oldConfig: Configuration,
+                                  val environment: Environment,
+                                  @Named("appName") val appName: String) extends BCUtils {
 
-object ApplicationConfig extends ApplicationConfig with ServicesConfig {
+  private val contactHost = conf.getConfString("contact-frontend.host", "")
 
-  private def loadConfig(key: String) = configuration.getString(key).getOrElse(throw new Exception(s"Missing key: $key"))
-
-  private val contactHost = configuration.getString("contact-frontend.host").getOrElse("")
-
-  val serviceList: Seq[String] =  configuration.getStringSeq(s"microservice.services.names").getOrElse(
+  val serviceList: Seq[String] =  oldConfig.getStringSeq("microservice.services.names").getOrElse(
     throw new Exception("No services available in application configuration"))
 
   val contactFormServiceIdentifier = "BUSINESS-CUSTOMER"
 
-  override lazy val defaultBetaFeedbackUrl = s"$contactHost/contact/beta-feedback"
-  override lazy val analyticsToken: Option[String] = configuration.getString(s"google-analytics.token")
-  override lazy val analyticsHost: String = configuration.getString(s"google-analytics.host").getOrElse("auto")
-  override lazy val reportAProblemPartialUrl = s"$contactHost/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
-  override lazy val reportAProblemNonJSUrl = s"$contactHost/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
-  override lazy val defaultTimeoutSeconds: Int = loadConfig("defaultTimeoutSeconds").toInt
-  override lazy val timeoutCountdown: Int = loadConfig("timeoutCountdown").toInt
-  override lazy val logoutUrl = s"""${configuration.getString(s"logout.url").getOrElse("/gg/sign-out")}"""
+  lazy val defaultBetaFeedbackUrl = s"$contactHost/contact/beta-feedback"
+  lazy val analyticsToken: Option[String] = Try(conf.getString("google-analytics.token")).toOption
+  lazy val analyticsHost: String = conf.getConfString("google-analytics.host", "auto")
+  lazy val reportAProblemPartialUrl = s"$contactHost/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
+  lazy val reportAProblemNonJSUrl = s"$contactHost/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
+  lazy val defaultTimeoutSeconds: Int = conf.getInt("defaultTimeoutSeconds").toInt
+  lazy val timeoutCountdown: Int = conf.getInt("timeoutCountdown").toInt
+  lazy val logoutUrl: String = conf.getString("logout.url")
+  lazy val businessCustomer: String = conf.baseUrl("business-customer")
+  lazy val businessMatching: String = conf.baseUrl("business-matching")
+  lazy val taxEnrolments: String = conf.baseUrl("tax-enrolments")
+  lazy val companyAuthHost: String = conf.getString("microservice.services.auth.company-auth.host")
+  lazy val addClientEmailPath: String = conf.getString(s"microservice.services.agent-client-mandate-frontend.select-service")
 
-  override def serviceSignOutUrl(service: String): String = {
-    if (service != "") configuration.getString(s"delegated-service.${service.toLowerCase}.sign-out-url").getOrElse(logoutUrl) else logoutUrl
+  lazy val loginCallback: String = conf.getString("microservice.services.auth.login-callback.url")
+  lazy val loginPath: String = conf.getString("microservice.services.auth.login-path")
+  lazy val loginURL = s"$companyAuthHost/gg/$loginPath"
+  lazy val signOut = s"$companyAuthHost/gg/sign-out"
+
+  lazy val baseUri: String = conf.baseUrl("cachable.session-cache")
+  lazy val defaultSource: String = appName
+  lazy val domain: String = conf.getConfString(
+    "cachable.session-cache.domain", throw new Exception(s"Could not find config 'cachable.session-cache.domain'")
+  )
+
+  def serviceSignOutUrl(service: String): String = conf.getConfString(s"delegated-service.${service.toLowerCase}.sign-out-url", logoutUrl)
+  def continueURL(serviceName: String) = s"$loginCallback/$serviceName"
+  def signIn(serviceName: String) = s"$companyAuthHost/gg/$loginPath?continue=${continueURL(serviceName)}"
+
+  def agentConfirmationPath(service:String): String = {
+    conf.getConfString(s"${service.toLowerCase}.agentConfirmationUrl", "/ated-subscription/agent-confirmation")
+  }
+  
+  def validateNonUkCode(service: String): Boolean = {
+      conf.getConfBool(s"${service.toLowerCase.trim}.validateNonUkClientPostCode", defBool = false)
   }
 
-  override def validateNonUkClientPostCode(service: String) = {
-    configuration.getBoolean(s"microservice.services.${service.toLowerCase.trim}.validateNonUkClientPostCode").getOrElse(false)
-  }
+  def serviceWelcomePath(service: String): String = conf.getString(s"microservice.services.${service.toLowerCase}.serviceStartUrl")
+  def serviceAccountPath(service: String): String = conf.getString(s"microservice.services.${service.toLowerCase}.accountSummaryUrl")
+  def serviceRedirectUrl(service: String): String = conf.getString(s"microservice.services.${service.toLowerCase}.serviceRedirectUrl")
 
-  override protected def mode: Mode = Play.current.mode
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
+  private def env: String = runMode.env
+  private def isRelativeUrl(url: String): Boolean = url.matches("^[/][^/].*")
+
+  def isRelativeOrDev(url: String): Boolean = isRelativeUrl(url) || env == "Dev"
+
+  def getFile(path: String): File = environment.getFile(path)
 }

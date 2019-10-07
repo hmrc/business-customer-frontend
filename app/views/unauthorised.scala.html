@@ -14,12 +14,13 @@
  * limitations under the License.
  *@
 
-@()(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import config.ApplicationConfig
 
-@import uk.gov.hmrc.play.views.html._
+@()(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@bcMain(title = Messages("bc.unauthorised.title"), supportLinkEnabled = false) {
+@bcMain(title = messages("bc.unauthorised.title"), supportLinkEnabled = false) {
 
-  <h1>@Messages("bc.unauthorised.heading")</h1>
+  <h1>@messages("bc.unauthorised.heading")</h1>
   
 }

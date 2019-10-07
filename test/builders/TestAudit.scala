@@ -18,12 +18,12 @@ package builders
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import config.BusinessCustomerFrontendAuditConnector
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit._
 import uk.gov.hmrc.play.audit.model.{Audit, AuditAsMagnet, DataEvent}
-import uk.gov.hmrc.http.HeaderCarrier
 
-class TestAudit() extends Audit("test", BusinessCustomerFrontendAuditConnector) {
+class TestAudit(auditConnector: AuditConnector) extends Audit("test", auditConnector) {
   var capturedTxName: String = ""
   var capturedInputs: Map[String, String] = Map.empty
   private val dataEvents = new ConcurrentLinkedQueue[DataEvent]

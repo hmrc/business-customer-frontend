@@ -19,38 +19,51 @@ package controllers.nonUKReg
 import java.util.UUID
 
 import builders.SessionBuilder
-import config.FrontendAuthConnector
+import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import controllers.BusinessVerificationController
+import javax.inject.Provider
 import models.PaySAQuestion
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsJson, Result}
+import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.SessionKeys
 
 
 class PaySAQuestionControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
   val mockAuthConnector = mock[AuthConnector]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
+  val mockBusinessRegController = mock[BusinessRegController]
+  val mockBusinessVerificationControllerProv = mock[Provider[BusinessVerificationController]]
+  val mockBusinessVerificationController = mock[BusinessVerificationController]
   val service = "amls"
   val invalidService = "scooby-doo"
   val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
 
-  object TestPaySaQuestionController extends PaySAQuestionController {
-    override val authConnector = mockAuthConnector
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+
+  object TestPaySaQuestionController extends PaySAQuestionController(
+    mockAuthConnector,
+    mockBackLinkCache,
+    appConfig,
+    mockBusinessRegController,
+    mcc,
+    mockBusinessVerificationControllerProv,
+    mockBusinessRegistrationCache
+  ) {
     override val controllerId = "test"
-    override val backLinkCacheConnector = mockBackLinkCache
-    override val businessRegistrationCache = mockBusinessRegistrationCache
   }
 
   override def beforeEach = {
@@ -59,10 +72,6 @@ class PaySAQuestionControllerSpec extends PlaySpec with OneServerPerSuite with M
   }
 
   "PaySAQuestionController" must {
-
-    "use correct DelegationConnector" in {
-      PaySAQuestionController.authConnector must be(FrontendAuthConnector)
-    }
 
     "view" must {
 
@@ -121,6 +130,11 @@ class PaySAQuestionControllerSpec extends PlaySpec with OneServerPerSuite with M
       }
       "if user select 'yes', redirect it to business verification page" in {
         val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paySA": "true"}"""))
+        when(mockBusinessVerificationControllerProv.get())
+            .thenReturn(mockBusinessVerificationController)
+        when(mockBusinessVerificationController.controllerId)
+            .thenReturn("test")
+        when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
         continueWithAuthorisedClient(fakeRequest, service) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some(s"/business-customer/business-verification/$service/businessForm/NRL"))
@@ -188,9 +202,8 @@ class PaySAQuestionControllerSpec extends PlaySpec with OneServerPerSuite with M
 
 
   def continueWithAuthorisedClient(fakeRequest: FakeRequest[AnyContentAsJson], serviceName: String)(test: Future[Result] => Any) = {
-    val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
-    implicit val user = builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
+    builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
     val result = TestPaySaQuestionController.continue(serviceName).apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
     test(result)
