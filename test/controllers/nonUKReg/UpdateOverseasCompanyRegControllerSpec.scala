@@ -27,7 +27,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
@@ -238,7 +238,9 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
     val result = TestNonUKController.viewForUpdate(serviceName, false, None).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -252,7 +254,9 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
     val result = TestNonUKController.viewForUpdate(serviceName, false, redirectUrl).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -272,7 +276,9 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
     val result = TestNonUKController.viewForUpdate(serviceName, false, None).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -288,7 +294,9 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
     val result = TestNonUKController.update(service, true, redirectUrl).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -320,7 +328,9 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
     val result = TestNonUKController.update(service, true, redirectUrl).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -334,7 +344,9 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
     val result = TestNonUKController.update(service, true, redirectUrl).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
