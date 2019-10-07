@@ -1,29 +1,30 @@
 import sbt._
+
 object FrontendBuild extends Build with MicroService {
-  val appName = "business-customer-frontend"
+
   override lazy val appDependencies: Seq[ModuleID] = appSpecificDependencies.all
-  private val frontendBootstrapVersion = "12.9.0"
-  private val httpCachingClientVersion = "8.3.0"
-  private val playPartialsVersion = "6.5.0"
-  private val domainVersion = "5.3.0"
-  private val hmrcTestVersion = "3.9.0-play-25"
-  private val scalaTestPlusVersion = "2.0.1"
+
+  val appName = "business-customer-frontend"
+
   object appSpecificDependencies {
     import play.sbt.PlayImport.ws
-    val compile = Seq(
+    val compile: Seq[ModuleID] = Seq(
       ws,
-      "uk.gov.hmrc" %% "frontend-bootstrap" % frontendBootstrapVersion,
-      "uk.gov.hmrc" %% "domain" % domainVersion,
-      "uk.gov.hmrc" %% "play-partials" % playPartialsVersion,
-      "uk.gov.hmrc" %% "http-caching-client" % httpCachingClientVersion,
-      "uk.gov.hmrc" %% "auth-client" % "2.4.0"
+      "uk.gov.hmrc" %% "bootstrap-play-26" % "0.46.0",
+      "uk.gov.hmrc" %% "domain" % "5.6.0-play-26",
+      "uk.gov.hmrc" %% "play-partials" % "6.9.0-play-26",
+      "uk.gov.hmrc" %% "play-ui" % "7.31.0-play-26",
+      "uk.gov.hmrc" %% "http-caching-client" % "8.5.0-play-26",
+      "uk.gov.hmrc" %% "auth-client" % "2.27.0-play-26",
+      "com.typesafe.play" %% "play-json-joda" % "2.6.13",
+      "uk.gov.hmrc" %% "govuk-template" % "5.38.0-play-26"
     )
-    val test = Seq(
-      "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusVersion % "test",
+    val test: Seq[ModuleID] = Seq(
+      "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test",
       "org.jsoup" % "jsoup" % "1.11.3" % "test",
       "org.mockito" % "mockito-all" % "1.10.19" % "test",
-      "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % "test"
+      "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % "test"
     )
-    val all = compile ++ test
+    val all: Seq[ModuleID] = compile ++ test
   }
 }

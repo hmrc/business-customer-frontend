@@ -16,143 +16,141 @@
 
 package controllers.nonUKReg
 
-import config.{ApplicationConfig, FrontendAuthConnector}
-import controllers.BaseController
+import config.ApplicationConfig
+import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
-import models.{BusinessCustomerContext, BusinessRegistrationDisplayDetails}
-import play.api.Mode.Mode
-import play.api.Play.current
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
-import play.api.{Configuration, Logger, Play}
+import javax.inject.Inject
+import models.{BusinessRegistrationDisplayDetails, StandardAuthRetrievals}
+import play.api.Logger
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
-import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.config.RunMode
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import utils.BCUtils
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-object UpdateNonUKBusinessRegistrationController extends UpdateNonUKBusinessRegistrationController {
-  // $COVERAGE-OFF$
-  override val authConnector: AuthConnector = FrontendAuthConnector
-  override val businessRegistrationService = BusinessRegistrationService
-  // $COVERAGE-ON$
-  override protected def mode: Mode = Play.current.mode
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-}
+class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: AuthConnector,
+                                                          config: ApplicationConfig,
+                                                          businessRegistrationService: BusinessRegistrationService,
+                                                          mcc: MessagesControllerComponents) extends FrontendController(mcc) with AuthActions {
+  implicit val appConfig: ApplicationConfig = config
+  implicit val executionContext: ExecutionContext = mcc.executionContext
 
-trait UpdateNonUKBusinessRegistrationController extends BaseController with RunMode  {
-
-  def businessRegistrationService: BusinessRegistrationService
-
-  def editAgent(service: String) = AuthAction(service).async { implicit bcContext =>
-    businessRegistrationService.getDetails.map{
-      businessDetails =>
-        businessDetails match {
-          case Some(detailsTuple) =>
-            Ok(views.html.nonUkReg.update_business_registration(businessRegistrationForm.fill(detailsTuple._2),
-              service,
-              displayDetails(service, false),
-              None,
-              false,
-              getBackLink(service, None),
-              bcContext.user.isAgent))
-          case _ =>
-            Logger.warn(s"[UpdateNonUKBusinessRegistrationController][editAgent] - No registration details found to edit")
-            throw new RuntimeException(Messages("bc.agent-service.error.no-registration-details"))
-        }
+  def editAgent(service: String): Action[AnyContent] = Action.async { implicit request =>
+    authorisedFor(service) { implicit authContext =>
+      businessRegistrationService.getDetails.map {
+        case Some(detailsTuple) =>
+          Ok(views.html.nonUkReg.update_business_registration(
+            businessRegistrationForm.fill(detailsTuple._2),
+            service,
+            displayDetails(service, isRegisterClient = false),
+            None,
+            isRegisterClient = false,
+            getBackLink(service, None),
+            authContext.isAgent))
+        case _ =>
+          Logger.warn(s"[UpdateNonUKBusinessRegistrationController][editAgent] - No registration details found to edit")
+          throw new RuntimeException("No registration details found")
+      }
     }
   }
 
-  def edit(service: String, redirectUrl : Option[ContinueUrl]) = AuthAction(service).async { implicit bcContext =>
-    redirectUrl match {
-      case Some(x) if !x.isRelativeOrDev(ApplicationConfig.env) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
-      case _ =>
-        businessRegistrationService.getDetails.map {
-          businessDetails =>
-            businessDetails match {
-              case Some(detailsTuple) =>
-                Ok(views.html.nonUkReg.update_business_registration(businessRegistrationForm.fill(detailsTuple._2),
-                  service,
-                  displayDetails(service, true),
-                  redirectUrl,
-                  true,
-                  getBackLink(service, redirectUrl),
-                  bcContext.user.isAgent))
-              case _ =>
-                Logger.warn(s"[UpdateNonUKBusinessRegistrationController][edit] - No registration details found to edit")
-                throw new RuntimeException(Messages("bc.agent-service.error.no-registration-details"))
-            }
-        }
-    }
-  }
-
-  def update(service: String, redirectUrl : Option[ContinueUrl], isRegisterClient: Boolean) = AuthAction(service).async { implicit bcContext =>
-    redirectUrl match {
-      case Some(x) if !x.isRelativeOrDev(ApplicationConfig.env) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
-      case _ =>
-        BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, bcContext.user.isAgent).fold(
-          formWithErrors => {
-            Future.successful(BadRequest(views.html.nonUkReg.update_business_registration(formWithErrors,
-              service,
-              displayDetails(service, isRegisterClient),
-              redirectUrl,
-              isRegisterClient,
-              getBackLink(service, redirectUrl),
-              bcContext.user.isAgent)))
-          },
-          registerData => {
-            businessRegistrationService.getDetails.flatMap {
-              businessDetails =>
-                businessDetails match {
-                  case Some(detailsTuple) =>
-                    businessRegistrationService.updateRegisterBusiness(registerData, detailsTuple._3, isGroup = false, isNonUKClientRegisteredByAgent = true, service, isBusinessDetailsEditable = true).map { response =>
-                      redirectUrl match {
-                        case Some(serviceUrl) => Redirect(serviceUrl.url)
-                        case _ => Redirect(controllers.routes.ReviewDetailsController.businessDetails(service))
-                      }
-                    }
-                  case _ =>
-                    Logger.warn(s"[UpdateNonUKBusinessRegistrationController][update] - No registration details found to edit")
-                    throw new RuntimeException(Messages("bc.agent-service.error.no-registration-details"))
-                }
-            }
+  def edit(service: String, redirectUrl: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+    authorisedFor(service) { implicit authContext =>
+      redirectUrl match {
+        case Some(x) if !appConfig.isRelativeOrDev(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
+        case _ =>
+          businessRegistrationService.getDetails.map {
+            case Some(detailsTuple) =>
+              Ok(views.html.nonUkReg.update_business_registration(
+                businessRegistrationForm.fill(detailsTuple._2),
+                 service,
+                 displayDetails(service, isRegisterClient = true),
+                 redirectUrl,
+                isRegisterClient = true,
+                 getBackLink(service, redirectUrl),
+                 authContext.isAgent))
+            case _ =>
+              Logger.warn(s"[UpdateNonUKBusinessRegistrationController][edit] - No registration details found to edit")
+              throw new RuntimeException("No registration details found")
           }
-        )
+      }
     }
   }
 
-  private def getBackLink(service: String, redirectUrl: Option[ContinueUrl]) = {
+  def update(service: String, redirectUrl: Option[String], isRegisterClient: Boolean): Action[AnyContent] = Action.async { implicit request =>
+    authorisedFor(service) { implicit authContext =>
+      redirectUrl match {
+        case Some(x) if !appConfig.isRelativeOrDev(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
+        case _ =>
+          BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, authContext.isAgent, appConfig).fold(
+            formWithErrors => {
+              Future.successful(BadRequest(views.html.nonUkReg.update_business_registration(formWithErrors,
+                service,
+                displayDetails(service, isRegisterClient),
+                redirectUrl,
+                isRegisterClient,
+                getBackLink(service, redirectUrl),
+                authContext.isAgent)))
+            },
+            registerData => {
+              businessRegistrationService.getDetails.flatMap {
+                case Some(detailsTuple) =>
+                  businessRegistrationService.updateRegisterBusiness(
+                    registerData,
+                    detailsTuple._3,
+                    isGroup = false,
+                    isNonUKClientRegisteredByAgent = true,
+                    service,
+                    isBusinessDetailsEditable = true
+                  ).map { _ =>
+                    redirectUrl match {
+                      case Some(url) => Redirect(url)
+                      case _ => Redirect(controllers.routes.ReviewDetailsController.businessDetails(service))
+                    }
+                  }
+                case _ =>
+                  Logger.warn(s"[UpdateNonUKBusinessRegistrationController][update] - No registration details found to edit")
+                  throw new RuntimeException("No registration details found")
+              }
+            }
+          )
+      }
+    }
+  }
+
+  private def getBackLink(service: String, redirectUrl: Option[String]): Some[String] = {
     redirectUrl match {
-      case Some(x) => Some(x.url)
+      case Some(url) => Some(url)
       case None => Some(controllers.routes.ReviewDetailsController.businessDetails(service).url)
     }
   }
 
-  private def displayDetails(service: String, isRegisterClient: Boolean)(implicit bcContext: BusinessCustomerContext) = {
-    if (bcContext.user.isAgent){
-      if (isRegisterClient) {
-        BusinessRegistrationDisplayDetails("NUK",
-          Messages("bc.non-uk-reg.header"),
-          Messages("bc.non-uk-reg.sub-header"),
-          Some(Messages("bc.non-uk-reg.lede.update-text")),
-          BCUtils.getIsoCodeTupleList)
-      } else {
-          BusinessRegistrationDisplayDetails("NUK",
-            Messages("bc.business-registration.agent.non-uk.header"),
-            Messages("bc.business-registration.text.agent", service),
-            None,
-            BCUtils.getIsoCodeTupleList)
-      }
-    }
-    else {
-      BusinessRegistrationDisplayDetails("NUK",
-        Messages("bc.business-registration.user.non-uk.header"),
-        Messages("bc.business-registration.text.client", service),
-        Some(Messages("bc.business-registration.lede.update-text")),
-        BCUtils.getIsoCodeTupleList)
+  private def displayDetails(service: String, isRegisterClient: Boolean)
+                            (implicit authContext: StandardAuthRetrievals): BusinessRegistrationDisplayDetails = {
+    (authContext.isAgent, isRegisterClient) match {
+      case (true, true)  =>
+        BusinessRegistrationDisplayDetails(
+          "NUK",
+          "bc.non-uk-reg.header",
+          "bc.non-uk-reg.sub-header",
+          Some("bc.non-uk-reg.lede.update-text"),
+          appConfig.getIsoCodeTupleList)
+      case (true, false) =>
+        BusinessRegistrationDisplayDetails(
+          "NUK",
+          "bc.business-registration.agent.non-uk.header",
+          "bc.business-registration.text.agent",
+          None,
+          appConfig.getIsoCodeTupleList)
+      case _ =>
+        BusinessRegistrationDisplayDetails(
+          "NUK",
+          "bc.business-registration.user.non-uk.header",
+          "bc.business-registration.text.client",
+          Some("bc.business-registration.lede.update-text"),
+          appConfig.getIsoCodeTupleList)
     }
   }
 

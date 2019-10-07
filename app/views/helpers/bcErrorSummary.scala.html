@@ -14,14 +14,14 @@
  * limitations under the License.
  *@
 
-@(form: Form[_], errorMessageFieldPrefix: String, formErrorMessage: Option[String] = None)(implicit lang: Lang, messages: Messages)
+@(form: Form[_], errorMessageFieldPrefix: String, formErrorMessage: Option[String] = None)(implicit messages: Messages)
 
-<script type="text/javascript" src='@controllers.routes.AssetsController.at("javascript/error-summary.js")'></script>
+<script type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/error-summary.js")'></script>
 
 @if(form.hasGlobalErrors || form.hasErrors) {
 
   <div id="errors" tabindex="-1" role="group" aria-labelledby="form-error-heading" class="validation-summary">
-    <h1 class="heading-medium" id="form-error-heading">@Messages("bc.business-verification-error.summaryHeader")</h1>
+    <h1 class="heading-medium" id="form-error-heading">@messages("bc.business-verification-error.summaryHeader")</h1>
     <ul class="error-summary-list">
       @form.errors.map { error =>
         @defining(
@@ -38,7 +38,7 @@
         )  { anchor:String =>
              <li class="validation-message" role="tooltip" data-journey="search-page:error:@error.key" id='@anchor.replaceAll("""[\.\[\]]""", "-")-error'>
                <a href="#@anchor" class="error-list" data-focuses="@error.key">
-                 @Messages(s"$errorMessageFieldPrefix.$anchor")
+                 @messages(s"$errorMessageFieldPrefix.$anchor")
                </a>
              </li>
            }
