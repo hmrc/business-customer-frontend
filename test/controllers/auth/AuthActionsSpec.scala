@@ -28,6 +28,7 @@ import play.api.test.{DefaultAwaitTimeout, FakeRequest, FutureAwaits}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, Enrolments, MissingBearerToken, NoActiveSession, UnsupportedAffinityGroup}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.logging.Authorization
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -63,7 +64,7 @@ class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerS
       Some("groupId")
     )
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization("fake")))
   implicit val fq: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   implicit val messages: Messages = mock[Messages]
 

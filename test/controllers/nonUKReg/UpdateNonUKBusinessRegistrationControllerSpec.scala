@@ -25,9 +25,10 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsEmpty, AnyContentAsJson, Headers, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
@@ -37,15 +38,15 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import scala.concurrent.Future
 
 
-class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
-  val request = FakeRequest()
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val service = "ATED"
-  val mockAuthConnector = mock[AuthConnector]
-  val mockBusinessRegistrationService = mock[BusinessRegistrationService]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
 
-  implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   object TestNonUKController extends UpdateNonUKBusinessRegistrationController(
     mockAuthConnector,
@@ -363,7 +364,10 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     val result = TestNonUKController.edit(serviceName, None).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
+
 
     test(result)
   }
@@ -377,7 +381,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     val result = TestNonUKController.edit(serviceName, redirectUrl).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -399,7 +405,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     val result = TestNonUKController.edit(serviceName, None).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -413,7 +421,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     val result = TestNonUKController.editAgent(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -435,7 +445,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     val result = TestNonUKController.editAgent(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -449,7 +461,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     val result = TestNonUKController.update(service, redirectUrl, true).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -481,7 +495,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     val result = TestNonUKController.update(service, redirectUrl, true).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -513,7 +529,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     val result = TestNonUKController.update(service, redirectUrl, true).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }
@@ -527,7 +545,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with OneSer
     val result = TestNonUKController.update(service, redirectUrl, true).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
 
     test(result)
   }

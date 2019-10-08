@@ -27,9 +27,10 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -38,18 +39,18 @@ import uk.gov.hmrc.http.SessionKeys
 import scala.concurrent.Future
 
 
-class NRLQuestionControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
-  val mockAuthConnector = mock[AuthConnector]
-  val mockBackLinkCache = mock[BackLinkCacheConnector]
-  val mockPaySAController = mock[PaySAQuestionController]
-  val mockBusRegController = mock[BusinessRegController]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockPaySAController: PaySAQuestionController = mock[PaySAQuestionController]
+  val mockBusRegController: BusinessRegController = mock[BusinessRegController]
   val service = "amls"
   val invalidService = "scooby-doo"
-  val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
+  val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   object TestNRLQuestionController extends NRLQuestionController(
     mockAuthConnector,
@@ -63,7 +64,7 @@ class NRLQuestionControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     override val controllerId = "test"
   }
 
-  override def beforeEach = {
+  override def beforeEach: Unit = {
     reset(mockAuthConnector)
     reset(mockBackLinkCache)
   }
@@ -151,7 +152,9 @@ class NRLQuestionControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestNRLQuestionController.view(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
+
     test(result)
   }
 
@@ -167,7 +170,9 @@ class NRLQuestionControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestNRLQuestionController.view(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
+
     test(result)
   }
 
@@ -185,7 +190,9 @@ class NRLQuestionControllerSpec extends PlaySpec with OneServerPerSuite with Moc
     val result = TestNRLQuestionController.view(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
+
     test(result)
   }
 

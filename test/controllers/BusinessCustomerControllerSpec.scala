@@ -27,7 +27,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Headers, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -63,6 +63,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
   }
 
   "BusinessCustomerController" must {

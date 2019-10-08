@@ -26,9 +26,10 @@ import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsEmpty, AnyContentAsJson, Headers, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
@@ -39,19 +40,19 @@ import uk.gov.hmrc.play.binders.ContinueUrl
 import scala.concurrent.Future
 
 
-class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
+class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar {
 
-  val request = FakeRequest()
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val service = "ATED"
-  val mockAuthConnector = mock[AuthConnector]
-  val mockBusinessRegistrationService = mock[BusinessRegistrationService]
-  val mockBusinessRegistrationCache = mock[BusinessRegCacheConnector]
-  val mockBackLinkCache = mock[BackLinkCacheConnector]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
+  val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
-  val mockReviewDetailsController = mock[ReviewDetailsController]
+  val mockReviewDetailsController: ReviewDetailsController = mock[ReviewDetailsController]
 
   object TestController extends OverseasCompanyRegController(
     mockAuthConnector,
@@ -214,7 +215,8 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
     val result = TestController.view(serviceName, true).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -232,7 +234,8 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
     val result = TestController.view(service, true).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -250,7 +253,8 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
     val result = TestController.view(service, true).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -269,7 +273,8 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
     val result = TestController.view(service, true, redirectUrl).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
@@ -297,7 +302,8 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite w
     val result = TestController.register(service, true, redirectUrl).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId))
+      SessionKeys.userId -> userId)
+      .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
