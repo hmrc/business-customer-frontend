@@ -65,7 +65,7 @@ trait AuthActions extends AuthorisedFunctions {
       Future.successful(Results.NotFound)
     } else {
       authorised((AffinityGroup.Organisation or AffinityGroup.Agent or Enrolment("IR-SA")) and ConfidenceLevel.L50)
-        .retrieve(authorisedEnrolments and affinityGroup and credentials and groupIdentifier) {
+        .retrieve(allEnrolments and affinityGroup and credentials and groupIdentifier) {
           case Enrolments(enrolments) ~ affGroup ~ creds ~ groupId => body(StandardAuthRetrievals(enrolments, affGroup, creds, groupId))
         }(newHC, ec) recover recoverAuthorisedCalls(serviceName)
     }

@@ -56,7 +56,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
             }
           )
         case _ =>
-          Logger.warn(s"[ReviewDetailsController][businessDetails] - No Service details found in DataCache for")
+          Logger.warn(s"[ReviewDetailsController][businessDetails] - No Service details found in DataCache for $serviceName")
           throw new RuntimeException("We could not find your details. Check and try again.")
       }
     }
