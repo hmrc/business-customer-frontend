@@ -24,7 +24,7 @@ import com.codahale.metrics.Timer
 import config.ApplicationConfig
 import metrics.MetricsService
 import models._
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
@@ -76,11 +76,11 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with OneServerPerSuite with Mo
 
     "enrol user" must {
       "works for a user" in {
-        when(mockMetrics.startTimer(Matchers.any()))
+        when(mockMetrics.startTimer(ArgumentMatchers.any()))
             .thenReturn(mockContext)
 
-        when(mockHttpClient.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())
-          (Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).
+        when(mockHttpClient.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).
           thenReturn(Future.successful(HttpResponse(CREATED, responseJson = Some(successfulSubscribeJson))))
 
         val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
@@ -89,8 +89,8 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with OneServerPerSuite with Mo
       }
 
       "return status is anything, for bad data sent for enrol" in {
-        when(mockHttpClient.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(
-          Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(
+          ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(subscribeFailureResponseJson))))
         val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
         val enrolResponse = await(result)

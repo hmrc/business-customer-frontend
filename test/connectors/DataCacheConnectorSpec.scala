@@ -18,7 +18,7 @@ package connectors
 
 import config.ApplicationConfig
 import models.{Address, BackLinkModel, ReviewDetails}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
@@ -54,7 +54,7 @@ class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mockit
         val reviewDetails: ReviewDetails =
           ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
-        when(mockDefaultHttpClient.GET[CacheMap](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockDefaultHttpClient.GET[CacheMap](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
 
         val result: Future[Option[ReviewDetails]] = TestDataCacheConnector.fetchAndGetBusinessDetailsForSession
@@ -67,7 +67,7 @@ class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mockit
       "save the fetched business details" in {
         val reviewDetails: ReviewDetails = ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
-        when(mockDefaultHttpClient.PUT[ReviewDetails, CacheMap](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockDefaultHttpClient.PUT[ReviewDetails, CacheMap](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
 
         val result: Future[Option[ReviewDetails]] = TestDataCacheConnector.saveReviewDetails(reviewDetails)
@@ -79,8 +79,8 @@ class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mockit
     "clearCache" must {
       "clear the cache for the session" in {
         when(mockDefaultHttpClient.DELETE[HttpResponse]
-          (Matchers.any(), Matchers.any())
-          (Matchers.any(), Matchers.any(), Matchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
         ).thenReturn(Future.successful(HttpResponse(OK)))
 
         val result: Future[HttpResponse] = TestDataCacheConnector.clearCache

@@ -20,7 +20,7 @@ import java.util.UUID
 
 import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
@@ -82,7 +82,7 @@ class ExternalLinkControllerSpec extends PlaySpec with OneServerPerSuite with Mo
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(backLink))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(backLink))
     val result = TestExternalLinkController.backLink(service).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",

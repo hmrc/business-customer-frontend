@@ -23,7 +23,7 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import models.NRLQuestion
 import org.jsoup.Jsoup
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
@@ -99,7 +99,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       }
 
       "redirect to register non-uk page, if user is an agent" in {
-        when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
         viewWithAuthorisedAgent(service) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some(s"/business-customer/register/$service/NUK"))
@@ -147,7 +147,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestNRLQuestionController.view(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
@@ -164,9 +164,9 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](Matchers.any())
-      (Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
+      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = TestNRLQuestionController.view(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
@@ -183,9 +183,9 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     val successModel = NRLQuestion(Some(false))
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[NRLQuestion](Matchers.any())
-      (Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(successModel)))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[NRLQuestion](ArgumentMatchers.any())
+      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
 
     val result = TestNRLQuestionController.view(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
@@ -201,8 +201,8 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     implicit val user = builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestNRLQuestionController.continue(serviceName).apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
     test(result)

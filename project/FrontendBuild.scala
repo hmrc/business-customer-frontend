@@ -22,7 +22,7 @@ object FrontendBuild extends Build with MicroService {
     val test: Seq[ModuleID] = Seq(
       "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test",
       "org.jsoup" % "jsoup" % "1.11.3" % "test",
-      "org.mockito" % "mockito-all" % "1.10.19" % "test",
+      "org.mockito" % "mockito-core" % "3.1.0" % "test",
       "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-26" % "test"
     )
     val all: Seq[ModuleID] = compile ++ test

@@ -22,7 +22,7 @@ import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.DataCacheConnector
 import models.{Address, ReviewDetails}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
@@ -82,7 +82,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
       "clearCache successfully" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(Matchers.any())) thenReturn Future.successful(HttpResponse(OK))
+        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(OK))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(OK)
       }
@@ -90,7 +90,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
       "clearCache gives error" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(Matchers.any())) thenReturn Future.successful(HttpResponse(INTERNAL_SERVER_ERROR))
+        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(INTERNAL_SERVER_ERROR))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(INTERNAL_SERVER_ERROR)
       }
@@ -130,7 +130,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
           false
         )
 
-        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())) thenReturn Future.successful(Some(reviewDetails))
+        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any())) thenReturn Future.successful(Some(reviewDetails))
         val result = TestBusinessCustomerController.getReviewDetails(service).apply(fakeRequestWithSession(userId))
         status(result) must be(OK)
       }
@@ -138,7 +138,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
       "getReviewDetails cannot find details" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(Matchers.any())) thenReturn Future.successful(None)
+        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any())) thenReturn Future.successful(None)
         val result = TestBusinessCustomerController.getReviewDetails(service).apply(fakeRequestWithSession(userId))
         status(result) must be(NOT_FOUND)
       }

@@ -19,10 +19,11 @@ package forms
 import config.ApplicationConfig
 import models.BusinessRegistration
 import org.scalatest.MustMatchers
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.data.Form
 
-class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with OneServerPerSuite {
+class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with GuiceOneServerPerSuite {
 
   val appConfig = app.injector.instanceOf[ApplicationConfig]
 

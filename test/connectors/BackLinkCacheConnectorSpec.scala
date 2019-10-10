@@ -18,7 +18,7 @@ package connectors
 
 import config.ApplicationConfig
 import models.{BackLinkModel, ReviewDetails}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -49,10 +49,10 @@ class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
       "fetch saved BusinessDetails from SessionCache with Feature Switch on" in new Setup {
         val backLink: BackLinkModel = BackLinkModel(Some("testBackLink"))
 
-        when(mockSessionCache.fetchAndGetEntry[BackLinkModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockSessionCache.fetchAndGetEntry[BackLinkModel](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(backLink)))
 
-        when(mockHttpClient.GET[CacheMap](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.GET[CacheMap](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink")))))))
 
         val result = connector.fetchAndGetBackLink("testPageId")
@@ -65,10 +65,10 @@ class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
         val backLink: BackLinkModel = BackLinkModel(Some("testBackLink"))
         val returnedCacheMap: CacheMap = CacheMap("data", Map(connector.sourceId -> Json.toJson(backLink)))
 
-        when(mockSessionCache.cache[ReviewDetails](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockSessionCache.cache[ReviewDetails](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(returnedCacheMap))
 
-        when(mockHttpClient.PUT[BackLinkModel, CacheMap](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.PUT[BackLinkModel, CacheMap](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink")))))))
 
         val result = connector.saveBackLink("testPageId", backLink.backLink)

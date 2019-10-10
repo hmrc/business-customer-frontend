@@ -25,7 +25,7 @@ import controllers.BusinessVerificationController
 import javax.inject.Provider
 import models.PaySAQuestion
 import org.jsoup.Jsoup
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
@@ -116,7 +116,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       "respond with NotFound when invalid service is in uri" in {
         val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paySA": ""}"""))
-        when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
         continueWithAuthorisedClient(fakeRequest, invalidService) { result =>
           status(result) must be(NOT_FOUND)
         }
@@ -124,7 +124,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       "if user doesn't select any radio button, show form error with bad_request" in {
         val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paySA": ""}"""))
-        when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
         continueWithAuthorisedClient(fakeRequest, service) { result =>
           status(result) must be(BAD_REQUEST)
         }
@@ -135,7 +135,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
             .thenReturn(mockBusinessVerificationController)
         when(mockBusinessVerificationController.controllerId)
             .thenReturn("test")
-        when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
         continueWithAuthorisedClient(fakeRequest, service) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some(s"/business-customer/business-verification/$service/businessForm/NRL"))
@@ -160,8 +160,8 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = TestPaySaQuestionController.view(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
@@ -177,9 +177,9 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](Matchers.any())
-      (Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
+      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = TestPaySaQuestionController.view(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
@@ -195,9 +195,9 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     val successModel = PaySAQuestion(Some(false))
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[PaySAQuestion](Matchers.any())
-      (Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(successModel)))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[PaySAQuestion](ArgumentMatchers.any())
+      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
     val result = TestPaySaQuestionController.view(serviceName).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
@@ -211,7 +211,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   def continueWithAuthorisedClient(fakeRequest: FakeRequest[AnyContentAsJson], serviceName: String)(test: Future[Result] => Any) = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = TestPaySaQuestionController.continue(serviceName).apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
     test(result)
   }
