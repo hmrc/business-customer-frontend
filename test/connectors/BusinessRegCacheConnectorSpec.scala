@@ -18,7 +18,7 @@ package connectors
 
 import config.ApplicationConfig
 import models.ReviewDetails
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
@@ -76,7 +76,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with OneServerPerSuite with
 
       "return Some" when {
         "formId of the cached form does exist for defined data type" in {
-          when(mockHttpClient.GET[CacheMap](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+          when(mockHttpClient.GET[CacheMap](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
             .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
           await(TestDataCacheConnector.fetchAndGetCachedDetails[FormData](formIdNotExist)) must be(Some(formData))
@@ -86,7 +86,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with OneServerPerSuite with
 
     "save form data" when {
       "valid form data with a valid form id is passed" in {
-        when(mockHttpClient.PUT[FormData, CacheMap](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+        when(mockHttpClient.PUT[FormData, CacheMap](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
         await(TestDataCacheConnector.cacheDetails[FormData](formId, formData)) must be(formData)

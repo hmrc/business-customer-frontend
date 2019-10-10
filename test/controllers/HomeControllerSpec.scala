@@ -23,7 +23,7 @@ import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
 import javax.inject.Provider
 import models.{Address, ReviewDetails}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
@@ -100,7 +100,7 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
               result =>
                 status(result) must be(SEE_OTHER)
                 redirectLocation(result).get must include(s"/business-customer/review-details/$service")
-                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(Matchers.eq(false), Matchers.eq(service))(Matchers.any(), Matchers.any())
+                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any())
             }
           }
 
@@ -114,7 +114,7 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
               result =>
                 status(result) must be(SEE_OTHER)
                 redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
-                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(Matchers.eq(false), Matchers.eq(service))(Matchers.any(), Matchers.any())
+                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any())
             }
           }
         }
@@ -128,7 +128,7 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
             result =>
               status(result) must be(SEE_OTHER)
               redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
-              verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(Matchers.eq(false), Matchers.eq(service))(Matchers.any(), Matchers.any())
+              verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any())
           }
         }
       }
@@ -139,7 +139,7 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
   def getWithUnAuthorisedUser(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
   }
@@ -152,10 +152,10 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
   def getWithAuthorisedUserMatched(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val reviewDetails = Json.toJson(testReviewDetails)
-    when(mockBusinessMatchingService.matchBusinessWithUTR(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+    when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Some(Future.successful(reviewDetails)))
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
@@ -164,10 +164,10 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
   def getWithAuthorisedUserNotMatched(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val notFound = Json.parse( """{"Reason" : "Text from reason column"}""")
-    when(mockBusinessMatchingService.matchBusinessWithUTR(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+    when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Some(Future.successful(notFound)))
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
@@ -176,9 +176,9 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
   def getWithAuthorisedUserNoUTR(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockBusinessMatchingService.matchBusinessWithUTR(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(None)
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)

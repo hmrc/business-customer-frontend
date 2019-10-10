@@ -22,7 +22,7 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
@@ -248,7 +248,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
           }
 
           "return agent registration page correctly for Agents" in {
-            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(ArgumentMatchers.eq(service))).thenReturn(true)
             continueWithAuthorisedAgentEMAC(service) {
               result =>
                 status(result) must be(SEE_OTHER)
@@ -257,7 +257,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
           }
 
           "return to error page for duplicate users" in {
-            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(ArgumentMatchers.eq(service))).thenReturn(true)
             continueWithDuplicategentEmac("ATED") {
               result =>
                 status(result) must be(OK)
@@ -267,7 +267,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
           }
 
           "return to error page for wrong role users" in {
-            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(ArgumentMatchers.eq(service))).thenReturn(true)
             continueWithWrongRoleUserEmac("ATED") {
               result =>
                 status(result) must be(OK)
@@ -277,7 +277,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
           }
 
           "respond with NotFound when invalid service is in uri" in {
-            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq("unknownServiceTest"))).thenReturn(false)
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(ArgumentMatchers.eq("unknownServiceTest"))).thenReturn(false)
             continueWithAuthorisedUser("unknownServiceTest") {
               result =>
                 status(result) must be(NOT_FOUND)
@@ -285,7 +285,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
           }
 
           "throw an exception for any invalid user" in {
-            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(Matchers.eq(service))).thenReturn(true)
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(ArgumentMatchers.eq(service))).thenReturn(true)
             continueWithInvalidAgentEmac("ATED") {
               result =>
                 val thrown = the[RuntimeException] thrownBy await(result)
@@ -309,7 +309,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   private def continueWithUnAuthorisedUser(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
@@ -317,7 +317,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   private def continueWithAuthorisedUser(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
@@ -328,8 +328,8 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockAgentRegistrationService.enrolAgent(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(CREATED)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
@@ -337,8 +337,8 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   private def continueWithDuplicategentEmac(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockAgentRegistrationService.enrolAgent(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
@@ -346,8 +346,8 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   private def continueWithWrongRoleUserEmac(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(FORBIDDEN)))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockAgentRegistrationService.enrolAgent(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(FORBIDDEN)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
@@ -356,8 +356,8 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   private def continueWithInvalidAgentEmac(service: String)(test: Future[Result] => Any) {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
-    when(mockAgentRegistrationService.enrolAgent(Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockAgentRegistrationService.enrolAgent(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR)))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
     test(result)
   }
@@ -366,7 +366,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   def businessDetailsWithAuthorisedAgent(reviewDetails: ReviewDetails)(test: Future[Result] => Any) = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val testDetailsController = testReviewDetailsController(reviewDetails)
     val result = testDetailsController.businessDetails(service).apply(fakeRequestWithSession(userId))
 
@@ -377,7 +377,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   def businessDetailsWithAuthorisedUser(reviewDetails: ReviewDetails)(test: Future[Result] => Any) = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val testDetailsController = testReviewDetailsController(reviewDetails)
     val result = testDetailsController.businessDetails(service).apply(fakeRequestWithSession(userId))
 
@@ -388,7 +388,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   def businessDetailsWithAuthorisedUserNotFound(test: Future[Result] => Any) = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val testDetailsController = testReviewDetailsControllerNotFound
     val result = testDetailsController.businessDetails(service).apply(fakeRequestWithSession(userId))
 
@@ -400,7 +400,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = testReviewDetailsController(nonDirectMatchReviewDetails).businessDetails(service).apply(fakeRequestWithSession(userId))
 
     test(result)

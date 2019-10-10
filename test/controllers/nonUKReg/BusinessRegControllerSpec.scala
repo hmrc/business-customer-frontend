@@ -22,7 +22,7 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import models.{Address, BusinessRegistration}
 import org.jsoup.Jsoup
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
@@ -179,7 +179,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         "not be empty" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(businessName = "", line1 = "", line2 = "", postcode = "", country = "")
-          when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
           submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
             status(result) must be(BAD_REQUEST)
@@ -205,7 +205,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
             implicit val hc: HeaderCarrier = HeaderCarrier()
-            when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+            when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
             submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(data._1)) { result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include(data._3)
@@ -215,7 +215,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
         "If registration details entered are valid, continue button must redirect to review details page" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
-          when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           val inputJson = createJson()
           submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
             status(result) must be(SEE_OTHER)
@@ -226,7 +226,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         "If registration details entered are valid and business-identifier question is selected as No, continue button must redirect to review details page" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
-          when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result).get must include(s"/business-customer/register/non-uk-client/overseas-company/$serviceName/false")
@@ -237,7 +237,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         "fail if we are a client for ATED and have no PostCode" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
-          when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
             status(result) must be(BAD_REQUEST)
           }
@@ -246,7 +246,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         "pass if we are a client for AWRS and have no PostCode" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
-          when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUserSuccess("AWRS", FakeRequest().withJsonBody(inputJson)) { result =>
             status(result) must be(SEE_OTHER)
           }
@@ -255,7 +255,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         "pass if we are an agent for ATED and have no PostCode" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
-          when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedAgent(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
             status(result) must be(SEE_OTHER)
           }
@@ -264,7 +264,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         "pass if we are an agent for AWRS and have no PostCode" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
-          when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedAgent("AWRS", FakeRequest().withJsonBody(inputJson)) { result =>
             status(result) must be(SEE_OTHER)
           }
@@ -273,7 +273,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         "respond with NotFound when invalid service is in uri" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
-          when(mockBackLinkCache.saveBackLink(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedAgent(invalidService, FakeRequest().withJsonBody(inputJson)) { result =>
             status(result) must be(NOT_FOUND)
           }
@@ -287,7 +287,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = TestBusinessRegController.register(serviceName, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
@@ -300,11 +300,11 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   def registerWithAuthorisedAgent(service: String, businessType: String)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
-    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](Matchers.any())
-      (Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
+      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
@@ -319,11 +319,11 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
-    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](Matchers.any())
-      (Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
+      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
@@ -339,11 +339,11 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     val userId = s"user-${UUID.randomUUID}"
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = BusinessRegistration("ACME", address)
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
-    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](Matchers.any())
-      (Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(successModel)))
+    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](ArgumentMatchers.any())
+      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
 
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
@@ -359,7 +359,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
 
     val result = TestBusinessRegController.send(service, businessType).apply(FakeRequest().withSession(
@@ -380,7 +380,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = BusinessRegistration("ACME", address)
 
-    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](Matchers.any(), Matchers.any())(Matchers.any(), (Matchers.any())))
+    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), (ArgumentMatchers.any())))
       .thenReturn(Future.successful(successModel))
 
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
@@ -400,7 +400,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = BusinessRegistration("ACME", address)
-    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](Matchers.any(), Matchers.any())(Matchers.any(), (Matchers.any())))
+    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), (ArgumentMatchers.any())))
       .thenReturn(Future.successful(successModel))
 
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
@@ -416,7 +416,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
-    when(mockBackLinkCache.fetchAndGetBackLink(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(

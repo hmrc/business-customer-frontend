@@ -17,7 +17,7 @@
 package controllers.auth
 
 import config.ApplicationConfig
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -71,7 +71,7 @@ class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerS
   "authorisedFor" should {
     "authorise for a user" when {
       "the user has valid enrolments" in new Setup {
-        when(mockAuthConnector.authorise[RetType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockAuthConnector.authorise[RetType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
             .thenReturn(Future.successful(authRetrieval()))
 
         val authFor: Result = await(authActionsHarness.authorisedFor("ated") {
@@ -84,7 +84,7 @@ class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerS
 
     "unauthorise for a user" when {
       "the user has the incorrect affinity group" in new Setup {
-        when(mockAuthConnector.authorise[RetType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockAuthConnector.authorise[RetType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
             .thenReturn(Future.failed(UnsupportedAffinityGroup("test")))
 
         val authFor: Result = await(authActionsHarness.authorisedFor("ated") {
@@ -95,7 +95,7 @@ class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerS
       }
 
       "the user is not authorised" in new Setup {
-        when(mockAuthConnector.authorise[RetType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockAuthConnector.authorise[RetType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
             .thenReturn(Future.failed(MissingBearerToken("test")))
 
         val authFor: Result = await(authActionsHarness.authorisedFor("ated") {

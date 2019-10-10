@@ -17,7 +17,7 @@
 package builders
 
 import models.StandardAuthRetrievals
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
@@ -108,7 +108,7 @@ object AuthBuilder {
       None
     )
 
-    when(mockAuthConnector.authorise[RetrievalType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+    when(mockAuthConnector.authorise[RetrievalType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
@@ -120,7 +120,7 @@ object AuthBuilder {
       None
     )
 
-    when(mockAuthConnector.authorise[RetrievalType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+    when(mockAuthConnector.authorise[RetrievalType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
@@ -132,19 +132,19 @@ object AuthBuilder {
       None
     )
 
-    when(mockAuthConnector.authorise[RetrievalType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+    when(mockAuthConnector.authorise[RetrievalType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
   def mockAuthorisedAgent(userId:String, mockAuthConnector: AuthConnector) {
     val authData: StandardAuthRetrievals = createAgentAuthority(agentRefNo = Some("JARN1234567"))
 
-    when(mockAuthConnector.authorise[RetrievalType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+    when(mockAuthConnector.authorise[RetrievalType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
   def mockUnAuthorisedUser(userId:String, mockAuthConnector: AuthConnector) {
-    when(mockAuthConnector.authorise[RetrievalType](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+    when(mockAuthConnector.authorise[RetrievalType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.failed(InsufficientEnrolments("message")))
   }
 
