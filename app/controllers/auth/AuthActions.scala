@@ -22,7 +22,7 @@ import play.api.Logger
 import play.api.i18n.Messages
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{AnyContent, Request, Result, Results}
-import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.{NoActiveSession, _}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
@@ -59,7 +59,9 @@ trait AuthActions extends AuthorisedFunctions {
 
   def authorisedFor(serviceName: String)(body: StandardAuthRetrievals => Future[Result])
                    (implicit req: Request[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
-    val newHC = if(hc.authorization.isEmpty) hc.copy(authorization = Some(Authorization(req.headers.get("Authorization").get))) else hc
+    lazy val newHC = if(hc.authorization.isEmpty) hc.copy(authorization = Some(Authorization(req.headers.get("Authorization")
+      .getOrElse(throw MissingBearerToken("No auth header in hc or header"))))) else hc
+
     if (!isValidUrl(serviceName)) {
       Logger.info(s"[authorisedFor] Given invalid service name of $serviceName")
       Future.successful(Results.NotFound)
