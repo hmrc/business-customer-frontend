@@ -26,7 +26,6 @@ import uk.gov.hmrc.auth.core.{NoActiveSession, _}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.Authorization
 import utils.ValidateUri
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -59,9 +58,6 @@ trait AuthActions extends AuthorisedFunctions {
 
   def authorisedFor(serviceName: String)(body: StandardAuthRetrievals => Future[Result])
                    (implicit req: Request[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
-    lazy val newHC = if(hc.authorization.isEmpty) hc.copy(authorization = Some(Authorization(req.headers.get("Authorization")
-      .getOrElse(throw MissingBearerToken("No auth header in hc or header"))))) else hc
-
     if (!isValidUrl(serviceName)) {
       Logger.info(s"[authorisedFor] Given invalid service name of $serviceName")
       Future.successful(Results.NotFound)
@@ -69,7 +65,7 @@ trait AuthActions extends AuthorisedFunctions {
       authorised((AffinityGroup.Organisation or AffinityGroup.Agent or Enrolment("IR-SA")) and ConfidenceLevel.L50)
         .retrieve(allEnrolments and affinityGroup and credentials and groupIdentifier) {
           case Enrolments(enrolments) ~ affGroup ~ creds ~ groupId => body(StandardAuthRetrievals(enrolments, affGroup, creds, groupId))
-        }(newHC, ec) recover recoverAuthorisedCalls(serviceName)
+        } recover recoverAuthorisedCalls(serviceName)
     }
   }
 }
