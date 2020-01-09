@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -181,14 +181,6 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
           document.select("h1").text must be("Check your agency details")
         }
       }
-
-      "read existing business details data from cache (without updating data)" in {
-        val testDetailsController = businessDetailsWithAuthorisedUser(nonDirectMatchReviewDetails) { result =>
-          status(result) must be(OK)
-        }
-//        testDetailsController.dataCacheConnector.reads must be(1)
-      }
-
     }
 
 
@@ -262,7 +254,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
               result =>
                 status(result) must be(OK)
                 val document = Jsoup.parse(contentAsString(result))
-                document.title() must be("bc.business-registration-error.duplicate.identifier.header - GOV.UK")
+                document.title() must be("Somebody has already registered from your agency - GOV.UK")
             }
           }
 
@@ -272,7 +264,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
               result =>
                 status(result) must be(OK)
                 val document = Jsoup.parse(contentAsString(result))
-                document.title() must be("bc.business-registration-error.wrong.role.header - GOV.UK")
+                document.title() must be("You must be logged in as an administrator to submit an ATED return - GOV.UK")
             }
           }
 
