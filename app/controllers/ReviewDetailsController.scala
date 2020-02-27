@@ -95,8 +95,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
     }
   }
 
-  private def formatErrorMessage(str: String, serviceName: String): (String, String, String) =
-    str match {
+  private def formatErrorMessage(str: String, serviceName: String): (String, String, String) = str match {
       case DuplicateUserError =>
         ("bc.business-registration-error.duplicate.identifier.header",
           "bc.business-registration-error.duplicate.identifier.title",

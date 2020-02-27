@@ -31,5 +31,5 @@ trait BCHandler extends FrontendErrorHandler with I18nSupport {
   implicit val appConfig: ApplicationConfig
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html =
-    views.html.global_error(pageTitle, heading, message)
+    views.html.global_error(pageTitle, heading, message, request.uri.split("/").last)
 }
