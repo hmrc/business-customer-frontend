@@ -86,7 +86,8 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with OneServerPerSuite with
 
     "save form data" when {
       "valid form data with a valid form id is passed" in {
-        when(mockHttpClient.PUT[FormData, CacheMap](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockHttpClient.PUT[FormData, CacheMap]
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
         await(TestDataCacheConnector.cacheDetails[FormData](formId, formData)) must be(formData)

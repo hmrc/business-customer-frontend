@@ -20,7 +20,7 @@ import config.ApplicationConfig
 import models.{BackLinkModel, ReviewDetails}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
@@ -68,7 +68,8 @@ class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
         when(mockSessionCache.cache[ReviewDetails](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(returnedCacheMap))
 
-        when(mockHttpClient.PUT[BackLinkModel, CacheMap](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockHttpClient.PUT[BackLinkModel, CacheMap]
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink")))))))
 
         val result = connector.saveBackLink("testPageId", backLink.backLink)
