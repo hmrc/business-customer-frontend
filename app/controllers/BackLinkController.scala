@@ -34,7 +34,7 @@ trait BackLinkController {
   def currentBackLink(implicit hc: HeaderCarrier):Future[Option[String]] =
     backLinkCacheConnector.fetchAndGetBackLink(controllerId)
 
-  def redirectToExernal(redirectCall: String, returnUrl: Option[String])(implicit hc: HeaderCarrier): Future[Result] =
+  def redirectToExternal(redirectCall: String, returnUrl: Option[String])(implicit hc: HeaderCarrier): Future[Result] =
     setBackLink("ExternalLinkController", returnUrl) map (_ => Redirect(redirectCall))
 
   def forwardBackLinkToNextPage(nextPageId: String, redirectCall: Call)(implicit hc: HeaderCarrier): Future[Result] = {

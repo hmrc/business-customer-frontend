@@ -68,7 +68,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
         agentRegistrationService.enrolAgent(serviceName).flatMap { response =>
           response.status match {
             case CREATED =>
-              redirectToExernal(
+              redirectToExternal(
                 appConfig.agentConfirmationPath(serviceName),
                 Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url)
               )
@@ -90,7 +90,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
           Logger.warn(s"[ReviewDetailsController][continue] - No Service config found for = $serviceName")
           throw new RuntimeException(Messages("bc.business-review.error.no-service", serviceName, serviceName.toLowerCase))
         })
-        redirectToExernal(url, Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
+        redirectToExternal(url, Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
       }
     }
   }
