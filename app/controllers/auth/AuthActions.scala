@@ -38,9 +38,10 @@ trait AuthActions extends AuthorisedFunctions {
 
   def continueURL(serviceName: String): String = appConfig.continueURL(serviceName)
 
+  lazy val origin: String = appConfig.appName
   def loginParams(serviceName: String)(implicit request: Request[AnyContent]): Map[String, Seq[String]] = Map(
-    "continue" -> Seq(loginURL),
-    "origin" -> Seq(continueURL(serviceName))
+    "continue" -> Seq(continueURL(serviceName)),
+    "origin" -> Seq(origin)
   )
 
   private def isValidUrl(serviceName: String): Boolean = {

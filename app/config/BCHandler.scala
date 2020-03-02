@@ -30,6 +30,16 @@ class BCHandlerImpl @Inject()(val messagesApi: MessagesApi,
 trait BCHandler extends FrontendErrorHandler with I18nSupport {
   implicit val appConfig: ApplicationConfig
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html =
-    views.html.global_error(pageTitle, heading, message, request.uri.split("/").last)
+  def findServiceInRequest(request: Request[_]): String = {
+    val requestParts = request.uri.split("/")
+    val serviceList = appConfig.serviceList
+
+    requestParts.find(part => serviceList.contains(part.toLowerCase)).getOrElse("unknownservice")
+  }
+
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
+    val service = findServiceInRequest(request)
+
+    views.html.global_error(pageTitle, heading, message, service)
+  }
 }
