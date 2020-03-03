@@ -164,7 +164,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
         continueWithAuthorisedUserJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NUK"}"""))) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include(s"/business-customer/nrl/$service")
+          redirectLocation(result).get must include(s"/ated-subscription/previous")
         }
       }
 

@@ -94,7 +94,7 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
                 case None => throw new RuntimeException(s"[OverseasCompanyRegController][send] - service :$service. Error : No Cached BusinessRegistration")
               }
             redirectPage <- redirectUrl match {
-              case Some(x) => redirectToExernal(x, Some(controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, addClient, Some(x)).url))
+              case Some(x) => redirectToExternal(x, Some(controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, addClient, Some(x)).url))
               case None => redirectWithBackLink(
                 reviewDetailsController.controllerId,
                 controllers.routes.ReviewDetailsController.businessDetails(service),
