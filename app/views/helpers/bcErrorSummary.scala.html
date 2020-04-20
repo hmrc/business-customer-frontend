@@ -16,7 +16,7 @@
 
 @(form: Form[_], errorMessageFieldPrefix: String, formErrorMessage: Option[String] = None)(implicit messages: Messages)
 
-<script type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/error-summary.js")'></script>
+<script src='@controllers.routes.Assets.versioned("javascript/error-summary.js")'></script>
 
 @if(form.hasGlobalErrors || form.hasErrors) {
 
