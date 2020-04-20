@@ -103,9 +103,10 @@
         }
 
     </div>
-
-    <a href="@controllers.routes.ReviewDetailsController.continue(service)" class="button" role="button" id="submit" @if(isAgent){onclick="ga('send', 'event', 'Agent - registration - end', 'button clicked')"}>
+    @form(action=controllers.routes.ReviewDetailsController.continue(service)){
+    <button  class="button" id="submit" @if(isAgent){onclick="ga('send', 'event', 'Agent - registration - end', 'button clicked')"}>
         @messages("business-review.registration-button")
-    </a>
+    </button>
+}
 }
 

@@ -51,6 +51,9 @@
   <h2 class="heading-small" id="details-not-found-utr-reason-header">@messages("bc.details-not-found.utr-reason.header")</h2>
   <p id="details-not-found-utr-reason-text">@messages("bc.details-not-found.utr-reason.text")</p>
 
-  <a class="button" role="button" data-journey-click="business-customer:click:try-matching-again" href="@controllers.routes.BusinessVerificationController.businessForm(service, businessType)">@messages("bc.details-not-found.try-again")</a>
+
+@form(action=controllers.routes.BusinessVerificationController.businessForm(service, businessType)){
+<button class="button" data-journey-click="business-customer:click:try-matching-again" >@messages("bc.details-not-found.try-again")</button>
+}
 
 }
