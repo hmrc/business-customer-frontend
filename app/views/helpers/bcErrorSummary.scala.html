@@ -36,7 +36,7 @@
           case _ => { error.key }
           }
         )  { anchor:String =>
-             <li class="validation-message" role="tooltip" data-journey="search-page:error:@error.key" id='@anchor.replaceAll("""[\.\[\]]""", "-")-error'>
+             <li class="validation-message" data-journey="search-page:error:@error.key" id='@anchor.replaceAll("""[\.\[\]]""", "-")-error'>
                <a href="#@anchor" class="error-list" data-focuses="@error.key">
                  @messages(s"$errorMessageFieldPrefix.$anchor")
                </a>
