@@ -51,9 +51,9 @@
 
 
 @scriptElement = {
-  <script type="text/javascript" src='@controllers.routes.Assets.versioned("jquery/jquery-ui-1.12.1.min.js")'></script>
-  <script type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/timeout-dialog.js")'></script>
-  <script type="text/javascript" charset="utf-8">
+  <script src='@controllers.routes.Assets.versioned("jquery/jquery-ui-1.12.1.min.js")'></script>
+  <script src='@controllers.routes.Assets.versioned("javascript/timeout-dialog.js")'></script>
+  <script charset="utf-8">
   @if(userLoggedIn) {
      $.timeoutDialog({timeout: @appConfig.defaultTimeoutSeconds, countdown: @appConfig.timeoutCountdown, keep_alive_url: '/business-customer/keep-alive', logout_url: '@appConfig.serviceSignOutUrl(delegatedService)', logout_redirect_url: '@appConfig.serviceSignOutUrl(delegatedService)', restart_on_yes: true, background_no_scroll: true});
      var dialogOpen;
