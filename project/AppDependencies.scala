@@ -10,7 +10,7 @@ object AppDependencies {
     "uk.gov.hmrc" %% "play-partials" % "6.10.0-play-26",
     "uk.gov.hmrc" %% "play-ui" % "8.9.0-play-26",
     "uk.gov.hmrc" %% "http-caching-client" % "9.0.0-play-26",
-    "uk.gov.hmrc" %% "auth-client" % "3.0.0-play-26",
+    "uk.gov.hmrc" %% "auth-client" % "3.0.0-play-27",
     "com.typesafe.play" %% "play-json-joda" % "2.6.14",
     "uk.gov.hmrc" %% "govuk-template" % "5.54.0-play-26"
   )
