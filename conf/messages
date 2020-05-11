@@ -40,7 +40,7 @@ business-review.invalid-business.text = If this is not the right business, you s
 business-review.registration-button = Confirm
 business-review.registered-with-companies-house.text = If you are registered with Companies House, you must <a href="https://www.gov.uk/file-changes-to-a-company-with-companies-house" data-journey-click="business-customer:click:companies-house-link">tell Companies House about changes to your details</a>.
 business-review.sole-trader.text = If you are not registered with Companies House, you must <a href="https://www.gov.uk/tell-hmrc-change-of-details/change-name-or-address" data-journey-click="business-customer:click:not-registered-link">tell HMRC about a change to your personal details</a>.
-business-review.check-agency.text = You are setting up your agency. These should be your company details not your clients.
+business-review.check-agency.text = You are setting up your agency. These should be your company details not your client’s.
 
 
 bc.business-verification.cancel = Cancel
