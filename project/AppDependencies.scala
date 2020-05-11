@@ -7,7 +7,7 @@ object AppDependencies {
     ws,
     "uk.gov.hmrc" %% "bootstrap-play-26" % "1.7.0",
     "uk.gov.hmrc" %% "domain" % "5.9.0-play-26",
-    "uk.gov.hmrc" %% "play-partials" % "6.10.0-play-26",
+    "uk.gov.hmrc" %% "play-partials" % "6.11.0-play-26",
     "uk.gov.hmrc" %% "play-ui" % "8.9.0-play-26",
     "uk.gov.hmrc" %% "http-caching-client" % "9.0.0-play-26",
     "uk.gov.hmrc" %% "auth-client" % "3.0.0-play-26",
