@@ -56,7 +56,7 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
       assert(document.getElementById("bc.business-registration-agent.text").text() === ("This section is: ATED agency set up"))
 
       And("The confirmation notice should display")
-      assert(document.getElementById("check-agency-details").text ===("You are setting up your agency. These should be your company details not your clients."))
+      assert(document.getElementById("check-agency-details").text ===("You are setting up your agency. These should be your company details not your client’s."))
 
       And("Business name is correct")
 

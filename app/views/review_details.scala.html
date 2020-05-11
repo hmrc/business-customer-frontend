@@ -82,7 +82,7 @@
             @businessDetails.businessAddress.line_3.map { line_3 => @line_3<br> }
             @businessDetails.businessAddress.line_4.map { line_4 => @line_4<br> }
             @businessDetails.businessAddress.postcode.map { postcode => @postcode<br> }
-            @appConfig.getSelectedCountry(businessDetails.businessAddress.country)
+            @appConfig.getSelectedCountry(businessDetails.businessAddress.country)<br>
         </p>
 
         @if(businessDetails.businessAddress.country.toUpperCase == "GB") {
