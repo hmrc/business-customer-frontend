@@ -48,6 +48,8 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
     service.toUpperCase match {
       case "ATED" =>
         Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", "/ated/logout")).withNewSession
+      case "AWRS" =>
+        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", s"/awrs/logout")).withNewSession
       case _ =>
         Redirect(controllers.routes.ApplicationController.signedOut()).withNewSession
     }
@@ -56,6 +58,8 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
   def feedback(service: String): Action[AnyContent] = Action { implicit request =>
     service.toUpperCase match {
       case "ATED" =>
+        Ok(views.html.feedback(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER))), service, appConfig.serviceWelcomePath(service)))
+      case "AWRS" =>
         Ok(views.html.feedback(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER))), service, appConfig.serviceWelcomePath(service)))
       case _ => Redirect(controllers.routes.ApplicationController.signedOut()).withNewSession
     }
