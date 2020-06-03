@@ -16,14 +16,55 @@
 
 package utils
 
+import config.ApplicationConfig
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
+import play.api.test.FakeRequest
 
-class SessionUtilsSpec extends PlaySpec {
+class SessionUtilsSpec extends PlaySpec with MockitoSugar {
 
   "SessionUtils" must {
     "getUniqueAckNo return 32 char long ack no" in {
       SessionUtils.getUniqueAckNo.length must be(32)
       SessionUtils.getUniqueAckNo.length must be(32)
+    }
+  }
+  implicit val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
+
+  "findServiceInRequest" should {
+    "find a service in a request" when {
+      "the url contains a service name" in {
+        when(mockAppConfig.serviceList).thenReturn(List("ated"))
+
+        val service = SessionUtils.findServiceInRequest(
+          FakeRequest(controllers.routes.BusinessVerificationController.businessVerification("ated"))
+        )
+
+        service mustBe "ated"
+      }
+
+      "the url contains a service name not at the end" in {
+        when(mockAppConfig.serviceList).thenReturn(List("awrs", "ated"))
+
+        val service = SessionUtils.findServiceInRequest(
+          FakeRequest(controllers.nonUKReg.routes.BusinessRegController.register("awrs", "businessType"))
+        )
+
+        service mustBe "awrs"
+      }
+    }
+
+    "cannot find a service in a request" when {
+      "the url does not contain the service name" in {
+        when(mockAppConfig.serviceList).thenReturn(List("ated"))
+
+        val service = SessionUtils.findServiceInRequest(
+          FakeRequest(controllers.routes.BusinessVerificationController.businessVerification("fakeservice"))
+        )
+
+        service mustBe "unknownservice"
+      }
     }
   }
 

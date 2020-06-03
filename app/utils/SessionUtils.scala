@@ -16,6 +16,9 @@
 
 package utils
 
+import config.ApplicationConfig
+import play.api.mvc.Request
+
 import scala.util.Random
 
 object SessionUtils {
@@ -26,6 +29,13 @@ object SessionUtils {
     val restChars = length - nanoTime.toString.length
     val randomChars = Random.alphanumeric.take(restChars).mkString
     randomChars + nanoTime
+  }
+
+  def findServiceInRequest(request: Request[_])(implicit appConfig: ApplicationConfig): String = {
+    val requestParts = request.uri.split("/")
+    val serviceList = appConfig.serviceList
+
+    requestParts.find(part => serviceList.contains(part.toLowerCase)).getOrElse("unknownservice")
   }
 
 }
