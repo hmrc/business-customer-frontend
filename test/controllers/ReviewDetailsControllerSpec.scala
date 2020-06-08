@@ -139,11 +139,10 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
           }
         }
       }
-      "throw an exception if we have no review details" in {
+      "show error page if we have no review details with no exception" in {
         businessDetailsWithAuthorisedUserNotFound { result =>
-          val thrown = the[RuntimeException] thrownBy contentAsString(result)
-          thrown.getMessage must include("We could not find your details. Check and try again.")
-
+          val document = Jsoup.parse(contentAsString(result))
+          document.select("h1").text must be("Sorry, we’re experiencing technical difficulties")
         }
       }
 

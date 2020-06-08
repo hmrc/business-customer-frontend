@@ -16,16 +16,17 @@
 
 package controllers
 
-import config.ApplicationConfig
+import config.{ApplicationConfig, BCHandler}
 import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import controllers.auth.AuthActions
 import javax.inject.Inject
 import play.api.Logger
 import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import services.AgentRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.SessionUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,6 +45,8 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
   private val DuplicateUserError = "duplicate user error"
   private val WrongRoleUserError = "wrong role user error"
 
+
+
   def businessDetails(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(serviceName) { implicit authContext =>
       dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
@@ -56,8 +59,15 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
             }
           )
         case _ =>
+          val service = SessionUtils.findServiceInRequest(request)
+
           Logger.warn(s"[ReviewDetailsController][businessDetails] - No Service details found in DataCache for $serviceName")
-          throw new RuntimeException("We could not find your details. Check and try again.")
+          Future.successful(Ok(views.html.global_error(
+            Messages("global.error.InternalServerError500.title"),
+            Messages("global.error.InternalServerError500.heading"),
+            Messages("global.error.InternalServerError500.message"),
+            service
+          )))
       }
     }
   }
@@ -73,11 +83,11 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
                 Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url)
               )
             case BAD_REQUEST | CONFLICT =>
-              val (header, title, lede) = formatErrorMessage(DuplicateUserError, serviceName)
+              val (header, title, lede) = formatErrorMessage(DuplicateUserError)
               Logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EMAC")
               Future.successful(Ok(views.html.global_error(header, title, lede, serviceName)))
             case FORBIDDEN =>
-              val (header, title, lede) = formatErrorMessage(WrongRoleUserError, serviceName)
+              val (header, title, lede) = formatErrorMessage(WrongRoleUserError)
               Logger.warn(s"[ReviewDetailsController][continue] - wrong role for agent enrolling in EMAC")
               Future.successful(Ok(views.html.global_error(header, title, lede, serviceName)))
             case _ =>
@@ -95,7 +105,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
     }
   }
 
-  private def formatErrorMessage(str: String, serviceName: String): (String, String, String) = str match {
+  private def formatErrorMessage(str: String): (String, String, String) = str match {
       case DuplicateUserError =>
         ("bc.business-registration-error.duplicate.identifier.header",
           "bc.business-registration-error.duplicate.identifier.title",

@@ -21,6 +21,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Request
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
+import utils.SessionUtils
 
 class BCHandlerImpl @Inject()(val messagesApi: MessagesApi,
                               config: ApplicationConfig) extends BCHandler {
@@ -30,15 +31,8 @@ class BCHandlerImpl @Inject()(val messagesApi: MessagesApi,
 trait BCHandler extends FrontendErrorHandler with I18nSupport {
   implicit val appConfig: ApplicationConfig
 
-  def findServiceInRequest(request: Request[_]): String = {
-    val requestParts = request.uri.split("/")
-    val serviceList = appConfig.serviceList
-
-    requestParts.find(part => serviceList.contains(part.toLowerCase)).getOrElse("unknownservice")
-  }
-
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
-    val service = findServiceInRequest(request)
+    val service = SessionUtils.findServiceInRequest(request)
 
     views.html.global_error(pageTitle, heading, message, service)
   }
