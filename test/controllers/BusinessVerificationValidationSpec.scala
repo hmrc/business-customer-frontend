@@ -23,7 +23,7 @@ import connectors.BackLinkCacheConnector
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}

@@ -17,7 +17,7 @@
 package config
 
 import javax.inject.Inject
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.Request
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
@@ -34,6 +34,15 @@ trait BCHandler extends FrontendErrorHandler with I18nSupport {
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
     val service = SessionUtils.findServiceInRequest(request)
 
-    views.html.global_error(pageTitle, heading, message, service)
+    views.html.global_error(pageTitle, heading, message, service, appConfig)
+  }
+
+  override def internalServerErrorTemplate(implicit request: Request[_]): Html = {
+    views.html.global_error(
+      Messages("bc.generic.error.title"),
+      Messages("bc.generic.error.header"),
+      Messages("bc.generic.error.message"),
+      SessionUtils.findServiceInRequest(request),
+      appConfig)
   }
 }

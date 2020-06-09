@@ -397,6 +397,12 @@ bc.details-not-found.try-again = Try again
 
 bc.business-registration.error.other = EMAC allocate an enrolment to a group failed
 
+##### GENERIC ERROR
+
+bc.generic.error.header = Sorry, there is a problem with the service
+bc.generic.error.title = Sorry, there is a problem with the service
+bc.generic.error.message = Try again later.
+
 zero = 0
 one = 1
 two = 2
