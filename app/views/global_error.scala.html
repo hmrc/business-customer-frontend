@@ -18,14 +18,18 @@
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 @import config._
 
-@(pageTitle: String, heading: String, message: String, service: String = "unknown")(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@(pageTitle: String,
+heading: String,
+message: String,
+service: String = "unknown",
+appConfig: ApplicationConfig)(implicit request: Request[_], messages: Messages)
 
 @contentHeader = {
-  <h1>@messages(heading)</h1>
+<h1>@messages(heading)</h1>
 }
 
 @mainContent = {
-  <p>@Html(messages(message))</p>
+<p>@messages(message)</p>
 }
 
 @global_error_wrapper(appConfig = appConfig, title = messages(pageTitle), contentHeader = Some(contentHeader), mainContent = mainContent, delegatedService = service)
