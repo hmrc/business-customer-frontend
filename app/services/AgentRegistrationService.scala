@@ -98,7 +98,7 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
         val ukPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsUKPostCode,
           businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered UK Postcode found for the agent!")))
         businessDetails.businessType match {
-          case Some("Sole Trader") =>
+          case "Sole Trader" =>
             ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsUniqueTaxRef, utr))
           case _ =>
             ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsCompanyTaxRef, utr))

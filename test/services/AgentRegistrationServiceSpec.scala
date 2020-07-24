@@ -68,7 +68,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite 
     }
 
     "enrolAgent throw exception if we have no agent ref no" in {
-      val returnedReviewDetails = new ReviewDetails(businessName = "Bus Name", businessType = None,
+      val returnedReviewDetails = new ReviewDetails(businessName = "Bus Name", businessType = "LLP",
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
@@ -87,7 +87,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite 
     }
 
     "for sole traders, enrolAgent return the status OK if it worked" in {
-      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = Some("Sole Trader"),
+      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = "Sole Trader",
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
@@ -107,7 +107,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite 
     }
 
     "for agents other than sole traders, enrolAgent return the status OK if it worked" in {
-      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = Some("Corporate Body"),
+      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = "Corporate Body",
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
@@ -127,7 +127,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite 
     }
 
     "enrolAgent throws an exception if NO postcode is found for UK Agents" in {
-      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = Some("Corporate Body"),
+      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = "Corporate Body",
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), None, "country"),
         sapNumber = "sap123",
         safeId = "safe123",
@@ -148,7 +148,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite 
     }
 
     "enrolAgent throws an exception if no groupId is found" in {
-      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = None,
+      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = "LLP",
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
@@ -168,7 +168,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite 
     }
 
     "enrolAgent return the status anything if it does not work" in {
-      val returnedReviewDetails = new ReviewDetails(businessName = "Bus Name", businessType = None,
+      val returnedReviewDetails = new ReviewDetails(businessName = "Bus Name", businessType = "LLP",
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
@@ -204,7 +204,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite 
 
     "enrolAgent throw an exception if we have no service config" in {
       val enrolSuccessResponse = EnrolResponse(serviceName = "ATED", state = "NotYetActivated", identifiers = List(Identifier("ATED", "Ated_Ref_No")))
-      val returnedReviewDetails = new ReviewDetails(businessName = "Bus Name", businessType = None,
+      val returnedReviewDetails = new ReviewDetails(businessName = "Bus Name", businessType = "LLP",
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",

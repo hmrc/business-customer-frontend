@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen{
 
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
-  val reviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true, Some("agent123"))
+  val reviewDetails = ReviewDetails("ACME", "Limited", address, "sap123", "safe123", isAGroup = false, directMatch = true, Some("agent123"))
 
   implicit val lang = Lang.defaultLang
   implicit val appConfig = app.injector.instanceOf[ApplicationConfig]

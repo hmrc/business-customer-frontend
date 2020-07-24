@@ -26,7 +26,7 @@ object Identification {
 
 
 case class ReviewDetails(businessName: String,
-                         businessType: Option[String],
+                         businessType: String,
                          businessAddress: Address,
                          sapNumber: String,
                          safeId: String,

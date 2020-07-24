@@ -115,7 +115,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
       val regAddress = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
       val businessReg = BusinessRegistration("ACME", regAddress)
       val overseasDetails = OverseasCompany(Some(true), Some("1234"))
-      val reviewDetails = ReviewDetails("ACME", Some("Unincorporated body"), regAddress, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+      val reviewDetails = ReviewDetails("ACME", "Unincorporated body", regAddress, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
       "validate form" must {
 
