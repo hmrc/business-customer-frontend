@@ -37,7 +37,7 @@ object Organisation {
 
 case class OrganisationResponse(organisationName: String,
                                 isAGroup: Option[Boolean],
-                                organisationType: Option[String])
+                                organisationType: String)
 
 object OrganisationResponse {
   implicit val formats: Format[OrganisationResponse] = Json.format[OrganisationResponse]

@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Matchers {
 
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
-  val reviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true,
+  val reviewDetails = ReviewDetails("ACME", "Limited", address, "sap123", "safe123", isAGroup = false, directMatch = true,
     agentReferenceNumber = Some("agent123"), identification = Some(Identification("id","inst", "FR")))
 
   implicit val lang = Lang.defaultLang
