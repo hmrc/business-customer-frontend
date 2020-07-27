@@ -89,17 +89,17 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
   def getDetails()(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
 
     def createBusinessRegistration(reviewDetailsOpt: Option[ReviewDetails]) : Option[(String, BusinessRegistration, OverseasCompany)] = {
-      reviewDetailsOpt.flatMap { details =>
+      reviewDetailsOpt.flatMap( details =>
+        details.businessType.map{ busType =>
 
+          val overseasCompany = OverseasCompany(Some(details.identification.isDefined),
+            details.identification.map(_.idNumber),
+            details.identification.map(_.issuingInstitution),
+            details.identification.map(_.issuingCountryCode))
 
-        val overseasCompany = OverseasCompany(Some(details.identification.isDefined),
-          details.identification.map(_.idNumber),
-          details.identification.map(_.issuingInstitution),
-          details.identification.map(_.issuingCountryCode))
-
-        Some(details.businessType, BusinessRegistration(details.businessName, details.businessAddress), overseasCompany)
-
-      }
+          (busType, BusinessRegistration(details.businessName, details.businessAddress), overseasCompany)
+        }
+      )
     }
     dataCacheConnector.fetchAndGetBusinessDetailsForSession map createBusinessRegistration
   }
@@ -160,7 +160,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
 
     val updatedAddress = registerData.businessAddress
     ReviewDetails(businessName = registerData.businessName,
-      businessType = nonUKBusinessType,
+      businessType = Some(nonUKBusinessType),
       businessAddress = updatedAddress.copy(postcode = updatedAddress.postcode.map(_.toUpperCase)),
       sapNumber = sapNumber,
       safeId = safeId,

@@ -116,7 +116,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with OneServerPerSuite wit
 
         val reviewDetails = ReviewDetails(
           "businessName",
-          "LLP",
+          None,
           address,
           "sapNumber",
           "safeId",

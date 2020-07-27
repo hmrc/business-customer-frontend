@@ -52,7 +52,7 @@ class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mockit
     "fetchAndGetBusinessDetailsForSession" must {
       "fetch saved BusinessDetails from SessionCache" in {
         val reviewDetails: ReviewDetails =
-          ReviewDetails("ACME", "UIB", Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+          ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
         when(mockDefaultHttpClient.GET[CacheMap](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
@@ -65,7 +65,7 @@ class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mockit
     "saveAndReturnBusinessDetails" must {
 
       "save the fetched business details" in {
-        val reviewDetails: ReviewDetails = ReviewDetails("ACME", "UIB", Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+        val reviewDetails: ReviewDetails = ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
         when(mockDefaultHttpClient.PUT[ReviewDetails, CacheMap]
           (ArgumentMatchers.any(), ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))

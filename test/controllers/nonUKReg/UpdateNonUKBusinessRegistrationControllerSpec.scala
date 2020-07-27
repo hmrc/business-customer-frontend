@@ -394,7 +394,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
 
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
-    val successModel = ReviewDetails("ACME", "Unincorporated body", address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+    val successModel = ReviewDetails("ACME", Some("Unincorporated body"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
@@ -434,7 +434,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
 
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
-    val successModel = ReviewDetails("ACME", "Unincorporated body", address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+    val successModel = ReviewDetails("ACME", Some("Unincorporated body"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
@@ -487,7 +487,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     else
       when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-    val successModel = ReviewDetails("ACME", "Unincorporated body", address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+    val successModel = ReviewDetails("ACME", Some("Unincorporated body"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
@@ -521,7 +521,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     else
       when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-    val successModel = ReviewDetails("ACME", "Unincorporated body", address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+    val successModel = ReviewDetails("ACME", Some("Unincorporated body"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))

@@ -94,7 +94,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
       postcode = addressReturned.postalCode, country = addressReturned.countryCode)
 
     val reviewDetails = ReviewDetails(businessName = s"${individual.firstName} ${individual.lastName}",
-      businessType = businessType,
+      businessType = Some(businessType),
       businessAddress = address,
       sapNumber = getSapNumber(dataReturned),
       safeId = getSafeId(dataReturned),

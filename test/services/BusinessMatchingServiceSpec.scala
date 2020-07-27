@@ -39,7 +39,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with OneServerPerSuite with M
 
   val testAddress = Address("address line 1", "address line 2", Some("address line 3"), Some("address line 4"), Some("AA1 1AA"), "UK")
   val testReviewDetails = ReviewDetails(businessName = "ACME",
-    businessType = "Limited",
+    businessType = Some("Limited"),
     businessAddress = testAddress,
     sapNumber = "1234567890",
     safeId = "EX0012345678909",
@@ -79,10 +79,10 @@ class BusinessMatchingServiceSpec extends PlaySpec with OneServerPerSuite with M
 
   val utr = "1234567890"
 
-  val successOrgReviewDetailsDirect = ReviewDetails("Real Business Inc", "unincorporated body", testAddress, "1234567890", "EX0012345678909",
+  val successOrgReviewDetailsDirect = ReviewDetails("Real Business Inc", Some("unincorporated body"), testAddress, "1234567890", "EX0012345678909",
     isAGroup = true, directMatch = true, Some("01234567890"), utr = Some(utr))
 
-  val successOrgReviewDetails = ReviewDetails("Real Business Inc", "unincorporated body", testAddress, "1234567890", "EX0012345678909",
+  val successOrgReviewDetails = ReviewDetails("Real Business Inc", Some("unincorporated body"), testAddress, "1234567890", "EX0012345678909",
     isAGroup = true, directMatch = false, Some("01234567890"), utr = Some(utr))
 
   val successOrgReviewDetailsJsonDirect = Json.toJson(successOrgReviewDetailsDirect)
@@ -116,10 +116,10 @@ class BusinessMatchingServiceSpec extends PlaySpec with OneServerPerSuite with M
       |}
     """.stripMargin)
 
-  val successIndReviewDetailsDirect = ReviewDetails("first name last name", "Sole Trader", testAddress, "1234567890", "EX0012345678909",
+  val successIndReviewDetailsDirect = ReviewDetails("first name last name", Some("Sole Trader"), testAddress, "1234567890", "EX0012345678909",
     isAGroup = false, directMatch = true, Some("01234567890"), Some("first name"), Some("last name"), Some(utr))
 
-  val successIndReviewDetails = ReviewDetails("first name last name", "Sole Trader", testAddress, "1234567890", "EX0012345678909",
+  val successIndReviewDetails = ReviewDetails("first name last name", Some("Sole Trader"), testAddress, "1234567890", "EX0012345678909",
     isAGroup = false, directMatch = false, Some("01234567890"), Some("first name"), Some("last name"), Some(utr))
 
   val successIndReviewDetailsJsonDirect = Json.toJson(successIndReviewDetailsDirect)
