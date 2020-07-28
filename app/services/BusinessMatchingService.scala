@@ -37,7 +37,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
       val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
         utr = trimmedUtr, isAnAgent = isAnAgent, individual = None, organisation = None)
       businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
-        validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr))
+        validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), None)
       }
     }
   }
@@ -50,7 +50,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
       utr = trimmedUtr, requiresNameMatch = true, isAnAgent = isAnAgent, individual = Some(individual), organisation = None)
     val userType = "sa"
     businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
-      validateAndCache(dataReturned = dataReturned, directMatch = false, utr = Some(trimmedUtr))
+      validateAndCache(dataReturned = dataReturned, directMatch = false, utr = Some(trimmedUtr), None)
     }
   }
 
@@ -60,8 +60,9 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
       utr = trimmedUtr, requiresNameMatch = true, isAnAgent = isAnAgent, individual = None, organisation = Some(organisation))
     val userType = "org"
+    val orgType = organisation.organisationType
     businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
-      validateAndCache(dataReturned = dataReturned, directMatch = false, Some(trimmedUtr))
+      validateAndCache(dataReturned = dataReturned, directMatch = false, Some(trimmedUtr), Some(orgType))
     }
   }
 
@@ -73,13 +74,13 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     }
   }
 
-  private def validateAndCache(dataReturned: JsValue, directMatch: Boolean, utr: Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
+  private def validateAndCache(dataReturned: JsValue, directMatch: Boolean, utr: Option[String], orgType : Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
     val isFailureResponse = dataReturned.validate[MatchFailureResponse].isSuccess
     if (isFailureResponse) Future.successful(dataReturned)
     else {
       val isAnIndividual = (dataReturned \ "isAnIndividual").as[Boolean]
       if (isAnIndividual) cacheIndividual(dataReturned, directMatch, utr)
-      else cacheOrg(dataReturned, directMatch, utr)
+      else cacheOrg(dataReturned, directMatch, utr, orgType)
     }
   }
 
@@ -92,6 +93,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     val address = Address(line_1 = addressReturned.addressLine1, line_2 = addressReturned.addressLine2,
       line_3 = addressReturned.addressLine3, line_4 = addressReturned.addressLine4,
       postcode = addressReturned.postalCode, country = addressReturned.countryCode)
+
 
     val reviewDetails = ReviewDetails(businessName = s"${individual.firstName} ${individual.lastName}",
       businessType = Some(businessType),
@@ -112,9 +114,14 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     }
   }
 
-  private def cacheOrg(dataReturned: JsValue, directMatch: Boolean, utr: Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
+  private def cacheOrg(dataReturned: JsValue, directMatch: Boolean, utr: Option[String], orgType : Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
     val organisation = (dataReturned \ "organisation").as[OrganisationResponse]
-    val businessType = organisation.organisationType
+    val businessType = {
+    orgType match {
+      case Some(_) => orgType
+      case None => organisation.organisationType
+  }
+}
     val businessName = organisation.organisationName
     val isAGroup = organisation.isAGroup
     val addressReturned = getAddress(dataReturned)
