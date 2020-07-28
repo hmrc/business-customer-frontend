@@ -53,7 +53,7 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
 
   val testAddress = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
 
-  val testReviewDetails = ReviewDetails("ACME", "Limited", testAddress, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+  val testReviewDetails = ReviewDetails("ACME", Some("Limited"), testAddress, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
   val appConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
