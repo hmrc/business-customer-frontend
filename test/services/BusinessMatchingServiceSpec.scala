@@ -26,7 +26,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{CtUtr, Org, SaUtr}
@@ -77,6 +77,33 @@ class BusinessMatchingServiceSpec extends PlaySpec with OneServerPerSuite with M
       | }
     """.stripMargin)
 
+  val successOrgJsonNoOrgType: JsValue = Json.parse(
+    """
+      |{
+      |  "sapNumber": "1234567890",
+      |  "safeId": "EX0012345678909",
+      |  "agentReferenceNumber": "01234567890",
+      |  "isEditable": true,
+      |  "isAnAgent": false,
+      |  "isAnIndividual": false,
+      |  "organisation": {
+      |    "organisationName": "Real Business Inc",
+      |    "isAGroup": true
+      |  },
+      |  "address": {
+      |    "addressLine1": "address line 1",
+      |    "addressLine2": "address line 2",
+      |    "addressLine3": "address line 3",
+      |    "addressLine4": "address line 4",
+      |    "postalCode": "AA1 1AA",
+      |    "countryCode": "UK"
+      |  },
+      |  "contactDetails": {
+      |    "phoneNumber": "1234567890"
+      |  }
+      | }
+    """.stripMargin)
+
   val utr = "1234567890"
 
   val successOrgReviewDetailsDirect = ReviewDetails("Real Business Inc", Some("unincorporated body"), testAddress, "1234567890", "EX0012345678909",
@@ -84,6 +111,8 @@ class BusinessMatchingServiceSpec extends PlaySpec with OneServerPerSuite with M
 
   val successOrgReviewDetails = ReviewDetails("Real Business Inc", Some("unincorporated body"), testAddress, "1234567890", "EX0012345678909",
     isAGroup = true, directMatch = false, Some("01234567890"), utr = Some(utr))
+
+  val successOrgReviewDetailsForNoOrgType: ReviewDetails = successOrgReviewDetails.copy(businessType = Some("org type"))
 
   val successOrgReviewDetailsJsonDirect = Json.toJson(successOrgReviewDetailsDirect)
 
@@ -338,6 +367,18 @@ class BusinessMatchingServiceSpec extends PlaySpec with OneServerPerSuite with M
         val thrown = the[RuntimeException] thrownBy await(result)
         thrown.getMessage must include("No Address returned from ETMP")
 
+      }
+
+      "for match found with CT user, return Review details as JsValue" in {
+        implicit val ctUser = AuthBuilder.createCtUser()
+
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(successOrgJsonNoOrgType))
+        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
+        await(result) must be(Json.toJson(successOrgReviewDetailsForNoOrgType))
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any())
       }
 
     }

@@ -74,7 +74,8 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     }
   }
 
-  private def validateAndCache(dataReturned: JsValue, directMatch: Boolean, utr: Option[String], orgType : Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
+  private def validateAndCache(dataReturned: JsValue, directMatch: Boolean, utr: Option[String],
+                               orgType : Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
     val isFailureResponse = dataReturned.validate[MatchFailureResponse].isSuccess
     if (isFailureResponse) Future.successful(dataReturned)
     else {
@@ -84,7 +85,6 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     }
   }
 
-
   private def cacheIndividual(dataReturned: JsValue, directMatch: Boolean, utr: Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
     val businessType = "Sole Trader"
     val individual = (dataReturned \ "individual").as[Individual]
@@ -93,7 +93,6 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     val address = Address(line_1 = addressReturned.addressLine1, line_2 = addressReturned.addressLine2,
       line_3 = addressReturned.addressLine3, line_4 = addressReturned.addressLine4,
       postcode = addressReturned.postalCode, country = addressReturned.countryCode)
-
 
     val reviewDetails = ReviewDetails(businessName = s"${individual.firstName} ${individual.lastName}",
       businessType = Some(businessType),
@@ -114,14 +113,16 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     }
   }
 
-  private def cacheOrg(dataReturned: JsValue, directMatch: Boolean, utr: Option[String], orgType : Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
+  private[services] def cacheOrg(dataReturned: JsValue, directMatch: Boolean, utr: Option[String],
+                       orgType : Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
     val organisation = (dataReturned \ "organisation").as[OrganisationResponse]
     val businessType = {
-    orgType match {
-      case Some(_) => orgType
-      case None => organisation.organisationType
-  }
-}
+      if(organisation.organisationType.isDefined){
+        organisation.organisationType
+      }else{
+        orgType
+      }
+    }
     val businessName = organisation.organisationName
     val isAGroup = organisation.isAGroup
     val addressReturned = getAddress(dataReturned)
