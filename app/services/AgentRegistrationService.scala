@@ -26,7 +26,7 @@ import play.api.http.Status._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.model.EventTypes
 import utils.GovernmentGatewayConstants
-
+import utils.BusinessCustomerConstants.SoleTrader
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Success, Try}
@@ -98,7 +98,7 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
         val ukPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsUKPostCode,
           businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered UK Postcode found for the agent!")))
         businessDetails.businessType match {
-          case Some("Sole Trader") =>
+          case Some(SoleTrader) =>
             ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsUniqueTaxRef, utr))
           case _ =>
             ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsCompanyTaxRef, utr))

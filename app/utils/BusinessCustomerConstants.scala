@@ -22,6 +22,7 @@ object BusinessCustomerConstants {
   val UnincorporatedBody = "Unincorporated Body"
   val Llp = "LLP"
   val Partnership = "Partnership"
+  val SoleTrader = "Sole Trader"
 
   val IdentifierArn = "arn"
   val IdentifierUtr = "utr"

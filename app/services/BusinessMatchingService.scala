@@ -22,7 +22,7 @@ import models.{Individual, _}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SessionUtils
-
+import utils.BusinessCustomerConstants.{SoleTrader, CorporateBody, Partnership}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -37,7 +37,11 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
       val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
         utr = trimmedUtr, isAnAgent = isAnAgent, individual = None, organisation = None)
       businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
-        validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), Some("Corporate Body"))
+        (service.toLowerCase, userType) match {
+          case (_, "org") => validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), Some(CorporateBody))
+          case ("ated", "sa") => validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), Some(Partnership))
+          case _ => validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), None)
+        }
       }
     }
   }
@@ -86,7 +90,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
   }
 
   private def cacheIndividual(dataReturned: JsValue, directMatch: Boolean, utr: Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
-    val businessType = "Sole Trader"
+    val businessType = SoleTrader
     val individual = (dataReturned \ "individual").as[Individual]
     val addressReturned = getAddress(dataReturned)
 
