@@ -37,7 +37,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
       val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
         utr = trimmedUtr, isAnAgent = isAnAgent, individual = None, organisation = None)
       businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
-        validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), None)
+        validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), Some("Corporate Body"))
       }
     }
   }
