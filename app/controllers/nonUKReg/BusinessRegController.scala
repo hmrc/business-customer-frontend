@@ -16,7 +16,7 @@
 
 package controllers.nonUKReg
 
-import config.{ApplicationConfig, BCUtils}
+import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.BackLinkController
 import controllers.auth.AuthActions
@@ -26,7 +26,6 @@ import javax.inject.Inject
 import models.{BusinessRegistration, BusinessRegistrationDisplayDetails, StandardAuthRetrievals}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
 

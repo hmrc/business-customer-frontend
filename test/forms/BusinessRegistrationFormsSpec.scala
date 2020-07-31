@@ -25,19 +25,21 @@ import play.api.data.Form
 
 class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with GuiceOneServerPerSuite {
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+
+  val input: Map[String, String] = Map("businessName" -> "Business Name",
+    "businessAddress.line_1" -> "Address line 1",
+    "businessAddress.line_2" -> "Address line 2",
+    "businessAddress.postcode" -> "1234",
+    "businessAddress.country" -> "IN")
 
   "BusinessRegistrationForms" must {
-    "pass validation for when valid non uk post code" in {
+    "pass validation when valid NonUK postcode applied" in {
 
-      val input: Map[String, String] = Map("businessName" -> "Business Name",
-      "businessAddress.line_1" -> "Address line 1",
-      "businessAddress.line_2" -> "Address line 2",
-      "businessAddress.postcode" -> "677 101",
-      "businessAddress.country" -> "IN")
+      val testinput = input + ("businessAddress.postcode" -> "677 101")
 
-      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(input)
-      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", false, appConfig).fold(
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
         hasErrors => {
           hasErrors.errors.length mustBe 0
         },
@@ -47,16 +49,58 @@ class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with Guic
       )
     }
 
-    "fail validation for invalid non uk post code" in {
+    "pass validation when valid NonUK postcode with leading and trailing spaces applied" in {
 
-      val input: Map[String, String] = Map("businessName" -> "Business Name",
-        "businessAddress.line_1" -> "Address line 1",
-        "businessAddress.line_2" -> "Address line 2",
-        "businessAddress.postcode" -> "67,7  101",
-        "businessAddress.country" -> "IN")
+      val testinput = input + ("businessAddress.postcode" -> "  677 101 ")
 
-      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(input)
-      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", false, appConfig).fold(
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
+        hasErrors => {
+          hasErrors.errors.length mustBe 0
+        },
+        success => {
+          success.businessAddress.postcode mustBe Some("677 101")
+        }
+      )
+    }
+
+    "pass validation when valid NonUK postcode and Country containing leading and trailing spaces applied" in {
+
+      val testinput = input + ("businessAddress.postcode" -> "1234567890", "businessAddress.country" -> " IN ")
+
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
+        hasErrors => {
+          hasErrors.errors.length mustBe 0
+        },
+        success => {
+          success.businessAddress.country mustBe "IN"
+        }
+      )
+    }
+
+    "pass validation when NonUK postcode and Country contain leading and trailing spaces applied" in {
+
+      val testinput = input + ("businessAddress.postcode" -> "  111 111 ", "businessAddress.country" -> " IN ")
+
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
+        hasErrors => {
+          hasErrors.errors.length mustBe 0
+        },
+        success => {
+          success.businessAddress.country mustBe "IN"
+          success.businessAddress.postcode mustBe Some("111 111")
+        }
+      )
+    }
+
+    "fail validation when invalid NonUK postcode is applied" in {
+
+      val testinput = input + ("businessAddress.postcode" -> "67,7  101")
+
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
         hasErrors => {
           hasErrors.errors.length mustBe 1
           hasErrors.errors.head.message mustBe "bc.business-registration-error.postcode.invalid"
@@ -67,22 +111,83 @@ class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with Guic
       )
     }
 
-    "fail validation for empty non uk post code" in {
+    "fail validation when NonUK postcode exceeding permitted length is applied" in {
 
-      val input: Map[String, String] = Map("businessName" -> "Business Name",
-        "businessAddress.line_1" -> "Address line 1",
-        "businessAddress.line_2" -> "Address line 2",
-        "businessAddress.postcode" -> "",
-        "businessAddress.country" -> "IN")
+      val testinput = input + ("businessAddress.postcode" -> "12345678901")
 
-      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(input)
-      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", false, appConfig).fold(
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
+        hasErrors => {
+          hasErrors.errors.length mustBe 2
+          hasErrors.errors.head.message mustBe "bc.business-registration-error.postcode.length"
+          hasErrors.errors.seq(1).message mustBe "bc.business-registration-error.postcode.invalid"
+        },
+        _ => {
+          fail("There is a problem")
+        }
+      )
+    }
+
+    "fail validation when NonUK postcode containing more than one space is applied" in {
+
+      val testinput = input + ("businessAddress.postcode" -> "677  101")
+
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
+        hasErrors => {
+          hasErrors.errors.length mustBe 1
+          hasErrors.errors.head.message mustBe "bc.business-registration-error.postcode.invalid"
+        },
+        _ => {
+          fail("There is a problem")
+        }
+      )
+    }
+
+    "fail validation when NonUK postcode with GB country selected" in {
+
+      val testinput = input + ("businessAddress.postcode" -> "677 101", "businessAddress.country" -> "GB")
+
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
+        hasErrors => {
+          hasErrors.errors.length mustBe 1
+          hasErrors.errors.head.message mustBe "bc.business-registration-error.non-uk"
+        },
+        _ => {
+          fail("There is a problem")
+        }
+      )
+    }
+
+    "fail validation when empty NonUK postcode applied" in {
+
+      val testinput = input + ("businessAddress.postcode" -> "")
+
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
         hasErrors => {
           hasErrors.errors.length mustBe 1
           hasErrors.errors.head.message mustBe "bc.business-registration-error.postcode"
         },
         _ => {
           fail("There is a problem")
+        }
+      )
+    }
+
+    "fail validation where there is no Country supplied yet still trims the postcode on amended form" in {
+
+      val testinput = input + ("businessAddress.postcode" -> " TF1 1TT ", "businessAddress.country" -> "")
+
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
+        hasErrors => {
+          hasErrors.errors.length mustBe 1
+          hasErrors.errors.head.message mustBe "bc.business-registration-error.country"
+        },
+        success => {
+          success.businessAddress.postcode mustBe Some("TF1 1TT")
         }
       )
     }

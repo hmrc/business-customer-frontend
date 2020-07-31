@@ -25,7 +25,6 @@ import javax.inject.{Inject, Provider}
 import models.PaySAQuestion
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.BusinessCustomerConstants.PaySaDetailsId
 

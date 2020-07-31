@@ -24,7 +24,7 @@ import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.audit.model.{Audit, EventTypes}
+import uk.gov.hmrc.play.audit.model.EventTypes
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.GovernmentGatewayConstants
 

@@ -28,12 +28,10 @@ import play.api.Logger
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
 
 import scala.concurrent.ExecutionContext
-import scala.util.{Success, Try}
 
 class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnector,
                                                    val backLinkCacheConnector: BackLinkCacheConnector,
