@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.{BusinessRegDetailsId, OverseasRegDetailsId}
 import utils.OverseasCompanyUtils
 
@@ -37,6 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
                                              val backLinkCacheConnector: BackLinkCacheConnector,
                                              config: ApplicationConfig,
+                                             template: views.html.nonUkReg.overseas_company_registration,
                                              businessRegistrationService: BusinessRegistrationService,
                                              businessRegistrationCache: BusinessRegCacheConnector,
                                              reviewDetailsController: ReviewDetailsController,
@@ -58,9 +59,9 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
         } yield {
           overseasNumber match {
             case Some(oversea) =>
-              Ok(views.html.nonUkReg.overseas_company_registration(overseasCompanyForm.fill(oversea), service,
+              Ok(template(overseasCompanyForm.fill(oversea), service,
                 displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink))
-            case None => Ok(views.html.nonUkReg.overseas_company_registration(overseasCompanyForm, service,
+            case None => Ok(template(overseasCompanyForm, service,
               displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink))
           }
         }
@@ -74,7 +75,7 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
         case Some(x) if !appConfig.isRelativeOrDev(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
         case _ => BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest).fold(
           formWithErrors => {
-            currentBackLink.map(backLink => BadRequest(views.html.nonUkReg.overseas_company_registration(formWithErrors, service,
+            currentBackLink.map(backLink => BadRequest(template(formWithErrors, service,
               displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink))
             )
           },

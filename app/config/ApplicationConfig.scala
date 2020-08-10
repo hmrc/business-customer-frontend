@@ -19,16 +19,17 @@ package config
 import java.io.File
 
 import javax.inject.{Inject, Named, Singleton}
+import play.api.Mode.Dev
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.util.Try
 
 @Singleton
 class ApplicationConfig @Inject()(val conf: ServicesConfig,
-                                  val runMode: RunMode,
                                   val oldConfig: Configuration,
                                   val environment: Environment,
+                                  val templateError: views.html.global_error,
                                   @Named("appName") val appName: String) extends BCUtils {
 
   private val contactHost = conf.getConfString("contact-frontend.host", "")
@@ -79,10 +80,9 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   def serviceAccountPath(service: String): String = conf.getString(s"microservice.services.${service.toLowerCase}.accountSummaryUrl")
   def serviceRedirectUrl(service: String): String = conf.getString(s"microservice.services.${service.toLowerCase}.serviceRedirectUrl")
 
-  private def env: String = runMode.env
   private def isRelativeUrl(url: String): Boolean = url.matches("^[/][^/].*")
 
-  def isRelativeOrDev(url: String): Boolean = isRelativeUrl(url) || env == "Dev"
+  def isRelativeOrDev(url: String): Boolean = isRelativeUrl(url) || environment.mode == Dev
 
   def getFile(path: String): File = environment.getFile(path)
 }

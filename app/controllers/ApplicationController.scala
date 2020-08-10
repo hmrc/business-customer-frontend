@@ -25,10 +25,14 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, DiscardingCookie, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.model.EventTypes
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 class ApplicationController @Inject()(val config: ApplicationConfig,
                                       audit: Auditable,
+                                      templateUnauthorised: views.html.unauthorised,
+                                      templateFeedBack: views.html.feedback,
+                                      templateThankYou: views.html.feedbackThankYou,
+                                      templateLogout: views.html.logout,
                                       mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with I18nSupport {
 
@@ -37,7 +41,7 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
 
   def unauthorised(): Action[AnyContent] = Action {
     implicit request =>
-      Ok(views.html.unauthorised())
+      Ok(templateUnauthorised())
   }
 
   def cancel: Action[AnyContent] = Action { implicit request =>
@@ -58,16 +62,16 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
   def feedback(service: String): Action[AnyContent] = Action { implicit request =>
     service.toUpperCase match {
       case "ATED" =>
-        Ok(views.html.feedback(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER))), service, appConfig.serviceWelcomePath(service)))
+        Ok(templateFeedBack(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER))), service, appConfig.serviceWelcomePath(service)))
       case "AWRS" =>
-        Ok(views.html.feedback(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER))), service, appConfig.serviceWelcomePath(service)))
+        Ok(templateFeedBack(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER))), service, appConfig.serviceWelcomePath(service)))
       case _ => Redirect(controllers.routes.ApplicationController.signedOut()).withNewSession
     }
   }
 
   def submitFeedback(service: String): Action[AnyContent] = Action { implicit request =>
     feedbackForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.feedback(formWithErrors, service, appConfig.serviceWelcomePath(service))),
+      formWithErrors => BadRequest(templateFeedBack(formWithErrors, service, appConfig.serviceWelcomePath(service))),
       feedback => {
         def auditFeedback(feedBack: FeedBack)(implicit hc: HeaderCarrier): Unit = {
           audit.sendDataEvent(s"$service-exit-survey", detail = Map(
@@ -85,10 +89,10 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
   }
 
   def feedbackThankYou(service: String): Action[AnyContent] = Action { implicit request =>
-    Ok(views.html.feedbackThankYou(service, appConfig.serviceWelcomePath(service)))
+    Ok(templateThankYou(service, appConfig.serviceWelcomePath(service)))
   }
   def keepAlive: Action[AnyContent] = Action { implicit request => Ok("OK")}
-  def signedOut: Action[AnyContent] = Action { implicit request => Ok(views.html.logout())}
+  def signedOut: Action[AnyContent] = Action { implicit request => Ok(templateLogout())}
 
   def logoutAndRedirectToHome(service: String): Action[AnyContent] = Action { implicit request =>
     Redirect(controllers.routes.HomeController.homePage(service)).discardingCookies(DiscardingCookie("mdtp"))

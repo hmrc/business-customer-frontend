@@ -25,7 +25,7 @@ import javax.inject.{Inject, Provider}
 import models.PaySAQuestion
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.PaySaDetailsId
 
 import scala.concurrent.ExecutionContext
@@ -33,6 +33,7 @@ import scala.concurrent.ExecutionContext
 class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
                                         val backLinkCacheConnector: BackLinkCacheConnector,
                                         config: ApplicationConfig,
+                                        template: views.html.nonUkReg.paySAQuestion,
                                         businessRegController: BusinessRegController,
                                         mcc: MessagesControllerComponents,
                                         businessVerificationController: Provider[BusinessVerificationController],
@@ -52,7 +53,7 @@ class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
           backLink <- currentBackLink
           savedPaySa <- businessRegistrationCache.fetchAndGetCachedDetails[PaySAQuestion](PaySaDetailsId)
         } yield
-          Ok(views.html.nonUkReg.paySAQuestion(paySAQuestionForm.fill(savedPaySa.getOrElse(PaySAQuestion())), service, backLink))
+          Ok(template(paySAQuestionForm.fill(savedPaySa.getOrElse(PaySAQuestion())), service, backLink))
       }
     }
   }
@@ -61,7 +62,7 @@ class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service) { implicit authContext =>
       paySAQuestionForm.bindFromRequest.fold(
         formWithErrors => currentBackLink.map(backLink =>
-          BadRequest(views.html.nonUkReg.paySAQuestion(formWithErrors, service, backLink))
+          BadRequest(template(formWithErrors, service, backLink))
         ),
         formData => {
           businessRegistrationCache.cacheDetails[PaySAQuestion](PaySaDetailsId, formData)

@@ -28,6 +28,7 @@ import play.api.test.FakeRequest
 class nrl_questionSpec extends FeatureSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen{
 
   val service = "ATED"
+  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.nrl_question]
 
   implicit val lang = Lang.defaultLang
   implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
@@ -43,7 +44,7 @@ class nrl_questionSpec extends FeatureSpec with OneServerPerSuite with MockitoSu
       implicit val request = FakeRequest()
       implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
 
-      val html = views.html.nonUkReg.nrl_question(nrlQuestionForm, service, Some("backLinkUri"))
+      val html = injectedViewInstance(nrlQuestionForm, service, Some("backLinkUri"))
 
       val document = Jsoup.parse(html.toString())
 

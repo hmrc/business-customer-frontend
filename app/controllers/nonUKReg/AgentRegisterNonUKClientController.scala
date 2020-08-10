@@ -28,7 +28,7 @@ import play.api.Logger
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
 
 import scala.concurrent.ExecutionContext
@@ -36,6 +36,7 @@ import scala.concurrent.ExecutionContext
 class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnector,
                                                    val backLinkCacheConnector: BackLinkCacheConnector,
                                                    config: ApplicationConfig,
+                                                   template: views.html.nonUkReg.nonuk_business_registration,
                                                    businessRegistrationCache: BusinessRegCacheConnector,
                                                    overseasCompanyRegController: OverseasCompanyRegController,
                                                    mcc: MessagesControllerComponents)
@@ -54,9 +55,9 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
         val backLinkOption = if (backLinkUrl.isDefined) backLinkUrl else backLink
         businessRegistration match {
           case Some(businessReg) =>
-            Ok(views.html.nonUkReg.nonuk_business_registration(businessRegistrationForm.fill(businessReg), service, displayDetails, backLinkOption))
+            Ok(template(businessRegistrationForm.fill(businessReg), service, displayDetails, backLinkOption))
           case None =>
-            Ok(views.html.nonUkReg.nonuk_business_registration(businessRegistrationForm, service, displayDetails, backLinkOption))
+            Ok(template(businessRegistrationForm, service, displayDetails, backLinkOption))
         }
       }
     }
@@ -67,7 +68,7 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
       BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, isAgent = true, appConfig).fold(
         formWithErrors => {
           currentBackLink.map(backLink =>
-            BadRequest(views.html.nonUkReg.nonuk_business_registration(formWithErrors, service, displayDetails, backLink))
+            BadRequest(template(formWithErrors, service, displayDetails, backLink))
           )
         },
         registerData => {

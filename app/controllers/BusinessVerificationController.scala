@@ -29,7 +29,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,6 +37,15 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                                                val authConnector: AuthConnector,
+                                               template: views.html.business_verification,
+                                               templateSOP: views.html.business_lookup_SOP,
+                                               templateLTD: views.html.business_lookup_LTD,
+                                               templateUIB: views.html.business_lookup_UIB,
+                                               templateOBP: views.html.business_lookup_OBP,
+                                               templateLLP: views.html.business_lookup_LLP,
+                                               templateLP: views.html.business_lookup_LP,
+                                               templateNRL: views.html.business_lookup_NRL,
+                                               templateDetailsNotFound: views.html.details_not_found,
                                                val backLinkCacheConnector: BackLinkCacheConnector,
                                                val businessMatchingService: BusinessMatchingService,
                                                val businessRegUKController: BusinessRegUKController,
@@ -54,7 +63,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
   def businessVerification(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       currentBackLink map ( backLink =>
-        Ok(views.html.business_verification(businessTypeForm, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink))
+        Ok(template(businessTypeForm, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink))
       )
     }
   }
@@ -64,7 +73,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       BusinessVerificationForms.validateBusinessType(businessTypeForm.bindFromRequest, service).fold(
         formWithErrors =>
           currentBackLink map ( backLink =>
-            BadRequest(views.html.business_verification(formWithErrors, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink)
+            BadRequest(template(formWithErrors, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink)
           )
         ),
         value => {
@@ -95,15 +104,15 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       val backLink = Some(routes.BusinessVerificationController.businessVerification(service).url)
       Future.successful(
         businessType match {
-          case "SOP" => Ok(views.html.business_lookup_SOP(soleTraderForm, authContext.isAgent, service, businessType, backLink))
-          case "LTD" => Ok(views.html.business_lookup_LTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink))
-          case "UIB" => Ok(views.html.business_lookup_UIB(unincorporatedBodyForm, authContext.isAgent, service, businessType, backLink))
-          case "OBP" => Ok(views.html.business_lookup_OBP(ordinaryBusinessPartnershipForm, authContext.isAgent, service, businessType, backLink))
-          case "LLP" => Ok(views.html.business_lookup_LLP(limitedLiabilityPartnershipForm, authContext.isAgent, service, businessType, backLink))
-          case "LP" => Ok(views.html.business_lookup_LP(limitedPartnershipForm, authContext.isAgent, service, businessType, backLink))
-          case "UT" => Ok(views.html.business_lookup_LTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink))
-          case "ULTD" => Ok(views.html.business_lookup_LTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink))
-          case "NRL" => Ok(views.html.business_lookup_NRL(nonResidentLandlordForm, authContext.isAgent, service, businessType, getNrlBackLink(service)))
+          case "SOP" => Ok(templateSOP(soleTraderForm, authContext.isAgent, service, businessType, backLink))
+          case "LTD" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink))
+          case "UIB" => Ok(templateUIB(unincorporatedBodyForm, authContext.isAgent, service, businessType, backLink))
+          case "OBP" => Ok(templateOBP(ordinaryBusinessPartnershipForm, authContext.isAgent, service, businessType, backLink))
+          case "LLP" => Ok(templateLLP(limitedLiabilityPartnershipForm, authContext.isAgent, service, businessType, backLink))
+          case "LP" => Ok(templateLP(limitedPartnershipForm, authContext.isAgent, service, businessType, backLink))
+          case "UT" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink))
+          case "ULTD" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink))
+          case "NRL" => Ok(templateNRL(nonResidentLandlordForm, authContext.isAgent, service, businessType, getNrlBackLink(service)))
         }
       )
     }
@@ -129,7 +138,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
   def detailsNotFound(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       Future.successful(Ok(
-        views.html.details_not_found(authContext.isAgent, service, businessType,
+        templateDetailsNotFound(authContext.isAgent, service, businessType,
           Some(routes.BusinessVerificationController.businessForm(service, businessType).url))
       ))
     }
@@ -138,7 +147,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
   private def uibFormHandling(unincorporatedBodyForm: Form[UnincorporatedMatch], businessType: String, service: String, backLink: Option[String])
                              (implicit authContext: StandardAuthRetrievals, req: Request[AnyContent]): Future[Result] = {
     unincorporatedBodyForm.bindFromRequest.fold(
-      formWithErrors => Future.successful(BadRequest(views.html.business_lookup_UIB(formWithErrors, authContext.isAgent, service, businessType, backLink))),
+      formWithErrors => Future.successful(BadRequest(templateUIB(formWithErrors, authContext.isAgent, service, businessType, backLink))),
       unincorporatedFormData => {
         val organisation = Organisation(unincorporatedFormData.businessName, UnincorporatedBody)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
@@ -161,7 +170,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
   private def sopFormHandling(soleTraderForm: Form[SoleTraderMatch], businessType: String, service: String, backLink: Option[String])
                              (implicit authContext: StandardAuthRetrievals, req: Request[AnyContent]): Future[Result] = {
     soleTraderForm.bindFromRequest.fold(
-      formWithErrors => Future.successful(BadRequest(views.html.business_lookup_SOP(formWithErrors, authContext.isAgent, service, businessType, backLink))),
+      formWithErrors => Future.successful(BadRequest(templateSOP(formWithErrors, authContext.isAgent, service, businessType, backLink))),
       soleTraderFormData => {
         val individual = Individual(soleTraderFormData.firstName, soleTraderFormData.lastName, None)
         businessMatchingService.matchBusinessWithIndividualName(isAnAgent = authContext.isAgent,
@@ -188,7 +197,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                              (implicit authContext: StandardAuthRetrievals, req: Request[AnyContent]): Future[Result] = {
     limitedLiabilityPartnershipForm.bindFromRequest.fold(
       formWithErrors => currentBackLink.map(implicit backLink =>
-        BadRequest(views.html.business_lookup_LLP(formWithErrors, authContext.isAgent, service, businessType, backLink))
+        BadRequest(templateLLP(formWithErrors, authContext.isAgent, service, businessType, backLink))
       ),
       llpFormData => {
         val organisation = Organisation(llpFormData.businessName, Llp)
@@ -212,7 +221,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
   private def lpFormHandling(limitedPartnershipForm: Form[LimitedPartnershipMatch], businessType: String, service: String, backLink: Option[String])
                             (implicit authContext: StandardAuthRetrievals, req: Request[AnyContent]): Future[Result] = {
     limitedPartnershipForm.bindFromRequest.fold(
-      formWithErrors => Future.successful(BadRequest(views.html.business_lookup_LP(formWithErrors, authContext.isAgent, service, businessType, backLink))),
+      formWithErrors => Future.successful(BadRequest(templateLP(formWithErrors, authContext.isAgent, service, businessType, backLink))),
       lpFormData => {
         val organisation = Organisation(lpFormData.businessName, Partnership)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
@@ -238,7 +247,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                               backLink: Option[String])
                              (implicit authContext: StandardAuthRetrievals, req: Request[AnyContent]): Future[Result] = {
     ordinaryBusinessPartnershipForm.bindFromRequest.fold(
-      formWithErrors => Future.successful(BadRequest(views.html.business_lookup_OBP(formWithErrors, authContext.isAgent, service, businessType, backLink))),
+      formWithErrors => Future.successful(BadRequest(templateOBP(formWithErrors, authContext.isAgent, service, businessType, backLink))),
       obpFormData => {
         val organisation = Organisation(obpFormData.businessName, Partnership)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
@@ -264,7 +273,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                               backLink: Option[String])
                              (implicit authContext: StandardAuthRetrievals, req: Request[AnyContent]): Future[Result] = {
     limitedCompanyForm.bindFromRequest.fold(
-      formWithErrors => Future.successful(BadRequest(views.html.business_lookup_LTD(formWithErrors, authContext.isAgent, service, businessType, backLink))),
+      formWithErrors => Future.successful(BadRequest(templateLTD(formWithErrors, authContext.isAgent, service, businessType, backLink))),
       limitedCompanyFormData => {
         val organisation = Organisation(limitedCompanyFormData.businessName, CorporateBody)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
@@ -290,7 +299,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                               backLink: Option[String])
                              (implicit authContext: StandardAuthRetrievals, req: Request[AnyContent]): Future[Result] = {
     nrlForm.bindFromRequest.fold(
-      formWithErrors => Future.successful(BadRequest(views.html.business_lookup_NRL(formWithErrors, authContext.isAgent, service, businessType, backLink))),
+      formWithErrors => Future.successful(BadRequest(templateNRL(formWithErrors, authContext.isAgent, service, businessType, backLink))),
       nrlFormData => {
         val organisation = Organisation(nrlFormData.businessName, CorporateBody)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,

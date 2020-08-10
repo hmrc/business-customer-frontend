@@ -57,11 +57,29 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   val nrlQuestionController: NRLQuestionController = mock[NRLQuestionController]
   val reviewDetailsController: ReviewDetailsController = mock[ReviewDetailsController]
   val homeController: HomeController = mock[HomeController]
+  val injectedViewInstance = app.injector.instanceOf[views.html.business_verification]
+  val injectedViewInstanceSOP = app.injector.instanceOf[views.html.business_lookup_SOP]
+  val injectedViewInstanceLTD = app.injector.instanceOf[views.html.business_lookup_LTD]
+  val injectedViewInstanceUIB = app.injector.instanceOf[views.html.business_lookup_UIB]
+  val injectedViewInstanceOBP = app.injector.instanceOf[views.html.business_lookup_OBP]
+  val injectedViewInstanceLLP = app.injector.instanceOf[views.html.business_lookup_LLP]
+  val injectedViewInstanceLP = app.injector.instanceOf[views.html.business_lookup_LP]
+  val injectedViewInstanceNRL = app.injector.instanceOf[views.html.business_lookup_NRL]
+  val injectedViewInstanceDetailsNotFound = app.injector.instanceOf[views.html.details_not_found]
 
   class Setup {
     val controller: BusinessVerificationController = new BusinessVerificationController(
       appConfig,
       mockAuthConnector,
+      injectedViewInstance,
+      injectedViewInstanceSOP,
+      injectedViewInstanceLTD,
+      injectedViewInstanceUIB,
+      injectedViewInstanceOBP,
+      injectedViewInstanceLLP,
+      injectedViewInstanceLP,
+      injectedViewInstanceNRL,
+      injectedViewInstanceDetailsNotFound,
       mockBackLinkCache,
       mockBusinessMatchingService,
       businessRegUKController,

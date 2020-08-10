@@ -25,7 +25,7 @@ import javax.inject.Inject
 import models.NRLQuestion
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.NrlFormId
 
 import scala.concurrent.ExecutionContext
@@ -33,6 +33,7 @@ import scala.concurrent.ExecutionContext
 class NRLQuestionController @Inject()(val authConnector: AuthConnector,
                                       val backLinkCacheConnector: BackLinkCacheConnector,
                                       config: ApplicationConfig,
+                                      template: views.html.nonUkReg.nrl_question,
                                       businessRegController: BusinessRegController,
                                       mcc: MessagesControllerComponents,
                                       paySAQuestionController: PaySAQuestionController,
@@ -52,7 +53,7 @@ class NRLQuestionController @Inject()(val authConnector: AuthConnector,
           backLink <- currentBackLink
           savedNRL <- businessRegistrationCache.fetchAndGetCachedDetails[NRLQuestion](NrlFormId)
         } yield
-          Ok(views.html.nonUkReg.nrl_question(nrlQuestionForm.fill(savedNRL.getOrElse(NRLQuestion())), service, backLink))
+          Ok(template(nrlQuestionForm.fill(savedNRL.getOrElse(NRLQuestion())), service, backLink))
       }
     }
   }
@@ -61,7 +62,7 @@ class NRLQuestionController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service){ implicit authContext =>
       nrlQuestionForm.bindFromRequest.fold(
         formWithErrors =>
-          currentBackLink.map(backLink => BadRequest(views.html.nonUkReg.nrl_question(formWithErrors, service, backLink))),
+          currentBackLink.map(backLink => BadRequest(template(formWithErrors, service, backLink))),
         formData => {
           businessRegistrationCache.cacheDetails[NRLQuestion](NrlFormId, formData)
           val paysSa = formData.paysSA.getOrElse(false)

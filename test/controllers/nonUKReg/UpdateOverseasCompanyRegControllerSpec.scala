@@ -43,6 +43,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
   val service = "ATED"
   val mockAuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService = mock[BusinessRegistrationService]
+  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.update_overseas_company_registration]
 
   implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
@@ -50,6 +51,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
   object TestNonUKController extends UpdateOverseasCompanyRegController(
     mockAuthConnector,
     appConfig,
+    injectedViewInstance,
     mockBusinessRegistrationService,
     mcc
   )

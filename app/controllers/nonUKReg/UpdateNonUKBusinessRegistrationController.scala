@@ -26,12 +26,13 @@ import play.api.Logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: AuthConnector,
                                                           config: ApplicationConfig,
+                                                          template: views.html.nonUkReg.update_business_registration,
                                                           businessRegistrationService: BusinessRegistrationService,
                                                           mcc: MessagesControllerComponents) extends FrontendController(mcc) with AuthActions {
   implicit val appConfig: ApplicationConfig = config
@@ -41,7 +42,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
     authorisedFor(service) { implicit authContext =>
       businessRegistrationService.getDetails.map {
         case Some(detailsTuple) =>
-          Ok(views.html.nonUkReg.update_business_registration(
+          Ok(template(
             businessRegistrationForm.fill(detailsTuple._2),
             service,
             displayDetails(service, isRegisterClient = false),
@@ -63,7 +64,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
         case _ =>
           businessRegistrationService.getDetails.map {
             case Some(detailsTuple) =>
-              Ok(views.html.nonUkReg.update_business_registration(
+              Ok(template(
                 businessRegistrationForm.fill(detailsTuple._2),
                  service,
                  displayDetails(service, isRegisterClient = true),
@@ -86,7 +87,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
         case _ =>
           BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, authContext.isAgent, appConfig).fold(
             formWithErrors => {
-              Future.successful(BadRequest(views.html.nonUkReg.update_business_registration(formWithErrors,
+              Future.successful(BadRequest(template(formWithErrors,
                 service,
                 displayDetails(service, isRegisterClient),
                 redirectUrl,

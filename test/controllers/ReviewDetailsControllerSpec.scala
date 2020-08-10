@@ -51,6 +51,9 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val mockAgentRegistrationService: AgentRegistrationService = mock[AgentRegistrationService]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
   val mockHttpClient: DefaultHttpClient = mock[DefaultHttpClient]
+  val injectedViewInstanceNonUkAgent= app.injector.instanceOf[views.html.review_details_non_uk_agent]
+  val injectedViewInstanceReviewDetails = app.injector.instanceOf[views.html.review_details]
+  val injectedViewInstanceError = app.injector.instanceOf[views.html.global_error]
 
   implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
@@ -82,6 +85,9 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       mockAuthConnector,
       mockBackLinkCache,
       appConfig,
+      injectedViewInstanceNonUkAgent,
+      injectedViewInstanceReviewDetails,
+      injectedViewInstanceError,
       mockDataCacheConnector,
       mockAgentRegistrationService,
       mcc
@@ -108,6 +114,9 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       mockAuthConnector,
       mockBackLinkCache,
       appConfig,
+      injectedViewInstanceNonUkAgent,
+      injectedViewInstanceReviewDetails,
+      injectedViewInstanceError,
       mockDataCacheConnector,
       mockAgentRegistrationService,
       mcc

@@ -43,6 +43,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
 
   val service = "ATED"
   val invalidService = "scooby-doo"
+  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.nonuk_business_registration]
 
   implicit val hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization("fake")))
   private val mockAuthConnector: DefaultAuthConnector = mock[DefaultAuthConnector]
@@ -57,6 +58,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
       mockAuthConnector,
       mockBackLinkCache,
       mockAppConfig,
+      injectedViewInstance,
       mockBusinessRegistrationCache,
       mockOverseasController,
       mockMCC

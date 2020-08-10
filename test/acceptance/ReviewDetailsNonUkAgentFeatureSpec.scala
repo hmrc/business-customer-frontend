@@ -33,6 +33,7 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
 
   implicit val lang = Lang.defaultLang
   implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
+  val injectedViewInstance = app.injector.instanceOf[views.html.review_details_non_uk_agent]
 
   feature("The user can view the review details page for a non uk agent") {
 
@@ -45,7 +46,7 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
       implicit val request = FakeRequest()
       implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
 
-      val html = views.html.review_details_non_uk_agent("ATED", reviewDetails.copy(directMatch = false), Some("backLinkUri"))
+      val html = injectedViewInstance("ATED", reviewDetails.copy(directMatch = false), Some("backLinkUri"))
 
       val document = Jsoup.parse(html.toString())
       val bizRegistrationDetails = document.select("#business-details tbody tr")

@@ -29,6 +29,7 @@ import play.api.test.FakeRequest
 class overseas_company_registrationSpec extends FeatureSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen{
 
   val service = "ATED"
+  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.overseas_company_registration]
   val displayDetails = OverseasCompanyDisplayDetails(
     "dynamicTitle",
     "dynamicHeader",
@@ -49,7 +50,7 @@ class overseas_company_registrationSpec extends FeatureSpec with OneServerPerSui
       implicit val request = FakeRequest()
       implicit val messages: play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
 
-      val html = views.html.nonUkReg.overseas_company_registration(overseasCompanyForm, service, displayDetails, List(("UK", "UK")), None, Some("backLinkUri"))
+      val html = injectedViewInstance(overseasCompanyForm, service, displayDetails, List(("UK", "UK")), None, Some("backLinkUri"))
 
       val document = Jsoup.parse(html.toString())
 

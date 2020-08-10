@@ -48,6 +48,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val service = "amls"
   val invalidService = "scooby-doo"
   val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.nrl_question]
 
   val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
@@ -56,6 +57,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     mockAuthConnector,
     mockBackLinkCache,
     appConfig,
+    injectedViewInstance,
     mockBusRegController,
     mcc,
     mockPaySAController,
