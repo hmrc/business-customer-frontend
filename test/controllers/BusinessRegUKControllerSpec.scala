@@ -45,6 +45,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
   val mockBusinessRegistrationService = mock[BusinessRegistrationService]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
   val mockReviewDetailController = mock[ReviewDetailsController]
+  val injectedViewInstance = app.injector.instanceOf[views.html.business_group_registration]
 
   val appConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
@@ -53,6 +54,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
     mockAuthConnector,
     mockBackLinkCache,
     appConfig,
+    injectedViewInstance,
     mockBusinessRegistrationService,
     mockReviewDetailController,
     mcc

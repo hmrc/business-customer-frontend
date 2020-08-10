@@ -48,6 +48,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
   val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.overseas_company_registration]
 
   val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
@@ -58,6 +59,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     mockAuthConnector,
     mockBackLinkCache,
     appConfig,
+    injectedViewInstance,
     mockBusinessRegistrationService,
     mockBusinessRegistrationCache,
     mockReviewDetailsController,

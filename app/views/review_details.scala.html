@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import config._
 @import views.html.helpers._
+@this(bcMain: bcMain)
 
 @(service: String, isAgent: Boolean, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 

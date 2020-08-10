@@ -51,6 +51,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val service = "amls"
   val invalidService = "scooby-doo"
   val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.paySAQuestion]
 
   val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
@@ -59,6 +60,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     mockAuthConnector,
     mockBackLinkCache,
     appConfig,
+    injectedViewInstance,
     mockBusinessRegController,
     mcc,
     mockBusinessVerificationControllerProv,

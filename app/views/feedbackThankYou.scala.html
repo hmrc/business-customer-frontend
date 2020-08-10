@@ -16,6 +16,7 @@
 
 @import controllers.auth._
 @import config._
+@this(bcMain: bcMain)
 
 @(service: String, welcomeLink: String)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 

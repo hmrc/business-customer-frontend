@@ -29,6 +29,10 @@ import play.api.test.Helpers._
 
 class ApplicationControllerSpec extends PlaySpec with OneServerPerSuite {
   val service = "ATED"
+  val injectedViewInstanceUnauthorised = app.injector.instanceOf[views.html.unauthorised]
+  val injectedViewInstanceFeedBack = app.injector.instanceOf[views.html.feedback]
+  val injectedViewInstanceThankYou = app.injector.instanceOf[views.html.feedbackThankYou]
+  val injectedViewInstanceLogout = app.injector.instanceOf[views.html.logout]
 
   implicit val lang = Lang.defaultLang
   implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
@@ -37,6 +41,10 @@ class ApplicationControllerSpec extends PlaySpec with OneServerPerSuite {
     val controller = new ApplicationController(
       appConfig,
       app.injector.instanceOf[Auditable],
+      injectedViewInstanceUnauthorised,
+      injectedViewInstanceFeedBack,
+      injectedViewInstanceThankYou,
+      injectedViewInstanceLogout,
       app.injector.instanceOf[MessagesControllerComponents]
     )
   }

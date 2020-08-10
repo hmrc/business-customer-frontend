@@ -16,6 +16,7 @@
 
 @import views.html.helpers._
 @import config._
+@this(bcMain: bcMain)
 
 @(service: String, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[AnyContent], messages: Messages, appConfig: ApplicationConfig)
 

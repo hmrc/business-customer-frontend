@@ -44,6 +44,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
   val service = "ATED"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
+  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.update_business_registration]
 
   implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
@@ -51,6 +52,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
   object TestNonUKController extends UpdateNonUKBusinessRegistrationController(
     mockAuthConnector,
     appConfig,
+    injectedViewInstance,
     mockBusinessRegistrationService,
     mcc
   )

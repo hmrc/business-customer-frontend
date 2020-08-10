@@ -26,7 +26,7 @@ import models.{BusinessRegistrationDisplayDetails, OverseasCompany}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
@@ -34,6 +34,7 @@ import scala.concurrent.ExecutionContext
 class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
                                         val backLinkCacheConnector: BackLinkCacheConnector,
                                         config: ApplicationConfig,
+                                        template: views.html.business_group_registration,
                                         businessRegistrationService: BusinessRegistrationService,
                                         reviewDetailsController: ReviewDetailsController,
                                         mcc: MessagesControllerComponents)
@@ -47,7 +48,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service) { implicit authContext =>
       val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
       currentBackLink map (backLink =>
-        Ok(views.html.business_group_registration(businessRegistrationForm.copy(data = newMapping), service, displayDetails(businessType, service), backLink))
+        Ok(template(businessRegistrationForm.copy(data = newMapping), service, displayDetails(businessType, service), backLink))
       )
     }
   }
@@ -56,7 +57,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service){ implicit authContext =>
       BusinessRegistrationForms.validateUK(businessRegistrationForm.bindFromRequest).fold(
         formWithErrors => currentBackLink map (backLink =>
-          BadRequest(views.html.business_group_registration(formWithErrors, service, displayDetails(businessType, service), backLink))
+          BadRequest(template(formWithErrors, service, displayDetails(businessType, service), backLink))
         ),
         registrationData => {
           businessRegistrationService.registerBusiness(

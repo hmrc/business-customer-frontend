@@ -25,7 +25,7 @@ import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.AgentRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionUtils
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,6 +33,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
                                         val backLinkCacheConnector: BackLinkCacheConnector,
                                         config: ApplicationConfig,
+                                        templateNonUkAgent: views.html.review_details_non_uk_agent,
+                                        templateReviewDetails: views.html.review_details,
+                                        templateError: views.html.global_error,
                                         val dataCacheConnector: DataCacheConnector,
                                         agentRegistrationService: AgentRegistrationService,
                                         mcc: MessagesControllerComponents)
@@ -53,16 +56,16 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
         case Some(businessDetails) =>
           currentBackLink.map(backLink =>
             if (authContext.isAgent && businessDetails.isBusinessDetailsEditable) {
-              Ok(views.html.review_details_non_uk_agent(serviceName, businessDetails, backLink))
+              Ok(templateNonUkAgent(serviceName, businessDetails, backLink))
             } else {
-              Ok(views.html.review_details(serviceName, authContext.isAgent, businessDetails, backLink))
+              Ok(templateReviewDetails(serviceName, authContext.isAgent, businessDetails, backLink))
             }
           )
         case _ =>
           val service = SessionUtils.findServiceInRequest(request)
 
           Logger.warn(s"[ReviewDetailsController][businessDetails] - No Service details found in DataCache for $serviceName")
-          Future.successful(Ok(views.html.global_error(
+          Future.successful(Ok(templateError(
             Messages("global.error.InternalServerError500.title"),
             Messages("global.error.InternalServerError500.heading"),
             Messages("global.error.InternalServerError500.message"),
@@ -86,11 +89,11 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
             case BAD_REQUEST | CONFLICT =>
               val (header, title, lede) = formatErrorMessage(DuplicateUserError)
               Logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EMAC")
-              Future.successful(Ok(views.html.global_error(header, title, lede, serviceName, appConfig)))
+              Future.successful(Ok(templateError(header, title, lede, serviceName, appConfig)))
             case FORBIDDEN =>
               val (header, title, lede) = formatErrorMessage(WrongRoleUserError)
               Logger.warn(s"[ReviewDetailsController][continue] - wrong role for agent enrolling in EMAC")
-              Future.successful(Ok(views.html.global_error(header, title, lede, serviceName, appConfig)))
+              Future.successful(Ok(templateError(header, title, lede, serviceName, appConfig)))
             case _ =>
               Logger.warn(s"[ReviewDetailsController][continue] - allocation failed")
               throw new RuntimeException("We could not find your details. Check and try again.")
