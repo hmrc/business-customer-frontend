@@ -43,7 +43,7 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
   def viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service){ implicit authContext =>
       redirectUrl match {
-        case Some(x) if !appConfig.isRelativeOrDev(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
+        case Some(x) if !appConfig.isRelative(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
         case _ =>
           Ok(template(overseasCompanyForm,
              service,
@@ -72,7 +72,7 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
   def update(service: String, addClient: Boolean, redirectUrl: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service){ implicit authContext =>
       redirectUrl match {
-        case Some(x) if !appConfig.isRelativeOrDev(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
+        case Some(x) if !appConfig.isRelative(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
         case _ =>
           BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest).fold(
             formWithErrors => {

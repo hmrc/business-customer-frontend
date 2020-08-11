@@ -60,7 +60,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
   def edit(service: String, redirectUrl: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       redirectUrl match {
-        case Some(x) if !appConfig.isRelativeOrDev(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
+        case Some(x) if !appConfig.isRelative(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
         case _ =>
           businessRegistrationService.getDetails.map {
             case Some(detailsTuple) =>
@@ -83,7 +83,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
   def update(service: String, redirectUrl: Option[String], isRegisterClient: Boolean): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       redirectUrl match {
-        case Some(x) if !appConfig.isRelativeOrDev(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
+        case Some(x) if !appConfig.isRelative(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
         case _ =>
           BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, authContext.isAgent, appConfig).fold(
             formWithErrors => {

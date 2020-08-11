@@ -25,35 +25,42 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import views.html.nonUkReg.update_overseas_company_registration
 
 import scala.concurrent.Future
 
+class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
-class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+  override lazy val app: Application = new GuiceApplicationBuilder()
+    .configure("microservice.services.auth.host" -> "authprotected")
+    .build()
 
-  val request = FakeRequest()
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val service = "ATED"
-  val mockAuthConnector = mock[AuthConnector]
-  val mockBusinessRegistrationService = mock[BusinessRegistrationService]
-  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.update_overseas_company_registration]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
+  val injectedViewInstance: update_overseas_company_registration = app.injector.instanceOf[views.html.nonUkReg.update_overseas_company_registration]
 
-  implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   object TestNonUKController extends UpdateOverseasCompanyRegController(
-    mockAuthConnector,
-    appConfig,
-    injectedViewInstance,
-    mockBusinessRegistrationService,
-    mcc
+  mockAuthConnector,
+  appConfig,
+  injectedViewInstance,
+  mockBusinessRegistrationService,
+  mcc
   )
 
   override def beforeEach(): Unit = {
@@ -74,7 +81,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
       }
 
       "respond with a redirect for /send & be redirected to the unauthorised page" in {
-        submitWithUnAuthorisedUser("NUK") { result =>
+        submitWithUnAuthorisedUser() { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some("/business-customer/unauthorised"))
         }
@@ -115,7 +122,8 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
           issuingCountry = None
         )
 
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editClientWithAuthorisedAgent(serviceName, Some("/api/anywhere")) { result =>
           status(result) must be(OK)
@@ -179,9 +187,12 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
 
         // inputJson , test message, error message
         val formValidationInputDataSet: Seq[(InputJson, TestMessage, ErrorMessage)] = Seq(
-          (createJson(bUId = "a" * 61), "businessUniqueId must be maximum of 60 characters", "The overseas company registration number cannot be more than 60 characters"),
-          (createJson(issuingInstitution = "a" * 41), "issuingInstitution must be maximum of 40 characters", "The institution that issued the overseas company registration number cannot be more than 40 characters"),
-          (createJson(issuingCountry = "GB"), "show an error if issuing country is selected as GB", "You cannot select United Kingdom when entering an overseas address")
+          (createJson(bUId = "a" * 61), "businessUniqueId must be maximum of 60 characters",
+            "The overseas company registration number cannot be more than 60 characters"),
+          (createJson(issuingInstitution = "a" * 41), "issuingInstitution must be maximum of 40 characters",
+            "The institution that issued the overseas company registration number cannot be more than 40 characters"),
+          (createJson(issuingCountry = "GB"), "show an error if issuing country is selected as GB",
+            "You cannot select United Kingdom when entering an overseas address")
         )
 
         formValidationInputDataSet.foreach { data =>
@@ -197,7 +208,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
         "If we have no cache then an exception must be thrown" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
-          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", None, false) { result =>
+          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson),"ATED", None, hasCache = false) { result =>
             val thrown = the[RuntimeException] thrownBy await(result)
             thrown.getMessage must be("No registration details found")
           }
@@ -237,7 +248,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
-    val result = TestNonUKController.viewForUpdate(serviceName, false, None).apply(FakeRequest().withSession(
+    val result = TestNonUKController.viewForUpdate(serviceName, addClient = false, None).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
@@ -253,7 +264,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
 
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
-    val result = TestNonUKController.viewForUpdate(serviceName, false, redirectUrl).apply(FakeRequest().withSession(
+    val result = TestNonUKController.viewForUpdate(serviceName, addClient = false, redirectUrl).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
@@ -270,12 +281,13 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = ReviewDetails("ACME", Some("Unincorporated body"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
-    when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+    when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(),
+      ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
-    val result = TestNonUKController.viewForUpdate(serviceName, false, None).apply(FakeRequest().withSession(
+    val result = TestNonUKController.viewForUpdate(serviceName, addClient = false, None).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
@@ -293,7 +305,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
 
-    val result = TestNonUKController.update(service, true, redirectUrl).apply(FakeRequest().withSession(
+    val result = TestNonUKController.update(service, addClient = true, redirectUrl).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
@@ -327,7 +339,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
-    val result = TestNonUKController.update(service, true, redirectUrl).apply(fakeRequest.withSession(
+    val result = TestNonUKController.update(service, addClient = true, redirectUrl).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
@@ -343,7 +355,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with OneServerPerS
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
-    val result = TestNonUKController.update(service, true, redirectUrl).apply(fakeRequest.withSession(
+    val result = TestNonUKController.update(service, addClient = true, redirectUrl).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
