@@ -19,7 +19,6 @@ package config
 import java.io.File
 
 import javax.inject.{Inject, Named, Singleton}
-import play.api.Mode.Dev
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -82,7 +81,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
 
   private def isRelativeUrl(url: String): Boolean = url.matches("^[/][^/].*")
 
-  def isRelativeOrDev(url: String): Boolean = isRelativeUrl(url) || environment.mode == Dev
+  def isRelative(url: String): Boolean = isRelativeUrl(url) || conf.baseUrl("auth").contains("localhost")
 
   def getFile(path: String): File = environment.getFile(path)
 }

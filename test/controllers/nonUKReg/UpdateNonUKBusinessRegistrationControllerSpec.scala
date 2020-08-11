@@ -25,36 +25,42 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsEmpty, AnyContentAsJson, Headers, MessagesControllerComponents, Result}
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import views.html.nonUkReg.update_business_registration
 
 import scala.concurrent.Future
 
-
 class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+
+  override lazy val app: Application = new GuiceApplicationBuilder()
+    .configure("microservice.services.auth.host" -> "authprotected")
+    .build()
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val service = "ATED"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
-  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.update_business_registration]
+  val injectedViewInstance: update_business_registration = app.injector.instanceOf[views.html.nonUkReg.update_business_registration]
 
   implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   object TestNonUKController extends UpdateNonUKBusinessRegistrationController(
-    mockAuthConnector,
-    appConfig,
-    injectedViewInstance,
-    mockBusinessRegistrationService,
-    mcc
+  mockAuthConnector,
+  appConfig,
+  injectedViewInstance,
+  mockBusinessRegistrationService,
+  mcc
   )
 
   override def beforeEach(): Unit = {
@@ -68,14 +74,14 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
     "unauthorised users" must {
       "respond with a redirect for /register & be redirected to the unauthorised page" in {
-        editWithUnAuthorisedUser("NUK") { result =>
+        editWithUnAuthorisedUser() { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some("/business-customer/unauthorised"))
         }
       }
 
       "respond with a redirect for /send & be redirected to the unauthorised page" in {
-        submitWithUnAuthorisedUser("NUK") { result =>
+        submitWithUnAuthorisedUser() { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some("/business-customer/unauthorised"))
         }
@@ -94,7 +100,8 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           issuingInstitution = Some("issuingInstitution"),
           issuingCountry = None
         )
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editClientWithAuthorisedUser(serviceName, "NUK") { result =>
           status(result) must be(OK)
@@ -119,7 +126,8 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           issuingInstitution = Some("issuingInstitution"),
           issuingCountry = None
         )
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editClientWithAuthorisedAgent(serviceName, "NUK") { result =>
           status(result) must be(OK)
@@ -168,7 +176,8 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           issuingInstitution = Some("issuingInstitution"),
           issuingCountry = None
         )
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editAgentWithAuthorisedUser(serviceName, "NUK") { result =>
           status(result) must be(OK)
@@ -193,7 +202,8 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           issuingInstitution = Some("issuingInstitution"),
           issuingCountry = None
         )
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editAgentWithAuthorisedAgent(serviceName, "NUK") { result =>
           status(result) must be(OK)
@@ -214,7 +224,8 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
       "throw an exception if we have no data" in {
 
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
 
         editAgentWithAuthorisedUser(serviceName, "NUK") { result =>
           val thrown = the[RuntimeException] thrownBy await(result)
@@ -269,11 +280,16 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
         // inputJson , test message, error message
         val formValidationInputDataSet: Seq[(InputJson, TestMessage, ErrorMessage)] = Seq(
-          (createJson(businessName = "a" * 106), "If entered, Business name must be maximum of 105 characters", "The business name cannot be more than 105 characters"),
-          (createJson(line1 = "a" * 36), "If entered, Address line 1 must be maximum of 35 characters", "Address line 1 cannot be more than 35 characters"),
-          (createJson(line2 = "a" * 36), "If entered, Address line 2 must be maximum of 35 characters", "Address line 2 cannot be more than 35 characters"),
-          (createJson(line3 = "a" * 36), "Address line 3 is optional but if entered, must be maximum of 35 characters", "Address line 3 cannot be more than 35 characters"),
-          (createJson(line4 = "a" * 36), "Address line 4 is optional but if entered, must be maximum of 35 characters", "Address line 4 cannot be more than 35 characters"),
+          (createJson(businessName = "a" * 106), "If entered, Business name must be maximum of 105 characters",
+            "The business name cannot be more than 105 characters"),
+          (createJson(line1 = "a" * 36), "If entered, Address line 1 must be maximum of 35 characters",
+            "Address line 1 cannot be more than 35 characters"),
+          (createJson(line2 = "a" * 36), "If entered, Address line 2 must be maximum of 35 characters",
+            "Address line 2 cannot be more than 35 characters"),
+          (createJson(line3 = "a" * 36), "Address line 3 is optional but if entered, must be maximum of 35 characters",
+            "Address line 3 cannot be more than 35 characters"),
+          (createJson(line4 = "a" * 36), "Address line 4 is optional but if entered, must be maximum of 35 characters",
+            "Address line 4 cannot be more than 35 characters"),
           (createJson(country = "GB"), "show an error if country is selected as GB", "You cannot select United Kingdom when entering an overseas address")
         )
 
@@ -308,7 +324,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
         "If we have no cache then an exception must be thrown" in {
           implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
-          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", None, false) { result =>
+          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", None, hasCache = false) { result =>
             val thrown = the[RuntimeException] thrownBy await(result)
             thrown.getMessage must be("No registration details found")
           }
@@ -398,7 +414,8 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = ReviewDetails("ACME", Some("Unincorporated body"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
-    when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+    when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(),
+      ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
 
@@ -438,7 +455,8 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = ReviewDetails("ACME", Some("Unincorporated body"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
-    when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+    when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(),
+      ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
 
@@ -460,7 +478,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
 
-    val result = TestNonUKController.update(service, redirectUrl, true).apply(FakeRequest().withSession(
+    val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
@@ -494,7 +512,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
-    val result = TestNonUKController.update(service, redirectUrl, true).apply(fakeRequest.withSession(
+    val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
@@ -528,7 +546,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
-    val result = TestNonUKController.update(service, redirectUrl, true).apply(fakeRequest.withSession(
+    val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
@@ -544,7 +562,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
-    val result = TestNonUKController.update(service, redirectUrl, true).apply(fakeRequest.withSession(
+    val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
       "token" -> "RANDOMTOKEN",
       SessionKeys.userId -> userId)
