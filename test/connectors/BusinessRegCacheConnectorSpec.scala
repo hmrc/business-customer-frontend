@@ -17,15 +17,16 @@
 package connectors
 
 import config.ApplicationConfig
-import models.ReviewDetails
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
+import play.api.test.Injecting
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.http.logging.SessionId
@@ -33,7 +34,7 @@ import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.Future
 
-class BusinessRegCacheConnectorSpec extends PlaySpec with OneServerPerSuite with MockitoSugar  with BeforeAndAfterEach{
+class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar  with BeforeAndAfterEach with Injecting {
 
   val mockSessionCache = mock[SessionCache]
 
@@ -56,8 +57,8 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with OneServerPerSuite with
     reset(mockSessionCache)
   }
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  val appConfig = inject[ApplicationConfig]
+  implicit val mcc = inject[MessagesControllerComponents]
 
   val mockHttpClient = mock[DefaultHttpClient]
 

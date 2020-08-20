@@ -18,6 +18,7 @@ package utils
 
 import javax.xml.parsers.{SAXParser, SAXParserFactory}
 import uk.gov.hmrc.http.HttpResponse
+
 import scala.xml.XML
 
 object ErrorMessageUtils {

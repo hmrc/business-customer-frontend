@@ -20,7 +20,7 @@ import audit.Auditable
 import config.ApplicationConfig
 import javax.inject.Inject
 import models.{MatchBusinessData, StandardAuthRetrievals}
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
@@ -33,7 +33,7 @@ import scala.util.{Failure, Success, Try}
 
 class BusinessMatchingConnector @Inject()(val audit: Auditable,
                                           val http: DefaultHttpClient,
-                                          val conf: ApplicationConfig) extends RawResponseReads {
+                                          val conf: ApplicationConfig) extends RawResponseReads with Logging {
 
   val baseUri = "business-matching"
   val lookupUri = "business-lookup"
@@ -53,16 +53,16 @@ class BusinessMatchingConnector @Inject()(val audit: Auditable,
             case Failure(_) => truncateContactDetails(response.body)
           }
         case SERVICE_UNAVAILABLE =>
-          Logger.warn(s"[BusinessMatchingConnector][lookup] - Service unavailableException ${lookupData.utr}")
+          logger.warn(s"[BusinessMatchingConnector][lookup] - Service unavailableException ${lookupData.utr}")
           throw new ServiceUnavailableException("Service unavailable")
         case BAD_REQUEST =>
-          Logger.warn(s"[BusinessMatchingConnector][lookup] - Bad Request Exception ${lookupData.utr}")
+          logger.warn(s"[BusinessMatchingConnector][lookup] - Bad Request Exception ${lookupData.utr}")
           throw new BadRequestException("Bad Request")
         case INTERNAL_SERVER_ERROR =>
-          Logger.warn(s"[BusinessMatchingConnector][lookup] - Service Internal server error ${lookupData.utr}")
+          logger.warn(s"[BusinessMatchingConnector][lookup] - Service Internal server error ${lookupData.utr}")
           throw new InternalServerException("Internal server error")
         case status =>
-          Logger.warn(s"[BusinessMatchingConnector][lookup] - $status Exception ${lookupData.utr}")
+          logger.warn(s"[BusinessMatchingConnector][lookup] - $status Exception ${lookupData.utr}")
           throw new RuntimeException("Unknown response")
       }
     }

@@ -152,7 +152,7 @@ object AuthBuilder {
     Enrolment("HMRC-AGENT-AGENT", Seq(EnrolmentIdentifier("AgentRefNumber", agentRef)), "Activated")
   }
 
-  private def createAgentAuthority(agentRole: CredentialRole = User, agentRefNo: Option[String] = None): StandardAuthRetrievals = {
+  private def createAgentAuthority(agentRole: CredentialRole = User, agentRefNo: Option[String]): StandardAuthRetrievals = {
 
     val agentEnrolment: Option[Enrolment] = agentRefNo.map { agentRef =>
       produceAgentEnrolment(agentRef)

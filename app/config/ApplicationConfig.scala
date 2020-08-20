@@ -33,7 +33,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
 
   private val contactHost = conf.getConfString("contact-frontend.host", "")
 
-  val serviceList: Seq[String] =  oldConfig.getStringSeq("microservice.services.names").getOrElse(
+  val serviceList: Seq[String] =  oldConfig.getOptional[Seq[String]]("microservice.services.names").getOrElse(
     throw new Exception("No services available in application configuration"))
 
   val contactFormServiceIdentifier = "BUSINESS-CUSTOMER"

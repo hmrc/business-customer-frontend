@@ -78,7 +78,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         when(
           mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
+        ).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
         val result: Future[HttpResponse] = connector.addKnownFacts(knownFacts)
         await(result).status must be(OK)
@@ -94,7 +94,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         when(
           mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(matchFailureResponse))))
+        ).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, matchFailureResponse.toString)))
 
         val result: Future[HttpResponse] = connector.addKnownFacts(knownFacts)
         await(result).status must be(INTERNAL_SERVER_ERROR)
@@ -133,7 +133,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         when(
           mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
+        ).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
         val result: Future[BusinessRegistrationResponse] = connector.register(businessRequestData, service)
         await(result) must be(businessResponseData)
@@ -148,7 +148,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         when(
           mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
+        ).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
         val result: Future[BusinessRegistrationResponse] = connector.register(businessRequestDataNonUK, service)
         await(result) must be(businessResponseData)
@@ -163,7 +163,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         when(
           mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
+        ).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
         val result: Future[BusinessRegistrationResponse] = connector.register(businessRequestDataNonUK, service, isNonUKClientRegisteredByAgent = true)
         await(result) must be(businessResponseData)
@@ -176,7 +176,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         when(
           mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
             (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(matchFailureResponse))))
+        ).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
 
         val result: Future[BusinessRegistrationResponse] = connector.register(businessRequestData, service)
         val thrown: ServiceUnavailableException = the[ServiceUnavailableException] thrownBy await(result)
@@ -192,7 +192,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         when(
           mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(matchFailureResponse))))
+        ).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
 
         val result: Future[BusinessRegistrationResponse] = connector.register(businessRequestData, service)
         val thrown: InternalServerException = the[InternalServerException] thrownBy await(result)
@@ -205,7 +205,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(999, Some(matchFailureResponse))))
+        ).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
 
         val result: Future[BusinessRegistrationResponse] = connector.register(businessRequestData, service)
         val thrown: InternalServerException = the[InternalServerException] thrownBy await(result)
@@ -239,7 +239,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       )
 
       val safeId = "SAFE123123"
-      val successResponse = HttpResponse(OK, Some(Json.parse( """{"processingDate": "2014-12-17T09:30:47Z"}""")))
+      val successResponse = HttpResponse(OK, """{"processingDate": "2014-12-17T09:30:47Z"}""")
 
       "for successful save, return Response as Json" in new Setup {
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
@@ -282,7 +282,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         when(mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(matchFailureResponse))))
+        ).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
 
         val result: Future[HttpResponse] = connector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown: ServiceUnavailableException = the[ServiceUnavailableException] thrownBy await(result)
@@ -296,7 +296,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         when(
           mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(matchFailureResponse))))
+        ).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
 
         val result: Future[HttpResponse] = connector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown: InternalServerException = the[InternalServerException] thrownBy await(result)
@@ -310,7 +310,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         when(
           mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(999, Some(matchFailureResponse))))
+        ).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
 
         val result: Future[HttpResponse] = connector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown: InternalServerException = the[InternalServerException] thrownBy await(result)

@@ -20,7 +20,7 @@ import config.ApplicationConfig
 import connectors.DataCacheConnector
 import controllers.auth.AuthActions
 import javax.inject.Inject
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext
 class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
                                            config: ApplicationConfig,
                                            dataCacheConnector: DataCacheConnector,
-                                           mcc: MessagesControllerComponents) extends FrontendController(mcc) with AuthActions with I18nSupport {
+                                           mcc: MessagesControllerComponents) extends FrontendController(mcc) with AuthActions with I18nSupport with Logging {
 
   implicit val appConfig: ApplicationConfig = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -44,7 +44,7 @@ class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
           case OK | NO_CONTENT =>
             Ok
           case errorStatus =>
-            Logger.error(s"session has not been cleared for $service. Status: $errorStatus, Error: ${x.body}")
+            logger.error(s"session has not been cleared for $service. Status: $errorStatus, Error: ${x.body}")
             InternalServerError
         }
       }
@@ -57,7 +57,7 @@ class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
         case Some(businessDetails) =>
           Ok(Json.toJson(businessDetails))
         case _ =>
-          Logger.warn(s"could not retrieve business details for $service")
+          logger.warn(s"could not retrieve business details for $service")
           NotFound
       }
     }

@@ -31,16 +31,16 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.http.SessionKeys
 import views.html.nonUkReg.update_business_registration
 
 import scala.concurrent.Future
 
-class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .configure("microservice.services.auth.host" -> "authprotected")
@@ -50,10 +50,10 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
   val service = "ATED"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
-  val injectedViewInstance: update_business_registration = app.injector.instanceOf[views.html.nonUkReg.update_business_registration]
+  val injectedViewInstance: update_business_registration = inject[views.html.nonUkReg.update_business_registration]
 
-  implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestNonUKController extends UpdateNonUKBusinessRegistrationController(
   mockAuthConnector,
@@ -265,7 +265,6 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
         type ErrorMessage = String
 
         "not be empty" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(businessName = "", line1 = "", line2 = "", country = "")
 
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson)) { result =>
@@ -295,7 +294,6 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
-            implicit val hc: HeaderCarrier = HeaderCarrier()
             submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(data._1)) { result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include(data._3)
@@ -304,7 +302,6 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
         }
 
         "If registration details entered are valid, continue button must redirect to service specific redirect url" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
 
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some("/ated-subscription/registered-business-address")) { result =>
@@ -314,7 +311,6 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
         }
 
         "redirect url is invalid format" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some("http://website.com")) { result =>
             status(result) must be(BAD_REQUEST)
@@ -322,7 +318,6 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
         }
 
         "If we have no cache then an exception must be thrown" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", None, hasCache = false) { result =>
             val thrown = the[RuntimeException] thrownBy await(result)
@@ -331,7 +326,6 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
         }
 
         "redirect to the review details page if we have no redirect url" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", None) { result =>
             status(result) must be(SEE_OTHER)
@@ -340,7 +334,6 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
         }
 
         "fail if we are a client for ATED and have no PostCode" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", None) { result =>
             status(result) must be(BAD_REQUEST)
@@ -348,7 +341,6 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
         }
 
         "pass if we are a client for AWRS and have no PostCode" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "AWRS", None) { result =>
             status(result) must be(SEE_OTHER)
@@ -356,7 +348,6 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
         }
 
         "pass if we are an agent for ATED and have no PostCode" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
           submitWithAuthorisedAgent(FakeRequest().withJsonBody(inputJson), "ATED", None) { result =>
             status(result) must be(SEE_OTHER)
@@ -364,7 +355,6 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
         }
 
         "pass if we are an agent for AWRS and have no PostCode" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
           submitWithAuthorisedAgent(FakeRequest().withJsonBody(inputJson), "ATED", None) { result =>
             status(result) must be(SEE_OTHER)

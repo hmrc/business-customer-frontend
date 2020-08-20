@@ -25,18 +25,18 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.libs.json.{JsObject, JsValue, Json}
-import play.api.test.FakeRequest
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
-import uk.gov.hmrc.domain.{CtUtr, Org, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
 
 import scala.concurrent.Future
 
-class BusinessMatchingServiceSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
+  val utr = "1234567890"
   val testAddress = Address("address line 1", "address line 2", Some("address line 3"), Some("address line 4"), Some("AA1 1AA"), "UK")
   val testReviewDetails = ReviewDetails(businessName = "ACME",
     businessType = Some("Limited"),
@@ -103,8 +103,6 @@ class BusinessMatchingServiceSpec extends PlaySpec with OneServerPerSuite with M
       |  }
       | }
     """.stripMargin)
-
-  val utr = "1234567890"
 
   val successOrgReviewDetailsDirect = ReviewDetails("Real Business Inc", Some("unincorporated body"), testAddress, "1234567890", "EX0012345678909",
     isAGroup = true, directMatch = true, Some("01234567890"), utr = Some(utr))

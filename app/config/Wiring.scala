@@ -30,20 +30,20 @@ class Wiring extends Module {
   }
 
   private def bindControllers: Seq[Binding[_]] = Seq(
-    bind(classOf[ApplicationConfig]).toSelf.eagerly(),
-    bind(classOf[BCHandler]).to(classOf[BCHandlerImpl]),
-    bind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector]),
-    bind(classOf[AgentRegisterNonUKClientController]).toSelf,
-    bind(classOf[BusinessRegController]).toSelf,
-    bind(classOf[NRLQuestionController]).toSelf,
-    bind(classOf[OverseasCompanyRegController]).toSelf,
-    bind(classOf[PaySAQuestionController]).toSelf,
-    bind(classOf[UpdateNonUKBusinessRegistrationController]).toSelf,
-    bind(classOf[ApplicationController]).toSelf,
-    bind(classOf[BusinessCustomerController]).toSelf,
-    bind(classOf[BusinessVerificationController]).toSelf,
-    bind(classOf[ExternalLinkController]).toSelf,
-    bind(classOf[HomeController]).toSelf,
-    bind(classOf[ReviewDetailsController]).toSelf
+    bind[ApplicationConfig].toSelf.eagerly(),
+    bind[BCHandler].to(classOf[BCHandlerImpl]),
+    bind[AuthConnector].to(classOf[DefaultAuthConnector]),
+    bind[AgentRegisterNonUKClientController].toSelf,
+    bind[BusinessRegController].toSelf,
+    bind[NRLQuestionController].toSelf,
+    bind[OverseasCompanyRegController].toSelf,
+    bind[PaySAQuestionController].toSelf,
+    bind[UpdateNonUKBusinessRegistrationController].toSelf,
+    bind[ApplicationController].toSelf,
+    bind[BusinessCustomerController].toSelf,
+    bind[BusinessVerificationController].toSelf,
+    bind[ExternalLinkController].toSelf,
+    bind[HomeController].toSelf,
+    bind[ReviewDetailsController].toSelf
   )
 }

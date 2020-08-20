@@ -21,7 +21,6 @@ import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
 import javax.inject.Inject
-import play.api.Logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -39,6 +38,10 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
 
   implicit val appConfig: ApplicationConfig = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
+
+  private def getBackLink(service: String, redirectUrl: Option[String]): Some[String] = {
+    Some(redirectUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
+  }
 
   def viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[String] = None): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service){ implicit authContext =>
@@ -61,7 +64,7 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
                  redirectUrl,
                  getBackLink(service, redirectUrl)))
             case _ =>
-              Logger.warn(s"[UpdateOverseasCompanyRegController][viewForUpdate] - No registration details found to edit")
+              logger.warn(s"[UpdateOverseasCompanyRegController][viewForUpdate] - No registration details found to edit")
               throw new RuntimeException("No registration details found")
           }
       }
@@ -99,15 +102,11 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
                     Redirect(redirectUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
                   }
                 case _ =>
-                  Logger.warn(s"[UpdateOverseasCompanyRegController][update] - No registration details found to edit")
+                  logger.warn(s"[UpdateOverseasCompanyRegController][update] - No registration details found to edit")
                   throw new RuntimeException("No registration details found")
               }
             )
       }
     }
-  }
-
-  private def getBackLink(service: String, redirectUrl: Option[String]): Some[String] = {
-    Some(redirectUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
   }
 }

@@ -26,19 +26,19 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsEmpty, AnyContentAsJson, Headers, MessagesControllerComponents, Result}
-import play.api.test.FakeRequest
+import play.api.mvc._
+import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
 
 
-class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val serviceName = "ATED"
@@ -47,10 +47,10 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
   val mockOverseasCompanyRegController: OverseasCompanyRegController = mock[OverseasCompanyRegController]
-  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.business_registration]
+  val injectedViewInstance = inject[views.html.nonUkReg.business_registration]
 
-  val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestBusinessRegController extends BusinessRegController(
     mockAuthConnector,
@@ -179,7 +179,6 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         type ErrorMessage = String
 
         "not be empty" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(businessName = "", line1 = "", line2 = "", postcode = "", country = "")
           when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
@@ -206,7 +205,6 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
-            implicit val hc: HeaderCarrier = HeaderCarrier()
             when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
             submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(data._1)) { result =>
               status(result) must be(BAD_REQUEST)
@@ -216,7 +214,6 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         }
 
         "If registration details entered are valid, continue button must redirect to review details page" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           val inputJson = createJson()
           submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
@@ -226,7 +223,6 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         }
 
         "If registration details entered are valid and business-identifier question is selected as No, continue button must redirect to review details page" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
@@ -237,7 +233,6 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
 
         "fail if we are a client for ATED and have no PostCode" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
@@ -246,7 +241,6 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         }
 
         "pass if we are a client for AWRS and have no PostCode" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUserSuccess("AWRS", FakeRequest().withJsonBody(inputJson)) { result =>
@@ -255,7 +249,6 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         }
 
         "pass if we are an agent for ATED and have no PostCode" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedAgent(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
@@ -264,7 +257,6 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         }
 
         "pass if we are an agent for AWRS and have no PostCode" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedAgent("AWRS", FakeRequest().withJsonBody(inputJson)) { result =>
@@ -273,7 +265,6 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         }
 
         "respond with NotFound when invalid service is in uri" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedAgent(invalidService, FakeRequest().withJsonBody(inputJson)) { result =>

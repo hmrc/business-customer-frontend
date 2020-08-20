@@ -24,7 +24,6 @@ import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
 import javax.inject.Inject
 import models.{BusinessRegistration, BusinessRegistrationDisplayDetails}
-import play.api.Logger
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -74,7 +73,7 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
         registerData => {
           businessRegistrationCache.cacheDetails[BusinessRegistration](BusinessRegDetailsId, registerData).flatMap { _ =>
             val redirectUrl: Option[String] = Some(appConfig.conf.getConfString(s"${service.toLowerCase}.serviceRedirectUrl", {
-                Logger.warn(s"[ReviewDetailsController][submit] - No Service config found for = $service")
+                logger.warn(s"[ReviewDetailsController][submit] - No Service config found for = $service")
                 throw new RuntimeException(Messages("bc.business-review.error.no-service", service, service.toLowerCase))
             }))
             redirectWithBackLink(overseasCompanyRegController.controllerId,

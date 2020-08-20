@@ -20,7 +20,7 @@ import audit.Auditable
 import config.ApplicationConfig
 import javax.inject.Inject
 import models._
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
                                           val audit: Auditable,
-                                          implicit val config: ApplicationConfig) extends RawResponseReads {
+                                          implicit val config: ApplicationConfig) extends RawResponseReads with Logging {
 
   val baseUri = "business-customer"
   val registerUri = "register"
@@ -94,13 +94,13 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
       response.status match {
         case OK => response.json.as[BusinessRegistrationResponse]
         case NOT_FOUND =>
-          Logger.warn(s"[BusinessCustomerConnector][register] - Not Found Exception ${registerData.organisation.organisationName}")
+          logger.warn(s"[BusinessCustomerConnector][register] - Not Found Exception ${registerData.organisation.organisationName}")
           throw new InternalServerException(s"Not Found - Exception ${response.body}")
         case SERVICE_UNAVAILABLE =>
-          Logger.warn(s"[BusinessCustomerConnector][register] - Service Unavailable Exception ${registerData.organisation.organisationName}")
+          logger.warn(s"[BusinessCustomerConnector][register] - Service Unavailable Exception ${registerData.organisation.organisationName}")
           throw new ServiceUnavailableException(s"Service unavailable  Exception ${response.body}")
         case status =>
-          Logger.warn(s"[BusinessCustomerConnector][register] - $status Exception ${registerData.organisation.organisationName}")
+          logger.warn(s"[BusinessCustomerConnector][register] - $status Exception ${registerData.organisation.organisationName}")
           throw new InternalServerException(s"Unknown Status $status - Exception ${response.body}")
       }
     }
@@ -115,17 +115,17 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
       response.status match {
         case OK => response
         case NOT_FOUND =>
-          Logger.warn(
+          logger.warn(
             s"[BusinessCustomerConnector][updateRegistrationDetails] - Not Found ${updateRegistrationDetails.organisation.map(_.organisationName)}"
           )
           throw new InternalServerException(s"Not Found - Exception ${response.body}")
         case SERVICE_UNAVAILABLE =>
-          Logger.warn(
+          logger.warn(
             s"[BusinessCustomerConnector][updateRegistrationDetails] - Service Unavailable ${updateRegistrationDetails.organisation.map(_.organisationName)}"
           )
           throw new ServiceUnavailableException(s"Service Unavailable - Exception ${response.body}")
         case status =>
-          Logger.warn(
+          logger.warn(
             s"[BusinessCustomerConnector][updateRegistrationDetails] - $status ${updateRegistrationDetails.organisation.map(_.organisationName)}"
           )
           throw new InternalServerException(s"Unknown Status $status - Exception ${response.body}")

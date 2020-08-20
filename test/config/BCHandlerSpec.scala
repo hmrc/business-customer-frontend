@@ -21,13 +21,13 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.MessagesControllerComponents
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
 
-class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar {
+class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
-  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-  implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+  implicit val appConfig = inject[ApplicationConfig]
 
   "internalServerErrorTemplate" must {
 

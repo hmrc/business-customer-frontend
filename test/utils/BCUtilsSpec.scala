@@ -17,13 +17,15 @@
 package utils
 
 import config.{ApplicationConfig, BCUtils}
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.i18n.{Lang, Messages}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.i18n.Lang
+import play.api.test.Injecting
 
 
-class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
+class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
 
-  val bcUtils: BCUtils = app.injector.instanceOf[ApplicationConfig]
+  val bcUtils: BCUtils = inject[ApplicationConfig]
 
   implicit val lang: Lang = Lang.defaultLang
 
@@ -107,7 +109,6 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
       }
 
       "return the correct map for amls" in {
-        implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
         val typeMap = bcUtils.businessTypeMap("amls", false)
         typeMap.size must be(5)
         typeMap mustBe Seq(
@@ -120,7 +121,6 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
       }
 
       "return the correct map for investment-tax-relief" in {
-        implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
         val typeMap = bcUtils.businessTypeMap("investment-tax-relief", false)
         typeMap.size must be(1)
         typeMap mustBe Seq(
@@ -129,7 +129,6 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
       }
 
       "return the correct map for capital-gains-tax" in {
-        implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
         val typeMap = bcUtils.businessTypeMap("capital-gains-tax", false)
         typeMap.size must be(6)
         typeMap mustBe Seq(
@@ -143,7 +142,6 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
       }
 
       "return the correct sequence for capital-gains-tax-agents" in {
-        implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
         val typeMap = bcUtils.businessTypeMap("capital-gains-tax-agents", false)
         typeMap.size must be(6)
         typeMap mustBe Seq(
@@ -157,7 +155,6 @@ class BCUtilsSpec extends PlaySpec with OneServerPerSuite {
       }
 
       "return default map when passed nothing" in {
-        implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
         val typeMap = bcUtils.businessTypeMap("", false)
         typeMap.size must be(6)
         typeMap mustBe Seq(

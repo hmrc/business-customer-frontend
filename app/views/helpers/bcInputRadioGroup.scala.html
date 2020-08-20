@@ -17,8 +17,8 @@
 @(field: Field, radioOptions: Seq[(String, String)], args: (Symbol, Any)*)(implicit messages: Messages)
 
 @import play.api.i18n._
-@import views.html.helper._
 @import views.helpers._
+@import views.html.helper._
 
 @elements = @{ FieldElements(field.id, field, Html(""), args.toMap, messages) }
 @parentField = @{ args.toMap.get('parentField).asInstanceOf[Option[Field]] }

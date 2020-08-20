@@ -27,10 +27,11 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
 import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -38,7 +39,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import scala.concurrent.Future
 
 
-class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   val request = FakeRequest()
 
@@ -55,8 +56,8 @@ class HomeControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSug
 
   val testReviewDetails = ReviewDetails("ACME", Some("Limited"), testAddress, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  val appConfig = inject[ApplicationConfig]
+  implicit val mcc = inject[MessagesControllerComponents]
 
   object TestHomeController extends HomeController(
     mockAuthConnector,

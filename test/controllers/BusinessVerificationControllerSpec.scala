@@ -31,7 +31,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.mvc._
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -39,7 +39,7 @@ import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
 
-class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar {
+class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
@@ -48,8 +48,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   val service = "ATED"
   val invalidService = "scooby-doo"
 
-  val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
   implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang.defaultLang))
 
   val businessRegUKController: BusinessRegUKController = mock[BusinessRegUKController]
@@ -57,15 +57,15 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   val nrlQuestionController: NRLQuestionController = mock[NRLQuestionController]
   val reviewDetailsController: ReviewDetailsController = mock[ReviewDetailsController]
   val homeController: HomeController = mock[HomeController]
-  val injectedViewInstance = app.injector.instanceOf[views.html.business_verification]
-  val injectedViewInstanceSOP = app.injector.instanceOf[views.html.business_lookup_SOP]
-  val injectedViewInstanceLTD = app.injector.instanceOf[views.html.business_lookup_LTD]
-  val injectedViewInstanceUIB = app.injector.instanceOf[views.html.business_lookup_UIB]
-  val injectedViewInstanceOBP = app.injector.instanceOf[views.html.business_lookup_OBP]
-  val injectedViewInstanceLLP = app.injector.instanceOf[views.html.business_lookup_LLP]
-  val injectedViewInstanceLP = app.injector.instanceOf[views.html.business_lookup_LP]
-  val injectedViewInstanceNRL = app.injector.instanceOf[views.html.business_lookup_NRL]
-  val injectedViewInstanceDetailsNotFound = app.injector.instanceOf[views.html.details_not_found]
+  val injectedViewInstance = inject[views.html.business_verification]
+  val injectedViewInstanceSOP = inject[views.html.business_lookup_SOP]
+  val injectedViewInstanceLTD = inject[views.html.business_lookup_LTD]
+  val injectedViewInstanceUIB = inject[views.html.business_lookup_UIB]
+  val injectedViewInstanceOBP = inject[views.html.business_lookup_OBP]
+  val injectedViewInstanceLLP = inject[views.html.business_lookup_LLP]
+  val injectedViewInstanceLP = inject[views.html.business_lookup_LP]
+  val injectedViewInstanceNRL = inject[views.html.business_lookup_NRL]
+  val injectedViewInstanceDetailsNotFound = inject[views.html.details_not_found]
 
   class Setup {
     val controller: BusinessVerificationController = new BusinessVerificationController(

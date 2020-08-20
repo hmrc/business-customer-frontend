@@ -20,32 +20,33 @@ import audit.Auditable
 import config.ApplicationConfig
 import models.FeedBack
 import org.jsoup.Jsoup
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
-import play.api.i18n.{Lang, Messages}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
-import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Injecting}
 
-class ApplicationControllerSpec extends PlaySpec with OneServerPerSuite {
+class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
   val service = "ATED"
-  val injectedViewInstanceUnauthorised = app.injector.instanceOf[views.html.unauthorised]
-  val injectedViewInstanceFeedBack = app.injector.instanceOf[views.html.feedback]
-  val injectedViewInstanceThankYou = app.injector.instanceOf[views.html.feedbackThankYou]
-  val injectedViewInstanceLogout = app.injector.instanceOf[views.html.logout]
+  val injectedViewInstanceUnauthorised = inject[views.html.unauthorised]
+  val injectedViewInstanceFeedBack = inject[views.html.feedback]
+  val injectedViewInstanceThankYou = inject[views.html.feedbackThankYou]
+  val injectedViewInstanceLogout = inject[views.html.logout]
 
   implicit val lang = Lang.defaultLang
-  implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val appConfig = inject[ApplicationConfig]
 
   trait Setup {
     val controller = new ApplicationController(
       appConfig,
-      app.injector.instanceOf[Auditable],
+      inject[Auditable],
       injectedViewInstanceUnauthorised,
       injectedViewInstanceFeedBack,
       injectedViewInstanceThankYou,
       injectedViewInstanceLogout,
-      app.injector.instanceOf[MessagesControllerComponents]
+      inject[MessagesControllerComponents]
     )
   }
 
@@ -54,13 +55,13 @@ class ApplicationControllerSpec extends PlaySpec with OneServerPerSuite {
     "unauthorised" must {
 
       "respond with an OK" in new Setup {
-        implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
         val result = controller.unauthorised().apply(FakeRequest())
         status(result) must equal(OK)
       }
 
       "load the unauthorised page" in new Setup {
-        implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
+        val messagesApi: MessagesApi = inject[MessagesApi]
+        implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
         val result = controller.unauthorised().apply(FakeRequest())
         val content = contentAsString(result)
         val doc = Jsoup.parse(content)

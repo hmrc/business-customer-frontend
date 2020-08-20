@@ -14,22 +14,11 @@
  * limitations under the License.
  *@
 
-@import play.twirl.api.HtmlFormat
 @import config._
-
-@import layouts.{govuk_template => hmrcGovUkTemplate}
-@import uk.gov.hmrc.play.views.html.{helpers => uiHelpers, layouts => uiLayouts}
-@import uk.gov.hmrc.play.views.html.layouts.HeaderNav
-@import uk.gov.hmrc.play.views.html.layouts.FooterLinks
-@import uk.gov.hmrc.play.views.html.layouts.MainContent
-@import uk.gov.hmrc.play.views.html.layouts.MainContentHeader
-@import views.html.layouts.GovUkTemplate
-@import uk.gov.hmrc.play.views.html.layouts.Head
+@import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.play.views.html.helpers.ReportAProblemLink
-@import uk.gov.hmrc.play.views.html.layouts.ServiceInfo
-@import uk.gov.hmrc.play.views.html.layouts.BetaBanner
-@import uk.gov.hmrc.play.views.html.layouts.Article
-@import uk.gov.hmrc.play.views.html.layouts.Footer
+@import uk.gov.hmrc.play.views.html.layouts._
+@import views.html.layouts.GovUkTemplate
 
 @this(govuk_template: GovUkTemplate,
 layoutHead: Head,
@@ -57,8 +46,6 @@ header_nav: HeaderNav)
   delegatedService: String)(implicit request: Request[_], messages: Messages)
 
 @import layouts.{govuk_template => hmrcGovUkTemplate}
-@import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
-@import uk.gov.hmrc.play.views.html.{helpers => uiHelpers}
 
 @linkElement = {
 <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/main.css")'/>
