@@ -21,7 +21,7 @@ import config.ApplicationConfig
 import javax.inject.Inject
 import metrics.{MetricsEnum, MetricsService}
 import models._
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
                                        implicit val config: ApplicationConfig,
                                        val audit: Auditable,
-                                       val http: DefaultHttpClient) extends RawResponseReads {
+                                       val http: DefaultHttpClient) extends RawResponseReads with Logging {
 
   val enrolmentUrl = s"${config.taxEnrolments}/tax-enrolments"
 
@@ -59,7 +59,7 @@ class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
         response
       case _ =>
         metrics.incrementFailedCounter(MetricsEnum.EMAC_AGENT_ENROL)
-        Logger.warn(
+        logger.warn(
           s"[TaxEnrolmentsConnector][enrol] - " +
           s"emac url: $postUrl, " +
           s"service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}, " +

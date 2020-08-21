@@ -18,20 +18,19 @@ package controllers.auth
 
 import config.ApplicationConfig
 import models.StandardAuthRetrievals
-import play.api.Logger
-import play.api.i18n.Messages
+import play.api.Logging
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{AnyContent, Request, Result, Results}
-import uk.gov.hmrc.auth.core.{NoActiveSession, _}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.{NoActiveSession, _}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ValidateUri
 
 import scala.concurrent.{ExecutionContext, Future}
 
 
-trait AuthActions extends AuthorisedFunctions {
+trait AuthActions extends AuthorisedFunctions with Logging {
 
   implicit val appConfig: ApplicationConfig
   lazy val loginURL: String = appConfig.loginURL
@@ -39,7 +38,7 @@ trait AuthActions extends AuthorisedFunctions {
   def continueURL(serviceName: String): String = appConfig.continueURL(serviceName)
 
   lazy val origin: String = appConfig.appName
-  def loginParams(serviceName: String)(implicit request: Request[AnyContent]): Map[String, Seq[String]] = Map(
+  def loginParams(serviceName: String): Map[String, Seq[String]] = Map(
     "continue" -> Seq(continueURL(serviceName)),
     "origin" -> Seq(origin)
   )
@@ -48,19 +47,19 @@ trait AuthActions extends AuthorisedFunctions {
     ValidateUri.isValid(appConfig.serviceList, serviceName)
   }
 
-  private def recoverAuthorisedCalls(serviceName: String)(implicit request: Request[AnyContent], messages: Messages): PartialFunction[Throwable, Result] = {
+  private def recoverAuthorisedCalls(serviceName: String): PartialFunction[Throwable, Result] = {
     case e: NoActiveSession        =>
-      Logger.warn(s"[recoverAuthorisedCalls] NoActiveSession: $e")
+      logger.warn(s"[recoverAuthorisedCalls] NoActiveSession: $e")
       Redirect(loginURL, loginParams(serviceName))
     case e: AuthorisationException =>
-      Logger.error(s"[recoverAuthorisedCalls] Auth exception: $e")
+      logger.error(s"[recoverAuthorisedCalls] Auth exception: $e")
       Redirect(controllers.routes.ApplicationController.unauthorised())
   }
 
   def authorisedFor(serviceName: String)(body: StandardAuthRetrievals => Future[Result])
-                   (implicit req: Request[AnyContent], ec: ExecutionContext, hc: HeaderCarrier, messages: Messages): Future[Result] = {
+                   (implicit req: Request[AnyContent], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     if (!isValidUrl(serviceName)) {
-      Logger.info(s"[authorisedFor] Given invalid service name of $serviceName")
+      logger.error(s"[authorisedFor] Given invalid service name of $serviceName")
       Future.successful(Results.NotFound)
     } else {
       authorised((AffinityGroup.Organisation or AffinityGroup.Agent or Enrolment("IR-SA")) and ConfidenceLevel.L50)

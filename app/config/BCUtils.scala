@@ -16,11 +16,11 @@
 
 package config
 
-import java.util.PropertyResourceBundle
+import java.util.{Collections, PropertyResourceBundle}
 
 import play.api.Environment
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters
 import scala.util.{Success, Try}
 
 trait BCUtils {
@@ -60,7 +60,8 @@ trait BCUtils {
   }
 
   def getIsoCodeTupleList: List[(String, String)] = {
-    resourceStream.getKeys.toList.map(key => (key, resourceStream.getString(key))).sortBy{case (_,v) => v}
+    JavaConverters.iterableAsScalaIterable(Collections.list(resourceStream.getKeys))
+      .toList.map(key => (key, resourceStream.getString(key))).sortBy{case (_,v) => v}
   }
 
   def getNavTitle(serviceName: String): Option[String] = {

@@ -31,16 +31,16 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.http.SessionKeys
 import views.html.nonUkReg.update_overseas_company_registration
 
 import scala.concurrent.Future
 
-class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .configure("microservice.services.auth.host" -> "authprotected")
@@ -50,10 +50,10 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
   val service = "ATED"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
-  val injectedViewInstance: update_overseas_company_registration = app.injector.instanceOf[views.html.nonUkReg.update_overseas_company_registration]
+  val injectedViewInstance: update_overseas_company_registration = inject[views.html.nonUkReg.update_overseas_company_registration]
 
-  implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestNonUKController extends UpdateOverseasCompanyRegController(
   mockAuthConnector,
@@ -174,7 +174,6 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
         type ErrorMessage = String
 
         "not be empty" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(bUId = "", issuingInstitution = "", issuingCountry = "")
 
           registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED") { result =>
@@ -197,7 +196,6 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
-            implicit val hc: HeaderCarrier = HeaderCarrier()
             registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(data._1), "ATED") { result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include(data._3)
@@ -206,7 +204,6 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
         }
 
         "If we have no cache then an exception must be thrown" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson),"ATED", None, hasCache = false) { result =>
             val thrown = the[RuntimeException] thrownBy await(result)
@@ -215,7 +212,6 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
         }
 
         "If registration details entered are valid, continue button must redirect to the next page" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED") { result =>
             status(result) must be(SEE_OTHER)
@@ -224,7 +220,6 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
         }
 
         "If registration details entered are valid, continue button must redirect to redirectUrl when present" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some("/api/anywhere")) { result =>
             status(result) must be(SEE_OTHER)
@@ -233,7 +228,6 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
         }
 
         "redirect url is invalid format" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some("http://website.com")) { result =>
             status(result) must be(BAD_REQUEST)

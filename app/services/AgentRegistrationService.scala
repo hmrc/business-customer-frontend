@@ -21,12 +21,13 @@ import config.ApplicationConfig
 import connectors.{DataCacheConnector, NewBusinessCustomerConnector, TaxEnrolmentsConnector}
 import javax.inject.Inject
 import models._
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.model.EventTypes
-import utils.GovernmentGatewayConstants
 import utils.BusinessCustomerConstants.SoleTrader
+import utils.GovernmentGatewayConstants
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Success, Try}
@@ -35,13 +36,13 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
                                          val dataCacheConnector: DataCacheConnector,
                                          val audit: Auditable,
                                          implicit val config: ApplicationConfig,
-                                         val businessCustomerConnector: NewBusinessCustomerConnector) {
+                                         val businessCustomerConnector: NewBusinessCustomerConnector) extends Logging {
 
   def enrolAgent(serviceName: String)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[HttpResponse] = {
     dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
       case Some(businessDetails) => enrolAgent(serviceName, businessDetails)
       case _ =>
-        Logger.warn(s"[AgentRegistrationService][enrolAgent] - No Service details found in DataCache for")
+        logger.warn(s"[AgentRegistrationService][enrolAgent] - No Service details found in DataCache for")
         throw new RuntimeException("We could not find your details. Check and try again.")
     }
   }
@@ -86,7 +87,7 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
           `type` = GovernmentGatewayConstants.enrolmentType,
           verifiers = knownFacts.verifiers)
       case _ =>
-        Logger.warn(s"[AgentRegistrationService][createEnrolRequest] - No Agent Enrolment name found in config found = $serviceName")
+        logger.warn(s"[AgentRegistrationService][createEnrolRequest] - No Agent Enrolment name found in config found = $serviceName")
         throw new RuntimeException(s"Agent enrolment service name does not exist for : $serviceName." +
             s" This should be in the conf file against 'services.${serviceName.toLowerCase}.agentEnrolmentService'")
     }

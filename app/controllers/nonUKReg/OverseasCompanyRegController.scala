@@ -27,7 +27,6 @@ import models.{BusinessRegistration, OverseasCompany}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.{BusinessRegDetailsId, OverseasRegDetailsId}
 import utils.OverseasCompanyUtils

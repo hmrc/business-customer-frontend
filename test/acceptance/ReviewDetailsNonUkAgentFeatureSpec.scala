@@ -22,18 +22,19 @@ import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen, Matchers}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.i18n.Lang
-import play.api.test.FakeRequest
+import play.api.i18n.{Lang, MessagesApi}
+import play.api.test.{FakeRequest, Injecting}
 
-class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Matchers {
+class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite with MockitoSugar
+  with BeforeAndAfterEach with GivenWhenThen with Matchers with Injecting {
 
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
   val reviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true,
     agentReferenceNumber = Some("agent123"), identification = Some(Identification("id","inst", "FR")))
 
   implicit val lang = Lang.defaultLang
-  implicit val appConfig = app.injector.instanceOf[ApplicationConfig]
-  val injectedViewInstance = app.injector.instanceOf[views.html.review_details_non_uk_agent]
+  implicit val appConfig = inject[ApplicationConfig]
+  val injectedViewInstance = inject[views.html.review_details_non_uk_agent]
 
   feature("The user can view the review details page for a non uk agent") {
 
@@ -44,7 +45,8 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
       Given("An agent has an editable business registration details")
       When("The user views the page")
       implicit val request = FakeRequest()
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.Messages.Implicits.applicationMessages
+      val messagesApi: MessagesApi = inject[MessagesApi]
+      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance("ATED", reviewDetails.copy(directMatch = false), Some("backLinkUri"))
 

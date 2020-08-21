@@ -44,11 +44,11 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
       Ok(templateUnauthorised())
   }
 
-  def cancel: Action[AnyContent] = Action { implicit request =>
+  def cancel: Action[AnyContent] = Action {
     Redirect(serviceRedirectUrl)
   }
 
-  def logout(service: String): Action[AnyContent] = Action { implicit request =>
+  def logout(service: String): Action[AnyContent] = Action {
     service.toUpperCase match {
       case "ATED" =>
         Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", "/ated/logout")).withNewSession
@@ -91,10 +91,10 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
   def feedbackThankYou(service: String): Action[AnyContent] = Action { implicit request =>
     Ok(templateThankYou(service, appConfig.serviceWelcomePath(service)))
   }
-  def keepAlive: Action[AnyContent] = Action { implicit request => Ok("OK")}
+  def keepAlive: Action[AnyContent] = Action {Ok("OK")}
   def signedOut: Action[AnyContent] = Action { implicit request => Ok(templateLogout())}
 
-  def logoutAndRedirectToHome(service: String): Action[AnyContent] = Action { implicit request =>
+  def logoutAndRedirectToHome(service: String): Action[AnyContent] = Action {
     Redirect(controllers.routes.HomeController.homePage(service)).discardingCookies(DiscardingCookie("mdtp"))
   }
 }

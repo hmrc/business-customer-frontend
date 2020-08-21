@@ -25,19 +25,20 @@ import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
 
 
-class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
+class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
   val request = FakeRequest()
   val service = "ATED"
@@ -45,10 +46,10 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
   val mockBusinessRegistrationService = mock[BusinessRegistrationService]
   val mockBackLinkCache = mock[BackLinkCacheConnector]
   val mockReviewDetailController = mock[ReviewDetailsController]
-  val injectedViewInstance = app.injector.instanceOf[views.html.business_group_registration]
+  val injectedViewInstance = inject[views.html.business_group_registration]
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc = app.injector.instanceOf[MessagesControllerComponents]
+  val appConfig = inject[ApplicationConfig]
+  implicit val mcc = inject[MessagesControllerComponents]
 
   object TestBusinessRegController extends BusinessRegUKController(
     mockAuthConnector,
@@ -161,7 +162,6 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
         type ErrorMessage = String
 
         "not be empty for a Group" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(businessName = "", line1 = "", line2 = "", postcode = "")
 
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson)) {
@@ -175,7 +175,6 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
         }
 
         "not contains special character(,) for a Group" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(businessName = "some name", line1 = "line 1", line2 = "line 2", postcode = "AA, AA1")
 
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson)) {
@@ -198,7 +197,6 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
 
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
-            implicit val hc: HeaderCarrier = HeaderCarrier()
             submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(data._1)) { result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include(data._3)
@@ -207,7 +205,6 @@ class BusinessRegUKControllerSpec extends PlaySpec with OneServerPerSuite with M
         }
 
         "If registration details entered are valid, continue button must redirect to review details page" in {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson)) { result =>

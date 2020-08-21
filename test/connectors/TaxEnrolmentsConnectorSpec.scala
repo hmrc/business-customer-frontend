@@ -19,7 +19,6 @@ package connectors
 import java.util.UUID
 
 import audit.Auditable
-import builders.AuthBuilder
 import com.codahale.metrics.Timer
 import config.ApplicationConfig
 import metrics.MetricsService
@@ -28,9 +27,11 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
+import play.api.test.Injecting
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
@@ -39,11 +40,11 @@ import utils.GovernmentGatewayConstants
 import scala.concurrent.Future
 
 
-class TaxEnrolmentsConnectorSpec extends PlaySpec with OneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
   val mockMetrics = mock[MetricsService]
   val mockHttpClient = mock[DefaultHttpClient]
   val mockAuditable = mock[Auditable]
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  val appConfig = inject[ApplicationConfig]
 
   val mockContext: Timer.Context = mock[Timer.Context]
 
@@ -72,7 +73,6 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with OneServerPerSuite with Mo
     val successfulSubscribeJson = Json.toJson(response)
     val subscribeFailureResponseJson = Json.parse( """{"reason" : "Error happened"}""")
     implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-    implicit val user = AuthBuilder.createUserAuthContext("User-Id", "name")
 
     "enrol user" must {
       "works for a user" in {
@@ -81,7 +81,7 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with OneServerPerSuite with Mo
 
         when(mockHttpClient.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).
-          thenReturn(Future.successful(HttpResponse(CREATED, responseJson = Some(successfulSubscribeJson))))
+          thenReturn(Future.successful(HttpResponse(CREATED, successfulSubscribeJson.toString)))
 
         val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
         val enrolResponse = await(result)
@@ -91,7 +91,7 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with OneServerPerSuite with Mo
       "return status is anything, for bad data sent for enrol" in {
         when(mockHttpClient.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(
           ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(subscribeFailureResponseJson))))
+          .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, subscribeFailureResponseJson.toString)))
         val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
         val enrolResponse = await(result)
         enrolResponse.status must not be(CREATED)

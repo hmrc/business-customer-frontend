@@ -1,10 +1,9 @@
-import uk.gov.hmrc._
-import DefaultBuildSettings.{defaultSettings, scalaSettings}
-import uk.gov.hmrc.SbtAutoBuildPlugin
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import uk.gov.hmrc.versioning.SbtGitVersioning
 import play.sbt.routes.RoutesKeys.routesGenerator
+import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
+import uk.gov.hmrc.{SbtAutoBuildPlugin, _}
+import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
+import uk.gov.hmrc.versioning.SbtGitVersioning
 
 val appName: String = "business-customer-frontend"
 lazy val appDependencies : Seq[ModuleID] = AppDependencies()
@@ -34,7 +33,8 @@ lazy val microservice: Project = Project(appName, file("."))
     libraryDependencies ++= appDependencies,
     retrieveManaged := true,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
-    majorVersion := 4
+    majorVersion := 4,
+    Compile / scalacOptions += "-P:silencer:pathFilters=target/.*"
   )
   .settings(
     resolvers += Resolver.bintrayRepo("hmrc", "releases"),

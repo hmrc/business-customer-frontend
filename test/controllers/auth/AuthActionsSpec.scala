@@ -24,18 +24,18 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result, Results}
-import play.api.test.{DefaultAwaitTimeout, FakeRequest, FutureAwaits}
+import play.api.test.{DefaultAwaitTimeout, FakeRequest, FutureAwaits, Injecting}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, Enrolments, MissingBearerToken, NoActiveSession, UnsupportedAffinityGroup}
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.Authorization
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerSuite with FutureAwaits with DefaultAwaitTimeout {
+class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerSuite with FutureAwaits with DefaultAwaitTimeout with Injecting {
 
-  val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  val mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
   class Setup {

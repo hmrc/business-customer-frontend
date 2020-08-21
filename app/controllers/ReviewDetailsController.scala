@@ -20,7 +20,7 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import controllers.auth.AuthActions
 import javax.inject.Inject
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.AgentRegistrationService
@@ -39,7 +39,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
                                         val dataCacheConnector: DataCacheConnector,
                                         agentRegistrationService: AgentRegistrationService,
                                         mcc: MessagesControllerComponents)
-  extends FrontendController(mcc) with BackLinkController with AuthActions {
+  extends FrontendController(mcc) with BackLinkController with AuthActions with Logging {
 
   implicit val appConfig: ApplicationConfig = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -64,7 +64,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
         case _ =>
           val service = SessionUtils.findServiceInRequest(request)
 
-          Logger.warn(s"[ReviewDetailsController][businessDetails] - No Service details found in DataCache for $serviceName")
+          logger.warn(s"[ReviewDetailsController][businessDetails] - No Service details found in DataCache for $serviceName")
           Future.successful(Ok(templateError(
             Messages("global.error.InternalServerError500.title"),
             Messages("global.error.InternalServerError500.heading"),
@@ -74,6 +74,17 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
           )))
       }
     }
+  }
+
+  private def formatErrorMessage(str: String): (String, String, String) = str match {
+    case DuplicateUserError =>
+      ("bc.business-registration-error.duplicate.identifier.header",
+        "bc.business-registration-error.duplicate.identifier.title",
+        "bc.business-registration-error.duplicate.identifier.message")
+    case WrongRoleUserError =>
+      ("bc.business-registration-error.wrong.role.header",
+        "bc.business-registration-error.wrong.role.title",
+        "bc.business-registration-error.wrong.role.message")
   }
 
   def continue(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
@@ -88,35 +99,24 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
               )
             case BAD_REQUEST | CONFLICT =>
               val (header, title, lede) = formatErrorMessage(DuplicateUserError)
-              Logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EMAC")
+              logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EMAC")
               Future.successful(Ok(templateError(header, title, lede, serviceName, appConfig)))
             case FORBIDDEN =>
               val (header, title, lede) = formatErrorMessage(WrongRoleUserError)
-              Logger.warn(s"[ReviewDetailsController][continue] - wrong role for agent enrolling in EMAC")
+              logger.warn(s"[ReviewDetailsController][continue] - wrong role for agent enrolling in EMAC")
               Future.successful(Ok(templateError(header, title, lede, serviceName, appConfig)))
             case _ =>
-              Logger.warn(s"[ReviewDetailsController][continue] - allocation failed")
+              logger.warn(s"[ReviewDetailsController][continue] - allocation failed")
               throw new RuntimeException("We could not find your details. Check and try again.")
           }
         }
       } else {
         val url: String = appConfig.conf.getConfString(s"${serviceName.toLowerCase}.serviceRedirectUrl", {
-          Logger.warn(s"[ReviewDetailsController][continue] - No Service config found for = $serviceName")
+          logger.warn(s"[ReviewDetailsController][continue] - No Service config found for = $serviceName")
           throw new RuntimeException(Messages("bc.business-review.error.no-service", serviceName, serviceName.toLowerCase))
         })
         redirectToExternal(url, Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
       }
     }
   }
-
-  private def formatErrorMessage(str: String): (String, String, String) = str match {
-      case DuplicateUserError =>
-        ("bc.business-registration-error.duplicate.identifier.header",
-          "bc.business-registration-error.duplicate.identifier.title",
-          "bc.business-registration-error.duplicate.identifier.message")
-      case WrongRoleUserError =>
-        ("bc.business-registration-error.wrong.role.header",
-          "bc.business-registration-error.wrong.role.title",
-          "bc.business-registration-error.wrong.role.message")
-    }
 }

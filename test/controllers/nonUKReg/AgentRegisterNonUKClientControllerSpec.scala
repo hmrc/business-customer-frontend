@@ -30,7 +30,7 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
@@ -39,19 +39,19 @@ import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 import scala.concurrent.Future
 
 
-class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   val service = "ATED"
   val invalidService = "scooby-doo"
-  val injectedViewInstance = app.injector.instanceOf[views.html.nonUkReg.nonuk_business_registration]
+  val injectedViewInstance = inject[views.html.nonUkReg.nonuk_business_registration]
 
   implicit val hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization("fake")))
   private val mockAuthConnector: DefaultAuthConnector = mock[DefaultAuthConnector]
   private val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   private val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
   private val mockOverseasController: OverseasCompanyRegController = mock[OverseasCompanyRegController]
-  private val mockMCC: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-  private val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  private val mockMCC: MessagesControllerComponents = inject[MessagesControllerComponents]
+  private val mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
 
   class Setup {
     val controller = new AgentRegisterNonUKClientController(
@@ -188,7 +188,6 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
         type ErrorMessage = String
 
         "not be empty" in new Setup {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson(businessName = "", line1 = "", line2 = "", country = "")
 
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), controller = controller) { result =>
@@ -213,7 +212,6 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
 
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in new Setup {
-            implicit val hc: HeaderCarrier = HeaderCarrier()
             submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(data._1), controller = controller) { result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include(data._3)
@@ -222,7 +220,6 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
         }
 
         "If registration details entered are valid, continue button must redirect to service specific redirect url" in new Setup {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some("http://localhost:9933/ated-subscription/registered-business-address"), controller) { result =>
@@ -232,7 +229,6 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
         }
 
         "respond with NotFound when invalid service is in uri" in new Setup {
-          implicit val hc: HeaderCarrier = HeaderCarrier()
           val inputJson = createJson()
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), invalidService, None, controller = controller) { result =>
             status(result) must be(NOT_FOUND)

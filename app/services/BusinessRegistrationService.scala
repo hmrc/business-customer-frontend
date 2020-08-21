@@ -110,8 +110,8 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
   private def createUpdateBusinessRegistrationRequest(registerData: BusinessRegistration,
                                                       overseasCompany: OverseasCompany,
                                                       isGroup: Boolean,
-                                                      isNonUKClientRegisteredByAgent: Boolean = false)
-                                                     (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): UpdateRegistrationDetailsRequest = {
+                                                      isNonUKClientRegisteredByAgent: Boolean)
+                                                     (implicit authContext: StandardAuthRetrievals): UpdateRegistrationDetailsRequest = {
 
     UpdateRegistrationDetailsRequest(
       acknowledgementReference = SessionUtils.getUniqueAckNo,
@@ -129,8 +129,8 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
   private def createBusinessRegistrationRequest(registerData: BusinessRegistration,
                                                 overseasCompany: OverseasCompany,
                                                 isGroup: Boolean,
-                                                isNonUKClientRegisteredByAgent: Boolean = false)
-                                               (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): BusinessRegistrationRequest = {
+                                                isNonUKClientRegisteredByAgent: Boolean)
+                                               (implicit authContext: StandardAuthRetrievals): BusinessRegistrationRequest = {
 
     BusinessRegistrationRequest(
       acknowledgementReference = SessionUtils.getUniqueAckNo,

@@ -22,10 +22,11 @@ import org.scalatest.MustMatchers
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.data.Form
+import play.api.test.Injecting
 
-class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with GuiceOneServerPerSuite {
+class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with GuiceOneServerPerSuite with Injecting {
 
-  val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  val appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   val input: Map[String, String] = Map("businessName" -> "Business Name",
     "businessAddress.line_1" -> "Address line 1",

@@ -17,13 +17,15 @@
 package connectors
 
 import config.ApplicationConfig
-import models.{Address, BackLinkModel, ReviewDetails}
+import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.{OneServerPerSuite, PlaySpec}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import play.api.test.Injecting
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -31,12 +33,12 @@ import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.Future
 
-class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with MockitoSugar {
+class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
   val mockSessionCache = mock[SessionCache]
   val mockDefaultHttpClient = mock[DefaultHttpClient]
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  val appConfig = inject[ApplicationConfig]
 
   object TestDataCacheConnector extends DataCacheConnector(
     mockDefaultHttpClient,
@@ -82,7 +84,7 @@ class DataCacheConnectorSpec extends PlaySpec with OneServerPerSuite with Mockit
         when(mockDefaultHttpClient.DELETE[HttpResponse]
           (ArgumentMatchers.any(), ArgumentMatchers.any())
           (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        ).thenReturn(Future.successful(HttpResponse(OK)))
+        ).thenReturn(Future.successful(HttpResponse(OK, "")))
 
         val result: Future[HttpResponse] = TestDataCacheConnector.clearCache
         await(result).status must be(OK)

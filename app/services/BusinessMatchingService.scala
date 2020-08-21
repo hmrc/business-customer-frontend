@@ -21,8 +21,9 @@ import javax.inject.Inject
 import models.{Individual, _}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.BusinessCustomerConstants.{CorporateBody, Partnership, SoleTrader}
 import utils.SessionUtils
-import utils.BusinessCustomerConstants.{SoleTrader, CorporateBody, Partnership}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
