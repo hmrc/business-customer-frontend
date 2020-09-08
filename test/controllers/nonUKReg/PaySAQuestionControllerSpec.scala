@@ -33,10 +33,9 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
-import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
 
@@ -165,9 +164,9 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = TestPaySaQuestionController.view(serviceName).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -183,9 +182,9 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = TestPaySaQuestionController.view(serviceName).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -201,9 +200,9 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[PaySAQuestion](ArgumentMatchers.any())
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
     val result = TestPaySaQuestionController.view(serviceName).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)

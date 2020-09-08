@@ -6,10 +6,11 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 import uk.gov.hmrc.versioning.SbtGitVersioning
 
 val appName: String = "business-customer-frontend"
-lazy val appDependencies : Seq[ModuleID] = AppDependencies()
+lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 
-lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
-lazy val playSettings : Seq[Setting[_]] = Seq.empty
+lazy val plugins: Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+lazy val playSettings: Seq[Setting[_]] = Seq.empty
+val silencerVersion = "1.7.0"
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
@@ -21,7 +22,7 @@ lazy val scoverageSettings = {
   )
 }
 lazy val microservice: Project = Project(appName, file("."))
-  .enablePlugins(plugins : _*)
+  .enablePlugins(plugins: _*)
   .settings(
     playSettings,
     routesGenerator := InjectedRoutesGenerator,
@@ -29,12 +30,21 @@ lazy val microservice: Project = Project(appName, file("."))
     publishingSettings,
     defaultSettings(),
     scoverageSettings,
+    scalacOptions += "-Ywarn-unused:-explicits,-implicits",
     scalaVersion := "2.12.11",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     majorVersion := 4,
     Compile / scalacOptions += "-P:silencer:pathFilters=target/.*"
+  )
+  .settings(
+    // Use the silencer plugin to suppress warnings from unused imports in compiled twirl templates
+    scalacOptions += "-P:silencer:pathFilters=views;routes",
+    libraryDependencies ++= Seq(
+      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
+      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
+    )
   )
   .settings(
     resolvers += Resolver.bintrayRepo("hmrc", "releases"),

@@ -30,10 +30,9 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
 
@@ -282,9 +281,9 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = TestBusinessRegController.register(serviceName, businessType).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -300,9 +299,9 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -319,9 +318,9 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -339,9 +338,9 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
 
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -356,9 +355,9 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
 
     val result = TestBusinessRegController.send(service, businessType).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -377,9 +376,9 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       .thenReturn(Future.successful(successModel))
 
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -397,9 +396,9 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       .thenReturn(Future.successful(successModel))
 
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -413,9 +412,9 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     val result = TestBusinessRegController.send(service, businessType).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)

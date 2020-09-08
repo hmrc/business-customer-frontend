@@ -29,10 +29,10 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.{Headers, MessagesControllerComponents}
-import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HttpResponse, SessionKeys}
+import uk.gov.hmrc.http.HttpResponse
 
 import scala.concurrent.Future
 
@@ -61,9 +61,9 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
   private def fakeRequestWithSession(userId: String) = {
     val sessionId = s"session-${UUID.randomUUID}"
     FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
   }
 

@@ -31,11 +31,10 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
 import play.api.mvc._
-import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Injecting}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
 
@@ -788,9 +787,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         AuthBuilder.mockAuthorisedUser("test", mockAuthConnector)
 
         status(controller.detailsNotFound("ated", "businessType").apply(FakeRequest().withSession(
-          SessionKeys.sessionId -> "test",
+          "sessionId" -> "test",
           "token" -> "RANDOMTOKEN",
-          SessionKeys.userId -> "userId")
+          "userId" -> "userId")
           .withHeaders(Headers("Authorization" -> "value"))
         )) mustBe OK
       }
@@ -808,9 +807,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.businessVerification(serviceName).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -826,9 +825,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.businessVerification(service).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -845,9 +844,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.businessForm(serviceName, businessType).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -862,9 +861,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.businessVerification(service).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -882,9 +881,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.continue(service).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -900,9 +899,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     AuthBuilder.mockAuthorisedSaUser(userId, mockAuthConnector)
 
     val result = controller.continue(service).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -919,9 +918,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.continue(service).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -938,9 +937,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.continue(service).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -956,9 +955,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.businessForm(service, businessType).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 

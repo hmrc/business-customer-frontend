@@ -27,10 +27,9 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.{Headers, MessagesControllerComponents, Result}
-import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
 
@@ -85,9 +84,9 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(backLink))
     val result = TestExternalLinkController.backLink(service).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 

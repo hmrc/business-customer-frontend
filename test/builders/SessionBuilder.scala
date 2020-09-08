@@ -20,34 +20,32 @@ import java.util.UUID
 
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsJson, Headers}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.SessionKeys
 
 object SessionBuilder {
 
-  val TOKEN = "token" // this is because SessionKeys.token gives warning
 
   def updateRequestWithSession(fakeRequest: FakeRequest[AnyContentAsJson], userId: String): FakeRequest[AnyContentAsJson] = {
     val sessionId = s"session-${UUID.randomUUID}"
     fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
-      TOKEN -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "sessionId" -> sessionId,
+      "token" -> "RANDOMTOKEN",
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
   }
 
   def buildRequestWithSession(userId: String): FakeRequest[AnyContentAsEmpty.type] = {
     val sessionId = s"session-${UUID.randomUUID}"
     FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
-      TOKEN -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "sessionId" -> sessionId,
+      "token" -> "RANDOMTOKEN",
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
   }
 
   def buildRequestWithSessionNoUser(): FakeRequest[AnyContentAsEmpty.type] = {
     val sessionId = s"session-${UUID.randomUUID}"
     FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId)
+      "sessionId" -> sessionId)
       .withHeaders(Headers("Authorization" -> "value"))
   }
 

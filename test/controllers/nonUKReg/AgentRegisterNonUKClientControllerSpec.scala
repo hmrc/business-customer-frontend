@@ -30,10 +30,10 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
-import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Injecting}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.Authorization
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 
 import scala.concurrent.Future
@@ -246,9 +246,9 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -263,9 +263,9 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -281,9 +281,9 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -300,9 +300,9 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
 
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -317,9 +317,9 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.submit(service).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -340,9 +340,9 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
 
 
     val result = controller.submit(service).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -355,9 +355,9 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     val result = controller.submit(service).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)

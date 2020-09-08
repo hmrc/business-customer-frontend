@@ -31,11 +31,10 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.SessionKeys
 import views.html.nonUkReg.update_business_registration
 
 import scala.concurrent.Future
@@ -370,9 +369,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
     val result = TestNonUKController.edit(serviceName, None).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -387,9 +386,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
     val result = TestNonUKController.edit(serviceName, redirectUrl).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -412,9 +411,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     val result = TestNonUKController.edit(serviceName, None).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -428,9 +427,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
     val result = TestNonUKController.editAgent(serviceName).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -453,9 +452,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     val result = TestNonUKController.editAgent(serviceName).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -469,9 +468,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
 
     val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -503,9 +502,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
     val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -537,9 +536,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
     val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -553,9 +552,9 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 

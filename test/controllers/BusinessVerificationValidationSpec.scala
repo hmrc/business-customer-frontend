@@ -28,12 +28,11 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, MessagesControllerComponents, Result}
-import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Injecting}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.Future
 
@@ -255,9 +254,9 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
 
     val result = controller.submit(service, businessType).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -573,9 +572,9 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
     (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(matchSuccessResponse))
 
     val fullReq = fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")
     )
 
@@ -597,9 +596,9 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       .thenReturn(Future.successful(matchSuccessResponseSOP))
 
     val result = controller.submit(service, businessType).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -619,9 +618,9 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       .thenReturn(Future.successful(matchFailureResponse))
 
     val result = controller.submit(service, businessType).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 
@@ -640,9 +639,9 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       .thenReturn(Future.successful(matchFailureResponse))
 
     val result = controller.submit(service, businessType).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
 

@@ -32,11 +32,10 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.SessionKeys
 import views.html.nonUkReg.overseas_company_registration
 
 import scala.concurrent.Future
@@ -219,9 +218,9 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestController.view(serviceName, addClient = true).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -238,9 +237,9 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestController.view(service, addClient = true).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -257,9 +256,9 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(OverseasCompany(Some(true)))))
 
     val result = TestController.view(service, addClient = true).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -277,9 +276,9 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
       (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestController.view(service, addClient = true, redirectUrl).apply(FakeRequest().withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
@@ -309,9 +308,9 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(reviewDetails))
 
     val result = TestController.register(service, addClient = true, redirectUrl).apply(fakeRequest.withSession(
-      SessionKeys.sessionId -> sessionId,
+      "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
