@@ -25,6 +25,7 @@
   redirectUrl: Option[String],
   isRegisterClient: Boolean,
   backLink: Option[String],
+  referrer: String,
   isAgent: Boolean)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @implicitFormInstance = @{ Some(businessRegistrationForm) }
@@ -40,7 +41,7 @@
   </script>
 }
 
-@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts)) {
+@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts), referrer = referrer) {
   @pageHeadersAndError(backLink,
     "business-verification-text",
     messages(displayDetails.businessRegSubHeader, service),

@@ -54,9 +54,9 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
         val backLinkOption = if (backLinkUrl.isDefined) backLinkUrl else backLink
         businessRegistration match {
           case Some(businessReg) =>
-            Ok(template(businessRegistrationForm.fill(businessReg), service, displayDetails, backLinkOption))
+            Ok(template(businessRegistrationForm.fill(businessReg), service, displayDetails, backLinkOption, request.host + request.uri))
           case None =>
-            Ok(template(businessRegistrationForm, service, displayDetails, backLinkOption))
+            Ok(template(businessRegistrationForm, service, displayDetails, backLinkOption, request.host + request.uri))
         }
       }
     }
@@ -67,7 +67,7 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
       BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, isAgent = true, appConfig).fold(
         formWithErrors => {
           currentBackLink.map(backLink =>
-            BadRequest(template(formWithErrors, service, displayDetails, backLink))
+            BadRequest(template(formWithErrors, service, displayDetails, backLink, request.host + request.uri))
           )
         },
         registerData => {

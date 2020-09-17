@@ -53,7 +53,7 @@ class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
           backLink <- currentBackLink
           savedPaySa <- businessRegistrationCache.fetchAndGetCachedDetails[PaySAQuestion](PaySaDetailsId)
         } yield
-          Ok(template(paySAQuestionForm.fill(savedPaySa.getOrElse(PaySAQuestion())), service, backLink))
+          Ok(template(paySAQuestionForm.fill(savedPaySa.getOrElse(PaySAQuestion())), service, backLink, request.host + request.uri))
       }
     }
   }
@@ -62,7 +62,7 @@ class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service) { implicit authContext =>
       paySAQuestionForm.bindFromRequest.fold(
         formWithErrors => currentBackLink.map(backLink =>
-          BadRequest(template(formWithErrors, service, backLink))
+          BadRequest(template(formWithErrors, service, backLink, request.host + request.uri))
         ),
         formData => {
           businessRegistrationCache.cacheDetails[PaySAQuestion](PaySaDetailsId, formData)

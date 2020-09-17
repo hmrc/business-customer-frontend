@@ -59,9 +59,9 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
           overseasNumber match {
             case Some(oversea) =>
               Ok(template(overseasCompanyForm.fill(oversea), service,
-                displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink))
+                displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink, request.host + request.uri))
             case None => Ok(template(overseasCompanyForm, service,
-              displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink))
+              displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink, request.host + request.uri))
           }
         }
       }
@@ -75,7 +75,7 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
         case _ => BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest).fold(
           formWithErrors => {
             currentBackLink.map(backLink => BadRequest(template(formWithErrors, service,
-              displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink))
+              displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink, request.host + request.uri))
             )
           },
           overseasCompany => for {

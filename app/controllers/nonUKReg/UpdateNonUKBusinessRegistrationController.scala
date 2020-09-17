@@ -75,13 +75,15 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
     authorisedFor(service) { implicit authContext =>
       businessRegistrationService.getDetails.map {
         case Some(detailsTuple) =>
+          val backLink = getBackLink(service, None)
           Ok(template(
             businessRegistrationForm.fill(detailsTuple._2),
             service,
             displayDetails(service, isRegisterClient = false),
             None,
             isRegisterClient = false,
-            getBackLink(service, None),
+            backLink,
+            request.host + request.uri,
             authContext.isAgent))
         case _ =>
           logger.warn(s"[UpdateNonUKBusinessRegistrationController][editAgent] - No registration details found to edit")
@@ -97,14 +99,16 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
         case _ =>
           businessRegistrationService.getDetails.map {
             case Some(detailsTuple) =>
+              val backLink = getBackLink(service, redirectUrl)
               Ok(template(
                 businessRegistrationForm.fill(detailsTuple._2),
-                 service,
-                 displayDetails(service, isRegisterClient = true),
-                 redirectUrl,
-                isRegisterClient = true,
-                 getBackLink(service, redirectUrl),
-                 authContext.isAgent))
+                  service,
+                  displayDetails(service, isRegisterClient = true),
+                  redirectUrl,
+                  isRegisterClient = true,
+                  backLink,
+                request.host + request.uri,
+                  authContext.isAgent))
             case _ =>
               logger.warn(s"[UpdateNonUKBusinessRegistrationController][edit] - No registration details found to edit")
               throw new RuntimeException("No registration details found")
@@ -120,12 +124,14 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
         case _ =>
           BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, authContext.isAgent, appConfig).fold(
             formWithErrors => {
+              val backLink = getBackLink(service, redirectUrl)
               Future.successful(BadRequest(template(formWithErrors,
                 service,
                 displayDetails(service, isRegisterClient),
                 redirectUrl,
                 isRegisterClient,
-                getBackLink(service, redirectUrl),
+                backLink,
+                request.host + request.uri,
                 authContext.isAgent)))
             },
             registerData => {

@@ -48,7 +48,7 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
-      val html = injectedViewInstance("ATED", reviewDetails.copy(directMatch = false), Some("backLinkUri"))
+      val html = injectedViewInstance("ATED", reviewDetails.copy(directMatch = false), Some("backLinkUri"), "statementUrl")
 
       val document = Jsoup.parse(html.toString())
       val bizRegistrationDetails = document.select("#business-details tbody tr")
@@ -83,6 +83,9 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
       And("The submit button is - Confirm")
       assert(document.getElementById("submit").text() === "Confirm")
 
+      And("There is a link to the accessibility statement")
+      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=statementUrl")
     }
 
   }

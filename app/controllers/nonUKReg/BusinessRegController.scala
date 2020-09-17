@@ -58,11 +58,13 @@ class BusinessRegController @Inject()(val authConnector: AuthConnector,
               service,
               displayDetails(businessType, service),
               backLink,
+              request.host + request.uri,
               authContext.isAgent
             ))
           case None =>
             Ok(template(
-              businessRegistrationForm, service, displayDetails(businessType, service), backLink, authContext.isAgent
+              businessRegistrationForm, service, displayDetails(businessType, service),
+              backLink, request.host + request.uri, authContext.isAgent
             ))
         }
       }
@@ -74,7 +76,8 @@ class BusinessRegController @Inject()(val authConnector: AuthConnector,
       BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, authContext.isAgent, appConfig).fold(
         formWithErrors => {
           currentBackLink.map(backLink =>
-            BadRequest(template(formWithErrors, service, displayDetails(businessType, service), backLink, authContext.isAgent))
+            BadRequest(template(formWithErrors, service,
+              displayDetails(businessType, service), backLink, request.host + request.uri, authContext.isAgent))
           )
         },
         registrationData => {

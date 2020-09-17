@@ -48,12 +48,14 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
       redirectUrl match {
         case Some(x) if !appConfig.isRelative(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
         case _ =>
+          val backLink = getBackLink(service, redirectUrl)
           Ok(template(overseasCompanyForm,
              service,
              displayDetails(authContext.isAgent, addClient, service),
             appConfig.getIsoCodeTupleList,
              redirectUrl,
-             getBackLink(service, redirectUrl)))
+            backLink,
+            request.host + request.uri))
 
           businessRegistrationService.getDetails.map {
             case Some(detailsTuple) =>
@@ -62,7 +64,8 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
                  displayDetails(authContext.isAgent, addClient, service),
                 appConfig.getIsoCodeTupleList,
                  redirectUrl,
-                 getBackLink(service, redirectUrl)))
+                backLink,
+                request.host + request.uri))
             case _ =>
               logger.warn(s"[UpdateOverseasCompanyRegController][viewForUpdate] - No registration details found to edit")
               throw new RuntimeException("No registration details found")
@@ -79,13 +82,15 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
         case _ =>
           BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest).fold(
             formWithErrors => {
+              val backLink = getBackLink(service, redirectUrl)
               Future.successful(BadRequest(template(
                 formWithErrors,
                 service,
                 displayDetails(authContext.isAgent, addClient, service),
                 appConfig.getIsoCodeTupleList,
                 redirectUrl,
-                getBackLink(service, redirectUrl)))
+                backLink,
+                request.host + request.uri))
               )
             },
             overseasCompany =>
