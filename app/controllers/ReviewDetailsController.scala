@@ -56,9 +56,9 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
         case Some(businessDetails) =>
           currentBackLink.map(backLink =>
             if (authContext.isAgent && businessDetails.isBusinessDetailsEditable) {
-              Ok(templateNonUkAgent(serviceName, businessDetails, backLink))
+              Ok(templateNonUkAgent(serviceName, businessDetails, backLink, request.host + request.uri))
             } else {
-              Ok(templateReviewDetails(serviceName, authContext.isAgent, businessDetails, backLink))
+              Ok(templateReviewDetails(serviceName, authContext.isAgent, businessDetails, backLink, request.host + request.uri))
             }
           )
         case _ =>

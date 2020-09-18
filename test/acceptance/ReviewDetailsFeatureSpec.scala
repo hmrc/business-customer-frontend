@@ -46,7 +46,7 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite w
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
-      val html = injectedViewInstance("ATED", isAgent = false, reviewDetails, Some("backLinkUri"))
+      val html = injectedViewInstance("ATED", isAgent = false, reviewDetails, Some("backLinkUri"), "statementUrl")
 
       val document = Jsoup.parse(html.toString())
 
@@ -69,6 +69,8 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite w
 
       assert(document.select(".button").text === ("Confirm"))
       assert(document.getElementById("bus-reg-edit") === null)
+      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=statementUrl")
     }
 
     scenario("return Review Details view for a user, when user can't be directly found with login credentials") {
@@ -79,7 +81,7 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite w
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
-      val html = injectedViewInstance("ATED", isAgent = false, reviewDetails.copy(directMatch = false), Some("backLinkUri"))
+      val html = injectedViewInstance("ATED", isAgent = false, reviewDetails.copy(directMatch = false), Some("backLinkUri"), "statementUrl")
 
       val document = Jsoup.parse(html.toString())
 
@@ -100,6 +102,8 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite w
 
       assert(document.select(".button").text === ("Confirm"))
       assert(document.getElementById("bus-reg-edit") === null)
+      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=statementUrl")
     }
 
     scenario("return Review Details view for an agent, when we directly found this") {
@@ -110,7 +114,7 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite w
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
-      val html = injectedViewInstance("ATED", isAgent = true, reviewDetails.copy(directMatch = true), Some("backLinkUri"))
+      val html = injectedViewInstance("ATED", isAgent = true, reviewDetails.copy(directMatch = true), Some("backLinkUri"), "statementUrl")
 
       val document = Jsoup.parse(html.toString())
 
@@ -126,8 +130,12 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite w
       assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
       assert(document.select(".button").text === ("Confirm"))
       assert(document.getElementById("bus-reg-edit") === null)
+      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=statementUrl")
 
-
+      And("There is a link to the accessibility statement")
+      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=statementUrl")
     }
   }
 }

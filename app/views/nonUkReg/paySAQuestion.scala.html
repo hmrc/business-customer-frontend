@@ -20,11 +20,11 @@
 @this(bcMain: bcMain)
 
 
-@(paySAQuestionForm: Form[models.PaySAQuestion], service: String, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@(paySAQuestionForm: Form[models.PaySAQuestion], service: String, backLink: Option[String], referrer: String)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @implicitFormInstance = @{ Some(paySAQuestionForm) }
 
-@bcMain(title = messages("bc.nonuk.paySA.title"), service = service) {
+@bcMain(title = messages("bc.nonuk.paySA.title"), service = service, referrer = referrer) {
     @pageHeadersAndError(backLink, "paySa-subheader", messages("bc.nonuk.paySA.subheader", service.toUpperCase), "paySa-header", messages("bc.nonuk.paySA.header"),
         Some(bcErrorSummary(paySAQuestionForm, "bc.nonuk.paySA.error.general")))
 

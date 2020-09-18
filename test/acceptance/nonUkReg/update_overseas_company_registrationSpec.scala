@@ -52,7 +52,7 @@ class update_overseas_company_registrationSpec extends FeatureSpec with GuiceOne
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
-      val html = injectedViewInstance(overseasCompanyForm, service, displayDetails, List(("UK", "UK")), None, Some("http://backLinkUrl"))
+      val html = injectedViewInstance(overseasCompanyForm, service, displayDetails, List(("UK", "UK")), None, Some("http://backLinkUrl"), "statementUrl")
 
       val document = Jsoup.parse(html.toString())
 
@@ -73,6 +73,10 @@ class update_overseas_company_registrationSpec extends FeatureSpec with GuiceOne
       assert(document.getElementById("businessUniqueId_field").text() === "Overseas company registration number")
       assert(document.getElementById("issuingCountry_field").text() === "Country that issued the number")
       assert(document.getElementById("issuingInstitution_field").text() === "Institution that issued the number For example, an overseas tax department")
+
+      And("There is a link to the accessibility statement")
+      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=statementUrl")
     }
   }
 }

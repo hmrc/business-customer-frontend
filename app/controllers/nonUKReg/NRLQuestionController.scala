@@ -53,7 +53,7 @@ class NRLQuestionController @Inject()(val authConnector: AuthConnector,
           backLink <- currentBackLink
           savedNRL <- businessRegistrationCache.fetchAndGetCachedDetails[NRLQuestion](NrlFormId)
         } yield
-          Ok(template(nrlQuestionForm.fill(savedNRL.getOrElse(NRLQuestion())), service, backLink))
+          Ok(template(nrlQuestionForm.fill(savedNRL.getOrElse(NRLQuestion())), service, backLink, request.host + request.uri))
       }
     }
   }
@@ -62,7 +62,7 @@ class NRLQuestionController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service){ implicit authContext =>
       nrlQuestionForm.bindFromRequest.fold(
         formWithErrors =>
-          currentBackLink.map(backLink => BadRequest(template(formWithErrors, service, backLink))),
+          currentBackLink.map(backLink => BadRequest(template(formWithErrors, service, backLink, request.host + request.uri))),
         formData => {
           businessRegistrationCache.cacheDetails[NRLQuestion](NrlFormId, formData)
           val paysSa = formData.paysSA.getOrElse(false)

@@ -20,17 +20,20 @@
 @import uk.gov.hmrc.play.views.html.helpers.ReportAProblemLink
 @import uk.gov.hmrc.play.views.html.layouts._
 
-@this(govuk_template: GovUkTemplate,
-layoutHead: Head,
-betaBanner: BetaBanner,
-layoutServiceInfo: ServiceInfo,
-reportAProblemLink: ReportAProblemLink,
-layoutArticle: Article,
-main_content_header: MainContentHeader,
-main_content: MainContent,
-footer: Footer,
-footer_links: FooterLinks,
-header_nav: HeaderNav)
+@this(
+    govuk_template: GovUkTemplate,
+    layoutHead: Head,
+    betaBanner: BetaBanner,
+    layoutServiceInfo: ServiceInfo,
+    reportAProblemLink: ReportAProblemLink,
+    layoutArticle: Article,
+    main_content_header: MainContentHeader,
+    main_content: MainContent,
+    footer: Footer,
+    footer_links: FooterLinks,
+    header_nav: HeaderNav,
+    referrer: String
+)
 
 @(applicationConfig: ApplicationConfig,
     supportLinkEnabled: Boolean = false,
@@ -41,7 +44,8 @@ header_nav: HeaderNav)
     contentHeader: Option[Html] = None,
     userLoggedIn: Boolean = false,
     scriptElement: Option[Html] = None,
-    linkElement : Option[Html] = None
+    linkElement : Option[Html] = None,
+    referrer: String = ""
     )(mainContent: Html = HtmlFormat.empty)(implicit request : Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @head = {
@@ -90,8 +94,6 @@ header_nav: HeaderNav)
 }
 
 @footerTop = {}
-@footerLinks = {}
-
 
 @serviceInfo = {
   @layoutServiceInfo(
@@ -123,10 +125,15 @@ header_nav: HeaderNav)
   getHelpForm = getHelpForm)
 }
 
-@hmrcGovUkTemplate(title = Some(s"$title - GOV.UK"), bodyClasses = None)(head = head,
+@footerLinks = {
+    @footer_links(accessibilityFooterUrl = Some(applicationConfig.accessibilityStatementFrontendUrl(service, referrer)))
+}
+
+@hmrcGovUkTemplate(title = Some(s"$title - GOV.UK"), bodyClasses = None)(
+    head = head,
     bodyEnd = bodyEnd,
     insideHeader = insideHeader,
     afterHeader = afterHeader,
     footerTop = footerTop,
-    footerLinks = Some(footer_links()),
+    footerLinks = Some(footerLinks),
     nav = true)(content = content)

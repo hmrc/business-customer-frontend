@@ -19,7 +19,7 @@
 @import views.html.helpers._
 @this(bcMain: bcMain)
 
-@(service: String, isAgent: Boolean, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@(service: String, isAgent: Boolean, businessDetails: models.ReviewDetails, backLink: Option[String], referrer: String)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @headingId = @{
     isAgent match {
@@ -63,7 +63,7 @@
     }
 }
 
-@bcMain(title = headingText, service = service) {
+@bcMain(title = headingText, service = service, referrer = referrer) {
 
     @pageHeadersAndError(
         backLink,

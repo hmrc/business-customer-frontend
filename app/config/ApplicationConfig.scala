@@ -19,7 +19,7 @@ package config
 import java.io.File
 
 import javax.inject.{Inject, Named, Singleton}
-import play.api.{Configuration, Environment}
+import play.api.{Configuration, Environment, Logging}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.util.Try
@@ -29,7 +29,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
                                   val oldConfig: Configuration,
                                   val environment: Environment,
                                   val templateError: views.html.global_error,
-                                  @Named("appName") val appName: String) extends BCUtils {
+                                  @Named("appName") val appName: String) extends BCUtils with Logging {
 
   private val contactHost = conf.getConfString("contact-frontend.host", "")
 
@@ -51,6 +51,8 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   lazy val taxEnrolments: String = conf.baseUrl("tax-enrolments")
   lazy val companyAuthHost: String = conf.getString("microservice.services.auth.company-auth.host")
   lazy val addClientEmailPath: String = conf.getString(s"microservice.services.agent-client-mandate-frontend.select-service")
+  lazy val accessibilityStatementFrontendHost: String = conf.getString(s"microservice.services.accessibility-statement-frontend.host")
+  lazy val accessibilityStatementFrontendUrl: String = conf.getString(s"microservice.services.accessibility-statement-frontend.url")
 
   lazy val loginCallback: String = conf.getString("microservice.services.auth.login-callback.url")
   lazy val loginPath: String = conf.getString("microservice.services.auth.login-path")
@@ -62,6 +64,16 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   lazy val domain: String = conf.getConfString(
     "cachable.session-cache.domain", throw new Exception(s"Could not find config 'cachable.session-cache.domain'")
   )
+
+  def accessibilityStatementFrontendUrl(service: String, referrerUrl: String): String = {
+    val statement = service.toUpperCase() match {
+      case "AMLS" => "anti-money-laundering"
+      case "ATED" => "ated-subscription"
+      case "AWRS" => "alcohol-wholesale-scheme"
+      case _ => logger.warn(s"[ApplicationConfig][accessibilityStatementFrontendUrl] - Invalid service: '$service'")
+    }
+    s"$accessibilityStatementFrontendHost$accessibilityStatementFrontendUrl/$statement?referrerUrl=$referrerUrl"
+  }
 
   def serviceSignOutUrl(service: String): String = conf.getConfString(s"delegated-service.${service.toLowerCase}.sign-out-url", logoutUrl)
   def continueURL(serviceName: String) = s"$loginCallback/$serviceName"

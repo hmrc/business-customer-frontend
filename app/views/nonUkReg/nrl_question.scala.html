@@ -19,9 +19,9 @@
 @import views.html.helpers._
 @this(bcMain: bcMain)
 
-@(nrlQuestionForm: Form[models.NRLQuestion], service: String, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@(nrlQuestionForm: Form[models.NRLQuestion], service: String, backLink: Option[String], referrer: String)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@bcMain(title = messages("bc.nrl.title"), service = service) {
+@bcMain(title = messages("bc.nrl.title"), service = service, referrer = referrer) {
 
   @form(action = controllers.nonUKReg.routes.NRLQuestionController.continue(service)) {
     @pageHeadersAndError(backLink, "client-appoint-subheader", messages("bc.nrl.subheader", service.toUpperCase), "nrl-question-header", messages("bc.nrl.header"),

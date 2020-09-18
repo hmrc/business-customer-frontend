@@ -19,13 +19,14 @@
 @import views.html.helpers._
 @this(bcMain: bcMain)
 
-@(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails,
+        backLink: Option[String], referrer: String)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @titleName = @{
     messages("bc.business-registration.user.group.header", service.toUpperCase)
 }
 
-@bcMain(title = titleName, service = service) {
+@bcMain(title = titleName, service = service, referrer = referrer) {
 
   @pageHeadersAndError(
       backLink,

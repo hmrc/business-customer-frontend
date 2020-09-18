@@ -44,7 +44,7 @@ class paySAQuestionSpec extends FeatureSpec with GuiceOneServerPerSuite with Moc
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
-      val html = injectedViewInstance(paySAQuestionForm, service, Some("backLinkUri"))
+      val html = injectedViewInstance(paySAQuestionForm, service, Some("backLinkUri"), "statementUrl")
 
       val document = Jsoup.parse(html.toString())
 
@@ -59,6 +59,10 @@ class paySAQuestionSpec extends FeatureSpec with GuiceOneServerPerSuite with Moc
 
       And("The submit button is - continue")
       assert(document.getElementById("submit").text() === "Continue")
+
+      And("There is a link to the accessibility statement")
+      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=statementUrl")
     }
   }
 }
