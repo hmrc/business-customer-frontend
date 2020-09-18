@@ -53,7 +53,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   lazy val addClientEmailPath: String = conf.getString(s"microservice.services.agent-client-mandate-frontend.select-service")
   lazy val accessibilityStatementFrontendHost: String = conf.getString(s"microservice.services.accessibility-statement-frontend.host")
   lazy val accessibilityStatementFrontendUrl: String = conf.getString(s"microservice.services.accessibility-statement-frontend.url")
-
+  lazy val platformHost: String = Try(conf.getString("platform.frontend.host")).getOrElse("")
   lazy val loginCallback: String = conf.getString("microservice.services.auth.login-callback.url")
   lazy val loginPath: String = conf.getString("microservice.services.auth.login-path")
   lazy val loginURL = s"$companyAuthHost/gg/$loginPath"

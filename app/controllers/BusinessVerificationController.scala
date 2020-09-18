@@ -31,6 +31,7 @@ import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants._
+import utils.ReferrerUtils.getReferrer
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -63,7 +64,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
   def businessVerification(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       currentBackLink map ( backLink =>
-        Ok(template(businessTypeForm, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink, request.host + request.uri))
+        Ok(template(businessTypeForm, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink, getReferrer()))
       )
     }
   }
@@ -73,7 +74,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       BusinessVerificationForms.validateBusinessType(businessTypeForm.bindFromRequest, service).fold(
         formWithErrors =>
           currentBackLink map ( backLink =>
-            BadRequest(template(formWithErrors, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink, request.host + request.uri)
+            BadRequest(template(formWithErrors, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink, getReferrer())
           )
         ),
         value => {
@@ -104,15 +105,15 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       val backLink = Some(routes.BusinessVerificationController.businessVerification(service).url)
       Future.successful(
         businessType match {
-          case "SOP" => Ok(templateSOP(soleTraderForm, authContext.isAgent, service, businessType, backLink, request.host + request.uri))
-          case "LTD" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink, request.host + request.uri))
-          case "UIB" => Ok(templateUIB(unincorporatedBodyForm, authContext.isAgent, service, businessType, backLink, request.host + request.uri))
-          case "OBP" => Ok(templateOBP(ordinaryBusinessPartnershipForm, authContext.isAgent, service, businessType, backLink, request.host + request.uri))
-          case "LLP" => Ok(templateLLP(limitedLiabilityPartnershipForm, authContext.isAgent, service, businessType, backLink, request.host + request.uri))
-          case "LP" => Ok(templateLP(limitedPartnershipForm, authContext.isAgent, service, businessType, backLink, request.host + request.uri))
-          case "UT" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink, request.host + request.uri))
-          case "ULTD" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink, request.host + request.uri))
-          case "NRL" => Ok(templateNRL(nonResidentLandlordForm, authContext.isAgent, service, businessType, getNrlBackLink(service), request.host + request.uri))
+          case "SOP" => Ok(templateSOP(soleTraderForm, authContext.isAgent, service, businessType, backLink, getReferrer()))
+          case "LTD" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink, getReferrer()))
+          case "UIB" => Ok(templateUIB(unincorporatedBodyForm, authContext.isAgent, service, businessType, backLink, getReferrer()))
+          case "OBP" => Ok(templateOBP(ordinaryBusinessPartnershipForm, authContext.isAgent, service, businessType, backLink, getReferrer()))
+          case "LLP" => Ok(templateLLP(limitedLiabilityPartnershipForm, authContext.isAgent, service, businessType, backLink, getReferrer()))
+          case "LP" => Ok(templateLP(limitedPartnershipForm, authContext.isAgent, service, businessType, backLink, getReferrer()))
+          case "UT" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink, getReferrer()))
+          case "ULTD" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink, getReferrer()))
+          case "NRL" => Ok(templateNRL(nonResidentLandlordForm, authContext.isAgent, service, businessType, getNrlBackLink(service), getReferrer()))
         }
       )
     }
@@ -122,15 +123,15 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
     authorisedFor(service) { implicit authContext =>
       val backLink = Some(routes.BusinessVerificationController.businessVerification(service).url)
       businessType match {
-        case "UIB" => uibFormHandling(unincorporatedBodyForm, businessType, service, backLink, request.host + request.uri)
-        case "SOP" => sopFormHandling(soleTraderForm, businessType, service, backLink, request.host + request.uri)
-        case "LLP" => llpFormHandling(limitedLiabilityPartnershipForm, businessType, service, backLink, request.host + request.uri)
-        case "LP" => lpFormHandling(limitedPartnershipForm, businessType, service, backLink, request.host + request.uri)
-        case "OBP" => obpFormHandling(ordinaryBusinessPartnershipForm, businessType, service, backLink, request.host + request.uri)
-        case "LTD" => ltdFormHandling(limitedCompanyForm, businessType, service, backLink, request.host + request.uri)
-        case "UT" => ltdFormHandling(limitedCompanyForm, businessType, service, backLink, request.host + request.uri)
-        case "ULTD" => ltdFormHandling(limitedCompanyForm, businessType, service, backLink, request.host + request.uri)
-        case "NRL" => nrlFormHandling(nonResidentLandlordForm, businessType, service, getNrlBackLink(service), request.host + request.uri)
+        case "UIB" => uibFormHandling(unincorporatedBodyForm, businessType, service, backLink, getReferrer())
+        case "SOP" => sopFormHandling(soleTraderForm, businessType, service, backLink, getReferrer())
+        case "LLP" => llpFormHandling(limitedLiabilityPartnershipForm, businessType, service, backLink, getReferrer())
+        case "LP" => lpFormHandling(limitedPartnershipForm, businessType, service, backLink, getReferrer())
+        case "OBP" => obpFormHandling(ordinaryBusinessPartnershipForm, businessType, service, backLink, getReferrer())
+        case "LTD" => ltdFormHandling(limitedCompanyForm, businessType, service, backLink, getReferrer())
+        case "UT" => ltdFormHandling(limitedCompanyForm, businessType, service, backLink, getReferrer())
+        case "ULTD" => ltdFormHandling(limitedCompanyForm, businessType, service, backLink, getReferrer())
+        case "NRL" => nrlFormHandling(nonResidentLandlordForm, businessType, service, getNrlBackLink(service), getReferrer())
       }
     }
   }
@@ -140,7 +141,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       val backLink = Some(routes.BusinessVerificationController.businessForm(service, businessType).url)
       Future.successful(Ok(
         templateDetailsNotFound(authContext.isAgent, service, businessType,
-          backLink, request.host + request.uri)
+          backLink, getReferrer())
       ))
     }
   }

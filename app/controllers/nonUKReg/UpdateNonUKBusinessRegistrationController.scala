@@ -26,6 +26,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.ReferrerUtils.getReferrer
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -83,7 +84,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
             None,
             isRegisterClient = false,
             backLink,
-            request.host + request.uri,
+            getReferrer(),
             authContext.isAgent))
         case _ =>
           logger.warn(s"[UpdateNonUKBusinessRegistrationController][editAgent] - No registration details found to edit")
@@ -107,7 +108,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
                   redirectUrl,
                   isRegisterClient = true,
                   backLink,
-                request.host + request.uri,
+                  getReferrer(),
                   authContext.isAgent))
             case _ =>
               logger.warn(s"[UpdateNonUKBusinessRegistrationController][edit] - No registration details found to edit")
@@ -131,7 +132,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
                 redirectUrl,
                 isRegisterClient,
                 backLink,
-                request.host + request.uri,
+                getReferrer(),
                 authContext.isAgent)))
             },
             registerData => {

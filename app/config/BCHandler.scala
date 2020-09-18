@@ -16,6 +16,8 @@
 
 package config
 
+import java.net.URLEncoder
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.Request
@@ -34,7 +36,7 @@ trait BCHandler extends FrontendErrorHandler with I18nSupport {
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
     val service = SessionUtils.findServiceInRequest(request)
 
-    appConfig.templateError(pageTitle, heading, message, service, appConfig)
+    appConfig.templateError(pageTitle, heading, message, service, appConfig, URLEncoder.encode(request.uri, "UTF8"))
   }
 
   override def internalServerErrorTemplate(implicit request: Request[_]): Html = {
@@ -43,6 +45,8 @@ trait BCHandler extends FrontendErrorHandler with I18nSupport {
       Messages("bc.generic.error.header"),
       Messages("bc.generic.error.message"),
       SessionUtils.findServiceInRequest(request),
-      appConfig)
+      appConfig,
+      URLEncoder.encode(request.uri, "UTF8")
+  )
   }
 }
