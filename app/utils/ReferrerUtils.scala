@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,25 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import config._
+package utils
 
-@this(global_error_wrapper: global_error_wrapper)
+import java.net.URLEncoder
 
-@(pageTitle: String,
-heading: String,
-message: String,
-service: String = "",
-appConfig: ApplicationConfig,
-referrer: String = "global-error")(implicit request: Request[_], messages: Messages)
+import config.ApplicationConfig
+import play.api.mvc.{AnyContent, MessagesRequest}
 
-@contentHeader = {
-<h1>@messages(heading)</h1>
+object ReferrerUtils {
+
+  def getReferrer()(implicit request: MessagesRequest[AnyContent], appConfig: ApplicationConfig): String =
+    URLEncoder.encode(s"${appConfig.platformHost}${request.path}", "UTF-8")
+
 }
-
-@mainContent = {
-<p>@messages(message)</p>
-}
-
-@global_error_wrapper(appConfig = appConfig, title = messages(pageTitle), contentHeader = Some(contentHeader), mainContent = mainContent, service = service, referrer = referrer)

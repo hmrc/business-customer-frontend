@@ -28,6 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
+import utils.ReferrerUtils.getReferrer
 
 import scala.concurrent.ExecutionContext
 
@@ -58,13 +59,13 @@ class BusinessRegController @Inject()(val authConnector: AuthConnector,
               service,
               displayDetails(businessType, service),
               backLink,
-              request.host + request.uri,
+              getReferrer(),
               authContext.isAgent
             ))
           case None =>
             Ok(template(
               businessRegistrationForm, service, displayDetails(businessType, service),
-              backLink, request.host + request.uri, authContext.isAgent
+              backLink, getReferrer(), authContext.isAgent
             ))
         }
       }
@@ -77,7 +78,7 @@ class BusinessRegController @Inject()(val authConnector: AuthConnector,
         formWithErrors => {
           currentBackLink.map(backLink =>
             BadRequest(template(formWithErrors, service,
-              displayDetails(businessType, service), backLink, request.host + request.uri, authContext.isAgent))
+              displayDetails(businessType, service), backLink, getReferrer(), authContext.isAgent))
           )
         },
         registrationData => {

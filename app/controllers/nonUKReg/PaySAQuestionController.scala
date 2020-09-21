@@ -27,6 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.PaySaDetailsId
+import utils.ReferrerUtils.getReferrer
 
 import scala.concurrent.ExecutionContext
 
@@ -53,7 +54,7 @@ class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
           backLink <- currentBackLink
           savedPaySa <- businessRegistrationCache.fetchAndGetCachedDetails[PaySAQuestion](PaySaDetailsId)
         } yield
-          Ok(template(paySAQuestionForm.fill(savedPaySa.getOrElse(PaySAQuestion())), service, backLink, request.host + request.uri))
+          Ok(template(paySAQuestionForm.fill(savedPaySa.getOrElse(PaySAQuestion())), service, backLink, getReferrer()))
       }
     }
   }
@@ -62,7 +63,7 @@ class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service) { implicit authContext =>
       paySAQuestionForm.bindFromRequest.fold(
         formWithErrors => currentBackLink.map(backLink =>
-          BadRequest(template(formWithErrors, service, backLink, request.host + request.uri))
+          BadRequest(template(formWithErrors, service, backLink, getReferrer()))
         ),
         formData => {
           businessRegistrationCache.cacheDetails[PaySAQuestion](PaySaDetailsId, formData)

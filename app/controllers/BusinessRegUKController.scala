@@ -27,6 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.ReferrerUtils.getReferrer
 
 import scala.concurrent.ExecutionContext
 
@@ -49,7 +50,8 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
       val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
       currentBackLink map (backLink =>
         Ok(template(businessRegistrationForm.copy(data = newMapping),
-          service, displayDetails(businessType, service), backLink, request.uri))
+          service, displayDetails(businessType, service), backLink,
+          getReferrer()))
       )
     }
   }
@@ -58,7 +60,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service){ implicit authContext =>
       BusinessRegistrationForms.validateUK(businessRegistrationForm.bindFromRequest).fold(
         formWithErrors => currentBackLink map (backLink =>
-          BadRequest(template(formWithErrors, service, displayDetails(businessType, service), backLink, request.host + request.uri))
+          BadRequest(template(formWithErrors, service, displayDetails(businessType, service), backLink, getReferrer()))
         ),
         registrationData => {
           businessRegistrationService.registerBusiness(

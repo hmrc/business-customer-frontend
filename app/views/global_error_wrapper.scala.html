@@ -20,17 +20,19 @@
 @import uk.gov.hmrc.play.views.html.layouts._
 @import views.html.layouts.GovUkTemplate
 
-@this(govuk_template: GovUkTemplate,
-layoutHead: Head,
-uiBetaBanner: BetaBanner,
-layoutServiceInfo: ServiceInfo,
-reportAProblemLink: ReportAProblemLink,
-layoutArticle: Article,
-main_content_header: MainContentHeader,
-main_content: MainContent,
-footer: Footer,
-footer_links: FooterLinks,
-header_nav: HeaderNav)
+@this(
+    govuk_template: GovUkTemplate,
+    layoutHead: Head,
+    uiBetaBanner: BetaBanner,
+    layoutServiceInfo: ServiceInfo,
+    reportAProblemLink: ReportAProblemLink,
+    layoutArticle: Article,
+    main_content_header: MainContentHeader,
+    main_content: MainContent,
+    footer: Footer,
+    footer_links: FooterLinks,
+    header_nav: HeaderNav
+)
 
 @(appConfig: ApplicationConfig,
   title: String,
@@ -43,7 +45,8 @@ header_nav: HeaderNav)
   mainContent: Html = HtmlFormat.empty,
   serviceInfoContent: Html = HtmlFormat.empty,
   scriptElem: Option[Html] = None,
-  delegatedService: String)(implicit request: Request[_], messages: Messages)
+  service: String,
+  referrer: String)(implicit request: Request[_], messages: Messages)
 
 @import layouts.{govuk_template => hmrcGovUkTemplate}
 
@@ -59,7 +62,7 @@ header_nav: HeaderNav)
 }
 
 @headerNavLinks = {
-  <li><a href="@routes.ApplicationController.logout(delegatedService)" id="errorLogOutNavHref">@messages("bc.sign-out")</a></li>
+  <li><a href="@routes.ApplicationController.logout(service)" id="errorLogOutNavHref">@messages("bc.sign-out")</a></li>
 }
 
 
@@ -68,7 +71,7 @@ header_nav: HeaderNav)
   <script src='@controllers.routes.Assets.versioned("javascript/timeout-dialog.js")'></script>
   <script charset="utf-8">
   @if(userLoggedIn) {
-     $.timeoutDialog({timeout: @appConfig.defaultTimeoutSeconds, countdown: @appConfig.timeoutCountdown, keep_alive_url: '/business-customer/keep-alive', logout_url: '@appConfig.serviceSignOutUrl(delegatedService)', logout_redirect_url: '@appConfig.serviceSignOutUrl(delegatedService)', restart_on_yes: true, background_no_scroll: true});
+     $.timeoutDialog({timeout: @appConfig.defaultTimeoutSeconds, countdown: @appConfig.timeoutCountdown, keep_alive_url: '/business-customer/keep-alive', logout_url: '@appConfig.serviceSignOutUrl(service)', logout_redirect_url: '@appConfig.serviceSignOutUrl(service)', restart_on_yes: true, background_no_scroll: true});
      var dialogOpen;
   }
   </script>
@@ -82,7 +85,7 @@ header_nav: HeaderNav)
 
 @insideHeader = {
     @header_nav(
-      navTitle = appConfig.getNavTitle(delegatedService).map(s => messages(s)),
+      navTitle = appConfig.getNavTitle(service).map(s => messages(s)),
       navTitleLink = None,
       showBetaLink = false,
       navLinks = Some(headerNavLinks))
@@ -100,7 +103,10 @@ header_nav: HeaderNav)
 }
 
 @footerTop = {}
-@footerLinks = {}
+
+@footerLinks = {
+    @footer_links(accessibilityFooterUrl = Some(appConfig.accessibilityStatementFrontendUrl(service, referrer)))
+}
 
 @serviceInfo = {
     @layoutServiceInfo(
@@ -129,4 +135,4 @@ header_nav: HeaderNav)
       sidebar = sidebar)
 }
 
-@hmrcGovUkTemplate(Some(s"$title - GOV.UK"), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(footer_links()), true)(content)
+@hmrcGovUkTemplate(Some(s"$title - GOV.UK"), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(footerLinks), true)(content)

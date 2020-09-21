@@ -27,6 +27,7 @@ import services.AgentRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionUtils
+import utils.ReferrerUtils.getReferrer
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -56,9 +57,9 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
         case Some(businessDetails) =>
           currentBackLink.map(backLink =>
             if (authContext.isAgent && businessDetails.isBusinessDetailsEditable) {
-              Ok(templateNonUkAgent(serviceName, businessDetails, backLink, request.host + request.uri))
+              Ok(templateNonUkAgent(serviceName, businessDetails, backLink, getReferrer()))
             } else {
-              Ok(templateReviewDetails(serviceName, authContext.isAgent, businessDetails, backLink, request.host + request.uri))
+              Ok(templateReviewDetails(serviceName, authContext.isAgent, businessDetails, backLink, getReferrer()))
             }
           )
         case _ =>
