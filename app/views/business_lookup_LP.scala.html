@@ -23,7 +23,7 @@
  isAgent: Boolean,
  service: String,
  businessType: String,
- backLink: Option[String], referrer: String)(implicit request: Request[AnyContent], messages: Messages, appConfig: ApplicationConfig)
+ backLink: Option[String])(implicit request: Request[AnyContent], messages: Messages, appConfig: ApplicationConfig)
 
 @headingId = @{
     isAgent match {
@@ -53,7 +53,7 @@
     }
 }
 
-@bcMain(title = headingText, service = service, referrer = referrer) {
+@bcMain(title = headingText, service = service) {
     @pageHeadersAndError(
         backLink,
         headingSecondaryId,

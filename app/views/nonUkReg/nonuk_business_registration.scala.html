@@ -19,7 +19,7 @@
 @import views.html.helpers._
 @this(bcMain: bcMain)
 
-@(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String], referrer: String)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
 <script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
@@ -34,7 +34,7 @@
   </script>
 }
 
-@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts), referrer = referrer) {
+@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts)) {
 
   @pageHeadersAndError(backLink, "business-verification-text", messages(displayDetails.businessRegSubHeader), "non-uk-reg-header", messages(displayDetails.businessRegHeader),
     Some(bcErrorSummary(businessRegistrationForm, "bc.non-uk-reg-error.general")))

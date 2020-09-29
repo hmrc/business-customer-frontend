@@ -52,7 +52,7 @@ class update_overseas_company_registrationSpec extends FeatureSpec with GuiceOne
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
-      val html = injectedViewInstance(overseasCompanyForm, service, displayDetails, List(("UK", "UK")), None, Some("http://backLinkUrl"), "statementUrl")
+      val html = injectedViewInstance(overseasCompanyForm, service, displayDetails, List(("UK", "UK")), None, Some("http://backLinkUrl"))
 
       val document = Jsoup.parse(html.toString())
 
@@ -76,7 +76,7 @@ class update_overseas_company_registrationSpec extends FeatureSpec with GuiceOne
 
       And("There is a link to the accessibility statement")
       assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
-        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=statementUrl")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
     }
   }
 }

@@ -15,6 +15,7 @@
  *@
 
 @import config._
+@import _root_.utils.ReferrerUtils.getReferrer
 @import layouts.{GovUkTemplate, govuk_template => hmrcGovUkTemplate}
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.play.views.html.helpers.ReportAProblemLink
@@ -31,8 +32,7 @@
     main_content: MainContent,
     footer: Footer,
     footer_links: FooterLinks,
-    header_nav: HeaderNav,
-    referrer: String
+    header_nav: HeaderNav
 )
 
 @(applicationConfig: ApplicationConfig,
@@ -44,8 +44,7 @@
     contentHeader: Option[Html] = None,
     userLoggedIn: Boolean = false,
     scriptElement: Option[Html] = None,
-    linkElement : Option[Html] = None,
-    referrer: String = ""
+    linkElement : Option[Html] = None
     )(mainContent: Html = HtmlFormat.empty)(implicit request : Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @head = {
@@ -125,7 +124,7 @@
 }
 
 @footerLinks = {
-    @footer_links(accessibilityFooterUrl = Some(applicationConfig.accessibilityStatementFrontendUrl(service, referrer)))
+    @footer_links(accessibilityFooterUrl = Some(applicationConfig.accessibilityStatementFrontendUrl(service, getReferrer())))
 }
 
 @hmrcGovUkTemplate(title = Some(s"$title - GOV.UK"), bodyClasses = None)(

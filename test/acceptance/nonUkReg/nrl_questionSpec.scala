@@ -45,7 +45,7 @@ class nrl_questionSpec extends FeatureSpec with GuiceOneServerPerSuite with Mock
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
-      val html = injectedViewInstance(nrlQuestionForm, service, Some("backLinkUri"), "statementUrl")
+      val html = injectedViewInstance(nrlQuestionForm, service, Some("backLinkUri"))
 
       val document = Jsoup.parse(html.toString())
 
@@ -63,7 +63,7 @@ class nrl_questionSpec extends FeatureSpec with GuiceOneServerPerSuite with Mock
 
       And("There is a link to the accessibility statement")
       assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
-        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=statementUrl")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
     }
   }
 }

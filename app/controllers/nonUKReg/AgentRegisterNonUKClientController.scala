@@ -29,7 +29,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
-import utils.ReferrerUtils.getReferrer
 
 import scala.concurrent.ExecutionContext
 
@@ -55,9 +54,9 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
         val backLinkOption = if (backLinkUrl.isDefined) backLinkUrl else backLink
         businessRegistration match {
           case Some(businessReg) =>
-            Ok(template(businessRegistrationForm.fill(businessReg), service, displayDetails, backLinkOption, getReferrer()))
+            Ok(template(businessRegistrationForm.fill(businessReg), service, displayDetails, backLinkOption))
           case None =>
-            Ok(template(businessRegistrationForm, service, displayDetails, backLinkOption, getReferrer()))
+            Ok(template(businessRegistrationForm, service, displayDetails, backLinkOption))
         }
       }
     }
@@ -68,7 +67,7 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
       BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, isAgent = true, appConfig).fold(
         formWithErrors => {
           currentBackLink.map(backLink =>
-            BadRequest(template(formWithErrors, service, displayDetails, backLink, getReferrer()))
+            BadRequest(template(formWithErrors, service, displayDetails, backLink))
           )
         },
         registerData => {

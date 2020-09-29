@@ -27,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.NrlFormId
-import utils.ReferrerUtils.getReferrer
 
 import scala.concurrent.ExecutionContext
 
@@ -54,7 +53,7 @@ class NRLQuestionController @Inject()(val authConnector: AuthConnector,
           backLink <- currentBackLink
           savedNRL <- businessRegistrationCache.fetchAndGetCachedDetails[NRLQuestion](NrlFormId)
         } yield
-          Ok(template(nrlQuestionForm.fill(savedNRL.getOrElse(NRLQuestion())), service, backLink, getReferrer()))
+          Ok(template(nrlQuestionForm.fill(savedNRL.getOrElse(NRLQuestion())), service, backLink))
       }
     }
   }
@@ -63,7 +62,7 @@ class NRLQuestionController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service){ implicit authContext =>
       nrlQuestionForm.bindFromRequest.fold(
         formWithErrors =>
-          currentBackLink.map(backLink => BadRequest(template(formWithErrors, service, backLink, getReferrer()))),
+          currentBackLink.map(backLink => BadRequest(template(formWithErrors, service, backLink))),
         formData => {
           businessRegistrationCache.cacheDetails[NRLQuestion](NrlFormId, formData)
           val paysSa = formData.paysSA.getOrElse(false)

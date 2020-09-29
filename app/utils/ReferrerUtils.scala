@@ -19,11 +19,11 @@ package utils
 import java.net.URLEncoder
 
 import config.ApplicationConfig
-import play.api.mvc.{AnyContent, MessagesRequest}
+import play.api.mvc.Request
 
 object ReferrerUtils {
 
-  def getReferrer()(implicit request: MessagesRequest[AnyContent], appConfig: ApplicationConfig): String =
+  def getReferrer()(implicit request: Request[_], appConfig: ApplicationConfig): String =
     URLEncoder.encode(s"${appConfig.platformHost}${request.path}", "UTF-8")
 
 }
