@@ -34,6 +34,7 @@ import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Re
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
+import views.html.nonUkReg.nrl_question
 
 import scala.concurrent.Future
 
@@ -47,7 +48,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val service = "amls"
   val invalidService = "scooby-doo"
   val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
-  val injectedViewInstance = inject[views.html.nonUkReg.nrl_question]
+  val injectedViewInstance: nrl_question = inject[views.html.nonUkReg.nrl_question]
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
@@ -142,8 +143,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     }
   }
 
-
-  def viewWithAuthorisedAgent(serviceName: String)(test: Future[Result] => Any) = {
+  def viewWithAuthorisedAgent(serviceName: String)(test: Future[Result] => Any): Any = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -160,7 +160,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   }
 
 
-  def viewWithAuthorisedClient(serviceName: String)(test: Future[Result] => Any) = {
+  def viewWithAuthorisedClient(serviceName: String)(test: Future[Result] => Any): Any = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -178,7 +178,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   }
 
 
-  def viewWithAuthorisedClientWithSavedData(serviceName: String)(test: Future[Result] => Any) = {
+  def viewWithAuthorisedClientWithSavedData(serviceName: String)(test: Future[Result] => Any): Any = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     val successModel = NRLQuestion(Some(false))
@@ -198,10 +198,9 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   }
 
 
-  def continueWithAuthorisedClient(fakeRequest: FakeRequest[AnyContentAsJson], serviceName: String)(test: Future[Result] => Any) = {
-    val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
-    implicit val user = builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
+  def continueWithAuthorisedClient(fakeRequest: FakeRequest[AnyContentAsJson], serviceName: String)(test: Future[Result] => Any): Any = {
+    val userId   = s"user-${UUID.randomUUID}"
+    builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
     when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
