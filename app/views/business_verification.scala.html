@@ -24,8 +24,7 @@
   service: String,
   isSaAccount : Boolean,
   isOrgAccount: Boolean,
-  backLink: Option[String],
-  referrer: String)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+  backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @headingId = @{
     isAgent match {
@@ -55,7 +54,7 @@
     }
 }
 
-@bcMain(title = headingText, service = service, referrer = referrer) {
+@bcMain(title = headingText, service = service) {
 
     @pageHeadersAndError(
         backLink,

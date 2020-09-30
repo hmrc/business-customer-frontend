@@ -30,7 +30,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.{BusinessRegDetailsId, OverseasRegDetailsId}
 import utils.OverseasCompanyUtils
-import utils.ReferrerUtils.getReferrer
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -60,9 +59,9 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
           overseasNumber match {
             case Some(oversea) =>
               Ok(template(overseasCompanyForm.fill(oversea), service,
-                displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink, getReferrer()))
+                displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink))
             case None => Ok(template(overseasCompanyForm, service,
-              displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink, getReferrer()))
+              displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink))
           }
         }
       }
@@ -76,7 +75,7 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
         case _ => BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest).fold(
           formWithErrors => {
             currentBackLink.map(backLink => BadRequest(template(formWithErrors, service,
-              displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink, getReferrer()))
+              displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink))
             )
           },
           overseasCompany => for {

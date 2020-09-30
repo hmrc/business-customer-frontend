@@ -26,7 +26,6 @@ import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.OverseasCompanyUtils
-import utils.ReferrerUtils.getReferrer
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -55,8 +54,7 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
              displayDetails(authContext.isAgent, addClient, service),
             appConfig.getIsoCodeTupleList,
              redirectUrl,
-            backLink,
-            getReferrer()))
+            backLink))
 
           businessRegistrationService.getDetails.map {
             case Some(detailsTuple) =>
@@ -65,8 +63,7 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
                  displayDetails(authContext.isAgent, addClient, service),
                 appConfig.getIsoCodeTupleList,
                  redirectUrl,
-                backLink,
-                getReferrer()))
+                backLink))
             case _ =>
               logger.warn(s"[UpdateOverseasCompanyRegController][viewForUpdate] - No registration details found to edit")
               throw new RuntimeException("No registration details found")
@@ -90,8 +87,7 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
                 displayDetails(authContext.isAgent, addClient, service),
                 appConfig.getIsoCodeTupleList,
                 redirectUrl,
-                backLink,
-                getReferrer()))
+                backLink))
               )
             },
             overseasCompany =>

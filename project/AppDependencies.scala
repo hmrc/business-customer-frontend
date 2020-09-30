@@ -10,9 +10,9 @@ object AppDependencies {
     "uk.gov.hmrc" %% "play-partials" % "6.11.0-play-27",
     "uk.gov.hmrc" %% "play-ui" % "8.12.0-play-27",
     "uk.gov.hmrc" %% "http-caching-client" % "9.1.0-play-27",
-    "uk.gov.hmrc" %% "auth-client" % "3.1.0-play-27",
+    "uk.gov.hmrc" %% "auth-client" % "3.2.0-play-27",
     "com.typesafe.play" %% "play-json-joda" % "2.7.4",
-    "uk.gov.hmrc" %% "govuk-template" % "5.56.0-play-27",
+    "uk.gov.hmrc" %% "govuk-template" % "5.57.0-play-27",
     compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.1" cross CrossVersion.full),
     "com.github.ghik" % "silencer-lib" % "1.7.1" % Provided cross CrossVersion.full
   )

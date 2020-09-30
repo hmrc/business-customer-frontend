@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.ReportAProblemLink
 @import uk.gov.hmrc.play.views.html.layouts._
 @import views.html.layouts.GovUkTemplate
+@import _root_.utils.ReferrerUtils.getReferrer
 
 @this(
     govuk_template: GovUkTemplate,
@@ -45,8 +46,7 @@
   mainContent: Html = HtmlFormat.empty,
   serviceInfoContent: Html = HtmlFormat.empty,
   scriptElem: Option[Html] = None,
-  service: String,
-  referrer: String)(implicit request: Request[_], messages: Messages)
+  service: String)(implicit request: Request[_], messages: Messages)
 
 @import layouts.{govuk_template => hmrcGovUkTemplate}
 
@@ -105,7 +105,7 @@
 @footerTop = {}
 
 @footerLinks = {
-    @footer_links(accessibilityFooterUrl = Some(appConfig.accessibilityStatementFrontendUrl(service, referrer)))
+    @footer_links(accessibilityFooterUrl = Some(appConfig.accessibilityStatementFrontendUrl(service, getReferrer()(implicitly, appConfig))))
 }
 
 @serviceInfo = {

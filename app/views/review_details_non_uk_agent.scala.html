@@ -18,11 +18,11 @@
 @import helpers.pageHeadersAndError
 @this(bcMain: bcMain)
 
-@(service: String, businessDetails: models.ReviewDetails, backLink: Option[String], referrer: String)(implicit request: Request[AnyContent], messages: Messages, appConfig: ApplicationConfig)
+@(service: String, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[AnyContent], messages: Messages, appConfig: ApplicationConfig)
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 
-@bcMain(title = messages("business-review.agent-editable.title", service), service = service, referrer = referrer) {
+@bcMain(title = messages("business-review.agent-editable.title", service), service = service) {
 
   @pageHeadersAndError(backLink, "bc.business-registration-agent.text", messages("bc.business-registration.text.agent", service.toUpperCase), "bc.business-registration-agent.header", messages("business-review.agent-editable.title"))
 
@@ -30,7 +30,6 @@
     <div class="confirmation-notice">
       <div class="icon-important"></div>
       <div class="ated-icon-important-text" id="check-agency-details"><strong>@messages("business-review.check-agency.text")</strong></div>
-    </div>
   </div>
 
   <table id="business-details">

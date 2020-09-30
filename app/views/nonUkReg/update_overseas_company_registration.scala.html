@@ -24,7 +24,7 @@
   displayDetails: OverseasCompanyDisplayDetails,
   countryList: List[(String, String)],
   redirectUrl: Option[String],
-  backLink: Option[String], referrer: String)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+  backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
 <script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
@@ -48,7 +48,7 @@
   </script>
 }
 
-@bcMain(title = messages(displayDetails.title), service = service, pageScripts = Some(pageScripts), referrer = referrer) {
+@bcMain(title = messages(displayDetails.title), service = service, pageScripts = Some(pageScripts)) {
   @pageHeadersAndError(backLink, "overseas-subheader", messages(displayDetails.subHeader, service.toUpperCase), "overseas-header", messages(displayDetails.header),
     Some(bcErrorSummary(overseasCompanyForm, "bc.non-uk-reg-error.general")))
 

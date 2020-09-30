@@ -33,4 +33,4 @@ referrer: String = "global-error")(implicit request: Request[_], messages: Messa
 <p>@messages(message)</p>
 }
 
-@global_error_wrapper(appConfig = appConfig, title = messages(pageTitle), contentHeader = Some(contentHeader), mainContent = mainContent, service = service, referrer = referrer)
+@global_error_wrapper(appConfig = appConfig, title = messages(pageTitle), contentHeader = Some(contentHeader), mainContent = mainContent, service = service)
