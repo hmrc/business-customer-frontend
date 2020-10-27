@@ -18,7 +18,6 @@ package filters
 
 import javax.inject.Inject
 import play.api.http.DefaultHttpFilters
-import uk.gov.hmrc.play.bootstrap.filters.AuditFilter
 import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendFilters
 
 class BCFilter @Inject()(defaultFilters: FrontendFilters)
