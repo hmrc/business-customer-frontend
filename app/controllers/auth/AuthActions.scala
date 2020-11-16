@@ -20,11 +20,11 @@ import config.ApplicationConfig
 import models.StandardAuthRetrievals
 import play.api.Logging
 import play.api.mvc.Results.Redirect
-import play.api.mvc.{AnyContent, Request, Result, Results}
+import play.api.mvc.{AnyContent, Request, Result}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.{NoActiveSession, _}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import utils.ValidateUri
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -60,7 +60,7 @@ trait AuthActions extends AuthorisedFunctions with Logging {
                    (implicit req: Request[AnyContent], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     if (!isValidUrl(serviceName)) {
       logger.error(s"[authorisedFor] Given invalid service name of $serviceName")
-      Future.successful(Results.NotFound)
+      throw new NotFoundException("Service name not found")
     } else {
       authorised((AffinityGroup.Organisation or AffinityGroup.Agent or Enrolment("IR-SA")) and ConfidenceLevel.L50)
         .retrieve(allEnrolments and affinityGroup and credentials and groupIdentifier) {

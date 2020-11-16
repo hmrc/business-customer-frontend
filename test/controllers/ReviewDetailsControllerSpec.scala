@@ -34,7 +34,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.AgentRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.Future
@@ -275,9 +275,11 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
           "respond with NotFound when invalid service is in uri" in {
             when(mockAgentRegistrationService.isAgentEnrolmentAllowed(ArgumentMatchers.eq("unknownServiceTest"))).thenReturn(false)
-            continueWithAuthorisedUser("unknownServiceTest") {
+            intercept[NotFoundException] {
+              continueWithAuthorisedUser("unknownServiceTest") {
               result =>
                 status(result) must be(NOT_FOUND)
+              }
             }
           }
 

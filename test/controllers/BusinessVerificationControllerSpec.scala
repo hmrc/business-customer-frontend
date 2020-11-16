@@ -35,6 +35,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.NotFoundException
 
 import scala.concurrent.Future
 
@@ -105,8 +106,11 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         }
 
         "respond with NotFound when invalid service is in uri" in new Setup {
-          businessVerificationWithAuthorisedUser(controller)(result =>
-            status(result) must be(NOT_FOUND), serviceName = invalidService)
+          intercept[NotFoundException] {
+
+            businessVerificationWithAuthorisedUser(controller)(result =>
+              status(result) must be(NOT_FOUND), serviceName = invalidService)
+          }
         }
 
         "return Business Verification view for a user" in new Setup {

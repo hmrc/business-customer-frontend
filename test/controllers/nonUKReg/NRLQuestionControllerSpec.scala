@@ -34,6 +34,7 @@ import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Re
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.NotFoundException
 import views.html.nonUkReg.nrl_question
 
 import scala.concurrent.Future
@@ -76,8 +77,10 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     "view" must {
 
       "respond with NotFound when invalid service is in uri" in {
-        viewWithAuthorisedClient(invalidService) { result =>
-          status(result) must be(NOT_FOUND)
+        intercept[NotFoundException] {
+          viewWithAuthorisedClient(invalidService) { result =>
+            status(result) must be(NOT_FOUND)
+          }
         }
       }
 
@@ -113,8 +116,10 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
       "respond with NotFound when invalid service is in uri" in {
         val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paysSA": ""}"""))
-        continueWithAuthorisedClient(fakeRequest, invalidService) { result =>
-          status(result) must be(NOT_FOUND)
+        intercept[NotFoundException] {
+          continueWithAuthorisedClient(fakeRequest, invalidService) { result =>
+            status(result) must be(NOT_FOUND)
+          }
         }
       }
 

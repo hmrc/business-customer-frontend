@@ -33,6 +33,7 @@ import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.NotFoundException
 
 import scala.concurrent.Future
 
@@ -266,8 +267,10 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         "respond with NotFound when invalid service is in uri" in {
           val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          submitWithAuthorisedAgent(invalidService, FakeRequest().withJsonBody(inputJson)) { result =>
-            status(result) must be(NOT_FOUND)
+          intercept[NotFoundException] {
+            submitWithAuthorisedAgent(invalidService, FakeRequest().withJsonBody(inputJson)) { result =>
+              status(result) must be(NOT_FOUND)
+            }
           }
         }
       }
