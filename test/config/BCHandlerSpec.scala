@@ -42,4 +42,15 @@ class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSug
       document.getElementsByTag("article").text() must be("Try again later.")
     }
   }
-}
+  "calling onClientError for a page not found" must {
+
+    implicit val request = FakeRequest()
+    val errorHandler = new BCHandlerImpl(mcc.messagesApi, appConfig)
+    val result = errorHandler.notFoundTemplate
+    val document = Jsoup.parse(contentAsString(result))
+
+      "render page in English" in {
+        document.title must be("Page not found - 404 - GOV.UK")
+      }
+    }
+  }

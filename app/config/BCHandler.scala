@@ -20,7 +20,8 @@ import java.net.URLEncoder
 
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.Request
+import play.api.mvc.Results.{NotFound, Ok}
+import play.api.mvc.{Request, RequestHeader, Result}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import utils.SessionUtils
@@ -48,5 +49,21 @@ trait BCHandler extends FrontendErrorHandler with I18nSupport {
       appConfig,
       URLEncoder.encode(request.uri, "UTF8")
   )
+  }
+
+  override def notFoundTemplate(implicit request: Request[_]): Html = {
+    appConfig.templateError(
+      Messages("bc.notFound.error.title"),
+      Messages("bc.notFound.error.header"),
+      Messages("bc.notFound.error.message"),
+      SessionUtils.findServiceInRequest(request),
+      appConfig,
+      URLEncoder.encode(request.uri, "UTF8")
+    )
+  }
+
+  override def resolveError(rh: RequestHeader, ex: Throwable): Result = ex.getMessage match {
+    case "Service name not found" => NotFound(notFoundTemplate(Request.apply(rh, "")))
+    case _ => super.resolveError(rh, ex)
   }
 }

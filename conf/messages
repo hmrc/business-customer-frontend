@@ -403,6 +403,10 @@ bc.generic.error.header = Sorry, there is a problem with the service
 bc.generic.error.title = Sorry, there is a problem with the service
 bc.generic.error.message = Try again later.
 
+bc.notFound.error.header = This page can’t be found
+bc.notFound.error.title = Page not found - 404
+bc.notFound.error.message = Please check that you have entered the correct web address.
+
 zero = 0
 one = 1
 two = 2

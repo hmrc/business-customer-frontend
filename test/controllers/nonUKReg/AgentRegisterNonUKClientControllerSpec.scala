@@ -32,7 +32,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 
@@ -230,8 +230,10 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
 
         "respond with NotFound when invalid service is in uri" in new Setup {
           val inputJson = createJson()
-          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), invalidService, None, controller = controller) { result =>
-            status(result) must be(NOT_FOUND)
+          intercept[NotFoundException] {
+            submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), invalidService, None, controller = controller) { result =>
+              status(result) must be(NOT_FOUND)
+            }
           }
         }
       }
