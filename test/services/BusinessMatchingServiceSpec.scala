@@ -206,6 +206,17 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
         verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any())
       }
 
+      "for match Not found with SA user and invalid service, return Reasons as JsValue" in {
+        implicit val saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
+
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(matchFailureResponseJson))
+        val result = TestBusinessMatchingService.matchBusinessWithUTR(false, "service")
+        await(result.get) must be(matchFailureResponseJson)
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any())
+      }
+
       "for match found with CT user, return Review details as JsValue" in {
         implicit val saUser: StandardAuthRetrievals = AuthBuilder.createCtUser()
 

@@ -189,6 +189,14 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         }
       }
 
+      "if non-uk Agent, continue to ATED NRL page" in new Setup {
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        continueWithAuthorisedAgentJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NUK"}"""))) { result =>
+          status(result) must be(SEE_OTHER)
+          redirectLocation(result).get must include(s"/business-customer/nrl/ATED")
+        }
+      }
+
       "if new, continue to NEW registration page" in new Setup {
         when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
         continueWithAuthorisedUserJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NEW"}"""))) { result =>
@@ -882,6 +890,26 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+
+    val result = controller.continue(service).apply(fakeRequest.withSession(
+      "sessionId" -> sessionId,
+      "token" -> "RANDOMTOKEN",
+      "userId" -> userId)
+      .withHeaders(Headers("Authorization" -> "value"))
+    )
+
+    test(result)
+  }
+
+  def continueWithAuthorisedAgentJson(controller: BusinessVerificationController,
+                                     businessType: String,
+                                     fakeRequest: FakeRequest[AnyContentAsJson],
+                                     service: String = service)(test: Future[Result] => Any) {
+    val sessionId = s"session-${UUID.randomUUID}"
+    val userId = s"user-${UUID.randomUUID}"
+
+    AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.continue(service).apply(fakeRequest.withSession(

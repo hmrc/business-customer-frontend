@@ -67,8 +67,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
       oldReviewDetailsLookup <- dataCacheConnector.fetchAndGetBusinessDetailsForSession
       oldReviewDetails       <- oldReviewDetailsLookup match {
         case Some(reviewDetails) => Future.successful(reviewDetails)
-        case _ => throw new InternalServerException("Update registration failed")
-      }
+        case _ => throw new InternalServerException("Update registration failed")}
       _ <- businessCustomerConnector.updateRegistrationDetails(oldReviewDetails.safeId, updateRegisterDetails)
       reviewDetailsCache <- {
         val updatedReviewDetails = createReviewDetails(oldReviewDetails.sapNumber,

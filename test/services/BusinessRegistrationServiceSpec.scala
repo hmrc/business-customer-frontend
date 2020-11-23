@@ -331,5 +331,28 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
       val thrown = the[InternalServerException] thrownBy await(regResult)
       thrown.getMessage must include("Update registration failed")
     }
+
+    "throw exception when failure to retrieve from Review Details Cache" in {
+      implicit val hc = new HeaderCarrier(sessionId = None)
+      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any()))
+        .thenReturn(Future.successful(Some(cachedReviewDetails)))
+      when(mockBusinessCustomerConnector.updateRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
+      val busRegData = BusinessRegistration(businessName = "testName",
+        businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country")
+      )
+      val overseasCompany = OverseasCompany(
+        businessUniqueId = Some(s"BUID-${UUID.randomUUID}"),
+        hasBusinessUniqueId = Some(true),
+        issuingInstitution = Some("issuingInstitution"),
+        issuingCountry = None
+      )
+      when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+
+      val regResult = TestBusinessRegistrationService.updateRegisterBusiness(busRegData, overseasCompany, isGroup = true, isNonUKClientRegisteredByAgent = false, service)
+
+      val thrown = the[InternalServerException] thrownBy await(regResult)
+      thrown.getMessage must include("Registration failed")
+    }
   }
 }
