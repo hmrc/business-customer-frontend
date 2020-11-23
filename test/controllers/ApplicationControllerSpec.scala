@@ -24,9 +24,12 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.libs.json.Json
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Headers, MessagesControllerComponents}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
+
+
+import java.util.UUID
 
 class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
   val service = "ATED"
@@ -138,12 +141,28 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
     "feedback" must {
       "case service name = ATED, redirected to the feedback page" in new Setup {
-        val result = controller.feedback(service).apply(FakeRequest())
+        val sessionId = s"session-${UUID.randomUUID}"
+        val userId = s"user-${UUID.randomUUID}"
+        val result = controller.feedback(service).apply(FakeRequest().withSession(
+          "sessionId" -> sessionId,
+          "token" -> "RANDOMTOKEN",
+          "userId" -> userId)
+          .withHeaders(Headers(
+            "Authorization" -> "value",
+            "Referer" -> "/business-customer/feedback/ATED")))
         status(result) must be(OK)
       }
 
       "case service name = AWRS, redirected to the feedback page" in new Setup {
-        val result = controller.feedback("AWRS").apply(FakeRequest())
+        val sessionId = s"session-${UUID.randomUUID}"
+        val userId = s"user-${UUID.randomUUID}"
+        val result = controller.feedback("AWRS").apply(FakeRequest().withSession(
+          "sessionId" -> sessionId,
+          "token" -> "RANDOMTOKEN",
+          "userId" -> userId)
+          .withHeaders(Headers(
+            "Authorization" -> "value",
+            "Referer" -> "/business-customer/feedback/AWRS")))
         status(result) must be(OK)
       }
 

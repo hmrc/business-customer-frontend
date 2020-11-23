@@ -26,6 +26,7 @@ import play.api.mvc.{Action, AnyContent, DiscardingCookie, MessagesControllerCom
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.model.EventTypes
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.RedirectUtils
 
 class ApplicationController @Inject()(val config: ApplicationConfig,
                                       audit: Auditable,
@@ -62,9 +63,10 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
   def feedback(service: String): Action[AnyContent] = Action { implicit request =>
     service.toUpperCase match {
       case "ATED" =>
-        Ok(templateFeedBack(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER))), service, appConfig.serviceWelcomePath(service)))
+        Ok(templateFeedBack(feedbackForm.fill(
+          FeedBack(referer = request.headers.get(REFERER).flatMap(RedirectUtils.asRelativeUrl))), service, appConfig.serviceWelcomePath(service)))
       case "AWRS" =>
-        Ok(templateFeedBack(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER))), service, appConfig.serviceWelcomePath(service)))
+        Ok(templateFeedBack(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER).flatMap(RedirectUtils.asRelativeUrl))), service, appConfig.serviceWelcomePath(service)))
       case _ => Redirect(controllers.routes.ApplicationController.signedOut()).withNewSession
     }
   }
