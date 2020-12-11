@@ -19,19 +19,13 @@ package controllers
 import audit.Auditable
 import config.ApplicationConfig
 import javax.inject.Inject
-import models.FeedBack
-import models.FeedbackForm.feedbackForm
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, DiscardingCookie, MessagesControllerComponents}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.model.EventTypes
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.RedirectUtils
 
 class ApplicationController @Inject()(val config: ApplicationConfig,
                                       audit: Auditable,
                                       templateUnauthorised: views.html.unauthorised,
-                                      templateFeedBack: views.html.feedback,
                                       templateThankYou: views.html.feedbackThankYou,
                                       templateLogout: views.html.logout,
                                       mcc: MessagesControllerComponents)
@@ -60,39 +54,6 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
     }
   }
 
-  def feedback(service: String): Action[AnyContent] = Action { implicit request =>
-    service.toUpperCase match {
-      case "ATED" =>
-        Ok(templateFeedBack(feedbackForm.fill(
-          FeedBack(referer = request.headers.get(REFERER).flatMap(RedirectUtils.asRelativeUrl))), service, appConfig.serviceWelcomePath(service)))
-      case "AWRS" =>
-        Ok(templateFeedBack(feedbackForm.fill(FeedBack(referer = request.headers.get(REFERER).flatMap(RedirectUtils.asRelativeUrl))), service, appConfig.serviceWelcomePath(service)))
-      case _ => Redirect(controllers.routes.ApplicationController.signedOut()).withNewSession
-    }
-  }
-
-  def submitFeedback(service: String): Action[AnyContent] = Action { implicit request =>
-    feedbackForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(templateFeedBack(formWithErrors, service, appConfig.serviceWelcomePath(service))),
-      feedback => {
-        def auditFeedback(feedBack: FeedBack)(implicit hc: HeaderCarrier): Unit = {
-          audit.sendDataEvent(s"$service-exit-survey", detail = Map(
-            "easyToUse" -> feedback.easyToUse.mkString,
-            "satisfactionLevel" -> feedback.satisfactionLevel.mkString,
-            "howCanWeImprove" -> feedback.howCanWeImprove.mkString,
-            "referer" -> feedBack.referer.mkString,
-            "status" ->  EventTypes.Succeeded
-          ))
-        }
-        auditFeedback(feedback)
-        Redirect(controllers.routes.ApplicationController.feedbackThankYou(service))
-      }
-    )
-  }
-
-  def feedbackThankYou(service: String): Action[AnyContent] = Action { implicit request =>
-    Ok(templateThankYou(service, appConfig.serviceWelcomePath(service)))
-  }
   def keepAlive: Action[AnyContent] = Action {Ok("OK")}
   def signedOut: Action[AnyContent] = Action { implicit request => Ok(templateLogout())}
 

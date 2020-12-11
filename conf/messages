@@ -265,34 +265,6 @@ bc.signout-header = You are signed out
 bc.signout-info = You are now signed out of your account.
 bc.signout-explore-gov-uk = Explore GOV.UK
 
-##### FEEDBACK PAGE
-
-label.satisfaction_survey = Satisfaction survey
-label.very_easy = Very easy
-label.easy = Easy
-label.neither_easy_or_difficult = Neither easy or difficult
-label.difficult = Difficult
-label.very_difficult = Very difficult
-label.how_easy_was_the_service_to_use = How easy was the service to use?
-label.if_difficult_or_very_difficult_please_explain = If ‘difficult’ or ‘very difficult’, please explain
-label.was_your_information_correct = Was your information correct?
-label.how_satisfied_were_you_with_the_service = How satisfied were you with the service?
-label.what_else_would_you_like_to_see_in_the_service = What else would you like to see in the service?
-label.very_satisfied = Very satisfied
-label.neither_satisfied_or_dissatisfied = Neither satisfied or dissatisfied
-label.very_dissatisfied = Very dissatisfied
-label.limit_is_1200_characters = (Limit is 1,200 characters)
-label.please_dont_include_any_personal_or_financial_information = Please do not include any personal or financial information, for example your National Insurance or credit card numbers.
-label.send_feedback = Send feedback
-label.signed_out = {0} feedback questionnaire
-label.thanks_for_your_feedback = Thanks for your feedback
-label.youre_signed_out = You are signed out
-label.youre_now_signed_out_of_your_service_account = You are now signed out of your {0} account.
-label.explore_gov_uk = Explore GOV.UK
-title.satisfied = Satisfied
-title.dissatisfied = Dissatisfied
-feedback.redirect-startpage = Please return to start page
-
 ##### NON-RESIDENT LANDLORD
 
 bc.nrl.subheader = {0} registration
