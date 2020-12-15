@@ -16,7 +16,6 @@
 
 package controllers
 
-import audit.Auditable
 import config.ApplicationConfig
 import org.jsoup.Jsoup
 import org.scalatestplus.play.PlaySpec
@@ -29,7 +28,6 @@ import play.api.test.{FakeRequest, Injecting}
 class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
   val service = "ATED"
   val injectedViewInstanceUnauthorised = inject[views.html.unauthorised]
-  val injectedViewInstanceThankYou = inject[views.html.feedbackThankYou]
   val injectedViewInstanceLogout = inject[views.html.logout]
 
   implicit val lang = Lang.defaultLang
@@ -38,9 +36,7 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   trait Setup {
     val controller = new ApplicationController(
       appConfig,
-      inject[Auditable],
       injectedViewInstanceUnauthorised,
-      injectedViewInstanceThankYou,
       injectedViewInstanceLogout,
       inject[MessagesControllerComponents]
     )

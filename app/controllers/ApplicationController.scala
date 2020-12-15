@@ -16,7 +16,6 @@
 
 package controllers
 
-import audit.Auditable
 import config.ApplicationConfig
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
@@ -24,9 +23,7 @@ import play.api.mvc.{Action, AnyContent, DiscardingCookie, MessagesControllerCom
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 class ApplicationController @Inject()(val config: ApplicationConfig,
-                                      audit: Auditable,
                                       templateUnauthorised: views.html.unauthorised,
-                                      templateThankYou: views.html.feedbackThankYou,
                                       templateLogout: views.html.logout,
                                       mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with I18nSupport {
