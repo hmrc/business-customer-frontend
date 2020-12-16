@@ -21,9 +21,6 @@ GET         /cancel                                                             
 GET         /keep-alive                                                         controllers.ApplicationController.keepAlive
 GET         /logout/:service                                                    controllers.ApplicationController.logout(service: String)
 GET         /signed-out                                                         controllers.ApplicationController.signedOut
-GET         /feedback/:service                                                  controllers.ApplicationController.feedback(service: String)
-POST        /feedback/:service                                                  controllers.ApplicationController.submitFeedback(service: String)
-GET         /thank-you/:service                                                 controllers.ApplicationController.feedbackThankYou(service: String)
 
 GET         /agent/:service                                                     controllers.HomeController.homePage(service: String, backLinkUrl: Option[String] ?= None)
 GET         /:service                                                           controllers.HomeController.homePage(service: String, backLinkUrl: Option[String] ?= None)
