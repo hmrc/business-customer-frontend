@@ -48,15 +48,14 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   lazy val businessCustomer: String = conf.baseUrl("business-customer")
   lazy val businessMatching: String = conf.baseUrl("business-matching")
   lazy val taxEnrolments: String = conf.baseUrl("tax-enrolments")
-  lazy val companyAuthHost: String = conf.getString("microservice.services.auth.company-auth.host")
+  lazy val basGatewayHost: String = conf.getString("microservice.services.auth.bas-gateway-frontend.host")
   lazy val addClientEmailPath: String = conf.getString(s"microservice.services.agent-client-mandate-frontend.select-service")
   lazy val accessibilityStatementFrontendHost: String = conf.getString(s"microservice.services.accessibility-statement-frontend.host")
   lazy val accessibilityStatementFrontendUrl: String = conf.getString(s"microservice.services.accessibility-statement-frontend.url")
   lazy val platformHost: String = Try(conf.getString("platform.frontend.host")).getOrElse("")
   lazy val loginCallback: String = conf.getString("microservice.services.auth.login-callback.url")
-  lazy val loginPath: String = conf.getString("microservice.services.auth.login-path")
-  lazy val loginURL = s"$companyAuthHost/gg/$loginPath"
-  lazy val signOut = s"$companyAuthHost/gg/sign-out"
+  lazy val loginURL = s"$basGatewayHost/bas-gateway/sign-in"
+  lazy val signOut = s"$basGatewayHost/bas-gateway/sign-out-without-state"
 
   lazy val baseUri: String = conf.baseUrl("cachable.session-cache")
   lazy val defaultSource: String = appName
@@ -76,7 +75,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
 
   def serviceSignOutUrl(service: String): String = conf.getConfString(s"delegated-service.${service.toLowerCase}.sign-out-url", logoutUrl)
   def continueURL(serviceName: String) = s"$loginCallback/$serviceName"
-  def signIn(serviceName: String) = s"$companyAuthHost/gg/$loginPath?continue=${continueURL(serviceName)}"
+  def signIn(serviceName: String) = s"$basGatewayHost/bas-gateway/sign-in?continue=${continueURL(serviceName)}"
 
   def agentConfirmationPath(service:String): String = {
     conf.getConfString(s"${service.toLowerCase}.agentConfirmationUrl", "/ated-subscription/agent-confirmation")
