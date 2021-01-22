@@ -8,7 +8,7 @@ resolvers += Resolver.url("scoverage-bintray", url("https://dl.bintray.com/sksam
 
 resolvers += Resolver.bintrayRepo("hmrc", "releases")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "2.12.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "2.13.0")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "2.2.0")
 
