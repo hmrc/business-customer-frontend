@@ -283,6 +283,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("saUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
+          document.getElementById("backLinkHref").attr("href") must include("/business-customer/business-verification/AWRS")
         }
       }
 
