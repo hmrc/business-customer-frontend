@@ -18,12 +18,13 @@
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.play.views.html.helpers.ReportAProblemLink
 @import uk.gov.hmrc.play.views.html.layouts._
+@import uk.gov.hmrc.play.views.html.layouts.HeadWithTrackingConsent
 @import views.html.layouts.GovUkTemplate
 @import _root_.utils.ReferrerUtils.getReferrer
 
 @this(
     govuk_template: GovUkTemplate,
-    layoutHead: Head,
+    layoutHead: HeadWithTrackingConsent,
     uiBetaBanner: BetaBanner,
     layoutServiceInfo: ServiceInfo,
     reportAProblemLink: ReportAProblemLink,
@@ -95,8 +96,8 @@
 
 @bodyEnd = {
     @footer(
-      analyticsToken = appConfig.analyticsToken,
-      analyticsHost = appConfig.analyticsHost,
+      analyticsToken = None,
+      analyticsHost = "",
       ssoUrl = None,
       scriptElem = Some(scriptElement),
       gaCalls = None)

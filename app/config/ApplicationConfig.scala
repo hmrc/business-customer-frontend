@@ -38,8 +38,6 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
 
   val contactFormServiceIdentifier = "BUSINESS-CUSTOMER"
 
-  lazy val analyticsToken: Option[String] = Try(conf.getString("google-analytics.token")).toOption
-  lazy val analyticsHost: String = conf.getConfString("google-analytics.host", "auto")
   lazy val reportAProblemPartialUrl = s"$contactHost/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
   lazy val reportAProblemNonJSUrl = s"$contactHost/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
   lazy val defaultTimeoutSeconds: Int = conf.getInt("defaultTimeoutSeconds").toInt
