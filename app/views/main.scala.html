@@ -20,10 +20,11 @@
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.play.views.html.helpers.ReportAProblemLink
 @import uk.gov.hmrc.play.views.html.layouts._
+@import uk.gov.hmrc.play.views.html.layouts.HeadWithTrackingConsent
 
 @this(
     govuk_template: GovUkTemplate,
-    layoutHead: Head,
+    layoutHead: HeadWithTrackingConsent,
     betaBanner: BetaBanner,
     layoutServiceInfo: ServiceInfo,
     reportAProblemLink: ReportAProblemLink,
@@ -54,7 +55,6 @@
 
   <meta name="format-detection" content="telephone=no" />
 
-  @views.html.helpers.ga(applicationConfig.analyticsToken.getOrElse("UA-123456"))
 }
 
 @headerNavLinks = {
@@ -85,8 +85,8 @@
 
 @bodyEnd = {
   @footer(
-  analyticsToken = applicationConfig.analyticsToken,
-  analyticsHost = applicationConfig.analyticsHost,
+  analyticsToken = None,
+  analyticsHost = "",
   ssoUrl = None,
   scriptElem = scriptElement,
   gaCalls = None)
