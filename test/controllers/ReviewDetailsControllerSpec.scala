@@ -156,6 +156,8 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
         businessDetailsWithAuthorisedUser(nonDirectMatchReviewDetails) { result =>
           val document = Jsoup.parse(contentAsString(result))
           document.select("h1").text must be("Check this is the business you want to register")
+          document.getElementById("backLinkHref").text() must be("Back")
+          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED/businessForm/LTD")
         }
       }
 
@@ -163,6 +165,8 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
         businessDetailsWithAuthorisedUser(directMatchReviewDetails) { result =>
           val document = Jsoup.parse(contentAsString(result))
           document.select("h1").text must be("Check this is the business you want to register")
+          document.getElementById("backLinkHref").text() must be("Back")
+          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED/businessForm/LTD")
         }
       }
 
@@ -379,7 +383,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   def businessDetailsWithAuthorisedUser(reviewDetails: ReviewDetails)(test: Future[Result] => Any) = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("/business-customer/business-verification/ATED/businessForm/LTD")))
     val testDetailsController = testReviewDetailsController(reviewDetails)
     val result = testDetailsController.businessDetails(service).apply(fakeRequestWithSession(userId))
 

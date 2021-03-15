@@ -130,6 +130,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
             document.select(".block-label").text() must include("Unit trust or collective investment vehicle")
             document.select(".block-label").text() must include("Limited partnership")
             document.select("button").text() must be("Continue")
+            document.getElementById("backLinkHref").text() must be("Back")
+            document.getElementById("backLinkHref").attr("href") must be("/ated-subscription/appoint-agent")
           }
         }
 
@@ -183,7 +185,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "if non-uk, continue to registration page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        willSaveBackLink("/business-customer/business-verification/ATED")
         continueWithAuthorisedUserJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NUK"}"""))) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include(s"/ated-subscription/previous")
@@ -191,7 +193,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "if non-uk Agent, continue to ATED NRL page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        willSaveBackLink("/business-customer/business-verification/ATED")
         continueWithAuthorisedAgentJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NUK"}"""))) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include(s"/business-customer/nrl/ATED")
@@ -199,7 +201,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "if new, continue to NEW registration page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        willSaveBackLink(s"/business-customer/business-verification/$service")
         continueWithAuthorisedUserJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NEW"}"""))) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include(s"/business-customer/register-gb/$service/NEW")
@@ -207,7 +209,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "if group, continue to GROUP registration page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        willSaveBackLink(s"/business-customer/business-verification/$service")
         continueWithAuthorisedUserJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "GROUP"}"""))) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include(s"/business-customer/register-gb/$service/GROUP")
@@ -361,6 +363,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("saUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
+          document.getElementById("backLinkHref").text() must be("Back")
+          document.getElementById("backLinkHref").attr("href") must be("/business-customer/register/non-uk-client/paySA/ATED")
 
         }
       }
@@ -439,7 +443,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
-
+          document.getElementById("backLinkHref").text() must be("Back")
+          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
         }
       }
 
@@ -516,6 +521,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
+          document.getElementById("backLinkHref").text() must be("Back")
+          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
 
         }
       }
@@ -547,6 +554,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
+          document.getElementById("backLinkHref").text() must be("Back")
+          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/AWRS")
         }
       }
 
@@ -594,6 +603,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
+          document.getElementById("backLinkHref").text() must be("Back")
+          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
         }
       }
 
@@ -641,6 +652,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
+          document.getElementById("backLinkHref").text() must be("Back")
+          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
         }
       }
 
@@ -688,6 +701,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("psaUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
+          document.getElementById("backLinkHref").text() must be("Back")
+          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
         }
       }
 
@@ -763,6 +778,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("cotaxUTR_hint").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
+          document.getElementById("backLinkHref").text() must be("Back")
+          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
 
         }
       }
@@ -803,6 +820,13 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     }
   }
 
+  private def willSaveBackLink(backLink : String) =
+    when(mockBackLinkCache.saveBackLink(
+      ArgumentMatchers.eq(null),
+      ArgumentMatchers.eq(Some(backLink)))(ArgumentMatchers.any()))
+      .thenReturn(Future.successful(None))
+
+
   def businessVerificationWithAuthorisedUser(controller: BusinessVerificationController)
                                             (test: Future[Result] => Any,
                                              serviceName: String = service) {
@@ -810,7 +834,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("/ated-subscription/appoint-agent")))
 
     val result = controller.businessVerification(serviceName).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
