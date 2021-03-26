@@ -38,8 +38,8 @@ business-review.invalid-business.address-header = Not the right address
 business-review.invalid-business.header = Not the right details?
 business-review.invalid-business.text = If this is not the right business, you should sign out and change to another account
 business-review.registration-button = Confirm
-business-review.registered-with-companies-house.text = If you are registered with Companies House, you must <a href="https://www.gov.uk/file-changes-to-a-company-with-companies-house" data-journey-click="business-customer:click:companies-house-link">tell Companies House about changes to your details</a>.
-business-review.sole-trader.text = If you are not registered with Companies House, you must <a href="https://www.gov.uk/tell-hmrc-change-of-details/change-name-or-address" data-journey-click="business-customer:click:not-registered-link">tell HMRC about a change to your personal details</a>.
+business-review.registered-with-companies-house.text = If you are registered with Companies House, you must <a href="https://www.gov.uk/file-changes-to-a-company-with-companies-house">tell Companies House about changes to your details</a>.
+business-review.sole-trader.text = If you are not registered with Companies House, you must <a href="https://www.gov.uk/tell-hmrc-change-of-details/change-name-or-address">tell HMRC about a change to your personal details</a>.
 business-review.check-agency.text = You are setting up your agency. These should be your company details not your client’s.
 
 
@@ -360,8 +360,8 @@ bc.details-not-found.exact-match-reason.header = Business name is not an exact m
 bc.details-not-found.exact-match-reason.text = Your business name should match the name written on any letters you have from HMRC. Check capital letters and spaces in your business name. You need to check that your business name uses either ‘limited’ or ‘LTD’.
 bc.details-not-found.name-changed-reason.header = Your business name has changed
 bc.details-not-found.name-changed-reason.text = If your business name has changed recently you need to update your details. If you are a:
-bc.details-not-found.name-changed-reason.text.li1 = limited company you need to <a data-journey-click="business-customer:click:corporation-tax-enquiry" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/corporation-tax-enquiries">update your corporation tax details</a>
-bc.details-not-found.name-changed-reason.text.li2 = sole trader or partnership you need to <a data-journey-click="business-customer:click:income-tax-enquiry" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees">update your Self Assessment details</a>
+bc.details-not-found.name-changed-reason.text.li1 = limited company you need to <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/corporation-tax-enquiries">update your corporation tax details</a>
+bc.details-not-found.name-changed-reason.text.li2 = sole trader or partnership you need to <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees">update your Self Assessment details</a>
 bc.details-not-found.name-changed-reason.text.24-hours = It will take up to 24 hours before your details are updated.
 bc.details-not-found.utr-reason.header = Your Unique Taxpayer Reference (UTR) does not match
 bc.details-not-found.utr-reason.text = Your UTR number is made up of 10 or 13 digits, If it is 13 digits only enter the last 10. Your UTR should match the UTR on any letters you have from HMRC.
