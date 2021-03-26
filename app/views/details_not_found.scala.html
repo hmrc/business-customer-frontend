@@ -26,10 +26,10 @@
 @bcMain(title = messages("bc.details-not-found.header"), service = service) {
 
   @if(isAgent) {
-    <a id="backLinkHref" class="link-back" data-journey-click="business-customer:click:try-matching-again" href='@backLink'>@messages("bc.business-verification.back")</a>
+    <a id="backLinkHref" class="link-back" href='@backLink'>@messages("bc.business-verification.back")</a>
     <div class="heading-sub" id="business-verification-agent-text">@messages("bc.business-verification.agent.text", service.toUpperCase)</div>
   } else {
-    <a id="backLinkHref" class="link-back" data-journey-click="business-customer:click:try-matching-again" href='@backLink'>@messages("bc.business-verification.back")</a>
+    <a id="backLinkHref" class="link-back" href='@backLink'>@messages("bc.business-verification.back")</a>
     <div class="heading-sub" id="business-verification-text">@messages("bc.business-verification.client.text", service.toUpperCase)</div>
   }
 
@@ -53,7 +53,7 @@
 
 
 @form(action=controllers.routes.BusinessVerificationController.businessForm(service, businessType)){
-<button class="button" data-journey-click="business-customer:click:try-matching-again" >@messages("bc.details-not-found.try-again")</button>
+<button class="button" >@messages("bc.details-not-found.try-again")</button>
 }
 
 }
