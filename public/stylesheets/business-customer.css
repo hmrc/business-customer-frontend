@@ -444,3 +444,7 @@ p.margin-bottom-default {
 .autocomplete__option {
     margin: 0;
 }
+
+details .summary {
+    display: list-item;
+}
