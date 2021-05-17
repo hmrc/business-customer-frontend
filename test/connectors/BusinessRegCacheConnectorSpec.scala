@@ -18,6 +18,7 @@ package connectors
 
 import config.ApplicationConfig
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
@@ -27,9 +28,8 @@ import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import play.api.test.Injecting
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
-import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.Future
@@ -69,7 +69,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     override val sourceId: String = "BC_NonUK_Business_Details"
   }
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test")))
+  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test-sessionid")))
 
   "BusinessRegCacheConnector" must {
 
@@ -77,7 +77,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
       "return Some" when {
         "formId of the cached form does exist for defined data type" in {
-          when(mockHttpClient.GET[CacheMap](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          when(mockHttpClient.GET[CacheMap](any(), any(), any())(any(), any(), any()))
             .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
           await(TestDataCacheConnector.fetchAndGetCachedDetails[FormData](formIdNotExist)) must be(Some(formData))
@@ -88,7 +88,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     "save form data" when {
       "valid form data with a valid form id is passed" in {
         when(mockHttpClient.PUT[FormData, CacheMap]
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          (any(), any(), any())(any(), any(), any(), any()))
           .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
         await(TestDataCacheConnector.cacheDetails[FormData](formId, formData)) must be(formData)

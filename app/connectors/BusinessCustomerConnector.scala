@@ -44,7 +44,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/${GovernmentGatewayConstants.KnownFactsAgentServiceName}/$knownFactsUri"""
     val jsonData = Json.toJson(knownFacts)
-    http.POST[JsValue, HttpResponse](postUrl, jsonData)
+    http.POST[JsValue, HttpResponse](postUrl, jsonData, Seq.empty)
   }
 
   def auditRegisterCall(input: BusinessRegistrationRequest, response: HttpResponse, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
@@ -89,7 +89,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$registerUri"""
     val jsonData = Json.toJson(registerData)
-    http.POST(postUrl, jsonData) map { response =>
+    http.POST(postUrl, jsonData, Seq.empty) map { response =>
       auditRegisterCall(registerData, response, service, isNonUKClientRegisteredByAgent)
       response.status match {
         case OK => response.json.as[BusinessRegistrationResponse]
@@ -111,7 +111,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$updateRegistrationDetailsURI/$safeId"""
     val jsonData = Json.toJson(updateRegistrationDetails)
-    http.POST(postUrl, jsonData) map { response =>
+    http.POST(postUrl, jsonData, Seq.empty) map { response =>
       response.status match {
         case OK => response
         case NOT_FOUND =>

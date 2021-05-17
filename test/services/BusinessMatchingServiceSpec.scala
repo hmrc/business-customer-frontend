@@ -30,7 +30,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.SessionId
+
 
 import scala.concurrent.Future
 
@@ -161,10 +161,9 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
 
   val testOrganisation = Organisation("org name", "org type")
 
-  implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val hc = HeaderCarrier()
 
   val service = "ated"
-
 
   val mockBusinessMatchingConnector = mock[BusinessMatchingConnector]
   val mockDataCacheConnector = mock[DataCacheConnector]

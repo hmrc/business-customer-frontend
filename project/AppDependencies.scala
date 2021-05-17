@@ -5,12 +5,11 @@ object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-frontend-play-27" % "3.4.0",
+    "uk.gov.hmrc" %% "bootstrap-frontend-play-27" % "5.2.0",
     "uk.gov.hmrc" %% "domain" % "5.11.0-play-27",
-    "uk.gov.hmrc" %% "play-partials" % "7.1.0-play-27",
+    "uk.gov.hmrc" %% "play-partials" % "8.1.0-play-27",
     "uk.gov.hmrc" %% "play-ui" % "9.1.0-play-27",
-    "uk.gov.hmrc" %% "http-caching-client" % "9.2.0-play-27",
-    "uk.gov.hmrc" %% "auth-client" % "3.3.0-play-27",
+    "uk.gov.hmrc" %% "http-caching-client" % "9.4.0-play-27",
     "com.typesafe.play" %% "play-json-joda" % "2.9.2",
     "uk.gov.hmrc" %% "govuk-template" % "5.65.0-play-27",
     compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.1" cross CrossVersion.full),
@@ -20,7 +19,7 @@ object AppDependencies {
   val test: Seq[ModuleID] = Seq(
     "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % "test",
     "org.jsoup" % "jsoup" % "1.13.1" % "test",
-    "org.mockito" % "mockito-core" % "3.8.0" % "test",
+    "org.mockito" % "mockito-core" % "3.10.0" % "test",
     "uk.gov.hmrc" %% "hmrctest" % "3.10.0-play-26" % "test"
   )
 

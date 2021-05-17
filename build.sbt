@@ -8,7 +8,7 @@ import uk.gov.hmrc.versioning.SbtGitVersioning
 val appName: String = "business-customer-frontend"
 lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 
-lazy val plugins: Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
+lazy val plugins: Seq[Plugins] = Seq(play.sbt.PlayScala, SbtDistributablesPlugin)
 lazy val playSettings: Seq[Setting[_]] = Seq.empty
 val silencerVersion = "1.7.1"
 lazy val scoverageSettings = {
