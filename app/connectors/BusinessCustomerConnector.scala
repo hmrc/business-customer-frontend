@@ -76,7 +76,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     audit.sendDataEvent(
       transactionName = if (input.address.postalCode.isDefined) "manualAddressSubmitted" else "internationalAddressSubmitted",
       detail = Map(
-        "submittedLine1" -> input.address.addressLine1.toString, "submittedLine2" -> input.address.addressLine2.toString,
+        "submittedLine1" -> input.address.addressLine1, "submittedLine2" -> input.address.addressLine2,
         "submittedLine3" -> getAddressPiece(input.address.addressLine3), "submittedLine4" -> getAddressPiece(input.address.addressLine4),
         "submittedPostcode" -> getAddressPiece(input.address.postalCode), "submittedCountry" -> input.address.countryCode
       )

@@ -16,8 +16,6 @@
 
 package services
 
-import java.util.UUID
-
 import builders.AuthBuilder
 import connectors.{BusinessMatchingConnector, DataCacheConnector}
 import models._
@@ -30,7 +28,6 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-
 
 import scala.concurrent.Future
 

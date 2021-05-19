@@ -17,7 +17,6 @@
 package connectors
 
 import config.ApplicationConfig
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
@@ -28,8 +27,8 @@ import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import play.api.test.Injecting
-import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.Future

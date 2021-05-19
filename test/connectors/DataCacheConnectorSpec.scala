@@ -18,7 +18,6 @@ package connectors
 
 import config.ApplicationConfig
 import models.{Address, ReviewDetails}
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
