@@ -18,7 +18,7 @@ package connectors
 
 import config.ApplicationConfig
 import models.{Address, ReviewDetails}
-import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -27,8 +27,7 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test.Injecting
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
-import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.Future
@@ -47,7 +46,7 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with M
     override val sourceId: String = "BC_Business_Details"
   }
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test")))
+  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test-sessionid")))
 
   "DataCacheConnector" must {
 
@@ -56,7 +55,7 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with M
         val reviewDetails: ReviewDetails =
           ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
-        when(mockDefaultHttpClient.GET[CacheMap](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockDefaultHttpClient.GET[CacheMap](any(), any(), any())(any(), any(), any()))
           .thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
 
         val result: Future[Option[ReviewDetails]] = TestDataCacheConnector.fetchAndGetBusinessDetailsForSession
@@ -70,7 +69,7 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with M
         val reviewDetails: ReviewDetails = ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
         when(mockDefaultHttpClient.PUT[ReviewDetails, CacheMap]
-          (ArgumentMatchers.any(), ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          (any(), any(),any())(any(), any(), any(), any()))
           .thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
 
         val result: Future[Option[ReviewDetails]] = TestDataCacheConnector.saveReviewDetails(reviewDetails)
@@ -82,8 +81,8 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with M
     "clearCache" must {
       "clear the cache for the session" in {
         when(mockDefaultHttpClient.DELETE[HttpResponse]
-          (ArgumentMatchers.any(), ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+          (any(), any())
+          (any(), any(), any())
         ).thenReturn(Future.successful(HttpResponse(OK, "")))
 
         val result: Future[HttpResponse] = TestDataCacheConnector.clearCache

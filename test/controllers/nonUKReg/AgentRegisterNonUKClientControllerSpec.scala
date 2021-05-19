@@ -16,8 +16,6 @@
 
 package controllers.nonUKReg
 
-import java.util.UUID
-
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import models.{Address, BusinessRegistration}
@@ -33,9 +31,9 @@ import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Re
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 
+import java.util.UUID
 import scala.concurrent.Future
 
 
@@ -45,7 +43,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
   val invalidService = "scooby-doo"
   val injectedViewInstance = inject[views.html.nonUkReg.nonuk_business_registration]
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization("fake")))
+  implicit val hc: HeaderCarrier = HeaderCarrier()
   private val mockAuthConnector: DefaultAuthConnector = mock[DefaultAuthConnector]
   private val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   private val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]

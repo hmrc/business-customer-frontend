@@ -32,7 +32,7 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test.Injecting
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.logging.SessionId
+
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.Future

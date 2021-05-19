@@ -1,14 +1,12 @@
 import play.sbt.routes.RoutesKeys.routesGenerator
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
-import uk.gov.hmrc.SbtAutoBuildPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
-import uk.gov.hmrc.versioning.SbtGitVersioning
 
 val appName: String = "business-customer-frontend"
 lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 
-lazy val plugins: Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
+lazy val plugins: Seq[Plugins] = Seq(play.sbt.PlayScala, SbtDistributablesPlugin)
 lazy val playSettings: Seq[Setting[_]] = Seq.empty
 val silencerVersion = "1.7.1"
 lazy val scoverageSettings = {
@@ -34,7 +32,6 @@ lazy val microservice: Project = Project(appName, file("."))
     scalaVersion := "2.12.12",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true,
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     majorVersion := 4,
     Compile / scalacOptions += "-P:silencer:pathFilters=target/.*"
   )

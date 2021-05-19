@@ -45,7 +45,7 @@ class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
     val jsonData = Json.toJson(enrolRequest)
 
     val timerContext = metrics.startTimer(MetricsEnum.EMAC_AGENT_ENROL)
-    http.POST[JsValue, HttpResponse](postUrl, jsonData) map { response =>
+    http.POST[JsValue, HttpResponse](postUrl, jsonData, Seq.empty) map { response =>
       timerContext.stop()
       auditEnrolCall(postUrl, enrolRequest, response)
       processResponse(response, postUrl, enrolRequest)

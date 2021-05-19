@@ -44,7 +44,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/${GovernmentGatewayConstants.KnownFactsAgentServiceName}/$knownFactsUri"""
     val jsonData = Json.toJson(knownFacts)
-    http.POST[JsValue, HttpResponse](postUrl, jsonData)
+    http.POST[JsValue, HttpResponse](postUrl, jsonData, Seq.empty)
   }
 
   def auditRegisterCall(input: BusinessRegistrationRequest, response: HttpResponse, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
@@ -76,7 +76,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     audit.sendDataEvent(
       transactionName = if (input.address.postalCode.isDefined) "manualAddressSubmitted" else "internationalAddressSubmitted",
       detail = Map(
-        "submittedLine1" -> input.address.addressLine1.toString, "submittedLine2" -> input.address.addressLine2.toString,
+        "submittedLine1" -> input.address.addressLine1, "submittedLine2" -> input.address.addressLine2,
         "submittedLine3" -> getAddressPiece(input.address.addressLine3), "submittedLine4" -> getAddressPiece(input.address.addressLine4),
         "submittedPostcode" -> getAddressPiece(input.address.postalCode), "submittedCountry" -> input.address.countryCode
       )
@@ -89,7 +89,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$registerUri"""
     val jsonData = Json.toJson(registerData)
-    http.POST(postUrl, jsonData) map { response =>
+    http.POST(postUrl, jsonData, Seq.empty) map { response =>
       auditRegisterCall(registerData, response, service, isNonUKClientRegisteredByAgent)
       response.status match {
         case OK => response.json.as[BusinessRegistrationResponse]
@@ -111,7 +111,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$updateRegistrationDetailsURI/$safeId"""
     val jsonData = Json.toJson(updateRegistrationDetails)
-    http.POST(postUrl, jsonData) map { response =>
+    http.POST(postUrl, jsonData, Seq.empty) map { response =>
       response.status match {
         case OK => response
         case NOT_FOUND =>
