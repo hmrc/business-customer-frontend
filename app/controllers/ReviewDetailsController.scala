@@ -69,8 +69,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
             Messages("global.error.InternalServerError500.title"),
             Messages("global.error.InternalServerError500.heading"),
             Messages("global.error.InternalServerError500.message"),
-            service,
-            appConfig
+            service
           )))
       }
     }
@@ -100,11 +99,11 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
             case BAD_REQUEST | CONFLICT =>
               val (header, title, lede) = formatErrorMessage(DuplicateUserError)
               logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EMAC")
-              Future.successful(Ok(templateError(header, title, lede, serviceName, appConfig)))
+              Future.successful(Ok(templateError(header, title, lede, serviceName)))
             case FORBIDDEN =>
               val (header, title, lede) = formatErrorMessage(WrongRoleUserError)
               logger.warn(s"[ReviewDetailsController][continue] - wrong role for agent enrolling in EMAC")
-              Future.successful(Ok(templateError(header, title, lede, serviceName, appConfig)))
+              Future.successful(Ok(templateError(header, title, lede, serviceName)))
             case _ =>
               logger.warn(s"[ReviewDetailsController][continue] - allocation failed")
               throw new RuntimeException("We could not find your details. Check and try again.")

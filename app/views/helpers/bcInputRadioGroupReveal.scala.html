@@ -25,6 +25,7 @@
 @errors = @{ FormHelpers.getErrors(field, parentField) }
 @fieldsetClass = { @elements.args.get('_groupClass) @if(errors.nonEmpty){ form-field--error} }
 @labelAfter = @{ elements.args.getOrElse('_labelAfter, false).asInstanceOf[Boolean] }
+@inputClass = @{ elements.args.getOrElse('_inputClass, "") + "govuk-radios__input"}
 
 <fieldset @if(elements.args.get('_groupClass).isDefined){ class="@fieldsetClass" } @if(elements.args.get('_fieldsetAttributes).isDefined) { @elements.args.get('_fieldsetAttributes) }>
 
@@ -38,8 +39,21 @@
 
   @commonHelper(field,errors)
 
+  <div class="govuk-radios govuk-radios--inline">
   @radioOptions.map { case (value, data) =>
     @defining(s"${elements.field.name}-${value.toLowerCase.replace(" ","_")}") { inputId =>
+
+      <div class="govuk-radios__item">
+
+          <input
+                  type="radio"
+                  id="@inputId"
+                  name="@elements.field.name"
+                  value="@value"
+                  class="@inputClass"
+                  @if(elements.args.contains('_dataAttributes) ){ @elements.args.get('_dataAttributes) }
+                  @field.value.filter( _ == value).map{ _ => checked="checked" }
+          />
 
         <label @data._2.fold("")( x => s"data-target=$x") for="@inputId" @elements.args.get('_labelClass).map { labelClass => class="@labelClass@field.value.filter( _ == value).map{ _ => selected}" }>
           @if(!labelAfter) {
@@ -55,16 +69,6 @@
             }
           }
 
-          <input
-                type="radio"
-                id="@inputId"
-                name="@elements.field.name"
-                value="@value"
-                @elements.args.get('_inputClass).map{ inputClass => class="@inputClass" }
-                @if(elements.args.contains('_dataAttributes) ){ @elements.args.get('_dataAttributes) }
-                @field.value.filter( _ == value).map{ _ => checked="checked" }
-          />
-
           @if(labelAfter) {
             @if(elements.args.get('_stackedLabel)) {
               @if(data._1.split(" ").length < 2) {
@@ -79,8 +83,11 @@
             }
           }
         </label>
+
+      </div>
     }
   }
+  </div>
 
 </fieldset>
 

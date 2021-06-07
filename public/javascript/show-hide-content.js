@@ -10,7 +10,7 @@
     // Radio and Checkbox selectors
     var selectors = {
       namespace: 'ShowHideContent',
-      radio: '[data-target] > input[type="radio"]',
+      radio: 'div.govuk-radios__item > input[type="radio"]',
       checkbox: '[data-target] > input[type="checkbox"]'
     }
 
@@ -39,7 +39,7 @@
 
       // ARIA attributes aren't set before init
       if (!id) {
-        id = $control.closest('[data-target]').data('target')
+        id = $control.siblings('[data-target]').data('target')
       }
 
       // Find show/hide content by id

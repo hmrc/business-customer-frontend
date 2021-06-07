@@ -27,12 +27,12 @@
 @labelAfter = @{ elements.args.getOrElse('_labelAfter, false).asInstanceOf[Boolean] }
 @labelHighlight = @{ elements.args.getOrElse('_labelHighlight, false).asInstanceOf[Boolean] }
 
-<div class="form-group" id="@if( elements.args.get('_id) ) {@elements.args.get('_id)_div} else {@elements.field.name.replaceAll("""[\.\[\]]""", "-")_div}">
+<div class="govuk-form-group" id="@if( elements.args.get('_id) ) {@elements.args.get('_id)_div} else {@elements.field.name.replaceAll("""[\.\[\]]""", "-")_div}">
   @if(elements.hasErrors) {
     <div class="@if(elements.hasErrors || (parentElements.isDefined && parentElements.get.hasErrors)) { form-field--error }">
   }
   <label for="@if( elements.args.get('_id) ) {@elements.args.get('_id)} else {@elements.field.name.replaceAll("""[\.\[\]]""", "-")}"
-         class="@elements.args.get('_divClass) @if( elements.args.get('_labelClass) ) { @elements.args.get('_labelClass) }"
+         class="govuk-label @elements.args.get('_divClass) @if( elements.args.get('_labelClass) ) { @elements.args.get('_labelClass) }"
          @if(elements.args.contains('_labelDataAttributes)) { @elements.args.get('_labelDataAttributes) }
          id="@if(elements.args.get('_id) ) {@elements.args.get('_id)_field} else {@elements.field.name.replaceAll("""[\.\[\]]""", "-")_field}">
 
@@ -46,14 +46,14 @@
       </span>
     }
 
-    @elements.errors.collect { case error: String => <span class="error-notification"> @messages(error) </span> }
+    @elements.errors.collect { case error: String => <span class="govuk-error-message error-notification"> @messages(error) </span> }
     @if(parentElements.isDefined) {
-      @parentElements.get.errors.collect { case error: String => <span class="error-notification"> @messages(error) </span> }
+      @parentElements.get.errors.collect { case error: String => <span class="govuk-error-message error-notification"> @messages(error) </span> }
     }
   </label>
 
   <select id="@elements.field.name" name="@elements.field.name"
-          class="@if(elements.hasErrors){ error } form-control @if( elements.args.get('_inputClass) ){ @elements.args.get('_inputClass) }"
+          class="govuk-select @if(elements.hasErrors){ error } form-control @if( elements.args.get('_inputClass) ){ @elements.args.get('_inputClass) }"
           @if(elements.args.contains('_dataAttributes) ){ @elements.args.get('_dataAttributes) } >
     @if(displayEmptyValue) { <option value="">@elements.args.get('_emptyValueText)</option> }
     @for(option <- elementOptions) {

@@ -15,9 +15,13 @@
  *@
 
 @import config.ApplicationConfig
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers._
-@this(bcMain: bcMain)
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import views.html.helper.form
+@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukSelect: GovukSelect, govukRadios: GovukRadios )
 
 @(overseasCompanyForm: Form[models.OverseasCompany],
   service: String,
@@ -49,56 +53,74 @@
 </script>
 }
 
-@bcMain(title = messages(displayDetails.title), service = service, pageScripts = Some(pageScripts)) {
+@conditionalHtml = {
 
-  @pageHeadersAndError(backLink, "overseas-subheader", messages(displayDetails.subHeader, service.toUpperCase), "overseas-header", messages(displayDetails.header),
+    @govukInput(
+        Input(
+            label = Label(
+                classes = "govuk-label--s",
+                content = Text(Messages("bc.non-uk-reg.businessUniqueId"))
+            )
+        ).withFormField(overseasCompanyForm("businessUniqueId"))
+    )
+
+    @govukSelect(
+        Select(
+            label = Label(
+                classes = "govuk-label--s",
+                content = Text(messages("bc.non-uk-reg.issuingCountry"))
+            ),
+            items = Seq(SelectItem(Some(""), "")) ++ countryList.map {
+                case (code, country) => SelectItem(
+                value = Some(code),
+                text = country
+             )
+            }
+        ).withFormField(overseasCompanyForm("issuingCountry"))
+    )
+
+    @govukInput(
+        Input(
+            label = Label(
+                classes = "govuk-label--s",
+                content = Text(Messages("bc.non-uk-reg.issuingInstitution"))
+            ),
+            hint = Some(Hint(
+                content = Text(Messages("bc.non-uk-reg.issuingInstitution.hint"))
+            ))
+        ).withFormField(overseasCompanyForm("issuingInstitution"))
+    )
+}
+
+@bcMain(title = messages(displayDetails.title), service = service, pageScripts = Some(pageScripts)) {
+    @pageHeadersAndError(backLink, "overseas-subheader", messages(displayDetails.subHeader, service.toUpperCase), "overseas-header", messages(displayDetails.header),
     Some(bcErrorSummary(overseasCompanyForm, "bc.non-uk-reg-error.general")))
 
-  @form(action = controllers.nonUKReg.routes.OverseasCompanyRegController.register(service, displayDetails.addClient, redirectUrl)) {
+  @formHelper(action = controllers.nonUKReg.routes.OverseasCompanyRegController.register(service, displayDetails.addClient, redirectUrl)) {
 
-    <div class="form-group" id="hasBusinessUniqueId">
+    @govukRadios(
+        Radios(
+            fieldset = Some(Fieldset(
+                legend = Some(Legend(
+                    classes = "govuk-visually-hidden",
+                    content = Text(Messages(displayDetails.header))
+                ))
+            )),
+            items = Seq(
+                RadioItem(
+                    content = Text(Messages("bc.radio.yes.label")),
+                    value = Some("true"),
+                    conditionalHtml = Some(conditionalHtml)
+                ),
+                RadioItem(
+                    content = Text(Messages("bc.radio.no.label")),
+                    value = Some("false")
+                )
+            )
+        ).withFormField(overseasCompanyForm("hasBusinessUniqueId"))
+    )
 
-      @bcInputRadioGroupReveal(overseasCompanyForm("hasBusinessUniqueId"),
-        Seq(
-            "true" -> (messages("bc.radio.yes.label") -> Some("overseas-company-registration")),
-            "false" -> (messages("bc.radio.no.label") -> None)
-        ),
-        '_groupClass -> "inline",
-        '_legend -> messages(displayDetails.header),
-        '_legendClass -> "visuallyhidden",
-        '_labelClass -> "block-label",
-        '_labelAfter -> true
-      )
-
-    </div>
-
-    <div id="overseas-company-registration" class="margin-bottom-default panel-indent js-hidden">
-      @bcInput(overseasCompanyForm("businessUniqueId"),
-        '_label ->  Html(messages("bc.non-uk-reg.businessUniqueId")),
-        '_labelClass -> "form-label-bold",
-        '_id -> "businessUniqueId",
-        '_showConstraints -> false
-      )
-
-      @bcDropdown(overseasCompanyForm("issuingCountry"),
-        elementOptions = countryList,
-        displayEmptyValue = true,
-        '_id -> "issuingCountry",
-        '_labelClass -> "form-label-bold",
-        '_label -> Html(messages("bc.non-uk-reg.issuingCountry"))
-      )
-
-      @bcInput(overseasCompanyForm("issuingInstitution"),
-        '_label ->  Html(messages("bc.non-uk-reg.issuingInstitution")),
-        '_labelClass -> "form-label-bold",
-        '_id -> "issuingInstitution",
-        '_hintText -> messages("bc.non-uk-reg.issuingInstitution.hint"),
-        '_showConstraints -> false
-      )
-
-    </div>
-
-    <button class="button" id="submit" type="submit">@messages("bc.continue")</button>
+    <button class="govuk-button" id="submit" type="submit">@messages("bc.continue")</button>
 
   }
 

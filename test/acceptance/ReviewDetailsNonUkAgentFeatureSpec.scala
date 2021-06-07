@@ -59,7 +59,7 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
       assert(document.getElementById("bc.business-registration-agent.text").text() === ("This section is: ATED agency set up"))
 
       And("The confirmation notice should display")
-      assert(document.getElementById("check-agency-details").text ===("You are setting up your agency. These should be your company details not your client’s."))
+      assert(document.getElementById("check-agency-details").text ===("Warning You are setting up your agency. These should be your company details not your client’s."))
 
       And("Business name is correct")
 
@@ -84,7 +84,7 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
       assert(document.getElementById("submit").text() === "Confirm")
 
       And("There is a link to the accessibility statement")
-      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+      assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
         .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
     }
 

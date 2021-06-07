@@ -15,9 +15,12 @@
  *@
 
 @import config.ApplicationConfig
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers._
-@this(bcMain: bcMain)
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import views.html.helper.form
+@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukDetails : GovukDetails, govukSelect: GovukSelect)
 
 @(businessRegistrationForm: Form[models.BusinessRegistration],
   service: String,
@@ -57,81 +60,91 @@
   )
 
   @displayDetails.businessRegLede.map { businessRegLede =>
-    <p class="lede" id="business-registration-lede">@Html(messages(businessRegLede))</p>
+    <p class="govuk-body" id="business-registration-lede">@Html(messages(businessRegLede))</p>
   }
 
-  @form(action = controllers.nonUKReg.routes.BusinessRegController.send(service, messages(displayDetails.businessType))) {
-    <div id="business-registration-form">
+  @formHelper(action = controllers.nonUKReg.routes.BusinessRegController.send(service, messages(displayDetails.businessType))) {
 
-      <fieldset>
-        <legend class="visuallyhidden">@messages(displayDetails.businessRegHeader)</legend>
-        @bcInput(businessRegistrationForm("businessName"),
-          '_label ->  Html(messages("bc.business-registration.businessName")),
-          '_labelClass -> "form-label-bold",
-          '_id -> "businessName",
-          '_showConstraints -> false
+        <legend class="govuk-visually-hidden">@messages(displayDetails.businessRegHeader)</legend>
+
+        @govukInput(
+             Input(
+                  label = Label(
+                      content = Text(Messages("bc.business-registration.businessName")),
+                      classes = "govuk-label--s"
+
+                  )
+             ).withFormField(businessRegistrationForm("businessName"))
         )
 
-        @bcInput(businessRegistrationForm("businessAddress.line_1"),
-          '_label ->  Html(messages("bc.business-registration.line_1")),
-          '_labelClass -> "form-label-bold",
-          '_id -> "businessAddress.line_1",
-          '_showConstraints -> false
+         @govukInput(
+             Input(
+                  label = Label(
+                      content = Text(Messages("bc.business-registration.line_1")),
+                      classes = "govuk-label--s",
+                  )
+             ).withFormField(businessRegistrationForm("businessAddress.line_1"))
         )
 
-        @bcInput(businessRegistrationForm("businessAddress.line_2"),
-          '_label ->  Html(messages("bc.business-registration.line_2")),
-          '_labelClass -> "form-label-bold",
-          '_id -> "businessAddress.line_2",
-          '_showConstraints -> false
+         @govukInput(
+             Input(
+                  label = Label(
+                      content = Text(Messages("bc.business-registration.line_2")),
+                      classes = "govuk-label--s",
+                  )
+             ).withFormField(businessRegistrationForm("businessAddress.line_2"))
         )
 
-        @bcInput(businessRegistrationForm("businessAddress.line_3"),
-          '_label ->  Html(messages("bc.business-registration.line_3")),
-          '_labelClass -> "form-label-bold",
-          '_id -> "businessAddress.line_3",
-          '_showConstraints -> false
+        @govukInput(
+             Input(
+                  label = Label(
+                      content = Text(Messages("bc.business-registration.line_3")),
+                      classes = "govuk-label--s",
+                  )
+             ).withFormField(businessRegistrationForm("businessAddress.line_3"))
         )
 
-        @bcInput(businessRegistrationForm("businessAddress.line_4"),
-          '_label ->  Html(messages("bc.business-registration.line_4")),
-          '_labelClass -> "form-label-bold",
-          '_id -> "businessAddress.line_4",
-          '_showConstraints -> false
+        @govukInput(
+             Input(
+                  label = Label(
+                      content = Text(Messages("bc.business-registration.line_4")),
+                      classes = "govuk-label--s",
+                  )
+             ).withFormField(businessRegistrationForm("businessAddress.line_4"))
         )
 
         @if(!isAgent) {
-          @bcInput(businessRegistrationForm("businessAddress.postcode"),
-            '_label ->  Html(messages("bc.non-uk-reg.postcode")),
-            '_labelClass -> "form-label-bold",
-            '_id -> "businessAddress.postcode",
-            '_inputClass -> "input--small",
-            '_maxLength -> 10,
-            '_showConstraints -> false
+          @govukInput(
+             Input(
+                  label = Label(
+                      content = Text(Messages("bc.non-uk-reg.postcode")),
+                      classes = "govuk-label--s",
+                  ),
+                  classes = "govuk-input--width-10",
+             ).withFormField(businessRegistrationForm("businessAddress.postcode"))
           )
 
-          <details>
-            <summary aria-controls="details-content-0" tabindex="0" class="summary" id="email-risk-question">
-              @messages("bc.non-uk-reg.postcode.help.question")
-            </summary>
-            <div id="details-content-0" class="panel-indent font-xsmall">
-              <p id="email-risk-ans">@Html(messages("bc.non-uk-reg.postcode.help.answer"))</p>
-            </div>
-          </details>
-
+          @govukDetails(Details(
+                summary = Text(messages("bc.non-uk-reg.postcode.help.question")),
+                content = HtmlContent(messages("bc.non-uk-reg.postcode.help.answer"))
+          ))
         }
 
-        @bcDropdown(businessRegistrationForm("businessAddress.country"),
-          elementOptions = displayDetails.listOfIsoCode,
-          displayEmptyValue = true,
-          '_id -> "businessAddress.country",
-          '_labelClass -> "form-label-bold",
-          '_label -> Html(messages("bc.business-registration.country"))
-        )
+          @govukSelect(
+              Select(
+                  label = Label(
+                      classes = "govuk-label--s",
+                      content = Text(messages("bc.business-registration.country"))
+                  ),
+                  items = Seq(SelectItem(Some(""), "")) ++ displayDetails.listOfIsoCode.map {
+                      case (code, country) => SelectItem(
+                          value = Some(code),
+                          text = country
+                      )
+                  }
+              ).withFormField(businessRegistrationForm("businessAddress.country"))
+          )
 
-      </fieldset>
-    </div>
-
-    <button id="submit" type="submit" class="button">@submitButtonText</button>
+    <button id="submit" type="submit" class="govuk-button">@submitButtonText</button>
   }
 }

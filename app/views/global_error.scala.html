@@ -16,21 +16,29 @@
 
 @import config._
 
-@this(global_error_wrapper: global_error_wrapper)
+@this(layout: layout)
 
 @(pageTitle: String,
-heading: String,
-message: String,
-service: String = "",
-appConfig: ApplicationConfig,
-referrer: String = "global-error")(implicit request: Request[_], messages: Messages)
+    heading: String,
+    message: String,
+    service: String = "",
+    referrer: String = "global-error")(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @contentHeader = {
-<h1>@messages(heading)</h1>
+    <h1 class="govuk-heading-xl">@heading</h1>
 }
 
 @mainContent = {
-<p>@messages(message)</p>
+    <p class="govuk-body">@message</p>
 }
 
-@global_error_wrapper(appConfig = appConfig, title = messages(pageTitle), contentHeader = Some(contentHeader), mainContent = mainContent, service = service)
+@content = {
+    @contentHeader
+    @mainContent
+}
+
+@layout(
+    Some(messages(pageTitle)).map(_ + " - GOV.UK"),
+    None,
+    service = service
+)(content)

@@ -17,10 +17,10 @@
 @(backLink: Option[String], subHeaderId: String, subHeaderValue: String, headerId: String, headerValue: String, errorDisplay: Option[Html] = None)(implicit messages: Messages)
 
 @if(backLink.isDefined){
-<a id="backLinkHref" class="link-back" href='@backLink'>@messages("bc.business-verification.back")</a>
+<a id="backLinkHref" class="govuk-back-link" href='@backLink'>@messages("bc.business-verification.back")</a>
 }
 @errorDisplay
 <header class="page-header page-header-margin">
-    <p id=@subHeaderId class="heading-secondary"><span class="visuallyhidden">@messages("bc.screen-reader.section") </span>@subHeaderValue</p>
-    <h1 id=@headerId class="heading-xlarge">@headerValue</h1>
+    <p id=@subHeaderId class="govuk-caption-l govuk-heading-l"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@subHeaderValue</p>
+    <h1 id=@headerId class="govuk-heading-xl">@headerValue</h1>
 </header>

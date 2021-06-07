@@ -27,37 +27,37 @@ import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import utils.SessionUtils
 
 class BCHandlerImpl @Inject()(val messagesApi: MessagesApi,
+                              val templateError: views.html.global_error,
                               config: ApplicationConfig) extends BCHandler {
   lazy val appConfig: ApplicationConfig = config
 }
 
 trait BCHandler extends FrontendErrorHandler with I18nSupport {
   implicit val appConfig: ApplicationConfig
+  implicit val templateError: views.html.global_error
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
     val service = SessionUtils.findServiceInRequest(request)
 
-    appConfig.templateError(pageTitle, heading, message, service, appConfig, URLEncoder.encode(request.uri, "UTF8"))
+    templateError(pageTitle, heading, message, service, URLEncoder.encode(request.uri, "UTF8"))
   }
 
   override def internalServerErrorTemplate(implicit request: Request[_]): Html = {
-    appConfig.templateError(
+    templateError(
       Messages("bc.generic.error.title"),
       Messages("bc.generic.error.header"),
       Messages("bc.generic.error.message"),
       SessionUtils.findServiceInRequest(request),
-      appConfig,
       URLEncoder.encode(request.uri, "UTF8")
   )
   }
 
   override def notFoundTemplate(implicit request: Request[_]): Html = {
-    appConfig.templateError(
+    templateError(
       Messages("bc.notFound.error.title"),
       Messages("bc.notFound.error.header"),
       Messages("bc.notFound.error.message"),
       SessionUtils.findServiceInRequest(request),
-      appConfig,
       URLEncoder.encode(request.uri, "UTF8")
     )
   }

@@ -15,9 +15,11 @@
  *@
 
 @import config._
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers._
-@this(bcMain: bcMain)
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+@import views.html.helper.form
+@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput)
 
 @(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails,
         backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
@@ -37,57 +39,77 @@
       Some(bcErrorSummary(businessRegistrationForm, "bc.business-verification-error.general"))
   )
 
-  @form(action = controllers.routes.BusinessRegUKController.send(service, messages(displayDetails.businessType))) {
+  @formHelper(action = controllers.routes.BusinessRegUKController.send(service, messages(displayDetails.businessType))) {
 
       <div id="business-registration-form">
 
-        @bcInput(businessRegistrationForm("businessName"),
-          '_label ->  Html(messages("bc.business-registration.group.businessName")),
-          '_labelClass -> "form-label-bold",
-          '_id -> "businessName",
-          '_showConstraints -> false,
-          '_hintText -> messages("bc.business-registration.group.businessName.hintText"),
-          '_maxLength -> 140)
+          @govukInput(
+                Input(
+                    label = Label(
+                        content = Text(Messages("bc.business-registration.group.businessName")),
+                        classes = "govuk-label--s"
+                    ),
+                    hint = Some(Hint(
+                        content = Text(Messages("bc.business-registration.group.businessName.hintText"))
+                    )),
+                    classes = "govuk-input--width-140"
+                ).withFormField(businessRegistrationForm("businessName"))
+            )
 
-        @bcInput(businessRegistrationForm("businessAddress.line_1"),
-          '_label ->  Html(messages("bc.business-registration.line_1")),
-          '_labelClass -> "form-label-bold",
-          '_id -> "businessAddress.line_1",
-          '_maxLength -> 35,
-          '_showConstraints -> false)
+          @govukInput(
+                Input(
+                    label = Label(
+                        content = Text(Messages("bc.business-registration.line_1")),
+                        classes = "govuk-label--s"
+                    ),
+                    classes = "govuk-input--width-35"
+                ).withFormField(businessRegistrationForm("businessAddress.line_1"))
+            )
 
-        @bcInput(businessRegistrationForm("businessAddress.line_2"),
-          '_label ->  Html(messages("bc.business-registration.line_2")),
-          '_labelClass -> "form-label-bold",
-          '_id -> "businessAddress.line_2",
-          '_maxLength -> 35,
-          '_showConstraints -> false)
+          @govukInput(
+                Input(
+                    label = Label(
+                        content = Text(Messages("bc.business-registration.line_2")),
+                        classes = "govuk-label--s"
+                    ),
+                    classes = "govuk-input--width-35"
+                ).withFormField(businessRegistrationForm("businessAddress.line_2"))
+            )
 
-        @bcInput(businessRegistrationForm("businessAddress.line_3"),
-          '_label ->  Html(messages("bc.business-registration.group.line_3")),
-          '_id -> "businessAddress.line_3",
-          '_maxLength -> 35,
-          '_showConstraints -> false)
+          @govukInput(
+                Input(
+                    label = Label(
+                        content = Text(Messages("bc.business-registration.group.line_3"))
+                    ),
+                    classes = "govuk-input--width-35"
+                ).withFormField(businessRegistrationForm("businessAddress.line_3"))
+            )
 
-        @bcInput(businessRegistrationForm("businessAddress.line_4"),
-          '_label ->  Html(messages("bc.business-registration.group.line_4")),
-          '_id -> "businessAddress.line_4",
-          '_maxLength -> 35,
-          '_showConstraints -> false)
+          @govukInput(
+                Input(
+                    label = Label(
+                        content = Text(Messages("bc.business-registration.group.line_4"))
+                    ),
+                    classes = "govuk-input--width-35"
+                ).withFormField(businessRegistrationForm("businessAddress.line_4"))
+            )
 
-        @bcInput(businessRegistrationForm("businessAddress.postcode"),
-          '_label ->  Html(messages("bc.business-registration.postcode")),
-          '_labelClass -> "form-label-bold",
-          '_id -> "businessAddress.postcode",
-          '_maxLength -> 10,
-          '_showConstraints -> false)
+          @govukInput(
+                Input(
+                    label = Label(
+                        content = Text(Messages("bc.business-registration.postcode")),
+                        classes = "govuk-label--s"
+                    ),
+                    classes = "govuk-input--width-10"
+                ).withFormField(businessRegistrationForm("businessAddress.postcode"))
+            )
 
       </div>
 
-      <button class="button" id="submit" type="submit">@messages("bc.business-registration.submit")</button>
+    <button class="govuk-button" id="submit" type="submit">@messages("bc.business-registration.submit")</button>
 
 
-    <input type="hidden" class=" form-control " name="businessAddress.country" id="businessAddress.country" value="GB">
+    <input type="hidden" class="govuk-input form-control" name="businessAddress.country" id="businessAddress.country" value="GB">
 
   }
 
