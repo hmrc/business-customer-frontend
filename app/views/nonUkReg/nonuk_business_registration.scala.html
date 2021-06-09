@@ -53,8 +53,7 @@
       @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.non-uk-reg.businessName")),
-                      classes = "govuk-label--s"
+                      content = Text(Messages("bc.non-uk-reg.businessName"))
                   )
              ).withFormField(businessRegistrationForm("businessName"))
         )
@@ -62,8 +61,7 @@
       @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.non-uk-reg.line_1")),
-                      classes = "govuk-label--s"
+                      content = Text(Messages("bc.non-uk-reg.line_1"))
                   )
              ).withFormField(businessRegistrationForm("businessAddress.line_1"))
       )
@@ -71,8 +69,7 @@
       @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.non-uk-reg.line_2")),
-                      classes = "govuk-label--s",
+                      content = Text(Messages("bc.non-uk-reg.line_2"))
                   )
              ).withFormField(businessRegistrationForm("businessAddress.line_2"))
       )
@@ -80,8 +77,7 @@
       @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.non-uk-reg.line_3")),
-                      classes = "govuk-label--s",
+                      content = Text(Messages("bc.non-uk-reg.line_3"))
                   )
              ).withFormField(businessRegistrationForm("businessAddress.line_3"))
       )
@@ -89,8 +85,7 @@
       @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.non-uk-reg.line_4")),
-                      classes = "govuk-label--s",
+                      content = Text(Messages("bc.non-uk-reg.line_4"))
                   )
              ).withFormField(businessRegistrationForm("businessAddress.line_4"))
       )
@@ -98,7 +93,6 @@
       @govukSelect(
               Select(
                   label = Label(
-                      classes = "govuk-label--s",
                       content = Text(messages("bc.business-registration.country"))
                   ),
                   items = Seq(SelectItem(Some(""), "")) ++ displayDetails.listOfIsoCode.map {

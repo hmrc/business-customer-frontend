@@ -58,7 +58,6 @@
     @govukInput(
         Input(
             label = Label(
-                classes = "govuk-label--s",
                 content = Text(Messages("bc.non-uk-reg.businessUniqueId"))
             )
         ).withFormField(overseasCompanyForm("businessUniqueId"))
@@ -67,7 +66,6 @@
     @govukSelect(
         Select(
             label = Label(
-                classes = "govuk-label--s",
                 content = Text(messages("bc.non-uk-reg.issuingCountry"))
             ),
             items = Seq(SelectItem(Some(""), "")) ++ countryList.map {
@@ -82,7 +80,6 @@
     @govukInput(
         Input(
             label = Label(
-                classes = "govuk-label--s",
                 content = Text(Messages("bc.non-uk-reg.issuingInstitution"))
             ),
             hint = Some(Hint(

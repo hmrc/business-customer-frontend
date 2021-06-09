@@ -70,8 +70,7 @@
         @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.business-registration.businessName")),
-                      classes = "govuk-label--s"
+                      content = Text(Messages("bc.business-registration.businessName"))
 
                   )
              ).withFormField(businessRegistrationForm("businessName"))
@@ -80,8 +79,7 @@
          @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.business-registration.line_1")),
-                      classes = "govuk-label--s",
+                      content = Text(Messages("bc.business-registration.line_1"))
                   )
              ).withFormField(businessRegistrationForm("businessAddress.line_1"))
         )
@@ -89,8 +87,7 @@
          @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.business-registration.line_2")),
-                      classes = "govuk-label--s",
+                      content = Text(Messages("bc.business-registration.line_2"))
                   )
              ).withFormField(businessRegistrationForm("businessAddress.line_2"))
         )
@@ -98,8 +95,7 @@
         @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.business-registration.line_3")),
-                      classes = "govuk-label--s",
+                      content = Text(Messages("bc.business-registration.line_3"))
                   )
              ).withFormField(businessRegistrationForm("businessAddress.line_3"))
         )
@@ -107,8 +103,7 @@
         @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.business-registration.line_4")),
-                      classes = "govuk-label--s",
+                      content = Text(Messages("bc.business-registration.line_4"))
                   )
              ).withFormField(businessRegistrationForm("businessAddress.line_4"))
         )
@@ -117,8 +112,7 @@
           @govukInput(
              Input(
                   label = Label(
-                      content = Text(Messages("bc.non-uk-reg.postcode")),
-                      classes = "govuk-label--s",
+                      content = Text(Messages("bc.non-uk-reg.postcode"))
                   ),
                   classes = "govuk-input--width-10",
              ).withFormField(businessRegistrationForm("businessAddress.postcode"))
@@ -133,7 +127,6 @@
           @govukSelect(
               Select(
                   label = Label(
-                      classes = "govuk-label--s",
                       content = Text(messages("bc.business-registration.country"))
                   ),
                   items = Seq(SelectItem(Some(""), "")) ++ displayDetails.listOfIsoCode.map {

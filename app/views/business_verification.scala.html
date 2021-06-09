@@ -68,7 +68,7 @@
 
     @formHelper(action = controllers.routes.BusinessVerificationController.continue(service)) {
 
-        <div class="govuk-form-group" id="businessType">
+        <div class="govuk-form-group">
 
             <input type="hidden" name="isSaAccount" value="@{isSaAccount}">
             <input type="hidden" name="isOrgAccount" value="@{isOrgAccount}">
@@ -84,8 +84,7 @@
                     items = appConfig.businessTypeMap(service, isAgent).map{
                         case (service, isAgent) => RadioItem(
                             value = Some(service),
-                            content = Text(messages(isAgent)),
-                            id = Some(service)
+                            content = Text(messages(isAgent))
                         )
                     }
 

@@ -96,7 +96,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be("Create AWRS group - GOV.UK")
-            document.getElementById("business-verification-text").text() must be("This section is: AWRS account registration")
+            document.getElementById("business-verification-text").text() must be("This section is: AWRS registration")
             document.getElementById("business-registration.header").text() must be("Create AWRS group")
 
             document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
@@ -119,7 +119,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be("Create AWRS group - GOV.UK")
-            document.getElementById("business-verification-text").text() must be("This section is: AWRS account registration")
+            document.getElementById("business-verification-text").text() must be("This section is: AWRS registration")
             document.getElementById("business-registration.header").text() must be("New business details")
             document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
             document.getElementById("businessName-hint").text() must be("This is your registered company name")
