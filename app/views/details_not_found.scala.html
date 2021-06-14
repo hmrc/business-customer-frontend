@@ -15,8 +15,8 @@
  *@
 
 @import config._
-@import uk.gov.hmrc.play.views.html.helpers.form
-@this(bcMain: bcMain)
+@import views.html.helper.form
+@this(bcMain: bcMain, formHelper: FormWithCSRF)
 
 @(isAgent: Boolean,
  service: String,
@@ -26,34 +26,34 @@
 @bcMain(title = messages("bc.details-not-found.header"), service = service) {
 
   @if(isAgent) {
-    <a id="backLinkHref" class="link-back" href='@backLink'>@messages("bc.business-verification.back")</a>
-    <div class="heading-sub" id="business-verification-agent-text">@messages("bc.business-verification.agent.text", service.toUpperCase)</div>
+    <a id="backLinkHref" class="govuk-back-link" href='@backLink'>@messages("bc.business-verification.back")</a>
+    <div class="govuk-caption-l govuk-heading-l" id="business-verification-agent-text">@messages("bc.business-verification.agent.text", service.toUpperCase)</div>
   } else {
-    <a id="backLinkHref" class="link-back" href='@backLink'>@messages("bc.business-verification.back")</a>
-    <div class="heading-sub" id="business-verification-text">@messages("bc.business-verification.client.text", service.toUpperCase)</div>
+    <a id="backLinkHref" class="govuk-back-link" href='@backLink'>@messages("bc.business-verification.back")</a>
+    <div class="govuk-caption-l govuk-heading-l" id="business-verification-text">@messages("bc.business-verification.client.text", service.toUpperCase)</div>
   }
 
-  <h1 class="heading-xlarge" id="details-not-found-header"> @messages("bc.details-not-found.header") </h1>
+  <h1 class="govuk-heading-xl" id="details-not-found-header"> @messages("bc.details-not-found.header") </h1>
 
-  <p id="details-not-found-subheader">@messages("bc.details-not-found.subheader")</p>
+  <p  class="govuk-body" id="details-not-found-subheader">@messages("bc.details-not-found.subheader")</p>
 
-  <h2 class="heading-small" id="details-not-found-exact-match-reason-header">@messages("bc.details-not-found.exact-match-reason.header")</h2>
-  <p id="details-not-found-exact-match-reason-text">@messages("bc.details-not-found.exact-match-reason.text")</p>
+  <h2 class="govuk-heading-s" id="details-not-found-exact-match-reason-header">@messages("bc.details-not-found.exact-match-reason.header")</h2>
+  <p  class="govuk-body" id="details-not-found-exact-match-reason-text">@messages("bc.details-not-found.exact-match-reason.text")</p>
 
-  <h2 class="heading-small" id="details-not-found-name-changed-reason-header">@messages("bc.details-not-found.name-changed-reason.header")</h2>
-  <p id="details-not-found-name-changed-reason-text">@messages("bc.details-not-found.name-changed-reason.text")</p>
-  <ul class="list list-bullet">
+  <h2 class="govuk-heading-s" id="details-not-found-name-changed-reason-header">@messages("bc.details-not-found.name-changed-reason.header")</h2>
+  <p  class="govuk-body" id="details-not-found-name-changed-reason-text">@messages("bc.details-not-found.name-changed-reason.text")</p>
+  <ul class="govuk-list govuk-list--bullet">
     <li>@Html(messages("bc.details-not-found.name-changed-reason.text.li1"))</li>
     <li>@Html(messages("bc.details-not-found.name-changed-reason.text.li2"))</li>
   </ul>
-  <p id="details-not-found-name-changed-reason-text-24-hours">@messages("bc.details-not-found.name-changed-reason.text.24-hours")</p>
+  <p class="govuk-body" id="details-not-found-name-changed-reason-text-24-hours">@messages("bc.details-not-found.name-changed-reason.text.24-hours")</p>
 
-  <h2 class="heading-small" id="details-not-found-utr-reason-header">@messages("bc.details-not-found.utr-reason.header")</h2>
-  <p id="details-not-found-utr-reason-text">@messages("bc.details-not-found.utr-reason.text")</p>
+  <h2 class="govuk-heading-s" id="details-not-found-utr-reason-header">@messages("bc.details-not-found.utr-reason.header")</h2>
+  <p class="govuk-body" id="details-not-found-utr-reason-text">@messages("bc.details-not-found.utr-reason.text")</p>
 
 
-@form(action=controllers.routes.BusinessVerificationController.businessForm(service, businessType)){
-<button class="button" >@messages("bc.details-not-found.try-again")</button>
+@formHelper(action=controllers.routes.BusinessVerificationController.businessForm(service, businessType)){
+<button class="govuk-button" >@messages("bc.details-not-found.try-again")</button>
 }
 
 }

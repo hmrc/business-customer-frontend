@@ -11,6 +11,7 @@ bc.ated.serviceName = Register for ATED
 bc.awrs.serviceName = Register as an alcohol wholesaler or producer
 bc.amls.serviceName = Anti Money Laundering Supervision
 bc.fhdds.serviceName = Apply for the Fulfilment House Due Diligence Scheme
+service.homePageUrl = /business-customer
 bc.investment-tax-relief.serviceName = Apply for Enterprise Investment Scheme
 
 business-review.user.title = Check this is the business you want to register
@@ -378,6 +379,14 @@ bc.generic.error.message = Try again later.
 bc.notFound.error.header = This page can’t be found
 bc.notFound.error.title = Page not found - 404
 bc.notFound.error.message = Please check that you have entered the correct web address.
+
+# Footer Messages
+
+footer.links.accessibility.text = Accessibility statement
+footer.links.cookies.text = Cookies
+footer.links.privacy_policy.text = Privacy policy
+footer.links.terms_and_conditions.text = Terms and conditions
+footer.links.help_page.text = Help using GOV.UK
 
 zero = 0
 one = 1

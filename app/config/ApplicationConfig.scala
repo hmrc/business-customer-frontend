@@ -28,7 +28,6 @@ import scala.util.Try
 class ApplicationConfig @Inject()(val conf: ServicesConfig,
                                   val oldConfig: Configuration,
                                   val environment: Environment,
-                                  val templateError: views.html.global_error,
                                   @Named("appName") val appName: String) extends BCUtils with Logging {
 
   private val contactHost = conf.getConfString("contact-frontend.host", "")
@@ -60,6 +59,12 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   lazy val domain: String = conf.getConfString(
     "cachable.session-cache.domain", throw new Exception(s"Could not find config 'cachable.session-cache.domain'")
   )
+
+  lazy val cookies: String = conf.getString("urls.footer.cookies")
+  lazy val accessibilityStatement: String = conf.getString("urls.footer.accessibility_statement")
+  lazy val privacy: String = conf.getString("urls.footer.privacy_policy")
+  lazy val termsConditions: String = conf.getString("urls.footer.terms_and_conditions")
+  lazy val govukHelp: String = conf.getString("urls.footer.help_page")
 
   def accessibilityStatementFrontendUrl(service: String, referrerUrl: String): String = {
     val statement = service.toUpperCase() match {

@@ -51,7 +51,6 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
       val html = injectedViewInstance("ATED", reviewDetails.copy(directMatch = false), Some("backLinkUri"))
 
       val document = Jsoup.parse(html.toString())
-      val bizRegistrationDetails = document.select("#business-details tbody tr")
 
       Then("The title should match - Confirm your business details")
       assert(document.select("h1").text === ("Check your agency details"))
@@ -59,7 +58,7 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
       assert(document.getElementById("bc.business-registration-agent.text").text() === ("This section is: ATED agency set up"))
 
       And("The confirmation notice should display")
-      assert(document.getElementById("check-agency-details").text ===("You are setting up your agency. These should be your company details not your client’s."))
+      assert(document.getElementById("check-agency-details").text ===("Warning You are setting up your agency. These should be your company details not your client’s."))
 
       And("Business name is correct")
 
@@ -73,18 +72,18 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
       assert(document.getElementById("business-reg-edit").attr("href") === ("/business-customer/agent/register/non-uk-client/ATED/edit"))
 
       And("Overseas tax reference is correct")
-      bizRegistrationDetails.get(2).text should include ("Overseas company registration number")
-      bizRegistrationDetails.get(2).text should include("id")
-      bizRegistrationDetails.get(3).text should include("Country that issued the number")
-      bizRegistrationDetails.get(3).text should include("France")
-      bizRegistrationDetails.get(4).text should include("Institution that issued the number")
-      bizRegistrationDetails.get(4).text should include("inst")
+      assert(document.getElementById("registration-number-title").text === ("Overseas company registration number"))
+      assert(document.getElementById("registration-number").text === ("id"))
+      assert(document.getElementById("issuing-country-title").text === ("Country that issued the number"))
+      assert(document.getElementById("issuing-country").text === ("France"))
+      assert(document.getElementById("issuing-institution-title").text === ("Institution that issued the number"))
+      assert(document.getElementById("issuing-institution").text === ("inst"))
 
       And("The submit button is - Confirm")
       assert(document.getElementById("submit").text() === "Confirm")
 
       And("There is a link to the accessibility statement")
-      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+      assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
         .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
     }
 

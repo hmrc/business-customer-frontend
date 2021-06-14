@@ -15,9 +15,10 @@
  *@
 
 @import config._
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers._
-@this(bcMain: bcMain)
+@import views.html.helper.form
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
+@this(bcMain: bcMain, formHelper: FormWithCSRF, govukRadios: GovukRadios)
 
 @(businessTypeForm: Form[forms.BusinessType],
   isAgent: Boolean,
@@ -65,25 +66,33 @@
         Some(bcErrorSummary(businessTypeForm, "bc.business-verification-error.general"))
     )
 
-    @form(action = controllers.routes.BusinessVerificationController.continue(service)) {
+    @formHelper(action = controllers.routes.BusinessVerificationController.continue(service)) {
 
-        <div class="form-group" id="businessType">
+        <div class="govuk-form-group">
 
             <input type="hidden" name="isSaAccount" value="@{isSaAccount}">
             <input type="hidden" name="isOrgAccount" value="@{isOrgAccount}">
 
-            @bcInputRadioGroup(
-                businessTypeForm("businessType"),
-                appConfig.businessTypeMap(service, isAgent),
-                '_groupClass -> "needed-for-inline-errors",
-                '_labelClass -> "block-label",
-                '_legend -> headingText,
-                '_legendClass -> "visuallyhidden",
-                '_labelAfter -> true
+            @govukRadios(
+                Radios(
+                    fieldset = Some(Fieldset(
+                        legend = Some(Legend(
+                            classes = "govuk-visually-hidden",
+                            content = Text(messages(headingText))
+                        ))
+                    )),
+                    items = appConfig.businessTypeMap(service, isAgent).map{
+                        case (service, isAgent) => RadioItem(
+                            value = Some(service),
+                            content = Text(messages(isAgent))
+                        )
+                    }
+
+                ).withFormField(businessTypeForm("businessType"))
             )
 
         </div>
 
-        <button id="submit" type="submit" class="button"> @messages("bc.business-verification.submit.client") </button>
+        <button id="submit" type="submit" class="govuk-button"> @messages("bc.business-verification.submit.client") </button>
     }
 }

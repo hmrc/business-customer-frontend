@@ -56,13 +56,13 @@ class nrl_questionSpec extends FeatureSpec with GuiceOneServerPerSuite with Mock
       assert(document.getElementById("client-appoint-subheader").text() === "This section is: ATED registration")
 
       Then("The options should be Yes and No")
-      assert(document.select(".block-label").text() === "Yes No")
+      assert(document.select(".govuk-radios__item").text() === "Yes No")
 
       And("The submit button is - continue")
       assert(document.getElementById("submit").text() === "Continue")
 
       And("There is a link to the accessibility statement")
-      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+      assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
         .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
     }
   }

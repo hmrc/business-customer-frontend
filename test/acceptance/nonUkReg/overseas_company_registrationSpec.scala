@@ -63,15 +63,16 @@ class overseas_company_registrationSpec extends FeatureSpec with GuiceOneServerP
       assert(document.getElementById("overseas-subheader").text() === "This section is: dynamicSubHeader")
 
       Then("The options should be Yes and No")
-      assert(document.select(".block-label").text() === "Yes No")
+      assert(document.select(".govuk-radios__item").text() === "Yes No")
 
       Then("The company registration number fields should exist")
-      assert(document.getElementById("businessUniqueId_field").text() === "Overseas company registration number")
-      assert(document.getElementById("issuingCountry_field").text() === "Country that issued the number")
-      assert(document.getElementById("issuingInstitution_field").text() === "Institution that issued the number For example, an overseas tax department")
+      assert(document.getElementsByAttributeValue("for","businessUniqueId").text() === "Overseas company registration number")
+      assert(document.getElementsByAttributeValue("for","issuingCountry").text() === "Country that issued the number")
+      assert(document.getElementsByAttributeValue("for","issuingInstitution").text() === "Institution that issued the number")
+      assert(document.select("#issuingInstitution-hint").text() === "For example, an overseas tax department")
 
       And("There is a link to the accessibility statement")
-      assert(document.select("#footer > div > div > div.footer-meta-inner > ul > li:nth-child(2) > a")
+      assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
         .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
     }
   }

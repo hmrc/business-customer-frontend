@@ -15,9 +15,10 @@
  *@
 
 @import config._
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers._
-@this(bcMain: bcMain)
+@import views.html.helper.form
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@this(bcMain: bcMain, formHelper: FormWithCSRF, govukDetails : GovukDetails)
 
 @(service: String, isAgent: Boolean, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
@@ -63,6 +64,16 @@
     }
 }
 
+@contentDetails = {
+    <p id="wrong-account-text">
+        @businessDetailsMatchText
+    </p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li id="wrong-account-text-item-1">@Html(messages("business-review.registered-with-companies-house.text"))</li>
+        <li id="wrong-account-text-item-2">@Html(messages("business-review.sole-trader.text"))</li>
+    </ul>
+}
+
 @bcMain(title = headingText, service = service) {
 
     @pageHeadersAndError(
@@ -73,11 +84,11 @@
         headingText
     )
 
-    <div class="form-group">
+    <div class="govuk-form-group">
 
-        <p id="business-name">@businessDetails.businessName</p>
+        <p id="business-name" class="govuk-body">@businessDetails.businessName</p>
 
-        <p id="business-address">
+        <p id="business-address" class="govuk-body">
             @businessDetails.businessAddress.line_1<br>
             @businessDetails.businessAddress.line_2<br>
             @businessDetails.businessAddress.line_3.map { line_3 => @line_3<br> }
@@ -87,27 +98,15 @@
         </p>
 
         @if(businessDetails.businessAddress.country.toUpperCase == "GB") {
-            <details>
-                <summary id="wrong-account-title" class="summary">
-                    @businessDetailsMatchTextQuestion
-                </summary>
-                <div class="panel-indent">
-                    <p id="wrong-account-text">
-                        @businessDetailsMatchText
-                    </p>
-                    <ul class="list-bullet">
-                        <li id="wrong-account-text-item-1">@Html(messages("business-review.registered-with-companies-house.text"))</li>
-                        <li id="wrong-account-text-item-2">@Html(messages("business-review.sole-trader.text"))</li>
-                    </ul>
-                </div>
-            </details>
+            @govukDetails(Details(
+                summary = Text(messages(businessDetailsMatchTextQuestion)),
+                content = HtmlContent(contentDetails)
+            ))
         }
 
     </div>
-    @form(action=controllers.routes.ReviewDetailsController.continue(service)){
-    <button  class="button" id="submit">
-        @messages("business-review.registration-button")
-    </button>
+    @formHelper(action=controllers.routes.ReviewDetailsController.continue(service)){
+    <button  class="govuk-button" id="submit">@messages("business-review.registration-button")</button>
 }
 }
 

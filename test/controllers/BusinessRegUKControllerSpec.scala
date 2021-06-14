@@ -96,16 +96,17 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be("Create AWRS group - GOV.UK")
-            document.getElementById("business-verification-text").text() must be("This section is: AWRS account registration")
+            document.getElementById("business-verification-text").text() must be("This section is: AWRS registration")
             document.getElementById("business-registration.header").text() must be("Create AWRS group")
 
-            document.getElementById("businessName_field").text() must be("Group representative name This is your registered company name")
-            document.getElementById("businessAddress.line_1_field").text() must be("Address line 1")
-            document.getElementById("businessAddress.line_2_field").text() must be("Address line 2")
-            document.getElementById("businessAddress.line_3_field").text() must be("Address line 3 (Optional)")
-            document.getElementById("businessAddress.line_4_field").text() must be("Address line 4 (Optional)")
+            document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
+            document.getElementById("businessName-hint").text() must be("This is your registered company name")
+            document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
+            document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
+            document.getElementsByAttributeValue("for", "businessAddress.line_3").text() must be("Address line 3 (Optional)")
+            document.getElementsByAttributeValue("for", "businessAddress.line_4").text() must be("Address line 4 (Optional)")
             document.getElementById("submit").text() must be("Continue")
-            document.getElementById("businessAddress.postcode_field").text() must be("Postcode")
+            document.getElementsByAttributeValue("for", "businessAddress.postcode").text() must be("Postcode")
             document.getElementById("businessAddress.country").attr("value") must be("GB")
         }
       }
@@ -118,13 +119,14 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be("Create AWRS group - GOV.UK")
-            document.getElementById("business-verification-text").text() must be("This section is: AWRS account registration")
+            document.getElementById("business-verification-text").text() must be("This section is: AWRS registration")
             document.getElementById("business-registration.header").text() must be("New business details")
-            document.getElementById("businessName_field").text() must be("Group representative name This is your registered company name")
-            document.getElementById("businessAddress.line_1_field").text() must be("Address line 1")
-            document.getElementById("businessAddress.line_2_field").text() must be("Address line 2")
-            document.getElementById("businessAddress.line_3_field").text() must be("Address line 3 (Optional)")
-            document.getElementById("businessAddress.line_4_field").text() must be("Address line 4 (Optional)")
+            document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
+            document.getElementById("businessName-hint").text() must be("This is your registered company name")
+            document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
+            document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
+            document.getElementsByAttributeValue("for", "businessAddress.line_3").text() must be("Address line 3 (Optional)")
+            document.getElementsByAttributeValue("for", "businessAddress.line_4").text() must be("Address line 4 (Optional)")
             document.getElementById("submit").text() must be("Continue")
         }
       }

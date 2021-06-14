@@ -15,7 +15,8 @@
  *@
 
 @import config.ApplicationConfig
-@this(main: main)
+@import views.html.layout
+@this(layout: layout)
 
 
 @(title: String,
@@ -27,37 +28,17 @@
   sidebarClass: Option[String] = None,
 )(mainContent: Html)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@scriptElement = {
-  <script src='@controllers.routes.Assets.versioned("jquery/jquery-ui.min.js")'></script>
-  <script src='@controllers.routes.Assets.versioned("jquery/jquery-ui-1.12.1.min.js")'></script>
-  <script src='@controllers.routes.Assets.versioned("javascript/timeout-dialog.js")'></script>
-
-  @pageScripts
-  <script>
-    @if(userLoggedIn) {
-        $.timeoutDialog({timeout: @appConfig.defaultTimeoutSeconds, countdown: @appConfig.timeoutCountdown, keep_alive_url: '@controllers.routes.ApplicationController.keepAlive', logout_url: '@controllers.routes.ApplicationController.logout(service)', logout_redirect_url: '@controllers.routes.ApplicationController.logout(service)', restart_on_yes: true, background_no_scroll: true});
-        var dialogOpen;
-    }
-  </script>
-}
-
 @linkElement = {
-  <link rel="stylesheet" type="text/css" href='@controllers.routes.Assets.versioned("stylesheets/palette.css")'>
-  <link rel="stylesheet" type="text/css" href='@controllers.routes.Assets.versioned("stylesheets/focus.css")'>
-  <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/business-customer.css")'/>
-  <link rel="stylesheet" href='@controllers.routes.Assets.versioned("jquery/jquery-ui.min.css")'/>
-  <link rel="stylesheet" href='@controllers.routes.Assets.versioned("jquery/jquery-ui.structure.min.css")'/>
+    <link rel="stylesheet" type="text/css" href='@controllers.routes.Assets.versioned("stylesheets/palette.css")'>
+    <link rel="stylesheet" type="text/css" href='@controllers.routes.Assets.versioned("stylesheets/focus.css")'>
+    <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/business-customer.css")'/>
+    <link rel="stylesheet" href='@controllers.routes.Assets.versioned("jquery/jquery-ui.min.css")'/>
+    <link rel="stylesheet" href='@controllers.routes.Assets.versioned("jquery/jquery-ui.structure.min.css")'/>
+    @pageScripts
 }
 
-@main(
-  appConfig,
-  supportLinkEnabled = supportLinkEnabled,
-  title = title,
-  service = service,
-  sidebarLinks = sidebarLinks,
-  sidebarClass = sidebarClass,
-  userLoggedIn = userLoggedIn,
-  scriptElement = Some(scriptElement),
-  linkElement = Some(linkElement)) {
-    @mainContent
-  }
+@layout(
+    pageTitle = Some(title).map(_ + " - GOV.UK"),
+    scripts = Some(linkElement),
+    service =  service
+)(mainContent)

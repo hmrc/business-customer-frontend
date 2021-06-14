@@ -97,9 +97,9 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
           document.title must be("Are you a non-resident landlord? - GOV.UK")
-          document.select(".block-label").text() must include("Yes")
-          document.select(".block-label").text() must include("No")
-          document.getElementById("paysSA-false").attr("checked") must be("checked")
+          document.select(".govuk-radios__item").text() must include("Yes")
+          document.select(".govuk-radios__item").text() must include("No")
+          document.getElementById("paysSA-2").outerHtml() must include("checked")
         }
       }
 

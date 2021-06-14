@@ -15,9 +15,12 @@
  *@
 
 @()(implicit messages: Messages)
-<div class="form-group">
-    <div class="confirmation-notice">
-        <div class="icon-important"></div>
-        <div class="ated-icon-important-text" id="check-agency-details"><strong>@messages("business-review.check-agency.text")</strong></div>
+<div class="govuk-warning-text">
+    <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+    <div id="check-agency-details">
+        <strong class="govuk-warning-text__text">
+            <span class="govuk-warning-text__assistive">Warning</span>
+            @messages("business-review.check-agency.text")
+        </strong>
     </div>
 </div>

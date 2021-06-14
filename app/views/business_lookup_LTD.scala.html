@@ -15,9 +15,11 @@
  *@
 
 @import config._
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers._
-@this(bcMain: bcMain)
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+@import views.html.helper.form
+@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukDetails : GovukDetails)
 
 @(limitedCompanyForm: Form[forms.LimitedCompanyMatch],
  isAgent: Boolean,
@@ -63,6 +65,14 @@
     }
 }
 
+@htmlHint = {
+    <div class="govuk-hint">@messages("bc.business-verification.utr.hint")</div>
+    @govukDetails(Details(
+        summary = Text(messages("bc.business-verification.utr.help.question")),
+        content = HtmlContent(messages("bc.business-verification.utr.help.answer"))
+    ))
+}
+
 @bcMain(title = headingText, service = service) {
 
     @pageHeadersAndError(
@@ -78,29 +88,34 @@
         @bcCheckAgency()
     }
 
-    <p id="business-type-paragraph">@messages("bc.business-verification-lede")</p>
+    <p class="govuk-body" id="business-type-paragraph">@messages("bc.business-verification-lede")</p>
 
-    @form(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
+    @formHelper(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
 
-            @bcInput(limitedCompanyForm("businessName"),
-                '_label -> messages("bc.business-verification.businessNamefield"),
-                '_labelClass -> "form-label-bold",
-                '_hintText -> messages("bc.business-verification.registered-name.hint"),
-                '_id -> "businessName",
-                '_showConstraints -> false
+            @govukInput(
+                Input(
+                    label = Label(
+                        content = Text(Messages("bc.business-verification.businessNamefield")),
+                        classes = "govuk-label--s",
+                    ),
+                    hint = Some(Hint(
+                        content = Text(Messages("bc.business-verification.registered-name.hint"))
+                    ))
+                ).withFormField(limitedCompanyForm("businessName"))
             )
 
-            @bcInput(limitedCompanyForm("cotaxUTR"),
-                '_label -> messages("bc.business-verification.coUTRField"),
-                '_labelClass -> "form-label-bold",
-                '_hintText -> messages("bc.business-verification.utr.hint"),
-                '_id -> "cotaxUTR",
-                '_type -> "text",
-                '_fieldsetAttributesHelpQuestion -> "utr-help-question",
-                '_fieldsetQuestion -> messages("bc.business-verification.utr.help.question"),
-                '_HelpQuestionAnswer -> helpQuestionAnswer,
-                '_showConstraints -> false
+            @govukInput(
+                Input(
+                    label = Label(
+                        content = Text(Messages("bc.business-verification.coUTRField")),
+                        classes = "govuk-label--s"
+                    ),
+                    hint = Some(Hint(
+                        content = HtmlContent(htmlHint)
+                    ))
+                ).withFormField(limitedCompanyForm("cotaxUTR"))
             )
-        <button id="submit" type="submit" class="button">@messages("bc.business-registration.submit")</button>
+
+        <button id="submit" type="submit" class="govuk-button">@messages("bc.business-registration.submit")</button>
     }
 }

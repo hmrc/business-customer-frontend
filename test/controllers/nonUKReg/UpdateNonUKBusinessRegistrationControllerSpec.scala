@@ -110,7 +110,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           document.getElementById("business-reg-header").text() must be("What is your overseas business registered name and address?")
           document.getElementById("business-reg-lede").text() must be("This is the registered address of your overseas business.")
 
-          document.getElementById("businessName_field").text() must be("Business name")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
           document.getElementById("submit").text() must be("Continue")
         }
       }
@@ -137,12 +137,12 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           document.getElementById("business-reg-header").text() must be("What is your client’s overseas registered business name and address?")
           document.getElementById("business-reg-lede").text() must be("This is the registered address of your client’s overseas business.")
 
-          document.getElementById("businessName_field").text() must be("Business name")
-          document.getElementById("businessAddress.line_1_field").text() must be("Address line 1")
-          document.getElementById("businessAddress.line_2_field").text() must be("Address line 2")
-          document.getElementById("businessAddress.line_3_field").text() must be("Address line 3 (optional)")
-          document.getElementById("businessAddress.line_4_field").text() must be("Address line 4 (optional)")
-          document.getElementById("businessAddress.country_field").text() must include("Country")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
+          document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
+          document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
+          document.getElementsByAttributeValue("for", "businessAddress.line_3").text() must be("Address line 3 (optional)")
+          document.getElementsByAttributeValue("for", "businessAddress.line_4").text() must be("Address line 4 (optional)")
+          document.getElementsByAttributeValue("for", "businessAddress.country").text() must include("Country")
           document.getElementById("submit").text() must be("Continue")
         }
       }
@@ -186,7 +186,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           document.getElementById("business-reg-header").text() must be("What is your overseas business registered name and address?")
           document.getElementById("business-reg-lede").text() must be("This is the registered address of your overseas business.")
 
-          document.getElementById("businessName_field").text() must be("Business name")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
           document.getElementById("submit").text() must be("Continue")
         }
       }
@@ -211,12 +211,12 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           document.title() must be("What is the registered business name and address of your overseas agency? - GOV.UK")
           document.getElementById("business-reg-header").text() must be("What is the registered business name and address of your overseas agency?")
 
-          document.getElementById("businessName_field").text() must be("Business name")
-          document.getElementById("businessAddress.line_1_field").text() must be("Address line 1")
-          document.getElementById("businessAddress.line_2_field").text() must be("Address line 2")
-          document.getElementById("businessAddress.line_3_field").text() must be("Address line 3 (optional)")
-          document.getElementById("businessAddress.line_4_field").text() must be("Address line 4 (optional)")
-          document.getElementById("businessAddress.country_field").text() must include("Country")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
+          document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
+          document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
+          document.getElementsByAttributeValue("for", "businessAddress.line_3").text() must be("Address line 3 (optional)")
+          document.getElementsByAttributeValue("for", "businessAddress.line_4").text() must be("Address line 4 (optional)")
+          document.getElementsByAttributeValue("for", "businessAddress.country").text() must include("Country")
           document.getElementById("submit").text() must be("Continue")
         }
       }

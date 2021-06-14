@@ -49,7 +49,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
       val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
       currentBackLink map (backLink =>
         Ok(template(businessRegistrationForm.copy(data = newMapping),
-          service, displayDetails(businessType, service), backLink))
+          authContext.isAgent, service, displayDetails(businessType, service), backLink))
       )
     }
   }
@@ -58,7 +58,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service){ implicit authContext =>
       BusinessRegistrationForms.validateUK(businessRegistrationForm.bindFromRequest).fold(
         formWithErrors => currentBackLink map (backLink =>
-          BadRequest(template(formWithErrors, service, displayDetails(businessType, service), backLink))
+          BadRequest(template(formWithErrors, authContext.isAgent, service, displayDetails(businessType, service), backLink))
         ),
         registrationData => {
           businessRegistrationService.registerBusiness(

@@ -20,29 +20,31 @@
 
 @if(form.hasGlobalErrors || form.hasErrors) {
 
-  <div id="errors" tabindex="-1" role="group" aria-labelledby="form-error-heading" class="validation-summary">
-    <h1 class="heading-medium" id="form-error-heading">@messages("bc.business-verification-error.summaryHeader")</h1>
-    <ul class="error-summary-list">
-      @form.errors.map { error =>
-        @defining(
-          error.args.nonEmpty match {
-            case true => {
-              if (error.key.nonEmpty) {
-                error.key + (error.args.fold("") { _ + "." + _ })
-              } else {
-                error.args.head.toString
-              }
+<div id="errors" tabindex="-1" role="group" aria-labelledby="form-error-heading" class="govuk-error-summary">
+    <h1 class="govuk-error-summary__title" id="form-error-heading">@messages("bc.business-verification-error.summaryHeader")</h1>
+    <div class="govuk-error-summary__body">
+        <ul class="govuk-list govuk-error-summary__list">
+            @form.errors.map { error =>
+            @defining(
+            error.args.nonEmpty match {
+                case true => {
+                if (error.key.nonEmpty) {
+                    error.key + (error.args.fold("") { _ + "." + _ })
+                } else {
+                    error.args.head.toString
+                }
             }
-          case _ => { error.key }
-          }
-        )  { anchor:String =>
-             <li class="validation-message" data-journey="search-page:error:@error.key" id='@anchor.replaceAll("""[\.\[\]]""", "-")-error'>
-               <a href="#@anchor" class="error-list" data-focuses="@error.key">
-                 @messages(s"$errorMessageFieldPrefix.$anchor")
-               </a>
-             </li>
-           }
-      }
-    </ul>
-  </div>
+                case _ => { error.key }
+            }
+            )  { anchor:String =>
+                <li class="validation-message" data-journey="search-page:error:@error.key" id='@anchor.replaceAll("""[\.\[\]]""", "-")-error'>
+                <a href="#@anchor" class="error-list" data-focuses="@error.key">
+                    @messages(s"$errorMessageFieldPrefix.$anchor")
+                 </a>
+                </li>
+            }
+        }
+        </ul>
+    </div>
+</div>
 }
