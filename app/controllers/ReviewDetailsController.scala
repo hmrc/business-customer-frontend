@@ -21,7 +21,7 @@ import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import controllers.auth.AuthActions
 import javax.inject.Inject
 import play.api.Logging
-import play.api.i18n.Messages
+import play.api.i18n.{Messages, MessagesProvider}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.AgentRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -75,15 +75,15 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
     }
   }
 
-  private def formatErrorMessage(str: String): (String, String, String) = str match {
+  private def formatErrorMessage(str: String)(implicit messagesProvider: MessagesProvider): (String, String, String) = str match {
     case DuplicateUserError =>
-      ("bc.business-registration-error.duplicate.identifier.header",
-        "bc.business-registration-error.duplicate.identifier.title",
-        "bc.business-registration-error.duplicate.identifier.message")
+      (Messages("bc.business-registration-error.duplicate.identifier.header"),
+        Messages("bc.business-registration-error.duplicate.identifier.title"),
+        Messages("bc.business-registration-error.duplicate.identifier.message"))
     case WrongRoleUserError =>
-      ("bc.business-registration-error.wrong.role.header",
-        "bc.business-registration-error.wrong.role.title",
-        "bc.business-registration-error.wrong.role.message")
+      (Messages("bc.business-registration-error.wrong.role.header"),
+        Messages("bc.business-registration-error.wrong.role.title"),
+        Messages("bc.business-registration-error.wrong.role.message"))
   }
 
   def continue(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
