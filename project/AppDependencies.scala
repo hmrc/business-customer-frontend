@@ -5,11 +5,11 @@ object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-frontend-play-27" % "5.2.0",
+    "uk.gov.hmrc" %% "bootstrap-frontend-play-27" % "5.14.0",
     "uk.gov.hmrc" %% "domain" % "5.11.0-play-27",
     "uk.gov.hmrc" %% "play-partials" % "8.1.0-play-27",
-    "uk.gov.hmrc" %% "play-frontend-hmrc" % "0.65.0-play-27",
-    "uk.gov.hmrc" %% "http-caching-client" % "9.4.0-play-27",
+    "uk.gov.hmrc" %% "play-frontend-hmrc" % "1.17.0-play-27",
+    "uk.gov.hmrc" %% "http-caching-client" % "9.5.0-play-27",
     "com.typesafe.play" %% "play-json-joda" % "2.9.2",
     compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.1" cross CrossVersion.full),
     "com.github.ghik" % "silencer-lib" % "1.7.1" % Provided cross CrossVersion.full

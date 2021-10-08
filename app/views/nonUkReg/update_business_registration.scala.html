@@ -106,6 +106,7 @@
                       content = Text(Messages("bc.non-uk-reg.postcode"))
                   ),
                   classes = "govuk-input--width-10",
+                  attributes = Map("maxLength" -> "10")
              ).withFormField(businessRegistrationForm("businessAddress.postcode"))
           )
         }
