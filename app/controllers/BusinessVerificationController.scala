@@ -82,7 +82,8 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
             case Some("NUK") if service.equals("capital-gains-tax") =>
               redirectWithBackLink(businessRegController.controllerId, controllers.nonUKReg.routes.BusinessRegController.register(service, "NUK"), returnCall)
             case Some("NUK") if service.equals("ATED") && !authContext.isAgent =>
-              redirectToExternal(appConfig.conf.getConfString(s"ated.overseasSameAccountUrl", throw new Exception("")), Some(controllers.routes.BusinessVerificationController.businessVerification(service).url))
+              redirectToExternal(appConfig.conf.getConfString(s"ated.overseasSameAccountUrl", throw new Exception("")),
+                Some(controllers.routes.BusinessVerificationController.businessVerification(service).url))
             case Some("NUK") =>
               redirectWithBackLink(nrlQuestionController.controllerId, controllers.nonUKReg.routes.NRLQuestionController.view(service), returnCall)
             case Some("NEW") =>

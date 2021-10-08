@@ -20,7 +20,7 @@ import javax.inject.{Inject, Named}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.AuditExtensions
 import uk.gov.hmrc.play.audit.model.{Audit, DataEvent}
-import uk.gov.hmrc.play.bootstrap.audit.DefaultAuditConnector
+import uk.gov.hmrc.play.audit.DefaultAuditConnector
 
 class Auditable @Inject()(@Named("appName") val appName: String,
                           val auditConnector: DefaultAuditConnector) {

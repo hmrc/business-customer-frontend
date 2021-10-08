@@ -73,7 +73,7 @@
                     hint = Some(Hint(
                         content = Text(Messages("bc.business-registration.group.businessName.hintText"))
                     )),
-                    classes = "govuk-input--width-140"
+                    attributes = Map("maxLength" -> "140")
                 ).withFormField(businessRegistrationForm("businessName"))
             )
 
@@ -82,7 +82,7 @@
                     label = Label(
                         content = Text(Messages("bc.business-registration.line_1"))
                     ),
-                    classes = "govuk-input--width-35"
+                    attributes = Map("maxLength" -> "35")
                 ).withFormField(businessRegistrationForm("businessAddress.line_1"))
             )
 
@@ -91,7 +91,7 @@
                     label = Label(
                         content = Text(Messages("bc.business-registration.line_2"))
                     ),
-                    classes = "govuk-input--width-35"
+                    attributes = Map("maxLength" -> "35")
                 ).withFormField(businessRegistrationForm("businessAddress.line_2"))
             )
 
@@ -100,7 +100,7 @@
                     label = Label(
                         content = Text(Messages("bc.business-registration.group.line_3"))
                     ),
-                    classes = "govuk-input--width-35"
+                    attributes = Map("maxLength" -> "35")
                 ).withFormField(businessRegistrationForm("businessAddress.line_3"))
             )
 
@@ -109,7 +109,7 @@
                     label = Label(
                         content = Text(Messages("bc.business-registration.group.line_4"))
                     ),
-                    classes = "govuk-input--width-35"
+                    attributes = Map("maxLength" -> "35")
                 ).withFormField(businessRegistrationForm("businessAddress.line_4"))
             )
 
@@ -118,17 +118,14 @@
                     label = Label(
                         content = Text(Messages("bc.business-registration.postcode"))
                     ),
-                    classes = "govuk-input--width-10"
+                    classes = "govuk-input--width-10",
+                    attributes = Map("maxLength" -> "10")
                 ).withFormField(businessRegistrationForm("businessAddress.postcode"))
             )
-
       </div>
 
     <button class="govuk-button" id="submit" type="submit">@messages("bc.business-registration.submit")</button>
 
-
     <input type="hidden" class="govuk-input form-control" name="businessAddress.country" id="businessAddress.country" value="GB">
-
   }
-
 }

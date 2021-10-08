@@ -43,7 +43,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
 
   implicit val appConfig: ApplicationConfig = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
-  
+
   val controllerId: String = "ReviewDetailsController"
   private val DuplicateUserError = "duplicate user error"
   private val WrongRoleUserError = "wrong role user error"

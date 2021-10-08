@@ -83,7 +83,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   def agentConfirmationPath(service:String): String = {
     conf.getConfString(s"${service.toLowerCase}.agentConfirmationUrl", "/ated-subscription/agent-confirmation")
   }
-  
+
   def validateNonUkCode(service: String): Boolean = {
       conf.getConfBool(s"${service.toLowerCase.trim}.validateNonUkClientPostCode", defBool = false)
   }
