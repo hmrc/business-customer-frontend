@@ -101,26 +101,26 @@ bc.business-verification.back = Back
 bc.business-verification.submit = Register your agency
 bc.business-verification.submit.client = Continue
 
-bc.business-verification-error.firstname = You must enter a first name
+bc.business-verification-error.firstname = Enter a first name
 bc.business-verification-error.firstname.length = A first name cannot be more than 40 characters
-bc.business-verification-error.surname = You must enter a last name
+bc.business-verification-error.surname = Enter a last name
 bc.business-verification-error.surname.length = A last name cannot be more than 40 characters
-bc.business-verification-error.sautr = You must enter a Self Assessment Unique Taxpayer Reference
+bc.business-verification-error.sautr = Enter a Self Assessment Unique Taxpayer Reference (UTR)
 bc.business-verification-error.sautr.length = Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10
 bc.business-verification-error.utr = Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10.
-bc.business-verification-error.businessName = You must enter a registered company name
+bc.business-verification-error.businessName = Enter a registered company name
 bc.business-verification-error.businessName.length = A business name cannot be more than 105 characters
-bc.business-verification-error.cotaxutr = You must enter a Corporation Tax Unique Taxpayer Reference
+bc.business-verification-error.cotaxutr = Enter a Corporation Tax Unique Taxpayer Reference
 bc.business-verification-error.cotaxutr.length = Corporation Tax Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10
-bc.business-verification-error.psautr = You must enter a Partnership Self Assessment Unique Taxpayer Reference
+bc.business-verification-error.psautr = Enter a Partnership Self Assessment Unique Taxpayer Reference
 bc.business-verification-error.psautr.length = Partnership Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10
 bc.business-verification-error.invalidSAUTR = The Self Assessment Unique Taxpayer Reference is not valid
 bc.business-verification-error.invalidCOUTR = The Corporation Tax Unique Taxpayer Reference is not valid
 bc.business-verification-error.invalidPSAUTR = The Partnership Self Assessment Unique Taxpayer Reference is not valid
 bc.business-verification-error.not-found = Your business details have not been found. Check that your details are correct and try again.
-bc.business-registration-error.businessUniqueId.select = You must enter an overseas company registration number
-bc.business-registration-error.issuingCountry.select = You must enter a country that issued the overseas company registration number
-bc.business-registration-error.issuingInstitution.select = You must enter an institution that issued the overseas company registration number
+bc.business-registration-error.businessUniqueId.select = Enter an overseas company registration number
+bc.business-registration-error.issuingCountry.select = Enter the country that issued the overseas company registration number
+bc.business-registration-error.issuingInstitution.select = Enter an institution that issued the overseas company registration number
 bc.business-registration-error.duplicate.identifier.header = Somebody has already registered from your agency
 bc.business-registration-error.duplicate.identifier.title = Somebody has already registered from your agency
 bc.business-registration-error.duplicate.identifier.message = If you require access you need to <a href="https://myaccount.gateway.gov.uk/Pages/Credentials/Admin/List.aspx" target="_blank">add administrators to your account in Government Gateway.</a>
@@ -162,7 +162,7 @@ bc.business-registration.postcode = Postcode
 bc.business-registration.country = Country
 bc.business-registration.country.select = please select one country
 bc.business-registration-error.general.hasBusinessUniqueId = There is a problem with the overseas company registration number
-bc.business-registration-error.hasBusinessUniqueId.not-selected = You must select one option
+bc.business-registration-error.hasBusinessUniqueId.not-selected = Select yes if you have an overseas company registration number
 bc.business-registration.hasBusinessUniqueId = Do you have an overseas company registration number?
 bc.business-registration.hasBusinessUniqueId.help.question = What is an overseas tax reference?
 bc.business-registration.hasBusinessUniqueId.help.answer = Enter any overseas reference related to the property (for example the company registration number or tax reference from an overseas country).
@@ -176,10 +176,10 @@ bc.business-registration.cancel = Cancel
 bc.business-registration.back = Back
 bc.business-registration.search = Match
 
-bc.business-registration-error.businessName = You must enter a business name
-bc.business-registration-error.line_1 = You must enter an address into Address line 1
-bc.business-registration-error.line_2 = You must enter an address into Address line 2
-bc.business-registration-error.country = You must enter a country
+bc.business-registration-error.businessName = Enter a business name
+bc.business-registration-error.line_1 = Enter address line 1
+bc.business-registration-error.line_2 = Enter address line 2
+bc.business-registration-error.country = Enter a country
 bc.business-registration-error.businessName.length = The business name cannot be more than 105 characters
 bc.business-registration-error.line_1.length = Address line 1 cannot be more than 35 characters
 bc.business-registration-error.line_2.length = Address line 2 cannot be more than 35 characters
@@ -192,8 +192,8 @@ bc.business-registration-error.issuingInstitution.length = The institution that 
 bc.business-registration-error.summaryHeader = There is a problem with this page
 bc.business-registration-error.non-uk = You cannot select United Kingdom when entering an overseas address
 
-bc.business-registration-error.postcode = You must enter a postcode
-bc.business-registration-error.postcode.invalid = The postcode is invalid
+bc.business-registration-error.postcode = Enter a valid postcode
+bc.business-registration-error.postcode.invalid = Enter a valid postcode
 bc.business-registration-error.businessUniqueId = You must enter an overseas company registration number
 
 ##### ERRORS
@@ -205,11 +205,11 @@ bc.business-review.error.no-service = Service does not exist for : {0}. This sho
 bc.agent-service.error.no-agent-enrolment-service-name = Agent enrolment service name does not exist for : {0}. This should be in the conf file against ''services.{1}.agentEnrolmentService''
 bc.agent-service.error.no-registration-details = No registration details found
 
-bc.business-registration-error.general.businessName = There is a problem with the business name
-bc.business-registration-error.general.businessAddress.line_1 = There is a problem with address line 1
-bc.business-registration-error.general.businessAddress.line_2 = There is a problem with address line 2
-bc.business-registration-error.general.businessAddress.country = There is a problem with the country field
-bc.business-registration-error.general.businessAddress.postcode = There is a problem with the postal code
+bc.business-registration-error.general.businessName = Enter a business name
+bc.business-registration-error.general.businessAddress.line_1 = Enter address line 1
+bc.business-registration-error.general.businessAddress.line_2 = Enter address line 2
+bc.business-registration-error.general.businessAddress.country = Enter a country
+bc.business-registration-error.general.businessAddress.postcode = Enter a valid postal code
 
 bc.business-verification-error.general.businessAddress.line_1 = There is a problem with address line 1
 bc.business-verification-error.general.businessAddress.line_2 = There is a problem with address line 2
@@ -223,37 +223,37 @@ bc.business-verification-error.general.business-type-sop-form = Your business de
 bc.business-verification-error.general.business-type-nrl-form = Your business details have not been found. Check that your details are correct and try again.
 
 bc.business-verification-error.general.ltd.business-type-ltd-form = Your business details have not been found. Check that your details are correct and try again.
-bc.business-verification-error.general.ltd.businessName = There is a problem with the registered company name
-bc.business-verification-error.general.ltd.cotaxUTR = There is a problem with the Corporation Tax Unique Taxpayer Reference
+bc.business-verification-error.general.ltd.businessName = Enter a registered company name
+bc.business-verification-error.general.ltd.cotaxUTR = Enter a Corporation Tax Unique Taxpayer Reference
 
 bc.business-verification-error.general.obp.business-type-obp-form = Your business details have not been found. Check that your details are correct and try again.
 bc.business-verification-error.general.obp.businessName = There is a problem with the registered company name
-bc.business-verification-error.general.obp.psaUTR = There is a problem with the Partnership Self Assessment Unique Taxpayer Reference
+bc.business-verification-error.general.obp.psaUTR = Enter a Partnership Self Assessment Unique Taxpayer Reference
 
 bc.business-verification-error.general.lp.business-type-lp-form = Your business details have not been found. Check that your details are correct and try again.
 bc.business-verification-error.general.lp.businessName = There is a problem with the registered company name
-bc.business-verification-error.general.lp.psaUTR = There is a problem with the Partnership Self Assessment Unique Taxpayer Reference
+bc.business-verification-error.general.lp.psaUTR = Enter a Partnership Self Assessment Unique Taxpayer Reference
 
 bc.business-verification-error.general.llp.business-type-llp-form = Your business details have not been found. Check that your details are correct and try again.
 bc.business-verification-error.general.llp.businessName = There is a problem with the registered company name
-bc.business-verification-error.general.llp.psaUTR = There is a problem with the Partnership Self Assessment Unique Taxpayer Reference
+bc.business-verification-error.general.llp.psaUTR = Enter a Partnership Self Assessment Unique Taxpayer Reference
 
 bc.business-verification-error.general.ua.business-type-uib-form = Your business details have not been found. Check that your details are correct and try again.
 bc.business-verification-error.general.ua.businessName = There is a problem with the registered company name
 bc.business-verification-error.general.ua.cotaxUTR = There is a problem with the Corporation Tax Unique Taxpayer Reference
 
-bc.business-verification-error.general.firstName = There is a problem with the first name
-bc.business-verification-error.general.lastName = There is a problem with the last name
+bc.business-verification-error.general.firstName = Enter a first name
+bc.business-verification-error.general.lastName = Enter a last name
 
 bc.business-verification-error.general.psaUTR = There is a problem with the Partnership Self-Assessment Unique Taxpayer Reference
 bc.business-verification-error.general.cotaxUTR = There is a problem with the Corporation Tax Unique Taxpayer Reference
-bc.business-verification-error.general.saUTR = There is a problem with the Self-Assessment Unique Taxpayer Reference
+bc.business-verification-error.general.saUTR = Enter a Self Assessment Unique Taxpayer Reference
 
-bc.business-verification-error.general.businessName = There is a problem with the business name
+bc.business-verification-error.general.businessName = Enter a registered company name
 
 bc.business-verification-error.summaryHeader = There is a problem with this page
-bc.business-verification-error.general.businessType = There is a problem with the type of business question
-bc.business-verification-error.not-selected = Please select a type of business
+bc.business-verification-error.general.businessType = Select your type of business
+bc.business-verification-error.not-selected = Select your type of business
 bc.business-verification-error.general.business-type-llp-form = Your business details have not been found. Please check that your details are correct and try again
 
 bc.business-verification-error.type_of_business_organisation_invalid = You are logged in as an organisation with your Government Gateway ID. You cannot select sole trader or self-employed as your business type. You need to have an individual Government Gateway ID and enrol for Self Assessment online.
@@ -273,16 +273,16 @@ bc.nrl.header = Are you a non-resident landlord?
 bc.nrl.title = Are you a non-resident landlord?
 bc.nrl-question = What is a non-resident landlord?
 bc.nrl-answer = A non-resident landlord is someone who lives outside of the UK for 6 months or more a year, and receives rental income from a property or properties.
-bc.nrl-error.general.paysSA = There is a problem with the non-resident landlord question
-bc.nrl.paysSA.not-selected.error = You must select an option
+bc.nrl-error.general.paysSA = Select yes if you are a non-resident landlord
+bc.nrl.paysSA.not-selected.error = Select yes if you are a non-resident landlord
 
 ##### NON-UK CLIENT - PAYSA QUESTION PAGE
 
 bc.nonuk.paySA.subheader = {0} registration
 bc.nonuk.paySA.header = Do you pay tax in the UK through Self Assessment?
 bc.nonuk.paySA.title = Do you pay tax in the UK through Self Assessment?
-bc.nonuk.paySA.error.general.paySA = There is a problem with the do you pay Self Assessment question
-bc.nonuk.paySA.not-selected.error = You must answer the Self Assessment question
+bc.nonuk.paySA.error.general.paySA = Select yes if you pay tax in the UK through Self Assessment
+bc.nonuk.paySA.not-selected.error = Select yes if you pay tax in the UK through Self Assessment
 
 ##### NON-UK CLIENT - OVERSEAS COMPANY IDENTIFICATION
 
@@ -340,10 +340,10 @@ bc.non-uk-reg-error.general.businessAddress.line_4 = There is a problem with the
 bc.non-uk-reg-error.general.businessAddress.country = There is a problem with the country field
 bc.non-uk-reg-error.general.businessAddress.postcode = There is a problem with the postal code
 bc.non-uk-reg.country.select = please select one country
-bc.non-uk-reg-error.general.businessUniqueId = There is a problem with the overseas company registration number
-bc.non-uk-reg-error.general.issuingCountry = There is a problem with the country of issue
-bc.non-uk-reg-error.general.issuingInstitution = There is a problem with the institution of issue
-bc.non-uk-reg-error.general.hasBusinessUniqueId = There is a problem with the overseas company registration number
+bc.non-uk-reg-error.general.businessUniqueId = Enter an overseas company registration number
+bc.non-uk-reg-error.general.issuingCountry = Enter the country that issued the overseas company registration number
+bc.non-uk-reg-error.general.issuingInstitution = Enter an institution that issued the overseas company registration number
+bc.non-uk-reg-error.general.hasBusinessUniqueId = Select yes if you have an overseas company registration number
 bc.non-uk-reg-error.hasBusinessUniqueId.not-selected = You must select one option
 bc.non-uk-reg.hasBusinessUniqueId = Do they have an overseas company registration number?
 bc.non-uk-reg.hasBusinessUniqueId.help.question = What is an overseas company registration number?
