@@ -47,7 +47,7 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
       case "AWRS" =>
         Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", s"/awrs/logout")).withNewSession
       case _ =>
-        Redirect(controllers.routes.ApplicationController.signedOut()).withNewSession
+        Redirect(controllers.routes.ApplicationController.signedOut).withNewSession
     }
   }
 

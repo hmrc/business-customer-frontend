@@ -20,13 +20,14 @@ import config.ApplicationConfig
 import forms.BusinessRegistrationForms._
 import models.OverseasCompanyDisplayDetails
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen}
+import org.mockito.MockitoSugar
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.test.{FakeRequest, Injecting}
 
-class update_overseas_company_registrationSpec extends FeatureSpec with GuiceOneServerPerSuite with MockitoSugar
+class update_overseas_company_registrationSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with Injecting {
 
   val service = "ATED"
@@ -40,11 +41,11 @@ class update_overseas_company_registrationSpec extends FeatureSpec with GuiceOne
   implicit val lang = Lang.defaultLang
   implicit val appConfig = inject[ApplicationConfig]
 
-  feature("The user can view the overseas company registration question") {
+  Feature("The user can view the overseas company registration question") {
 
     info("as a client i want to be able to view the overseas company registration question page")
 
-    scenario("return overseas company registration view for a client") {
+    Scenario("return overseas company registration view for a client") {
 
       Given("the client has a non uk company and the arrive at the overseas company registration")
       When("The user views the page")

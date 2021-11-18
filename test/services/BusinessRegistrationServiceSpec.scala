@@ -16,22 +16,18 @@
 
 package services
 
-import java.util.UUID
-
 import builders.AuthBuilder
 import connectors.{BusinessCustomerConnector, DataCacheConnector}
 import models._
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException}
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

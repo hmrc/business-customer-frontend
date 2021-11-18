@@ -53,7 +53,7 @@ trait AuthActions extends AuthorisedFunctions with Logging {
       Redirect(loginURL, loginParams(serviceName))
     case e: AuthorisationException =>
       logger.error(s"[recoverAuthorisedCalls] Auth exception: $e")
-      Redirect(controllers.routes.ApplicationController.unauthorised())
+      Redirect(controllers.routes.ApplicationController.unauthorised)
   }
 
   def authorisedFor(serviceName: String)(body: StandardAuthRetrievals => Future[Result])

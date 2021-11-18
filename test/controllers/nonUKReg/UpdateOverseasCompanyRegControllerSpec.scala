@@ -16,15 +16,11 @@
 
 package controllers.nonUKReg
 
-import java.util.UUID
-
 import config.ApplicationConfig
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
@@ -37,6 +33,7 @@ import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import views.html.nonUkReg.update_overseas_company_registration
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {

@@ -18,13 +18,13 @@ package forms
 
 import config.ApplicationConfig
 import models.BusinessRegistration
-import org.scalatest.MustMatchers
+import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.data.Form
 import play.api.test.Injecting
 
-class BusinessRegistrationFormsSpec extends PlaySpec with MustMatchers with GuiceOneServerPerSuite with Injecting {
+class BusinessRegistrationFormsSpec extends PlaySpec with Matchers with GuiceOneServerPerSuite with Injecting {
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
 

@@ -16,27 +16,23 @@
 
 package connectors
 
-import java.util.UUID
-
 import audit.Auditable
 import com.codahale.metrics.Timer
 import config.ApplicationConfig
 import metrics.MetricsService
 import models._
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.api.test.Injecting
 import uk.gov.hmrc.http._
-
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.GovernmentGatewayConstants
 
+import java.util.UUID
 import scala.concurrent.Future
 
 

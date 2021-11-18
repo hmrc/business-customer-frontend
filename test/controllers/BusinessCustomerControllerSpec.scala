@@ -16,16 +16,12 @@
 
 package controllers
 
-import java.util.UUID
-
 import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.DataCacheConnector
 import models.{Address, ReviewDetails}
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.{Headers, MessagesControllerComponents}
@@ -34,6 +30,7 @@ import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HttpResponse
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {

@@ -16,12 +16,13 @@
 
 package utils
 
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.test.Injecting
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.RedirectUtils.asRelativeUrl
 
-class RedirectUtilsSpec extends UnitSpec with GuiceOneAppPerTest with Injecting {
+class RedirectUtilsSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerTest with Injecting {
 
   "asRelativeUrl" should {
 

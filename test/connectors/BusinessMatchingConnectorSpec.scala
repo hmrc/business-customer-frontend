@@ -17,24 +17,21 @@
 package connectors
 
 
-import java.util.UUID
 import audit.Auditable
 import builders.AuthBuilder
 import config.ApplicationConfig
 import models.{MatchBusinessData, StandardAuthRetrievals}
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http._
-
 import uk.gov.hmrc.play.audit.DefaultAuditConnector
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
