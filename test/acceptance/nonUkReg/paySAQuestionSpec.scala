@@ -19,24 +19,25 @@ package acceptance.nonUkReg
 import config.ApplicationConfig
 import forms.BusinessRegistrationForms._
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen}
+import org.mockito.MockitoSugar
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.test.{FakeRequest, Injecting}
 
-class paySAQuestionSpec extends FeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Injecting {
+class paySAQuestionSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Injecting {
 
   val service = "ATED"
   val injectedViewInstance = inject[views.html.nonUkReg.paySAQuestion]
   implicit val lang = Lang.defaultLang
   implicit val appConfig = inject[ApplicationConfig]
 
-  feature("The user can the pay SA question") {
+  Feature("The user can the pay SA question") {
 
     info("as a user i want to be able to view the Pay SA question page")
 
-    scenario("return Pay SA Question view for a user") {
+    Scenario("return Pay SA Question view for a user") {
 
       Given("client has directly matched a business registration")
       When("The user views the page")

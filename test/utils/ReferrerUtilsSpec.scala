@@ -17,14 +17,15 @@
 package utils
 
 import config.ApplicationConfig
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.i18n.MessagesApi
 import play.api.mvc.{AnyContent, MessagesRequest}
 import play.api.test.{FakeRequest, Injecting}
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.ReferrerUtils.getReferrer
 
-class ReferrerUtilsSpec extends UnitSpec with GuiceOneAppPerTest with Injecting {
+class ReferrerUtilsSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerTest with Injecting {
 
   "getReferrer" should {
 

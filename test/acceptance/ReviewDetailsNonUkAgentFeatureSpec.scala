@@ -19,13 +19,15 @@ package acceptance
 import config.ApplicationConfig
 import models.{Address, Identification, ReviewDetails}
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen, Matchers}
+import org.mockito.MockitoSugar
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.test.{FakeRequest, Injecting}
 
-class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite with MockitoSugar
+class ReviewDetailsNonUkAgentFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with Matchers with Injecting {
 
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
@@ -36,11 +38,11 @@ class ReviewDetailsNonUkAgentFeatureSpec extends FeatureSpec with GuiceOneServer
   implicit val appConfig = inject[ApplicationConfig]
   val injectedViewInstance = inject[views.html.review_details_non_uk_agent]
 
-  feature("The user can view the review details page for a non uk agent") {
+  Feature("The user can view the review details page for a non uk agent") {
 
     info("as a user i want to be able to view my review details page")
 
-    scenario("return Review Details view for an agent, when agent can't be directly found with login credentials and the reg is editable") {
+    Scenario("return Review Details view for an agent, when agent can't be directly found with login credentials and the reg is editable") {
 
       Given("An agent has an editable business registration details")
       When("The user views the page")

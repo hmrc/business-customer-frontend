@@ -16,16 +16,12 @@
 
 package controllers
 
-import java.util.UUID
-
 import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import org.jsoup.Jsoup
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, Messages}
@@ -38,6 +34,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html._
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {

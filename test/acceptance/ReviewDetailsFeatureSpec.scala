@@ -19,13 +19,14 @@ package acceptance
 import config.ApplicationConfig
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, FeatureSpec, GivenWhenThen}
+import org.mockito.MockitoSugar
+import org.scalatest.featurespec.AnyFeatureSpec
+import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.test.{FakeRequest, Injecting}
 
-class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Injecting {
+class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Injecting {
 
   val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
   val reviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true, Some("agent123"))
@@ -34,11 +35,11 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite w
   implicit val appConfig = inject[ApplicationConfig]
   val injectedViewInstance = inject[views.html.review_details]
 
-  feature("The user can view the review details page") {
+  Feature("The user can view the review details page") {
 
     info("as a user i want to be able to view my review details page")
 
-    scenario("return Review Details view for a user, when we directly found this user") {
+    Scenario("return Review Details view for a user, when we directly found this user") {
 
       Given("client has directly matched a business registration")
       When("The user views the page")
@@ -73,7 +74,7 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite w
         .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
     }
 
-    scenario("return Review Details view for a user, when user can't be directly found with login credentials") {
+    Scenario("return Review Details view for a user, when user can't be directly found with login credentials") {
 
       Given("An agent has an editable business registration details")
       When("The user views the page")
@@ -106,7 +107,7 @@ class ReviewDetailsFeatureSpec extends FeatureSpec with GuiceOneServerPerSuite w
         .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
     }
 
-    scenario("return Review Details view for an agent, when we directly found this") {
+    Scenario("return Review Details view for an agent, when we directly found this") {
 
       Given("An agent has an editable business registration details")
       When("The user views the page")

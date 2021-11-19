@@ -16,9 +16,10 @@
 
 package utils
 
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class ValidateUriSpec extends UnitSpec {
+class ValidateUriSpec extends AnyWordSpecLike with Matchers {
 
   "ValidateUriSpec" should {
 
