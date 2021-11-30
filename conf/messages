@@ -110,6 +110,9 @@ bc.business-verification-error.sautr.length = Self Assessment Unique Taxpayer Re
 bc.business-verification-error.utr = Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10.
 bc.business-verification-error.businessName = Enter a registered company name
 bc.business-verification-error.businessName.length = A business name cannot be more than 105 characters
+bc.business-verification-error.businessPartnerName = Enter a registered partnership name
+bc.business-verification-error.businessPartnerName.length = A partnership business name cannot be more than 105 characters
+
 bc.business-verification-error.cotaxutr = Enter a Corporation Tax Unique Taxpayer Reference
 bc.business-verification-error.cotaxutr.length = Corporation Tax Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10
 bc.business-verification-error.psautr = Enter a Partnership Self Assessment Unique Taxpayer Reference
@@ -129,6 +132,7 @@ bc.business-registration-error.wrong.role.title = You must be logged in as an ad
 bc.business-registration-error.wrong.role.message = If you require access you need to <a href="https://myaccount.gateway.gov.uk/Pages/Credentials/Admin/List.aspx" target="_blank">add administrators to your account in Government Gateway.</a>
 
 bc.business-verification-error.registeredName.length = The registered company name cannot be more than 105 characters
+bc.business-verification-error.registeredPartnerName.length = The registered partnership name cannot be more than 105 characters
 
 ##### UNAUTHORISED PAGE
 
@@ -211,11 +215,11 @@ bc.business-registration-error.general.businessAddress.line_2 = Enter address li
 bc.business-registration-error.general.businessAddress.country = Enter a country
 bc.business-registration-error.general.businessAddress.postcode = Enter a valid postal code
 
-bc.business-verification-error.general.businessAddress.line_1 = There is a problem with address line 1
-bc.business-verification-error.general.businessAddress.line_2 = There is a problem with address line 2
+bc.business-verification-error.general.businessAddress.line_1 = Enter address line 1
+bc.business-verification-error.general.businessAddress.line_2 = Enter address line 2
 bc.business-registration-error.general.businessAddress.line_3 = There is a problem with address line 3
 bc.business-registration-error.general.businessAddress.line_4 = There is a problem with address line 4
-bc.business-verification-error.general.businessAddress.postcode = There is a problem with the postal code
+bc.business-verification-error.general.businessAddress.postcode = Enter a valid postal code
 bc.business-registration-error.general.businessUniqueId = There is a problem with the overseas company registration number
 bc.business-registration-error.general.issuingInstitution = There is a problem with the institution of issue
 bc.business-registration-error.general.issuingCountry = There is a problem with the country of issue
@@ -227,20 +231,20 @@ bc.business-verification-error.general.ltd.businessName = Enter a registered com
 bc.business-verification-error.general.ltd.cotaxUTR = Enter a Corporation Tax Unique Taxpayer Reference
 
 bc.business-verification-error.general.obp.business-type-obp-form = Your business details have not been found. Check that your details are correct and try again.
-bc.business-verification-error.general.obp.businessName = There is a problem with the registered company name
+bc.business-verification-error.general.obp.businessName = Enter a registered partnership name
 bc.business-verification-error.general.obp.psaUTR = Enter a Partnership Self Assessment Unique Taxpayer Reference
 
 bc.business-verification-error.general.lp.business-type-lp-form = Your business details have not been found. Check that your details are correct and try again.
-bc.business-verification-error.general.lp.businessName = There is a problem with the registered company name
+bc.business-verification-error.general.lp.businessName = Enter a registered partnership name
 bc.business-verification-error.general.lp.psaUTR = Enter a Partnership Self Assessment Unique Taxpayer Reference
 
 bc.business-verification-error.general.llp.business-type-llp-form = Your business details have not been found. Check that your details are correct and try again.
-bc.business-verification-error.general.llp.businessName = There is a problem with the registered company name
+bc.business-verification-error.general.llp.businessName = Enter a registered company name
 bc.business-verification-error.general.llp.psaUTR = Enter a Partnership Self Assessment Unique Taxpayer Reference
 
 bc.business-verification-error.general.ua.business-type-uib-form = Your business details have not been found. Check that your details are correct and try again.
-bc.business-verification-error.general.ua.businessName = There is a problem with the registered company name
-bc.business-verification-error.general.ua.cotaxUTR = There is a problem with the Corporation Tax Unique Taxpayer Reference
+bc.business-verification-error.general.ua.businessName = Enter a registered company name
+bc.business-verification-error.general.ua.cotaxUTR = Enter a Corporation Tax Unique Taxpayer Reference
 
 bc.business-verification-error.general.firstName = Enter a first name
 bc.business-verification-error.general.lastName = Enter a last name
@@ -249,7 +253,7 @@ bc.business-verification-error.general.psaUTR = There is a problem with the Part
 bc.business-verification-error.general.cotaxUTR = There is a problem with the Corporation Tax Unique Taxpayer Reference
 bc.business-verification-error.general.saUTR = Enter a Self Assessment Unique Taxpayer Reference
 
-bc.business-verification-error.general.businessName = Enter a registered company name
+bc.business-verification-error.general.businessName = Enter a business name
 
 bc.business-verification-error.summaryHeader = There is a problem with this page
 bc.business-verification-error.general.businessType = Select your type of business

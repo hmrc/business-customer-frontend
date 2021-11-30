@@ -203,8 +203,8 @@ object BusinessVerificationForms extends BCUtils {
 
   val ordinaryBusinessPartnershipForm = Form(mapping(
     "businessName" -> text
-      .verifying("bc.business-verification-error.businessName", x => x.trim.length > length0)
-      .verifying("bc.business-verification-error.registeredName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
+      .verifying("bc.business-verification-error.businessPartnerName", x => x.trim.length > length0)
+      .verifying("bc.business-verification-error.registeredPartnerName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
     "psaUTR" -> text
       .verifying("bc.business-verification-error.psautr", x => x.replaceAll(" ", "").length > length0)
       .verifying("bc.business-verification-error.psautr.length", x => {
@@ -234,8 +234,8 @@ object BusinessVerificationForms extends BCUtils {
   )(LimitedLiabilityPartnershipMatch.apply)(LimitedLiabilityPartnershipMatch.unapply))
   val limitedPartnershipForm = Form(mapping(
     "businessName" -> text
-      .verifying("bc.business-verification-error.businessName", x => x.trim.length > length0)
-      .verifying("bc.business-verification-error.registeredName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
+      .verifying("bc.business-verification-error.businessPartnerName", x => x.trim.length > length0)
+      .verifying("bc.business-verification-error.registeredPartnerName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
     "psaUTR" -> text
       .verifying("bc.business-verification-error.psautr", x => x.replaceAll(" ", "").length > length0)
       .verifying("bc.business-verification-error.psautr.length", x => {
