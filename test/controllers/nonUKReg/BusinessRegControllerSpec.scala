@@ -181,11 +181,11 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
           submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
             status(result) must be(BAD_REQUEST)
-            contentAsString(result) must include("You must enter a business name")
-            contentAsString(result) must include("You must enter an address into Address line 1")
-            contentAsString(result) must include("You must enter an address into Address line 2")
+            contentAsString(result) must include("Enter a business name")
+            contentAsString(result) must include("Enter address line 1")
+            contentAsString(result) must include("Enter address line 2")
             contentAsString(result) mustNot include("Postcode must be entered")
-            contentAsString(result) must include("You must enter a country")
+            contentAsString(result) must include("Enter a country")
           }
         }
 
@@ -196,7 +196,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           (createJson(line2 = "a" * 36), "If entered, Address line 2 must be maximum of 35 characters", "Address line 2 cannot be more than 35 characters"),
           (createJson(line3 = "a" * 36), "Address line 3 is optional but if entered, must be maximum of 35 characters", "Address line 3 cannot be more than 35 characters"),
           (createJson(line4 = "a" * 36), "Address line 4 is optional but if entered, must be maximum of 35 characters", "Address line 4 cannot be more than 35 characters"),
-          (createJson(postcode = "a" * 11), "Postcode is optional but if entered, must be maximum of 10 characters", "There is a problem with the postal code"),
+          (createJson(postcode = "a" * 11), "Postcode is optional but if entered, must be maximum of 10 characters", "Enter a valid postal code"),
           (createJson(country = "GB"), "show an error if country is selected as GB", "You cannot select United Kingdom when entering an overseas address")
         )
 

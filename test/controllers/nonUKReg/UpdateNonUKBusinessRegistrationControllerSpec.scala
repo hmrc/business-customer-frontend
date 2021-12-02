@@ -265,11 +265,11 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson)) { result =>
             status(result) must be(BAD_REQUEST)
-            contentAsString(result) must include("You must enter a business name")
-            contentAsString(result) must include("You must enter an address into Address line 1")
-            contentAsString(result) must include("You must enter an address into Address line 2")
-            contentAsString(result) mustNot include("Postcode must be entered")
-            contentAsString(result) must include("You must enter a country")
+            contentAsString(result) must include("Enter a business name")
+            contentAsString(result) must include("Enter address line 1")
+            contentAsString(result) must include("Enter address line 2")
+            contentAsString(result) mustNot include("Enter a valid postcode")
+            contentAsString(result) must include("Enter a country")
           }
         }
 

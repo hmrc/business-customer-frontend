@@ -145,9 +145,9 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
 
           registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(businessReg), overseasDetails,reviewDetails) { result =>
             status(result) must be(BAD_REQUEST)
-            contentAsString(result) must include("You must enter a country that issued the overseas company registration number")
-            contentAsString(result) must include("You must enter an institution that issued the overseas company registration number")
-            contentAsString(result) must include("You must enter an overseas company registration number")
+            contentAsString(result) must include("Enter the country that issued the overseas company registration number")
+            contentAsString(result) must include("Enter an institution that issued the overseas company registration number")
+            contentAsString(result) must include("Enter an overseas company registration number")
           }
         }
 

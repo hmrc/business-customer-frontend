@@ -168,7 +168,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       "selecting continue with no business type selected must display error message" in new Setup {
         continueWithAuthorisedUserJson(controller, "", FakeRequest().withJsonBody(Json.parse( """{"businessType" : ""}"""))) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("Please select a type of business")
+          contentAsString(result) must include("Select your type of business")
         }
       }
 
@@ -307,7 +307,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
     }
 
-    "when selecting None Resident Landord option" must {
+    "when selecting None Resident Landlord option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
         continueWithAuthorisedUserJson(controller, "NRL", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NRL"}"""))) { result =>
