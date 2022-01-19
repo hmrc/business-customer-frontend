@@ -14,15 +14,12 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.hmrcfrontend.config.AccessibilityStatementConfig
-@import uk.gov.hmrc.hmrcfrontend.views.Aliases.ReportTechnicalIssue
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcReportTechnicalIssueHelper
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcReportTechnicalIssue
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.En
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcLayout
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardHeader
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcHead
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcScripts
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTimeoutDialogHelper
 @import views.html.helper.CSPNonce
 @import config.ApplicationConfig
@@ -31,13 +28,10 @@
 
 @this(
     hmrcLayout: HmrcLayout,
-    hmrcHead: HmrcHead,
-    hmrcScripts: HmrcScripts,
     hmrcStandardHeader: HmrcStandardHeader,
     hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
     hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
-    problemLink: HmrcReportTechnicalIssue,
-    accessibilityStatementConfig: AccessibilityStatementConfig
+    problemLinkHelper: HmrcReportTechnicalIssueHelper,
 )
 
 @(pageTitle: Option[String] = None, scripts: Option[Html],service: String)(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
@@ -47,12 +41,7 @@
 
 @content = {
     @contentBlock
-
-    @problemLink(
-        ReportTechnicalIssue(serviceCode = "business-customer-frontend", language = messages.lang.code match {
-            case "en" | "en-GB" => En
-        }, classes = Some("print-hidden"))
-    )
+    @problemLinkHelper()
 }
 
 @allScripts = {
