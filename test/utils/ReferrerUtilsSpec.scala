@@ -17,6 +17,7 @@
 package utils
 
 import config.ApplicationConfig
+import org.mockito.MockitoSugar.{mock, when}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
@@ -29,8 +30,19 @@ class ReferrerUtilsSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPe
 
   "getReferrer" should {
 
-    "return an encoded url containing the request app host and request path" in {
+    "return an encoded url containing a non defined platform host config val and request path" in {
       implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+      implicit val request: MessagesRequest[AnyContent] =
+        new MessagesRequest[AnyContent](FakeRequest("GET", "/a-uri"), inject[MessagesApi])
+
+      getReferrer() should be("%2Fa-uri")
+    }
+
+
+    "return an encoded url containing a defined platform host config val and request path" in {
+      implicit val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
+      when(mockAppConfig.platformHost).thenReturn("http://localhost:9923")
+
       implicit val request: MessagesRequest[AnyContent] =
         new MessagesRequest[AnyContent](FakeRequest("GET", "/a-uri"), inject[MessagesApi])
 

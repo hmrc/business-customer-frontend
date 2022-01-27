@@ -71,7 +71,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
       assert(document.select(".govuk-button").text === ("Confirm"))
       assert(document.getElementById("bus-reg-edit") === null)
       assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
-        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=%2F")
     }
 
     Scenario("return Review Details view for a user, when user can't be directly found with login credentials") {
@@ -104,7 +104,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
       assert(document.select(".govuk-button").text === "Confirm")
       assert(document.getElementById("bus-reg-edit") === null)
       assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
-        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=%2F")
     }
 
     Scenario("return Review Details view for an agent, when we directly found this") {
@@ -134,7 +134,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       And("There is a link to the accessibility statement")
       assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
-        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=http%3A%2F%2Flocalhost%3A9923%2F")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=%2F")
     }
   }
 }
