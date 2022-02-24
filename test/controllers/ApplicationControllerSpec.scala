@@ -116,8 +116,13 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         redirectLocation(result).get must include("/alcohol-wholesale-scheme/logout")
       }
 
-      "be redirected to the logout page for any other service other than ATED and AWRS" in new Setup {
+      "be redirected to the Bas Gateway page for AMLS service" in new Setup {
         val result = controller.logout("AMLS").apply(FakeRequest())
+        redirectLocation(result).get must include("/bas-gateway/sign-out-without-state")
+      }
+
+      "be redirected to the logout page for any other service other than ATED, AWRS and AMLS" in new Setup {
+        val result = controller.logout("TEST").apply(FakeRequest())
         redirectLocation(result).get must include("/business-customer/signed-out")
       }
 
