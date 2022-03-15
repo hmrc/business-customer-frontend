@@ -16,7 +16,11 @@
 
 package models
 
-import play.api.libs.json.{Format, Json}
+import config.BCUtils
+import play.api.Environment
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.Reads.verifying
+import play.api.libs.json._
 
 case class OverseasCompanyDisplayDetails(title: String,
                                          header: String,
@@ -43,8 +47,18 @@ case class Address(line_1: String,
   }
 }
 
-object Address {
-  implicit val formats: Format[Address] = Json.format[Address]
+object Address extends BCUtils {
+
+  override val environment: Environment = Environment.simple()
+  implicit val writes: Writes[Address] = Json.writes[Address]
+  implicit val read: Reads[Address] = (
+    (JsPath \ "line_1").read[String] and
+    (JsPath \ "line_2").read[String] and
+    (JsPath \ "line_3").readNullable[String] and
+    (JsPath \ "line_4").readNullable[String] and
+    (JsPath \ "postcode").readNullable[String] and
+    (JsPath \ "country").read[String](verifying[String](cc => getSelectedCountry(cc) != cc))
+    )(Address.apply _)
 }
 
 case class BusinessRegistration(businessName: String,

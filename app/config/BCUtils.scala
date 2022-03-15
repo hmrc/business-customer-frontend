@@ -153,3 +153,4 @@ trait BCUtils {
     } else str.trim
   }
 }
+
