@@ -55,6 +55,5 @@ class BusinessRegistrationModelsSpec extends PlaySpec {
       Json.fromJson[Address](jsonCountry("UK")) must matchPattern { case JsError(_) => }
     }
   }
-q
 
 }

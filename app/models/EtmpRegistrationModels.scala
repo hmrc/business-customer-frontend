@@ -20,6 +20,11 @@ import org.joda.time.LocalDate
 import play.api.libs.json.JodaReads.DefaultJodaLocalDateReads
 import play.api.libs.json.JodaWrites.DefaultJodaLocalDateWrites
 import play.api.libs.json.{Format, Json}
+import config.BCUtils
+import play.api.Environment
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.Reads.verifying
+import play.api.libs.json._
 
 case class EtmpAddress(addressLine1: String,
                        addressLine2: String,
@@ -28,8 +33,22 @@ case class EtmpAddress(addressLine1: String,
                        postalCode: Option[String],
                        countryCode: String)
 
-object EtmpAddress {
-  implicit val formats: Format[EtmpAddress] = Json.format[EtmpAddress]
+//object EtmpAddress {
+//  implicit val formats: Format[EtmpAddress] = Json.format[EtmpAddress]
+//}
+
+object EtmpAddress extends BCUtils {
+
+  override val environment: Environment = Environment.simple()
+  implicit val writes: Writes[EtmpAddress] = Json.writes[EtmpAddress]
+  implicit val read: Reads[EtmpAddress] = (
+    (JsPath \ "addressLine1").read[String] and
+      (JsPath \ "addressLine2").read[String] and
+      (JsPath \ "addressLine3").readNullable[String] and
+      (JsPath \ "addressLine4").readNullable[String] and
+      (JsPath \ "postalCode").readNullable[String] and
+      (JsPath \ "countryCode").read[String](verifying[String](cc => getSelectedCountry(cc) != cc))
+    )(EtmpAddress.apply _)
 }
 
 case class EtmpOrganisation(organisationName: String)

@@ -82,7 +82,8 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
   private def validateAndCache(dataReturned: JsValue, directMatch: Boolean, utr: Option[String],
                                orgType : Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
     val isFailureResponse = dataReturned.validate[MatchFailureResponse].isSuccess
-    if (isFailureResponse) Future.successful(dataReturned)
+    val addressError = (dataReturned \ "address").validate[EtmpAddress].isError
+    if (isFailureResponse || addressError) Future.successful(dataReturned)
     else {
       val isAnIndividual = (dataReturned \ "isAnIndividual").as[Boolean]
       if (isAnIndividual) cacheIndividual(dataReturned, directMatch, utr)
