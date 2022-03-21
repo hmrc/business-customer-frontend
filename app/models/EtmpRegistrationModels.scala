@@ -33,10 +33,6 @@ case class EtmpAddress(addressLine1: String,
                        postalCode: Option[String],
                        countryCode: String)
 
-//object EtmpAddress {
-//  implicit val formats: Format[EtmpAddress] = Json.format[EtmpAddress]
-//}
-
 object EtmpAddress extends BCUtils {
 
   override val environment: Environment = Environment.simple()

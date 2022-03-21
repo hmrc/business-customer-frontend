@@ -32,7 +32,7 @@ import scala.concurrent.Future
 class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
   val utr = "1234567890"
-  val testAddress = Address("address line 1", "address line 2", Some("address line 3"), Some("address line 4"), Some("AA1 1AA"), "UK")
+  val testAddress = Address("address line 1", "address line 2", Some("address line 3"), Some("address line 4"), Some("AA1 1AA"), "GB")
   val testReviewDetails = ReviewDetails(businessName = "ACME",
     businessType = Some("Limited"),
     businessAddress = testAddress,
@@ -64,7 +64,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
       |    "addressLine3": "address line 3",
       |    "addressLine4": "address line 4",
       |    "postalCode": "AA1 1AA",
-      |    "countryCode": "UK"
+      |    "countryCode": "GB"
       |  },
       |  "contactDetails": {
       |    "phoneNumber": "1234567890"
@@ -91,7 +91,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
       |    "addressLine3": "address line 3",
       |    "addressLine4": "address line 4",
       |    "postalCode": "AA1 1AA",
-      |    "countryCode": "UK"
+      |    "countryCode": "GB"
       |  },
       |  "contactDetails": {
       |    "phoneNumber": "1234567890"
@@ -130,7 +130,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
       |    "addressLine3": "address line 3",
       |    "addressLine4": "address line 4",
       |    "postalCode": "AA1 1AA",
-      |    "countryCode": "UK"
+      |    "countryCode": "GB"
       |  },
       |  "contactDetails": {
       |    "phoneNumber": "1234567890"
@@ -322,7 +322,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
             |    "addressLine3": "address line 3",
             |    "addressLine4": "address line 4",
             |    "postalCode": "AA1 1AA",
-            |    "countryCode": "UK"
+            |    "countryCode": "GB"
             |  },
             |  "contactDetails": {
             |    "phoneNumber": "1234567890"
@@ -342,7 +342,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
       }
 
       "for match found with SA user, throw an exception when no Address" in {
-        val successNoSapNo = Json.parse(
+        val successNoAddress = Json.parse(
           """
             |{
             |  "sapNumber": "1234567890",
@@ -364,7 +364,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
         implicit val saUser = AuthBuilder.createSaUser()
 
         when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(successNoSapNo))
+          .thenReturn(Future.successful(successNoAddress))
         when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         val thrown = the[RuntimeException] thrownBy await(result)

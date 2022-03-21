@@ -49,11 +49,9 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
   val mockBusinessVerificationController = mock[BusinessVerificationController]
   val mockReviewDetailsController = mock[ReviewDetailsController]
 
-  val testAddress = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
-  val addressNoCountry = Address("line 1", "line 2", Some("line 3"), Some("line 4"), None, "")
+  val testAddress = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
 
   val testReviewDetails = ReviewDetails("ACME", Some("Limited"), testAddress, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
-  val reviewDetailsNoCountry = ReviewDetails("ACME", Some("Limited"), addressNoCountry, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
   val appConfig = inject[ApplicationConfig]
   implicit val mcc = inject[MessagesControllerComponents]
@@ -117,22 +115,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
                 verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any())
             }
           }
-
-          "if match fails validation, be redirected to Business verification page" in {
-            when(mockBusinessVerificationControllerProv.get())
-              .thenReturn(mockBusinessVerificationController)
-            when(mockBusinessVerificationController.controllerId)
-              .thenReturn("test")
-
-            getWithAuthorisedUserJsonValidateError {
-              result =>
-                status(result) must be(SEE_OTHER)
-                redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
-                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any())
-            }
-          }
         }
-
         "if has no UTR, be redirected to Business verification page" in {
           when(mockBusinessVerificationControllerProv.get())
             .thenReturn(mockBusinessVerificationController)
@@ -184,18 +167,6 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
     val notFound = Json.parse( """{"Reason" : "Text from reason column"}""")
     when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Some(Future.successful(notFound)))
-    val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
-    test(result)
-  }
-
-  def getWithAuthorisedUserJsonValidateError(test: Future[Result] => Any) {
-    val userId = s"user-${UUID.randomUUID}"
-    AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    val json = Json.toJson(reviewDetailsNoCountry)
-    when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-      .thenReturn(Some(Future.successful(json)))
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
   }

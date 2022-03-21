@@ -45,6 +45,15 @@ case class Address(line_1: String,
 
 object Address {
   implicit val formats: Format[Address] = Json.format[Address]
+
+  def apply(etmpAddress: EtmpAddress): Address =
+    Address(
+      line_1 = etmpAddress.addressLine1,
+      line_2 = etmpAddress.addressLine2,
+      line_3 = etmpAddress.addressLine3,
+      line_4 = etmpAddress.addressLine4,
+      postcode = etmpAddress.postalCode,
+      country = etmpAddress.countryCode)
 }
 
 case class BusinessRegistration(businessName: String,
