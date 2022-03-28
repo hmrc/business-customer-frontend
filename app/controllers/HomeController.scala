@@ -49,15 +49,25 @@ class HomeController @Inject()(val authConnector: AuthConnector,
         case Some(futureJsValue) =>
           futureJsValue flatMap {
             jsValue =>
-              jsValue.validate[ReviewDetails] match {
-                case _: JsSuccess[ReviewDetails] =>
-                  redirectWithBackLink(
-                    reviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), backLinkUrl
-                  )
-                case _: JsError =>
+              jsValue match {
+                case Right(js) =>
+                  js.validate[ReviewDetails] match {
+                    case _: JsSuccess[ReviewDetails] =>
+                      redirectWithBackLink(
+                        reviewDetailsController.controllerId,
+                        controllers.routes.ReviewDetailsController.businessDetails (service), backLinkUrl
+                      )
+                    case _: JsError =>
+                      redirectWithBackLink(
+                        businessVerificationController.get.controllerId,
+                        controllers.routes.BusinessVerificationController.businessVerification (service), backLinkUrl
+                      )
+                  }
+                case Left(failure) =>
+                  logger.warn(s"[HomeController][homePage] - Business matching lookup failed with failure: ${failure.reason}, redirecting to business verification")
                   redirectWithBackLink(
                     businessVerificationController.get.controllerId,
-                    controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl
+                    controllers.routes.BusinessVerificationController.businessVerification (service), backLinkUrl
                   )
               }
           }

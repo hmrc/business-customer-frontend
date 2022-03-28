@@ -153,17 +153,19 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       unincorporatedFormData => {
         val organisation = Organisation(unincorporatedFormData.businessName, UnincorporatedBody)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
-          organisation = organisation, utr = unincorporatedFormData.cotaxUTR, service = service) flatMap { returnedResponse =>
-          val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
-          validatedReviewDetails match {
-            case Some(_) =>
-              redirectWithBackLink(reviewDetailsController.controllerId,
-                controllers.routes.ReviewDetailsController.businessDetails(service),
-                Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
-              )
-            case None =>
-              Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
-          }
+          organisation = organisation, utr = unincorporatedFormData.cotaxUTR, service = service) flatMap {
+          case Right(js) =>
+            val validatedReviewDetails = js.validate[ReviewDetails].asOpt
+            validatedReviewDetails match {
+              case Some(_) =>
+                redirectWithBackLink(reviewDetailsController.controllerId,
+                  controllers.routes.ReviewDetailsController.businessDetails(service),
+                  Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
+                )
+              case None =>
+                Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
+            }
+          case Left(failure) => Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
         }
       }
     )
@@ -176,17 +178,20 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       soleTraderFormData => {
         val individual = Individual(soleTraderFormData.firstName, soleTraderFormData.lastName, None)
         businessMatchingService.matchBusinessWithIndividualName(isAnAgent = authContext.isAgent,
-          individual = individual, saUTR = soleTraderFormData.saUTR, service = service) flatMap { returnedResponse =>
-          val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
-          validatedReviewDetails match {
-            case Some(_) =>
-              redirectWithBackLink(reviewDetailsController.controllerId,
-                controllers.routes.ReviewDetailsController.businessDetails(service),
-                Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
-              )
-            case None =>
-              Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
-          }
+          individual = individual, saUTR = soleTraderFormData.saUTR, service = service) flatMap {
+            case Right(js) =>
+              val validatedReviewDetails = js.validate[ReviewDetails].asOpt
+              validatedReviewDetails match {
+                case Some (_) =>
+                  redirectWithBackLink(
+                    reviewDetailsController.controllerId,
+                    controllers.routes.ReviewDetailsController.businessDetails (service),
+                    Some (controllers.routes.BusinessVerificationController.businessForm (service, businessType).url)
+                  )
+                case None =>
+                  Future.successful (Redirect (controllers.routes.BusinessVerificationController.detailsNotFound (service, businessType) ) )
+              }
+            case Left(failure) =>Future.successful (Redirect (controllers.routes.BusinessVerificationController.detailsNotFound (service, businessType) ) )
         }
       }
     )
@@ -204,17 +209,19 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       llpFormData => {
         val organisation = Organisation(llpFormData.businessName, Llp)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
-          organisation = organisation, utr = llpFormData.psaUTR, service = service) flatMap { returnedResponse =>
-          val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
-          validatedReviewDetails match {
-            case Some(_) =>
-              redirectWithBackLink(reviewDetailsController.controllerId,
-                controllers.routes.ReviewDetailsController.businessDetails(service),
-                Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
-              )
-            case None =>
-              Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
-          }
+          organisation = organisation, utr = llpFormData.psaUTR, service = service) flatMap {
+          case Right(js) =>
+            val validatedReviewDetails = js.validate[ReviewDetails].asOpt
+            validatedReviewDetails match {
+              case Some(_) =>
+                redirectWithBackLink(reviewDetailsController.controllerId,
+                  controllers.routes.ReviewDetailsController.businessDetails(service),
+                  Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
+                )
+              case None =>
+                Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
+            }
+          case Left(failure) => Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
         }
       }
     )
@@ -227,17 +234,19 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       lpFormData => {
         val organisation = Organisation(lpFormData.businessName, Partnership)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
-          organisation = organisation, utr = lpFormData.psaUTR, service = service) flatMap { returnedResponse =>
-          val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
-          validatedReviewDetails match {
-            case Some(_) =>
-              redirectWithBackLink(reviewDetailsController.controllerId,
-                controllers.routes.ReviewDetailsController.businessDetails(service),
-                Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
-              )
-            case None =>
-              Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
-          }
+          organisation = organisation, utr = lpFormData.psaUTR, service = service) flatMap {
+          case Right(js) =>
+            val validatedReviewDetails = js.validate[ReviewDetails].asOpt
+            validatedReviewDetails match {
+              case Some(_) =>
+                redirectWithBackLink(reviewDetailsController.controllerId,
+                  controllers.routes.ReviewDetailsController.businessDetails(service),
+                  Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
+                )
+              case None =>
+                Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
+            }
+          case Left(failure) => Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
         }
       }
     )
@@ -253,17 +262,19 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       obpFormData => {
         val organisation = Organisation(obpFormData.businessName, Partnership)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
-          organisation = organisation, utr = obpFormData.psaUTR, service = service) flatMap { returnedResponse =>
-          val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
-          validatedReviewDetails match {
-            case Some(_) =>
-              redirectWithBackLink(reviewDetailsController.controllerId,
-                controllers.routes.ReviewDetailsController.businessDetails(service),
-                Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
-              )
-            case None =>
-              Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
-          }
+          organisation = organisation, utr = obpFormData.psaUTR, service = service) flatMap {
+          case Right(js) =>
+            val validatedReviewDetails = js.validate[ReviewDetails].asOpt
+            validatedReviewDetails match {
+              case Some(_) =>
+                redirectWithBackLink(reviewDetailsController.controllerId,
+                  controllers.routes.ReviewDetailsController.businessDetails(service),
+                  Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
+                )
+              case None =>
+                Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
+            }
+          case Left(failure) => Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
         }
       }
     )
@@ -279,17 +290,19 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       limitedCompanyFormData => {
         val organisation = Organisation(limitedCompanyFormData.businessName, CorporateBody)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
-          organisation = organisation, utr = limitedCompanyFormData.cotaxUTR, service = service) flatMap { returnedResponse =>
-          val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
-          validatedReviewDetails match {
-            case Some(_) =>
-              redirectWithBackLink(reviewDetailsController.controllerId,
-                controllers.routes.ReviewDetailsController.businessDetails(service),
-                Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
-              )
-            case None =>
-              Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
-          }
+          organisation = organisation, utr = limitedCompanyFormData.cotaxUTR, service = service) flatMap {
+          case Right(js) =>
+            val validatedReviewDetails = js.validate[ReviewDetails].asOpt
+            validatedReviewDetails match {
+              case Some(_) =>
+                redirectWithBackLink(reviewDetailsController.controllerId,
+                  controllers.routes.ReviewDetailsController.businessDetails(service),
+                  Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
+                )
+              case None =>
+                Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
+            }
+          case Left(failure) => Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
         }
       }
     )
@@ -305,8 +318,9 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       nrlFormData => {
         val organisation = Organisation(nrlFormData.businessName, CorporateBody)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
-          organisation = organisation, utr = nrlFormData.saUTR, service = service) flatMap { returnedResponse =>
-          val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
+          organisation = organisation, utr = nrlFormData.saUTR, service = service) flatMap {
+          case Right(js) =>
+          val validatedReviewDetails = js.validate[ReviewDetails].asOpt
           validatedReviewDetails match {
             case Some(_) =>
               redirectWithBackLink(reviewDetailsController.controllerId,
@@ -314,7 +328,11 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                 Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
               )
             case None =>
-              Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
+              logger.warn("[BusinessVerificationController][nrlFormHandling] - address of lookup details did not validate, redirecting to nonUk registration")
+              Future.successful(Redirect(controllers.nonUKReg.routes.BusinessRegController.register(service, businessType)))
+          }
+          case Left(failure) => {
+            Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
           }
         }
       }
