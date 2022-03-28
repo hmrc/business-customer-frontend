@@ -79,16 +79,33 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     }
   }
 
+//  private def validateAndCache(dataReturned: JsValue, directMatch: Boolean, utr: Option[String],
+//                               orgType : Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
+//    val isFailureResponse = dataReturned.validate[MatchFailureResponse].isSuccess
+//    val addressError = (dataReturned \ "address").validate[EtmpAddress].isError
+//    if (isFailureResponse || addressError) Future.successful(dataReturned)
+//    else {
+//      val isAnIndividual = (dataReturned \ "isAnIndividual").as[Boolean]
+//      if (isAnIndividual) cacheIndividual(dataReturned, directMatch, utr)
+//      else cacheOrg(dataReturned, directMatch, utr, orgType)
+//    }
+//  }
+
   private def validateAndCache(dataReturned: JsValue, directMatch: Boolean, utr: Option[String],
                                orgType : Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
-    val isFailureResponse = dataReturned.validate[MatchFailureResponse].isSuccess
-    val addressError = (dataReturned \ "address").validate[EtmpAddress].isError
-    if (isFailureResponse || addressError) Future.successful(dataReturned)
-    else {
-      val isAnIndividual = (dataReturned \ "isAnIndividual").as[Boolean]
-      if (isAnIndividual) cacheIndividual(dataReturned, directMatch, utr)
-      else cacheOrg(dataReturned, directMatch, utr, orgType)
+    val isFailureResponse = dataReturned.validate[MatchFailureResponse].asOpt   //Some() will means JSSuccess, which means etmp call failed
+    val addressError = (dataReturned \ "address").validate[EtmpAddress].asOpt   //Some() will mean address successfully validated
+    val isAnIndividual = (dataReturned \ "isAnIndividual").as[Boolean]
+    (isFailureResponse, addressError) match {
+      case (Some(_), _) => Future.successful(dataReturned)
+      case (None, None) => Future.successful(dataReturned)
+      case _            => if (isAnIndividual) cacheIndividual(dataReturned, directMatch, utr) else cacheOrg(dataReturned, directMatch, utr, orgType)
     }
+//    if (isFailureResponse || addressError) Future.successful(dataReturned)
+//    else {
+//      if (isAnIndividual) cacheIndividual(dataReturned, directMatch, utr)
+//      else cacheOrg(dataReturned, directMatch, utr, orgType)
+//    }
   }
 
   private def cacheIndividual(dataReturned: JsValue, directMatch: Boolean, utr: Option[String])(implicit hc: HeaderCarrier): Future[JsValue] = {
