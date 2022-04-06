@@ -16,6 +16,8 @@
 
 package controllers
 
+import java.util.UUID
+
 import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
@@ -34,7 +36,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html._
 
-import java.util.UUID
 import scala.concurrent.Future
 
 class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
