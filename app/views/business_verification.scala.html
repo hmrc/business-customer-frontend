@@ -18,7 +18,11 @@
 @import views.html.helpers._
 @import views.html.helper.form
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukRadios: GovukRadios)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukRadios: GovukRadios)
 
 @(businessTypeForm: Form[forms.BusinessType],
   isAgent: Boolean,
@@ -55,7 +59,7 @@
     }
 }
 
-@bcMain(title = headingText, service = service) {
+@bcMain(title = titleBuilder(headingText, Some(businessTypeForm)), service = service) {
 
     @pageHeadersAndError(
         backLink,

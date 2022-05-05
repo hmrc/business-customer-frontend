@@ -19,7 +19,11 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import views.html.helper.form
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput)
 
 @(businessRegistrationForm: Form[models.BusinessRegistration], isAgent: Boolean, service: String, displayDetails: models.BusinessRegistrationDisplayDetails,
         backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
@@ -50,7 +54,7 @@
     }
 }
 
-@bcMain(title = titleName, service = service) {
+@bcMain(title = titleBuilder(titleName, Some(businessRegistrationForm)), service = service) {
 
   @pageHeadersAndError(
       backLink,

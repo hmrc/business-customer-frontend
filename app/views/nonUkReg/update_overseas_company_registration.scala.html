@@ -21,7 +21,13 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.form
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukSelect: GovukSelect, govukRadios: GovukRadios)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput,
+    govukSelect: GovukSelect,
+    govukRadios: GovukRadios)
 
 @(overseasCompanyForm: Form[models.OverseasCompany],
   service: String,
@@ -88,7 +94,7 @@
     )
 }
 
-@bcMain(title = messages(displayDetails.title), service = service, pageScripts = Some(pageScripts)) {
+@bcMain(title = titleBuilder(messages(displayDetails.title), Some(overseasCompanyForm)), service = service, pageScripts = Some(pageScripts)) {
   @pageHeadersAndError(backLink, "overseas-subheader", messages(displayDetails.subHeader, service.toUpperCase), "overseas-header", messages(displayDetails.header),
     Some(bcErrorSummary(overseasCompanyForm, "bc.non-uk-reg-error.general")))
 

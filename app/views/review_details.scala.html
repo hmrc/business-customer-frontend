@@ -18,7 +18,11 @@
 @import views.html.helpers._
 @import views.html.helper.form
 @import uk.gov.hmrc.govukfrontend.views.html.components._
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukDetails : GovukDetails)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukDetails : GovukDetails)
 
 @(service: String, isAgent: Boolean, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
@@ -74,7 +78,7 @@
     </ul>
 }
 
-@bcMain(title = headingText, service = service) {
+@bcMain(title = titleBuilder(headingText), service = service) {
 
     @pageHeadersAndError(
         backLink,

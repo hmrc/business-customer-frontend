@@ -262,6 +262,7 @@ bc.business-verification-error.general.business-type-llp-form = Your business de
 
 bc.business-verification-error.type_of_business_organisation_invalid = You are logged in as an organisation with your Government Gateway ID. You cannot select sole trader or self-employed as your business type. You need to have an individual Government Gateway ID and enrol for Self Assessment online.
 bc.business-verification-error.type_of_business_individual_invalid = You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.
+bc.error.title.prefix = Error:
 
 ##### SIGNED OUT PAGE
 

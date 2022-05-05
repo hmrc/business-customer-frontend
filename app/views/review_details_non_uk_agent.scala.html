@@ -18,12 +18,16 @@
 @import helpers.pageHeadersAndError
 @import views.html.helper.form
 @import uk.gov.hmrc.govukfrontend.views.html.components._
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukTable : GovukTable)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukTable : GovukTable)
 
 @(service: String, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[AnyContent], messages: Messages, appConfig: ApplicationConfig)
 
 
-@bcMain(title = messages("business-review.agent-editable.title", service), service = service) {
+@bcMain(title = titleBuilder(messages("business-review.agent-editable.title", service)), service = service) {
 
   @pageHeadersAndError(backLink, "bc.business-registration-agent.text", messages("bc.business-registration.text.agent", service.toUpperCase), "bc.business-registration-agent.header", messages("business-review.agent-editable.title"))
 
