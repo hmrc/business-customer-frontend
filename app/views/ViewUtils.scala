@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import config._
-@import views.ViewUtils.titleBuilder
+package views
 
-@this(bcMain: bcMain)
+import play.api.data.Form
+import play.api.i18n.Messages
 
-@()(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+object ViewUtils {
 
-@bcMain(title = titleBuilder(messages("bc.signout-title")), userLoggedIn = false) {
-
-    <h1 id="bc-signout-header" class="govuk-heading-xl">@messages("bc.signout-header")</h1>
-
-    <p class="govuk-body">@messages("bc.signout-info")</p>
-
-    <p class="govuk-body"><a href="http://www.gov.uk">@messages("bc.signout-explore-gov-uk")</a></p>
-
+  def titleBuilder(title: String, form: Option[Form[_]] = None)(implicit messages: Messages): String =
+    form match {
+      case Some(f) if f.hasErrors || f.hasGlobalErrors =>s"${messages("bc.error.title.prefix")} $title - GOV.UK"
+      case _ => title + " - GOV.UK"
+    }
 }

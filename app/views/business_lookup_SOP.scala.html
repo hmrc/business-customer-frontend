@@ -19,7 +19,12 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import views.html.helper.form
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukDetails : GovukDetails)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput,
+    govukDetails : GovukDetails)
 
 @(soleTraderForm: Form[forms.SoleTraderMatch],
  isAgent: Boolean,
@@ -65,7 +70,7 @@
 }
 
 
-@bcMain(title = headingText, service = service) {
+@bcMain(title = titleBuilder(headingText, Some(soleTraderForm)), service = service) {
     @pageHeadersAndError(
         backLink,
         headingSecondaryId,

@@ -20,7 +20,13 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.form
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukDetails : GovukDetails, govukSelect: GovukSelect)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput,
+    govukDetails : GovukDetails,
+    govukSelect: GovukSelect)
 
 @(businessRegistrationForm: Form[models.BusinessRegistration],
   service: String,
@@ -43,7 +49,7 @@
   </script>
 }
 
-@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts)) {
+@bcMain(title = titleBuilder(messages(displayDetails.businessRegHeader), Some(businessRegistrationForm)), service = service, pageScripts = Some(pageScripts)) {
   @pageHeadersAndError(backLink,
     "business-verification-text",
     messages(displayDetails.businessRegSubHeader, service),

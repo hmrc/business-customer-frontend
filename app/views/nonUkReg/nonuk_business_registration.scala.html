@@ -20,7 +20,12 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.form
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukSelect: GovukSelect)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput,
+    govukSelect: GovukSelect)
 
 @(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
@@ -37,7 +42,7 @@
   </script>
 }
 
-@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts)) {
+@bcMain(title = titleBuilder(messages(displayDetails.businessRegHeader), Some(businessRegistrationForm)), service = service, pageScripts = Some(pageScripts)) {
 
   @pageHeadersAndError(backLink, "business-verification-text", messages(displayDetails.businessRegSubHeader), "non-uk-reg-header", messages(displayDetails.businessRegHeader),
     Some(bcErrorSummary(businessRegistrationForm, "bc.non-uk-reg-error.general")))
