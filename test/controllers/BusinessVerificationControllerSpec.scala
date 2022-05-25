@@ -118,8 +118,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
 
             document.title() must be("What is your business type? - GOV.UK")
-            document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-            document.getElementById("business-verification-header").text() must be("What is your business type?")
+            document.getElementsByClass("govuk-caption-xl").text() must be("This section is ATED registration")
+            document.getElementsByTag("h1").text() must include("What is your business type?")
             document.select(".govuk-radios__item").text() must include("Limited company")
             document.select(".govuk-radios__item").text() must include("Limited liability partnership")
             document.select(".govuk-radios__item").text() must include("partnership")
@@ -127,8 +127,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
             document.select(".govuk-radios__item").text() must include("Unit trust or collective investment vehicle")
             document.select(".govuk-radios__item").text() must include("Limited partnership")
             document.select("button").text() must be("Continue")
-            document.getElementById("backLinkHref").text() must be("Back")
-            document.getElementById("backLinkHref").attr("href") must be("/ated-subscription/appoint-agent")
+            document.getElementsByClass("govuk-back-link").text() must be("Back")
+            document.getElementsByClass("govuk-back-link").attr("href") must be("/ated-subscription/appoint-agent")
           }
         }
 
@@ -138,8 +138,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be("What is the business type for your agency? - GOV.UK")
-            document.getElementById("business-verification-agent-text").text() must be("This section is: ATED agency set up")
-            document.getElementById("business-verification-agent-header").text() must be("What is the business type for your agency?")
+            document.getElementsByClass("govuk-caption-xl").text() must be("This section is ATED agency set up")
+            document.getElementsByTag("h1").text() must include("What is the business type for your agency?")
             document.select(".govuk-radios__item").text() must include("Limited company")
             document.select(".govuk-radios__item").text() must include("Sole trader self-employed")
             document.select(".govuk-radios__item").text() must include("Limited liability partnership")
@@ -271,8 +271,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-text").text() must be("This section is: AWRS registration")
-          document.getElementById("business-type-header").text() must be("What are your Self Assessment details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
+          document.select("h1").text() must include("What are your Self Assessment details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "firstName").text() must be("First name")
           document.getElementsByAttributeValue("for", "lastName").text() must be("Last name")
@@ -282,7 +282,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.select("div.govuk-hint:nth-child(1)").text() must include("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
-          document.getElementById("backLinkHref").attr("href") must include("/business-customer/business-verification/AWRS")
+          document.getElementsByClass("govuk-back-link").attr("href") must include("/business-customer/business-verification/AWRS")
         }
       }
 
@@ -291,8 +291,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-agent-text").text() must be("This section is: ATED agency set up")
-          document.getElementById("business-type-agent-header").text() must be("What are your agency details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.getElementsByTag("h1").text() must include("What are your agency details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "firstName").text() must be("First name")
           document.getElementsByAttributeValue("for", "lastName").text() must be("Last name")
@@ -349,8 +349,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-type-header").text() must be("What are your Self Assessment details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text() must include("What are your Self Assessment details?")
           document.getElementById("business-type-paragraph").text() must be("Enter your Self Assessment details and we will attempt to match them against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -360,8 +360,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.select("div.govuk-hint:nth-child(1)").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("/business-customer/register/non-uk-client/paySA/ATED")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/register/non-uk-client/paySA/ATED")
 
         }
       }
@@ -371,8 +371,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-agent-text").text() must be("This section is: ATED agency set up")
-          document.getElementById("business-type-agent-header").text() must be("What are your agency details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.select("h1").text() must include("What are your agency details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -429,8 +429,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-type-header").text() must be("What are your business details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text() must include("What are your business details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -440,8 +440,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.select("div.govuk-hint:nth-child(1)").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
         }
       }
 
@@ -450,8 +450,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-agent-text").text() must be("This section is: ATED agency set up")
-          document.getElementById("business-type-agent-header").text() must be("What are your agency details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.select("h1").text() must include("What are your agency details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -507,8 +507,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-type-header").text() must be("What are your business details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text() must include("What are your business details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -518,8 +518,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.select("div.govuk-hint:nth-child(1)").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
 
         }
       }
@@ -540,8 +540,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-text").text() must be("This section is: AWRS registration")
-          document.getElementById("business-type-header").text() must be("What are your business details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
+          document.select("h1").text() must include("What are your business details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -551,8 +551,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.select("div.govuk-hint:nth-child(1)").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/AWRS")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/AWRS")
         }
       }
 
@@ -561,8 +561,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-agent-text").text() must be("This section is: ATED agency set up")
-          document.getElementById("business-type-agent-header").text() must be("What are your agency details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.select("h1").text() must include("What are your agency details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -589,8 +589,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-type-header").text() must be("What are your business details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text() must include("What are your business details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Partnership name")
           document.select("#businessName-hint").text() must be("This is the name that you registered with HMRC")
@@ -600,8 +600,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.select("div.govuk-hint:nth-child(1)").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
         }
       }
 
@@ -610,8 +610,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-agent-text").text() must be("This section is: ATED agency set up")
-          document.getElementById("business-type-agent-header").text() must be("What are your agency details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.select("h1").text() must include("What are your agency details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Partnership name")
           document.select("#businessName-hint").text() must be("This is the name that you registered with HMRC")
@@ -638,8 +638,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-type-header").text() must be("What are your business details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text() contains "What are your business details?"
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -649,8 +649,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.select("div.govuk-hint:nth-child(1)").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
         }
       }
 
@@ -658,8 +658,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         businessLookupWithAuthorisedAgent(controller, "LLP") { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-agent-text").text() must be("This section is: ATED agency set up")
-          document.getElementById("business-type-agent-header").text() must be("What are your agency details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.select("h1").text() must include("What are your agency details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -687,8 +687,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-type-header").text() must be("What are your business details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text() must include("What are your business details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Partnership name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -698,8 +698,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.select("div.govuk-hint:nth-child(1)").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
         }
       }
 
@@ -707,8 +707,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         businessLookupWithAuthorisedAgent(controller, "LP") { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-agent-text").text() must be("This section is: ATED agency set up")
-          document.getElementById("business-type-agent-header").text() must be("What are your agency details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.select("h1").text() must include("What are your agency details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Partnership name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -764,8 +764,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-type-header").text() must be("What are your business details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text() contains "What are your business details?"
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
@@ -775,8 +775,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.select("div.govuk-hint:nth-child(1)").text() must be("It can usually be found in the header of any letter issued by HMRC next to headings such as ‘Tax Reference’, ‘UTR’ or ‘Official Use’.")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
 
         }
       }
@@ -786,8 +786,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("business-verification-agent-text").text() must be("This section is: ATED agency set up")
-          document.getElementById("business-type-agent-header").text() must be("What are your agency details?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.select("h1").text() must include("What are your agency details?")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "businessName").text() must include("Registered company name")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")

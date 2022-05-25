@@ -30,6 +30,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
+import views.html.nonUkReg.business_registration
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -44,7 +45,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
   val mockOverseasCompanyRegController: OverseasCompanyRegController = mock[OverseasCompanyRegController]
-  val injectedViewInstance = inject[views.html.nonUkReg.business_registration]
+  val injectedViewInstance: business_registration = inject[views.html.nonUkReg.business_registration]
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
@@ -94,8 +95,8 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your overseas business registered name and address? - GOV.UK")
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-registration-header").text() must be("What is your overseas business registered name and address?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text must include("What is your overseas business registered name and address?")
           document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
           document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
           document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
@@ -115,8 +116,8 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your overseas business registered name and address? - GOV.UK")
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-registration-header").text() must be("What is your overseas business registered name and address?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text must include("What is your overseas business registered name and address?")
           document.getElementById("businessName").`val`() must be("ACME")
           document.getElementById("businessAddress.line_1").`val`() must be("line 1")
           document.getElementById("businessAddress.line_2").`val`() must be("line 2")
@@ -132,8 +133,8 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is the registered business name and address of your overseas agency? - GOV.UK")
-          document.getElementById("business-verification-text").text() must be("This section is: ATED agency set up")
-          document.getElementById("business-registration-header").text() must be("What is the registered business name and address of your overseas agency?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.select("h1").text must include("What is the registered business name and address of your overseas agency?")
           document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
           document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
           document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
@@ -196,7 +197,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           (createJson(line2 = "a" * 36), "If entered, Address line 2 must be maximum of 35 characters", "Address line 2 cannot be more than 35 characters"),
           (createJson(line3 = "a" * 36), "Address line 3 is optional but if entered, must be maximum of 35 characters", "Address line 3 cannot be more than 35 characters"),
           (createJson(line4 = "a" * 36), "Address line 4 is optional but if entered, must be maximum of 35 characters", "Address line 4 cannot be more than 35 characters"),
-          (createJson(postcode = "a" * 11), "Postcode is optional but if entered, must be maximum of 10 characters", "Enter a valid postal code"),
+          (createJson(postcode = "a" * 11), "Postcode is optional but if entered, must be maximum of 10 characters", "Enter a valid postcode"),
           (createJson(country = "GB"), "show an error if country is selected as GB", "You cannot select United Kingdom when entering an overseas address")
         )
 

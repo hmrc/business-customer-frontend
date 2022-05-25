@@ -24,16 +24,18 @@ import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{FakeRequest, Injecting}
+import views.html.review_details
 
 class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Injecting {
 
-  val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
-  val reviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true, Some("agent123"))
+  val address: Address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
+  val reviewDetails: ReviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true, Some("agent123"))
 
-  implicit val lang = Lang.defaultLang
-  implicit val appConfig = inject[ApplicationConfig]
-  val injectedViewInstance = inject[views.html.review_details]
+  implicit val lang: Lang = Lang.defaultLang
+  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  val injectedViewInstance: review_details = inject[views.html.review_details]
 
   Feature("The user can view the review details page") {
 
@@ -43,7 +45,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       Given("client has directly matched a business registration")
       When("The user views the page")
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
@@ -55,20 +57,20 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
       assert(document.getElementById("submit").text() === "Confirm")
 
       Then("The title should match - Confirm your business details")
-      assert(document.select("h1").text === ("Check this is the business you want to register"))
+      assert(document.select("h1").text contains "Check this is the business you want to register")
 
-      assert(document.getElementById("bc.business-registration.text").text() === ("This section is: ATED registration"))
-      assert(document.getElementById("business-name").text === ("ACME"))
-      assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
-      assert(document.select(".govuk-details__summary-text").text === ("Not the right details?"))
-      assert(document.getElementById("wrong-account-text").text === ("If this is not the right business, you should sign out and change to another account"))
+      assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: ATED registration")
+      assert(document.getElementById("business-name").text === "ACME")
+      assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom")
+      assert(document.select(".govuk-details__summary-text").text === "Not the right details?")
+      assert(document.getElementById("wrong-account-text").text === "If this is not the right business, you should sign out and change to another account")
       assert(document.getElementById("wrong-account-text-item-1").text()
         .startsWith("If you are registered with Companies House, you must tell Companies House about changes to your details.") === true)
       assert(document.getElementById("wrong-account-text-item-2").text()
         .startsWith("If you are not registered with Companies House, you must tell HMRC about a change to your personal details.") === true)
       assert(document.getElementById("check-agency-details") === null)
 
-      assert(document.select(".govuk-button").text === ("Confirm"))
+      assert(document.select(".govuk-button").text === "Confirm")
       assert(document.getElementById("bus-reg-edit") === null)
       assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
         .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=%2F")
@@ -78,7 +80,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       Given("An agent has an editable business registration details")
       When("The user views the page")
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
@@ -90,15 +92,17 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
       assert(document.getElementById("submit").text() === "Confirm")
 
       Then("The title should match - Confirm your business details ")
-      assert(document.select("h1").text === "Check this is the business you want to register")
+      assert(document.select("h1").text contains "Check this is the business you want to register")
 
-      assert(document.getElementById("bc.business-registration.text").text() === "This section is: ATED registration")
+      assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: ATED registration")
       assert(document.getElementById("business-name").text === "ACME")
       assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom")
       assert(document.select(".govuk-details__summary-text").text === "Not the right address?")
       assert(document.getElementById("wrong-account-text").text === "You will need to update your information outside of this service.")
-      assert(document.getElementById("wrong-account-text-item-1").text().startsWith("If you are registered with Companies House, you must tell Companies House about changes to your details.") === true)
-      assert(document.getElementById("wrong-account-text-item-2").text().startsWith("If you are not registered with Companies House, you must tell HMRC about a change to your personal details.") === true)
+      assert(document.getElementById("wrong-account-text-item-1").text()
+        .startsWith("If you are registered with Companies House, you must tell Companies House about changes to your details.") === true)
+      assert(document.getElementById("wrong-account-text-item-2").text()
+        .startsWith("If you are not registered with Companies House, you must tell HMRC about a change to your personal details.") === true)
       assert(document.getElementById("check-agency-details") === null)
 
       assert(document.select(".govuk-button").text === "Confirm")
@@ -111,7 +115,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       Given("An agent has an editable business registration details")
       When("The user views the page")
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
@@ -123,13 +127,13 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
       assert(document.getElementById("submit").text() === "Confirm")
 
       Then("The title should match - Confirm your agency's details")
-      assert(document.select("h1").text === ("Confirm your agency’s details"))
+      assert(document.select("h1").text contains "Confirm your agency’s details")
+      assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: ATED agency set up")
 
       assert(document.select(".govuk-details__summary-text").text === "Not the right details?")
-      assert(document.getElementById("bc.business-registration-agent.text").text() === ("This section is: ATED agency set up"))
-      assert(document.getElementById("business-name").text === ("ACME"))
-      assert(document.getElementById("business-address").text === ("line 1 line 2 line 3 line 4 AA1 1AA United Kingdom"))
-      assert(document.select(".govuk-button").text === ("Confirm"))
+      assert(document.getElementById("business-name").text === "ACME")
+      assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom")
+      assert(document.select(".govuk-button").text === "Confirm")
       assert(document.getElementById("bus-reg-edit") === null)
 
       And("There is a link to the accessibility statement")

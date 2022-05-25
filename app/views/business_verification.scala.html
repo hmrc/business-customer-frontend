@@ -22,7 +22,10 @@
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
-    govukRadios: GovukRadios)
+    govukRadios: GovukRadios,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(businessTypeForm: Form[forms.BusinessType],
   isAgent: Boolean,
@@ -31,24 +34,10 @@
   isOrgAccount: Boolean,
   backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@headingId = @{
-    isAgent match {
-        case true => "business-verification-agent-header"
-        case false => "business-verification-header"
-    }
-}
-
 @headingText = @{
     isAgent match {
         case true => messages("bc.business-verification.agent.header")
         case false => messages("bc.business-verification.user.header")
-    }
-}
-
-@headingSecondaryId = @{
-    isAgent match {
-        case true => "business-verification-agent-text"
-        case false => "business-verification-text"
     }
 }
 
@@ -59,16 +48,22 @@
     }
 }
 
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
+
 @bcMain(title = titleBuilder(headingText, Some(businessTypeForm)), service = service) {
 
-    @pageHeadersAndError(
-        backLink,
-        headingSecondaryId,
-        headingSecondaryText,
-        headingId,
-        headingText,
-        Some(bcErrorSummary(businessTypeForm, "bc.business-verification-error.general"))
-    )
+    @backLinkHtml
+
+    @if(businessTypeForm.errors.nonEmpty) {
+           @govukErrorSummary(ErrorSummary().withFormErrorsAsText(businessTypeForm))
+    }
 
     @formHelper(action = controllers.routes.BusinessVerificationController.continue(service)) {
 
@@ -93,10 +88,17 @@
                     }
 
                 ).withFormField(businessTypeForm("businessType"))
-            )
+                .withHeadingAndSectionCaption(
+                    heading = HtmlContent(headingText),
+                    sectionCaption = HtmlContent(headingSecondaryText)
+                ))
 
         </div>
 
-        <button id="submit" type="submit" class="govuk-button"> @messages("bc.business-verification.submit.client") </button>
+        @govukButton(Button(
+            content = Text(messages("bc.business-verification.submit.client")),
+            inputType = Some("submit"),
+            attributes = Map("id" -> "submit")
+        ))
     }
 }

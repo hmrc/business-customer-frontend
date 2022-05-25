@@ -24,14 +24,16 @@ import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{FakeRequest, Injecting}
+import views.html.nonUkReg.paySAQuestion
 
 class paySAQuestionSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Injecting {
 
   val service = "ATED"
-  val injectedViewInstance = inject[views.html.nonUkReg.paySAQuestion]
-  implicit val lang = Lang.defaultLang
-  implicit val appConfig = inject[ApplicationConfig]
+  val injectedViewInstance: paySAQuestion = inject[views.html.nonUkReg.paySAQuestion]
+  implicit val lang: Lang = Lang.defaultLang
+  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   Feature("The user can the pay SA question") {
 
@@ -41,7 +43,7 @@ class paySAQuestionSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with 
 
       Given("client has directly matched a business registration")
       When("The user views the page")
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
@@ -50,10 +52,10 @@ class paySAQuestionSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with 
       val document = Jsoup.parse(html.toString())
 
       Then("The title should match - Do you pay tax in the UK through Self Assessment?")
-      assert(document.select("h1").text === ("Do you pay tax in the UK through Self Assessment?"))
+      assert(document.select("h1").text contains "Do you pay tax in the UK through Self Assessment?")
 
       Then("The subheader should be - ATED registration")
-      assert(document.getElementById("paySa-subheader").text() === "This section is: ATED registration")
+      assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is ATED registration")
 
       Then("The options should be Yes and No")
       assert(document.select(".govuk-radios__item").text() === "Yes No")

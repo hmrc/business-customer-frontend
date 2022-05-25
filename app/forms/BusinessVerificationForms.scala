@@ -127,14 +127,14 @@ object BusinessVerificationForms extends BCUtils {
     }
   }
 
-  val businessTypeForm = Form(mapping(
+  val businessTypeForm: Form[BusinessType] = Form(mapping(
     "businessType" -> optional(text).verifying("bc.business-verification-error.not-selected", x => x.isDefined),
     "isSaAccount" -> boolean,
     "isOrgAccount" -> boolean
   )(BusinessType.apply)(BusinessType.unapply)
   )
 
-  val soleTraderForm = Form(mapping(
+  val soleTraderForm: Form[SoleTraderMatch] = Form(mapping(
     "firstName" -> text
       .verifying("bc.business-verification-error.firstname", x => x.trim.length > length0)
       .verifying("bc.business-verification-error.firstname.length", x => x.isEmpty || (x.nonEmpty && x.length <= length40)),
@@ -153,7 +153,7 @@ object BusinessVerificationForms extends BCUtils {
       })
   )(SoleTraderMatch.apply)(SoleTraderMatch.unapply))
 
-  val limitedCompanyForm = Form(mapping(
+  val limitedCompanyForm: Form[LimitedCompanyMatch] = Form(mapping(
     "businessName" -> text
       .verifying("bc.business-verification-error.businessName", x => x.trim.length > length0)
       .verifying("bc.business-verification-error.registeredName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
@@ -169,7 +169,7 @@ object BusinessVerificationForms extends BCUtils {
       })
   )(LimitedCompanyMatch.apply)(LimitedCompanyMatch.unapply))
 
-  val nonResidentLandlordForm = Form(mapping(
+  val nonResidentLandlordForm: Form[NonResidentLandlordMatch] = Form(mapping(
     "businessName" -> text
       .verifying("bc.business-verification-error.businessName", x => x.trim.length > length0)
       .verifying("bc.business-verification-error.registeredName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
@@ -185,7 +185,7 @@ object BusinessVerificationForms extends BCUtils {
       })
   )(NonResidentLandlordMatch.apply)(NonResidentLandlordMatch.unapply))
 
-  val unincorporatedBodyForm = Form(mapping(
+  val unincorporatedBodyForm: Form[UnincorporatedMatch] = Form(mapping(
     "businessName" -> text
       .verifying("bc.business-verification-error.businessName", x => x.trim.length > length0)
       .verifying("bc.business-verification-error.registeredName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
@@ -201,7 +201,7 @@ object BusinessVerificationForms extends BCUtils {
       })
   )(UnincorporatedMatch.apply)(UnincorporatedMatch.unapply))
 
-  val ordinaryBusinessPartnershipForm = Form(mapping(
+  val ordinaryBusinessPartnershipForm: Form[OrdinaryBusinessPartnershipMatch] = Form(mapping(
     "businessName" -> text
       .verifying("bc.business-verification-error.businessPartnerName", x => x.trim.length > length0)
       .verifying("bc.business-verification-error.registeredPartnerName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
@@ -217,7 +217,7 @@ object BusinessVerificationForms extends BCUtils {
       })
   )(OrdinaryBusinessPartnershipMatch.apply)(OrdinaryBusinessPartnershipMatch.unapply))
 
-  val limitedLiabilityPartnershipForm = Form(mapping(
+  val limitedLiabilityPartnershipForm: Form[LimitedLiabilityPartnershipMatch] = Form(mapping(
     "businessName" -> text
       .verifying("bc.business-verification-error.businessName", x => x.trim.length > length0)
       .verifying("bc.business-verification-error.registeredName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
@@ -232,7 +232,7 @@ object BusinessVerificationForms extends BCUtils {
         trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches("""^[0-9]{10}$"""))
       })
   )(LimitedLiabilityPartnershipMatch.apply)(LimitedLiabilityPartnershipMatch.unapply))
-  val limitedPartnershipForm = Form(mapping(
+  val limitedPartnershipForm: Form[LimitedPartnershipMatch] = Form(mapping(
     "businessName" -> text
       .verifying("bc.business-verification-error.businessPartnerName", x => x.trim.length > length0)
       .verifying("bc.business-verification-error.registeredPartnerName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),

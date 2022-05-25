@@ -22,28 +22,16 @@
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
-    govukDetails : GovukDetails)
+    govukDetails : GovukDetails,
+    govukBackLink : GovukBackLink,
+    govukButton : GovukButton)
 
 @(service: String, isAgent: Boolean, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
-
-@headingId = @{
-    isAgent match {
-        case true => "bc.business-registration-agent.header"
-        case false => "bc.business-registration.header"
-    }
-}
 
 @headingText = @{
     isAgent match {
         case true => messages("business-review.agent.header")
         case false => messages("business-review.user.header")
-    }
-}
-
-@headingSecondaryId = @{
-    isAgent match {
-        case true => "bc.business-registration-agent.text"
-        case false => "bc.business-registration.text"
     }
 }
 
@@ -78,15 +66,25 @@
     </ul>
 }
 
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
+
 @bcMain(title = titleBuilder(headingText), service = service) {
 
-    @pageHeadersAndError(
-        backLink,
-        headingSecondaryId,
-        headingSecondaryText,
-        headingId,
-        headingText
-    )
+    @backLinkHtml
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@headingSecondaryText</span>
+            @headingText
+        </h1>
+    </header>
 
     <div class="govuk-form-group">
 
@@ -107,10 +105,14 @@
                 content = HtmlContent(contentDetails)
             ))
         }
-
     </div>
     @formHelper(action=controllers.routes.ReviewDetailsController.continue(service)){
-    <button  class="govuk-button" id="submit">@messages("business-review.registration-button")</button>
-}
+
+        @govukButton(Button(
+            content = Text(messages("business-review.registration-button")),
+            inputType = Some("submit"),
+            attributes = Map("id" -> "submit")
+        ))
+    }
 }
 

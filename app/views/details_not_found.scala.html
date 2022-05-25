@@ -17,23 +17,35 @@
 @import config._
 @import views.html.helper.form
 @import views.ViewUtils.titleBuilder
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(bcMain: bcMain,
-    formHelper: FormWithCSRF)
+    formHelper: FormWithCSRF,
+    govukBackLink : GovukBackLink,
+    govukButton : GovukButton)
 
 @(isAgent: Boolean,
  service: String,
  businessType: String,
  backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
+
 @bcMain(title = titleBuilder(messages("bc.details-not-found.header")), service = service) {
 
+  @backLinkHtml
+
   @if(isAgent) {
-    <a id="backLinkHref" class="govuk-back-link" href='@backLink'>@messages("bc.business-verification.back")</a>
-    <div class="govuk-caption-l govuk-heading-l" id="business-verification-agent-text">@messages("bc.business-verification.agent.text", service.toUpperCase)</div>
+    <span class="govuk-caption-xl hmrc-caption-xl" id="business-verification-agent-text">@messages("bc.business-verification.agent.text", service.toUpperCase)</span>
   } else {
-    <a id="backLinkHref" class="govuk-back-link" href='@backLink'>@messages("bc.business-verification.back")</a>
-    <div class="govuk-caption-l govuk-heading-l" id="business-verification-text">@messages("bc.business-verification.client.text", service.toUpperCase)</div>
+    <span class="govuk-caption-xl hmrc-caption-xl" id="business-verification-text">@messages("bc.business-verification.client.text", service.toUpperCase)</span>
   }
 
   <h1 class="govuk-heading-xl" id="details-not-found-header"> @messages("bc.details-not-found.header") </h1>
@@ -54,9 +66,10 @@
   <h2 class="govuk-heading-s" id="details-not-found-utr-reason-header">@messages("bc.details-not-found.utr-reason.header")</h2>
   <p class="govuk-body" id="details-not-found-utr-reason-text">@messages("bc.details-not-found.utr-reason.text")</p>
 
+    @formHelper(action=controllers.routes.BusinessVerificationController.businessForm(service, businessType)){
 
-@formHelper(action=controllers.routes.BusinessVerificationController.businessForm(service, businessType)){
-<button class="govuk-button" >@messages("bc.details-not-found.try-again")</button>
-}
-
+        @govukButton(Button(
+            content = Text(messages("bc.details-not-found.try-again"))
+        ))
+    }
 }

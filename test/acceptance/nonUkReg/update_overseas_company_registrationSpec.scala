@@ -25,21 +25,23 @@ import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{FakeRequest, Injecting}
+import views.html.nonUkReg.update_overseas_company_registration
 
 class update_overseas_company_registrationSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar
   with BeforeAndAfterEach with GivenWhenThen with Injecting {
 
   val service = "ATED"
-  val injectedViewInstance = inject[views.html.nonUkReg.update_overseas_company_registration]
-  val displayDetails = OverseasCompanyDisplayDetails(
+  val injectedViewInstance: update_overseas_company_registration = inject[views.html.nonUkReg.update_overseas_company_registration]
+  val displayDetails: OverseasCompanyDisplayDetails = OverseasCompanyDisplayDetails(
     "dynamicTitle",
     "dynamicHeader",
     "dynamicSubHeader",
     false)
 
-  implicit val lang = Lang.defaultLang
-  implicit val appConfig = inject[ApplicationConfig]
+  implicit val lang: Lang = Lang.defaultLang
+  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   Feature("The user can view the overseas company registration question") {
 
@@ -49,7 +51,7 @@ class update_overseas_company_registrationSpec extends AnyFeatureSpec with Guice
 
       Given("the client has a non uk company and the arrive at the overseas company registration")
       When("The user views the page")
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
@@ -58,14 +60,14 @@ class update_overseas_company_registrationSpec extends AnyFeatureSpec with Guice
       val document = Jsoup.parse(html.toString())
 
       Then("The header should match - dynamicHeader")
-      assert(document.select("h1").text === displayDetails.header)
+      assert(document.select("h1").text contains displayDetails.header)
 
       Then("The subheader should be - dynamicSubHeader")
-      assert(document.getElementById("overseas-subheader").text() === "This section is: " + displayDetails.subHeader)
+      assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is " + displayDetails.subHeader)
 
       Then("We should have a back link")
-      assert(document.getElementById("backLinkHref").text() === "Back")
-      assert(document.getElementById("backLinkHref").attr("href") === "http://backLinkUrl")
+      assert(document.getElementsByClass("govuk-back-link").text() === "Back")
+      assert(document.getElementsByClass("govuk-back-link").attr("href") === "http://backLinkUrl")
 
       Then("The options should be Yes and No")
       assert(document.select(".govuk-radios__item").text() === "Yes No")

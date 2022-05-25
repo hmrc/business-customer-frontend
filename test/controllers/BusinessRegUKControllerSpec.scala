@@ -24,28 +24,28 @@ import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
+import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
+import views.html.business_group_registration
 
 import java.util.UUID
 import scala.concurrent.Future
 
-
 class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
-  val request = FakeRequest()
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val service = "ATED"
-  val mockAuthConnector = mock[AuthConnector]
-  val mockBusinessRegistrationService = mock[BusinessRegistrationService]
-  val mockBackLinkCache = mock[BackLinkCacheConnector]
-  val mockReviewDetailController = mock[ReviewDetailsController]
-  val injectedViewInstance = inject[views.html.business_group_registration]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
+  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockReviewDetailController: ReviewDetailsController = mock[ReviewDetailsController]
+  val injectedViewInstance: business_group_registration = inject[views.html.business_group_registration]
 
-  val appConfig = inject[ApplicationConfig]
-  implicit val mcc = inject[MessagesControllerComponents]
+  val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestBusinessRegController extends BusinessRegUKController(
     mockAuthConnector,
@@ -56,9 +56,9 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     mockReviewDetailController,
     mcc
   ) {
-    override val authConnector = mockAuthConnector
+    override val authConnector: AuthConnector = mockAuthConnector
     override val controllerId = "test"
-    override val backLinkCacheConnector = mockBackLinkCache
+    override val backLinkCacheConnector: BackLinkCacheConnector = mockBackLinkCache
   }
 
   val serviceName: String = "ATED"
@@ -73,14 +73,12 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
         }
       }
 
-
       "respond with a redirect for /send & be redirected to the unauthorised page" in {
         submitWithUnAuthorisedUser() { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-customer/unauthorised")
         }
       }
-
     }
 
     "Authorised Users" must {
@@ -93,8 +91,8 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be("Create AWRS group - GOV.UK")
-            document.getElementById("business-verification-text").text() must be("This section is: AWRS registration")
-            document.getElementById("business-registration.header").text() must be("Create AWRS group")
+            document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
+            document.select("h1").text() must include("Create AWRS group")
 
             document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
             document.getElementById("businessName-hint").text() must be("This is your registered company name")
@@ -116,8 +114,8 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be("Create AWRS group - GOV.UK")
-            document.getElementById("business-verification-text").text() must be("This section is: AWRS registration")
-            document.getElementById("business-registration.header").text() must be("New business details")
+            document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
+            document.select("h1").text() must include("New business details")
             document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
             document.getElementById("businessName-hint").text() must be("This is your registered company name")
             document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
@@ -227,7 +225,6 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
-
     test(result)
   }
 
@@ -244,10 +241,8 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
-
     test(result)
   }
-
 
   def submitWithUnAuthorisedUser(businessType: String = "GROUP")(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
@@ -262,7 +257,6 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
-
     test(result)
   }
 
@@ -285,9 +279,6 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
-
     test(result)
   }
-
-
 }

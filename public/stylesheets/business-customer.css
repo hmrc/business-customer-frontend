@@ -403,11 +403,6 @@ p.margin-bottom-default {
  }
 }
 
-.autocomplete__input,
-.autocomplete__menu {
-  border-color: #6f777b;
-}
-
 .autocomplete__option {
     margin: 0;
     font-family: "GDS Transport",arial,sans-serif;
