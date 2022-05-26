@@ -8,7 +8,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-28" % "5.20.0",
     "uk.gov.hmrc"       %% "domain"                     % "8.1.0-play-28",
     "uk.gov.hmrc"       %% "play-partials"              % "8.3.0-play-28",
-    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "3.18.0-play-28",
+    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "3.20.0-play-28",
     "uk.gov.hmrc"       %% "http-caching-client"        % "9.6.0-play-28",
     "com.typesafe.play" %% "play-json-joda"             % "2.9.2",
     compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.1" cross CrossVersion.full),
@@ -19,8 +19,8 @@ object AppDependencies {
     "uk.gov.hmrc" %% "bootstrap-test-play-28"  % "5.20.0"   % "test",
     "org.jsoup"   %  "jsoup"                   % "1.15.1"   % "test",
     "org.mockito" %  "mockito-core"            % "4.5.1"    % "test",
-    "org.mockito" %% "mockito-scala"           % "1.17.5"   % "test",
-    "org.mockito" %% "mockito-scala-scalatest" % "1.17.5"   % "test"
+    "org.mockito" %% "mockito-scala"           % "1.17.7"   % "test",
+    "org.mockito" %% "mockito-scala-scalatest" % "1.17.7"   % "test"
   )
 
   def apply(): Seq[ModuleID] = compile ++ test
