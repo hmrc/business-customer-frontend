@@ -24,7 +24,10 @@
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
     govukInput: GovukInput,
-    govukDetails : GovukDetails)
+    govukDetails : GovukDetails,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(soleTraderForm: Form[forms.SoleTraderMatch],
  isAgent: Boolean,
@@ -34,24 +37,10 @@
 
 @implicitFormInstance = @{ Some(soleTraderForm) }
 
-@headingId = @{
-    isAgent match {
-        case true => "business-type-agent-header"
-        case false => "business-type-header"
-    }
-}
-
 @headingText = @{
     isAgent match {
         case true => messages("bc.business-verification-selected-agent-header")
         case false => messages("bc.business-verification-selected-user-SOP-header")
-    }
-}
-
-@headingSecondaryId = @{
-    isAgent match {
-        case true => "business-verification-agent-text"
-        case false => "business-verification-text"
     }
 }
 
@@ -61,7 +50,8 @@
         case false => messages("bc.business-verification.client.text", service.toUpperCase)
     }
 }
- @htmlHint = {
+
+@htmlHint = {
     <div class="govuk-hint">@messages("bc.business-verification.utr.hint")</div>
     @govukDetails(Details(
         summary = Text(messages("bc.business-verification.utr.help.question")),
@@ -69,23 +59,35 @@
     ))
 }
 
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
 
 @bcMain(title = titleBuilder(headingText, Some(soleTraderForm)), service = service) {
-    @pageHeadersAndError(
-        backLink,
-        headingSecondaryId,
-        headingSecondaryText,
-        headingId,
-        headingText,
-        Some(bcErrorSummary(soleTraderForm, "bc.business-verification-error.general"))
-    )
+
+    @backLinkHtml
+
+    @if(soleTraderForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(soleTraderForm))
+    }
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@headingSecondaryText</span>
+            @headingText
+        </h1>
+    </header>
 
     @if(isAgent){
         @bcCheckAgency()
     }
 
     <p class="govuk-body" id="business-type-paragraph">@messages("bc.business-verification-lede")</p>
-
 
     @formHelper(action = controllers.routes.BusinessVerificationController.submit(service,businessType)) {
 
@@ -119,6 +121,10 @@
                 ).withFormField(soleTraderForm("saUTR"))
             )
 
-        <button id="submit" type="submit" class="govuk-button">@messages("bc.business-registration.submit")</button>
+            @govukButton(Button(
+                content = Text(messages("bc.business-registration.submit")),
+                inputType = Some("submit"),
+                attributes = Map("id" -> "submit")
+            ))
     }
 }

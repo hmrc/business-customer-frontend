@@ -23,7 +23,10 @@
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
-    govukInput: GovukInput)
+    govukInput: GovukInput,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(businessRegistrationForm: Form[models.BusinessRegistration], isAgent: Boolean, service: String, displayDetails: models.BusinessRegistrationDisplayDetails,
         backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
@@ -32,19 +35,8 @@
     messages("bc.business-registration.user.group.header", service.toUpperCase)
 }
 
-@headingId = @{
-    "business-registration.header"
-}
-
 @headingText = @{
     messages(displayDetails.businessRegHeader, service.toUpperCase)
-}
-
-@headingSecondaryId = @{
-    isAgent match {
-        case true => "business-verification-agent-text"
-        case false => "business-verification-text"
-    }
 }
 
 @headingSecondaryText = @{
@@ -54,16 +46,29 @@
     }
 }
 
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
+
 @bcMain(title = titleBuilder(titleName, Some(businessRegistrationForm)), service = service) {
 
-  @pageHeadersAndError(
-      backLink,
-      headingSecondaryId,
-      headingSecondaryText,
-      headingId,
-      headingText,
-      Some(bcErrorSummary(businessRegistrationForm, "bc.business-verification-error.general"))
-  )
+    @backLinkHtml
+
+    @if(businessRegistrationForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(businessRegistrationForm))
+    }
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@headingSecondaryText</span>
+            @headingText
+        </h1>
+    </header>
 
   @formHelper(action = controllers.routes.BusinessRegUKController.send(service, messages(displayDetails.businessType))) {
 
@@ -128,7 +133,11 @@
             )
       </div>
 
-    <button class="govuk-button" id="submit" type="submit">@messages("bc.business-registration.submit")</button>
+        @govukButton(Button(
+            content = Text(messages("bc.business-registration.submit")),
+            inputType = Some("submit"),
+            attributes = Map("id" -> "submit")
+        ))
 
     <input type="hidden" class="govuk-input form-control" name="businessAddress.country" id="businessAddress.country" value="GB">
   }

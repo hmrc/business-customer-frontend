@@ -24,7 +24,10 @@
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
     govukInput: GovukInput,
-    govukDetails : GovukDetails)
+    govukDetails : GovukDetails,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(unincorporatedBodyForm: Form[forms.UnincorporatedMatch],
  isAgent: Boolean,
@@ -34,24 +37,11 @@
 
 @implicitFormInstance = @{ Some(unincorporatedBodyForm) }
 
-@headingId = @{
-    isAgent match {
-        case true => "business-type-agent-header"
-        case false => "business-type-header"
-    }
-}
 
 @headingText = @{
     isAgent match {
         case true => messages("bc.business-verification-selected-agent-header")
         case false => messages("bc.business-verification-selected-user-header")
-    }
-}
-
-@headingSecondaryId = @{
-    isAgent match {
-        case true => "business-verification-agent-text"
-        case false => "business-verification-text"
     }
 }
 
@@ -70,16 +60,29 @@
     ))
 }
 
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
+
 @bcMain(title = titleBuilder(headingText, Some(unincorporatedBodyForm)), service = service) {
 
-    @pageHeadersAndError(
-        backLink,
-        headingSecondaryId,
-        headingSecondaryText,
-        headingId,
-        headingText,
-        Some(bcErrorSummary(unincorporatedBodyForm, "bc.business-verification-error.general.ua"))
-    )
+    @backLinkHtml
+
+    @if(unincorporatedBodyForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(unincorporatedBodyForm))
+    }
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@headingSecondaryText</span>
+            @headingText
+        </h1>
+    </header>
 
     <p class="govuk-body" id="business-type-paragraph">@messages("bc.business-verification-lede")</p>
 
@@ -109,6 +112,10 @@
                 ).withFormField(unincorporatedBodyForm("cotaxUTR"))
             )
 
-        <button id="submit" type="submit" class="govuk-button">@messages("bc.business-registration.submit")</button>
+            @govukButton(Button(
+                content = Text(messages("bc.business-registration.submit")),
+                inputType = Some("submit"),
+                attributes = Map("id" -> "submit")
+            ))
     }
 }

@@ -32,6 +32,7 @@ import services.AgentRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import views.html.{global_error, review_details, review_details_non_uk_agent}
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -45,18 +46,18 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val mockAgentRegistrationService: AgentRegistrationService = mock[AgentRegistrationService]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
   val mockHttpClient: DefaultHttpClient = mock[DefaultHttpClient]
-  val injectedViewInstanceNonUkAgent= inject[views.html.review_details_non_uk_agent]
-  val injectedViewInstanceReviewDetails = inject[views.html.review_details]
-  val injectedViewInstanceError = inject[views.html.global_error]
+  val injectedViewInstanceNonUkAgent: review_details_non_uk_agent = inject[views.html.review_details_non_uk_agent]
+  val injectedViewInstanceReviewDetails: review_details = inject[views.html.review_details]
+  val injectedViewInstanceError: global_error = inject[views.html.global_error]
 
   implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
-  val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
+  val address: Address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
 
-  val directMatchReviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true, Some("agent123"))
+  val directMatchReviewDetails: ReviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = true, Some("agent123"))
 
-  val nonDirectMatchReviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+  val nonDirectMatchReviewDetails: ReviewDetails = ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
   val badGatewayResponse: JsValue = Json.parse( """{"statusCode":502,"message":"<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/03/addressing\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"><soap:Header><wsa:Action>http://schemas.xmlsoap.org/ws/2004/03/addressing/fault</wsa:Action><wsa:MessageID>uuid:199814d0-9758-49d1-a2c0-d24300f67e2c</wsa:MessageID><wsa:RelatesTo>uuid:d1894fa0-b97d-4707-a814-e0c5ea79a01a</wsa:RelatesTo><wsa:To>http://schemas.xmlsoap.org/ws/2004/03/addressing/role/anonymous</wsa:To><wsse:Security><wsu:Timestamp wsu:Id=\"Timestamp-0fdb513d-1da4-4804-80b5-d04530653fac\"><wsu:Created>2017-03-22T14:23:00Z</wsu:Created><wsu:Expires>2017-03-22T14:28:00Z</wsu:Expires></wsu:Timestamp></wsse:Security></soap:Header><soap:Body><soap:Fault><faultcode>soap:Client</faultcode><faultstring>Business Rule Error</faultstring><faultactor>http://www.gateway.gov.uk/soap/2007/02/portal</faultactor><detail><GatewayDetails xmlns=\"urn:GSO-System-Services:external:SoapException\"><ErrorNumber>9001</ErrorNumber><Message>The service HMRC-AGENT-AGENT requires unique identifiers</Message><RequestID>0753B23CA0C14D23A4BBFC129795C42E</RequestID></GatewayDetails></detail></soap:Fault></soap:Body></soap:Envelope>"}	""")
   val invalidBadGatewayResponse: JsValue = Json.parse( """{"statusCode":502,"message":"<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/03/addressing\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"><soap:Header><wsa:Action>http://schemas.xmlsoap.org/ws/2004/03/addressing/fault</wsa:Action><wsa:MessageID>uuid:199814d0-9758-49d1-a2c0-d24300f67e2c</wsa:MessageID><wsa:RelatesTo>uuid:d1894fa0-b97d-4707-a814-e0c5ea79a01a</wsa:RelatesTo><wsa:To>http://schemas.xmlsoap.org/ws/2004/03/addressing/role/anonymous</wsa:To><wsse:Security><wsu:Timestamp wsu:Id=\"Timestamp-0fdb513d-1da4-4804-80b5-d04530653fac\"><wsu:Created>2017-03-22T14:23:00Z</wsu:Created><wsu:Expires>2017-03-22T14:28:00Z</wsu:Expires></wsu:Timestamp></wsse:Security></soap:Header><soap:Body><soap:Fault><faultcode>soap:Client</faultcode><faultstring>Business Rule Error</faultstring><faultactor>http://www.gateway.gov.uk/soap/2007/02/portal</faultactor><detail><GatewayDetails xmlns=\"urn:GSO-System-Services:external:SoapException\"><ErrorNumber>1111</ErrorNumber><Message>The service HMRC-AGENT-AGENT requires unique identifiers</Message><RequestID>0753B23CA0C14D23A4BBFC129795C42E</RequestID></GatewayDetails></detail></soap:Fault></soap:Body></soap:Envelope>"}	""")
@@ -70,7 +71,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       var reads: Int = 0
 
-      override def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier) = {
+      override def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier): Future[Some[ReviewDetails]] = {
         reads = reads + 1
         Future.successful(Some(reviewDetails))
       }
@@ -99,7 +100,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       var reads: Int = 0
 
-      override def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier) = {
+      override def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier): Future[None.type] = {
         reads = reads + 1
         Future.successful(None)
       }
@@ -119,7 +120,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     }
   }
 
-  override def beforeEach = {
+  override def beforeEach: Unit = {
     reset(mockAuthConnector)
     reset(mockBackLinkCache)
     reset(mockAgentRegistrationService)
@@ -152,39 +153,44 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "return Review Details view for a user, when user can't be directly found with login credentials" in {
         businessDetailsWithAuthorisedUser(nonDirectMatchReviewDetails) { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must be("Check this is the business you want to register")
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED/businessForm/LTD")
+          document.select("h1").text must include("Check this is the business you want to register")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED/businessForm/LTD")
         }
       }
 
       "return Review Details view for a user, when we directly found this user" in {
         businessDetailsWithAuthorisedUser(directMatchReviewDetails) { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must be("Check this is the business you want to register")
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("/business-customer/business-verification/ATED/businessForm/LTD")
+          document.select("h1").text must include("Check this is the business you want to register")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED/businessForm/LTD")
         }
       }
 
       "return Review Details view for an agent, when agent can't be directly found with login credentials" in {
         businessDetailsWithAuthorisedAgent(nonDirectMatchReviewDetails) { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must be("Confirm your agency’s details")
+          document.select("h1").text must include("Confirm your agency’s details")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
         }
       }
 
       "return Review Details view for an agent, when we directly found this agent" in {
         businessDetailsWithAuthorisedAgent(directMatchReviewDetails) { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must be("Confirm your agency’s details")
+          document.select("h1").text must include("Confirm your agency’s details")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
         }
       }
 
       "return Review Details view for an agent, when we directly found this agent with editable address" in {
         businessDetailsWithAuthorisedAgent(directMatchReviewDetails.copy(isBusinessDetailsEditable = true)) { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must be("Check your agency details")
+          document.select("h1").text must include("Check your agency details")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
         }
       }
     }
@@ -366,7 +372,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   }
 
 
-  def businessDetailsWithAuthorisedAgent(reviewDetails: ReviewDetails)(test: Future[Result] => Any) = {
+  def businessDetailsWithAuthorisedAgent(reviewDetails: ReviewDetails)(test: Future[Result] => Any): ReviewDetailsController = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
@@ -377,7 +383,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     testDetailsController
   }
 
-  def businessDetailsWithAuthorisedUser(reviewDetails: ReviewDetails)(test: Future[Result] => Any) = {
+  def businessDetailsWithAuthorisedUser(reviewDetails: ReviewDetails)(test: Future[Result] => Any): ReviewDetailsController = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("/business-customer/business-verification/ATED/businessForm/LTD")))
@@ -388,7 +394,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     testDetailsController
   }
 
-  def businessDetailsWithAuthorisedUserNotFound(test: Future[Result] => Any) = {
+  def businessDetailsWithAuthorisedUserNotFound(test: Future[Result] => Any): ReviewDetailsController = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))

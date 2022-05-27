@@ -22,15 +22,38 @@
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
-    govukRadios: GovukRadios)
+    govukRadios: GovukRadios,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(nrlQuestionForm: Form[models.NRLQuestion], service: String, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
+
 @bcMain(title = titleBuilder(messages("bc.nrl.title"), Some(nrlQuestionForm)), service = service) {
 
+    @backLinkHtml
+
+    @if(nrlQuestionForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(nrlQuestionForm))
+    }
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@messages("bc.nrl.subheader", service.toUpperCase)</span>
+            @messages("bc.nrl.header")
+        </h1>
+    </header>
+
     @formHelper(action = controllers.nonUKReg.routes.NRLQuestionController.continue(service)) {
-    @pageHeadersAndError(backLink, "client-appoint-subheader", messages("bc.nrl.subheader", service.toUpperCase), "nrl-question-header", messages("bc.nrl.header"),
-      Some(bcErrorSummary(nrlQuestionForm, "bc.nrl-error.general")))
 
     <p class="govuk-body">@Messages("bc.nrl-answer")</p>
 
@@ -56,6 +79,10 @@
         ).withFormField(nrlQuestionForm("paysSA"))
     )
 
-    <button class="govuk-button" id="submit" type="submit"> @messages("bc.continue") </button>
+    @govukButton(Button(
+        content = Text(messages("bc.continue")),
+        inputType = Some("submit"),
+        attributes = Map("id" -> "submit")
+     ))
   }
 }

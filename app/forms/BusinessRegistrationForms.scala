@@ -38,7 +38,7 @@ object BusinessRegistrationForms {
   val NonUkPostCodeRegex = "^[a-zA-Z0-9]{1,10}+(?: [a-zA-Z0-9]{2,10})?$"
   val countryUK = "GB"
 
-  val businessRegistrationForm = Form(
+  val businessRegistrationForm: Form[BusinessRegistration] = Form(
     mapping(
       "businessName" -> text.
         verifying("bc.business-registration-error.businessName", _.trim.length > length0)
@@ -64,7 +64,7 @@ object BusinessRegistrationForms {
     )(BusinessRegistration.apply)(BusinessRegistration.unapply)
   )
 
-  val overseasCompanyForm = Form(
+  val overseasCompanyForm: Form[OverseasCompany] = Form(
     mapping(
       "hasBusinessUniqueId" -> optional(boolean).verifying("bc.business-registration-error.hasBusinessUniqueId.not-selected", x => x.isDefined),
       "businessUniqueId" -> optional(text)
@@ -198,20 +198,27 @@ object BusinessRegistrationForms {
 
     val formWithTrimmedCountryPostcode = amendedForm(registrationData, postCode, trimmedCountry)
 
+    val form = if(postCode.isEmpty && validatePostCode) {
+      formWithTrimmedCountryPostcode.withError(key = "businessAddress.postcode",
+        message = "bc.business-registration-error.postcode")
+    } else if(!postCode.fold("")(x => x).matches(NonUkPostCodeRegex) && validatePostCode) {
+      formWithTrimmedCountryPostcode.withError(key = "businessAddress.postcode",
+        message = "bc.business-registration-error.postcode.invalid")
+    } else{
+      formWithTrimmedCountryPostcode
+    }
+
     val countryForm = {
       if (trimmedCountry.fold("")(x => x).matches(countryUK)) {
-        formWithTrimmedCountryPostcode.withError(key = "businessAddress.country", message = "bc.business-registration-error.non-uk")
+        form.withError(key = "businessAddress.country", message = "bc.business-registration-error.non-uk")
       } else {
-        formWithTrimmedCountryPostcode
+        form
       }
     }
 
-    if(postCode.isEmpty && validatePostCode) {
-      countryForm.withError(key = "businessAddress.postcode",
-        message = "bc.business-registration-error.postcode")
-    } else if(!postCode.fold("")(x => x).matches(NonUkPostCodeRegex) && validatePostCode) {
-      countryForm.withError(key = "businessAddress.postcode",
-        message = "bc.business-registration-error.postcode.invalid")
+    //the following code makes sure the errors are displayed in the same order as the fields appear on the page
+    if (trimmedCountry.isEmpty){
+      countryForm.copy(errors = form.errors.filterNot(e => e.key == "businessAddress.country")).withError("businessAddress.country", "bc.business-registration-error.country")
     } else{
       countryForm
     }
@@ -231,13 +238,13 @@ object BusinessRegistrationForms {
 
   }
 
-  val nrlQuestionForm = Form(
+  val nrlQuestionForm: Form[NRLQuestion] = Form(
     mapping(
       "paysSA" -> optional(boolean).verifying("bc.nrl.paysSA.not-selected.error", a => a.isDefined)
     )(NRLQuestion.apply)(NRLQuestion.unapply)
   )
 
-  val paySAQuestionForm = Form(
+  val paySAQuestionForm: Form[PaySAQuestion] = Form(
     mapping(
       "paySA" -> optional(boolean).verifying("bc.nonuk.paySA.not-selected.error", a => a.isDefined)
     )(PaySAQuestion.apply)(PaySAQuestion.unapply)

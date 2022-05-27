@@ -30,6 +30,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
+import views.html.nonUkReg.nonuk_business_registration
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -39,7 +40,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
 
   val service = "ATED"
   val invalidService = "scooby-doo"
-  val injectedViewInstance = inject[views.html.nonUkReg.nonuk_business_registration]
+  val injectedViewInstance: nonuk_business_registration = inject[views.html.nonUkReg.nonuk_business_registration]
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   private val mockAuthConnector: DefaultAuthConnector = mock[DefaultAuthConnector]
@@ -71,14 +72,14 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
   "AgentRegisterNonUKClientController" must {
     "unauthorised users" must {
       "respond with a redirect for /register & be redirected to the unauthorised page" in new Setup {
-        registerWithUnAuthorisedUser("NUK", controller = controller) { result =>
+        registerWithUnAuthorisedUser(controller = controller) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some("/business-customer/unauthorised"))
         }
       }
 
       "respond with a redirect for /send & be redirected to the unauthorised page" in new Setup {
-        submitWithUnAuthorisedUser("NUK", controller = controller) { result =>
+        submitWithUnAuthorisedUser(controller = controller) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some("/business-customer/unauthorised"))
         }
@@ -93,8 +94,8 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your client’s overseas registered business name and address? - GOV.UK")
-          document.getElementById("business-verification-text").text() must be("This section is: Add a client")
-          document.getElementById("non-uk-reg-header").text() must be("What is your client’s overseas registered business name and address?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: Add a client")
+          document.getElementsByTag("h1").text() must include("What is your client’s overseas registered business name and address?")
           document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
           document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
           document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
@@ -103,20 +104,21 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
           document.getElementsByAttributeValue("for", "businessAddress.country").text() must include("Country")
           document.getElementById("submit").text() must be("Continue")
 
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("http://cachedBackLink")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("http://cachedBackLink")
         }
       }
 
       "return business registration view for a Non-UK based client by agent with a back link" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("http://backLink")))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some("http://backLink")))
         viewWithAuthorisedUser(service, "NUK", Some("http://backLink"), Some("http://cachedBackLink"), controller) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your client’s overseas registered business name and address? - GOV.UK")
-          document.getElementById("business-verification-text").text() must be("This section is: Add a client")
-          document.getElementById("non-uk-reg-header").text() must be("What is your client’s overseas registered business name and address?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: Add a client")
+          document.getElementsByTag("h1").text() must include("What is your client’s overseas registered business name and address?")
           document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
           document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
           document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
@@ -125,31 +127,32 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
           document.getElementsByAttributeValue("for", "businessAddress.country").text() must include("Country")
           document.getElementById("submit").text() must be("Continue")
 
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("http://backLink")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("http://backLink")
         }
       }
 
 
       "return business registration view for a Non-UK based client by agent with some saved data" in new Setup {
-        val regAddress = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
-        val businessReg = BusinessRegistration("ACME", regAddress)
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("http://backLink")))
+        val regAddress: Address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
+        val businessReg: BusinessRegistration = BusinessRegistration("ACME", regAddress)
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some("http://backLink")))
         viewWithAuthorisedUserWithSomeData(service, Some(businessReg), "NUK", Some("http://backLink"), Some("http://cachedBackLink"), controller) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
 
           document.title() must be("What is your client’s overseas registered business name and address? - GOV.UK")
-          document.getElementById("business-verification-text").text() must be("This section is: Add a client")
-          document.getElementById("non-uk-reg-header").text() must be("What is your client’s overseas registered business name and address?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: Add a client")
+          document.getElementsByTag("h1").text() must include("What is your client’s overseas registered business name and address?")
           document.getElementById("businessName").`val`() must be("ACME")
           document.getElementById("businessAddress.line_1").`val`() must be("line 1")
           document.getElementById("businessAddress.line_2").`val`() must be("line 2")
           document.getElementById("submit").text() must be("Continue")
 
-          document.getElementById("backLinkHref").text() must be("Back")
-          document.getElementById("backLinkHref").attr("href") must be("http://backLink")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("http://backLink")
         }
       }
 
@@ -184,7 +187,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
         type ErrorMessage = String
 
         "not be empty" in new Setup {
-          val inputJson = createJson(businessName = "", line1 = "", line2 = "", country = "")
+          val inputJson: InputJson = createJson(businessName = "", line1 = "", line2 = "", country = "")
 
           submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), controller = controller) { result =>
             status(result) must be(BAD_REQUEST)
@@ -216,16 +219,17 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
         }
 
         "If registration details entered are valid, continue button must redirect to service specific redirect url" in new Setup {
-          val inputJson = createJson()
+          val inputJson: InputJson = createJson()
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some("http://localhost:9933/ated-subscription/registered-business-address"), controller) { result =>
+          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED",
+            Some("http://localhost:9933/ated-subscription/registered-business-address"), controller) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result).get must include("/business-customer/register/non-uk-client/overseas-company/ATED/true?redirectUrl=")
           }
         }
 
         "respond with NotFound when invalid service is in uri" in new Setup {
-          val inputJson = createJson()
+          val inputJson: InputJson = createJson()
           intercept[NotFoundException] {
             submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), invalidService, None, controller = controller) { result =>
               status(result) must be(NOT_FOUND)
@@ -333,7 +337,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = BusinessRegistration("ACME", address)
 
-    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), (ArgumentMatchers.any())))
+    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(successModel))
 
 

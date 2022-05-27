@@ -24,7 +24,10 @@
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
     govukInput: GovukInput,
-    govukDetails : GovukDetails)
+    govukDetails : GovukDetails,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(limitedCompanyForm: Form[forms.LimitedCompanyMatch],
  isAgent: Boolean,
@@ -32,27 +35,12 @@
  businessType: String,
  backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-
 @implicitFormInstance = @{ Some(limitedCompanyForm) }
-
-@headingId = @{
-    isAgent match {
-        case true => "business-type-agent-header"
-        case false => "business-type-header"
-    }
-}
 
 @headingText = @{
     isAgent match {
         case true => messages("bc.business-verification-selected-agent-header")
         case false => messages("bc.business-verification-selected-user-header")
-    }
-}
-
-@headingSecondaryId = @{
-    isAgent match {
-        case true => "business-verification-agent-text"
-        case false => "business-verification-text"
     }
 }
 
@@ -78,16 +66,29 @@
     ))
 }
 
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
+
 @bcMain(title = titleBuilder(headingText, Some(limitedCompanyForm)), service = service) {
 
-    @pageHeadersAndError(
-        backLink,
-        headingSecondaryId,
-        headingSecondaryText,
-        headingId,
-        headingText,
-        Some(bcErrorSummary(limitedCompanyForm, "bc.business-verification-error.general.ltd"))
-    )
+    @backLinkHtml
+
+    @if(limitedCompanyForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(limitedCompanyForm))
+    }
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@headingSecondaryText</span>
+            @headingText
+        </h1>
+    </header>
 
     @if(isAgent){
         @bcCheckAgency()
@@ -121,6 +122,10 @@
                 ).withFormField(limitedCompanyForm("cotaxUTR"))
             )
 
-        <button id="submit" type="submit" class="govuk-button">@messages("bc.business-registration.submit")</button>
+            @govukButton(Button(
+                content = Text(messages("bc.business-registration.submit")),
+                inputType = Some("submit"),
+                attributes = Map("id" -> "submit")
+            ))
     }
 }

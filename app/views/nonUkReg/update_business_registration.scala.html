@@ -26,7 +26,10 @@
     formHelper: FormWithCSRF,
     govukInput: GovukInput,
     govukDetails : GovukDetails,
-    govukSelect: GovukSelect)
+    govukSelect: GovukSelect,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(businessRegistrationForm: Form[models.BusinessRegistration],
   service: String,
@@ -49,19 +52,35 @@
   </script>
 }
 
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
+
 @bcMain(title = titleBuilder(messages(displayDetails.businessRegHeader), Some(businessRegistrationForm)), service = service, pageScripts = Some(pageScripts)) {
-  @pageHeadersAndError(backLink,
-    "business-verification-text",
-    messages(displayDetails.businessRegSubHeader, service),
-    "business-reg-header",
-    messages(displayDetails.businessRegHeader),
-    Some(bcErrorSummary(businessRegistrationForm, "bc.non-uk-reg-error.general")))
+
+    @backLinkHtml
+
+    @if(businessRegistrationForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(businessRegistrationForm))
+    }
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@messages(displayDetails.businessRegSubHeader, service)</span>
+            @messages(displayDetails.businessRegHeader)
+        </h1>
+    </header>
 
   @displayDetails.businessRegLede.map { businessRegLede =>
-  <p class="govuk-body" id="business-reg-lede">@Html(messages(businessRegLede))</p>
+    <p class="govuk-body" id="business-reg-lede">@Html(messages(businessRegLede))</p>
   }
 
-  @formHelper(action = controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.update(service, redirectUrl, isRegisterClient)) {
+    @formHelper(action = controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.update(service, redirectUrl, isRegisterClient)) {
 
         @govukInput(
              Input(
@@ -104,7 +123,6 @@
              ).withFormField(businessRegistrationForm("businessAddress.line_4"))
         )
 
-
         @if(!isAgent) {
             @govukInput(
              Input(
@@ -131,8 +149,10 @@
              ).withFormField(businessRegistrationForm("businessAddress.country"))
         )
 
-  <button class="govuk-button" id="submit" type="submit">@messages("bc.continue")</button>
-
-}
-
+        @govukButton(Button(
+            content = Text(messages("bc.continue")),
+            inputType = Some("submit"),
+            attributes = Map("id" -> "submit")
+        ))
+    }
 }
