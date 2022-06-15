@@ -16,6 +16,8 @@
 
 package controllers.nonUKReg
 
+import java.util.UUID
+
 import builders.SessionBuilder
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
@@ -25,15 +27,13 @@ import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html.nonUkReg.nrl_question
 
-import java.util.UUID
 import scala.concurrent.Future
 
 
@@ -112,7 +112,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     "continue" must {
 
       "respond with NotFound when invalid service is in uri" in {
-        val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paysSA": ""}"""))
+        val fakeRequest = FakeRequest("POST", "/").withFormUrlEncodedBody(Map("paysSA" -> "").toSeq: _*)
         intercept[NotFoundException] {
           continueWithAuthorisedClient(fakeRequest, invalidService) { result =>
             status(result) must be(NOT_FOUND)
@@ -121,20 +121,20 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       }
 
       "if user doesn't select any radio button, show form error with bad_request" in {
-        val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paysSA": ""}"""))
+        val fakeRequest = FakeRequest("POST", "/").withFormUrlEncodedBody(Map("paysSA" -> "").toSeq: _*)
         continueWithAuthorisedClient(fakeRequest, service) { result =>
           status(result) must be(BAD_REQUEST)
         }
       }
       "if user select 'yes', redirect it to Pay SA page" in {
-        val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paysSA": "true"}"""))
+        val fakeRequest = FakeRequest("POST", "/").withFormUrlEncodedBody(Map("paysSA" -> "true").toSeq: _*)
         continueWithAuthorisedClient(fakeRequest, service) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some(s"/business-customer/register/non-uk-client/paySA/$service"))
         }
       }
       "if user select 'no', redirect it to business registration page" in {
-        val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paysSA": "false"}"""))
+        val fakeRequest = FakeRequest("POST", "/").withFormUrlEncodedBody(Map("paysSA" -> "false").toSeq: _*)
         continueWithAuthorisedClient(fakeRequest, service) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some(s"/business-customer/register/$service/NUK"))
@@ -200,7 +200,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   }
 
 
-  def continueWithAuthorisedClient(fakeRequest: FakeRequest[AnyContentAsJson], serviceName: String)(test: Future[Result] => Any): Any = {
+  def continueWithAuthorisedClient(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], serviceName: String)(test: Future[Result] => Any): Any = {
     val userId   = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))

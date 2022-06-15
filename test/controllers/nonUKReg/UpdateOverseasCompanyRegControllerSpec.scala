@@ -16,6 +16,8 @@
 
 package controllers.nonUKReg
 
+import java.util.UUID
+
 import config.ApplicationConfig
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
@@ -25,7 +27,7 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.JsValue
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
@@ -33,7 +35,6 @@ import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import views.html.nonUkReg.update_overseas_company_registration
 
-import java.util.UUID
 import scala.concurrent.Future
 
 class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
@@ -151,28 +152,11 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
       "validate form" must {
 
-        def createJson(hasBusinessUniqueId: Boolean = true,
-                       bUId: String = "some-id",
-                       issuingInstitution: String = "some-institution",
-                       issuingCountry: String = "FR") =
-          Json.parse(
-            s"""
-               |{
-               |  "hasBusinessUniqueId": $hasBusinessUniqueId,
-               |  "businessUniqueId": "$bUId",
-               |  "issuingInstitution": "$issuingInstitution",
-               |  "issuingCountry": "$issuingCountry"
-               |}
-          """.stripMargin)
-
-        type InputJson = JsValue
         type TestMessage = String
         type ErrorMessage = String
 
         "not be empty" in {
-          val inputJson = createJson(bUId = "", issuingInstitution = "", issuingCountry = "")
-
-          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED") { result =>
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "", "issuingInstitution" -> "", "issuingCountry" -> "").toSeq: _*), "ATED") { result =>
             status(result) must be(BAD_REQUEST)
             contentAsString(result) must include("Enter the country that issued the overseas company registration number")
             contentAsString(result) must include("Enter an institution that issued the overseas company registration number")
@@ -181,18 +165,18 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
         }
 
         // inputJson , test message, error message
-        val formValidationInputDataSet: Seq[(InputJson, TestMessage, ErrorMessage)] = Seq(
-          (createJson(bUId = "a" * 61), "businessUniqueId must be maximum of 60 characters",
+        val formValidationInputDataSet: Seq[(Map[String, String], TestMessage, ErrorMessage)] = Seq(
+          (Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> s"${"a" * 61}", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR"), "businessUniqueId must be maximum of 60 characters",
             "The overseas company registration number cannot be more than 60 characters"),
-          (createJson(issuingInstitution = "a" * 41), "issuingInstitution must be maximum of 40 characters",
+          (Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> s"${"a" * 41}", "issuingCountry" -> "FR"), "issuingInstitution must be maximum of 40 characters",
             "The institution that issued the overseas company registration number cannot be more than 40 characters"),
-          (createJson(issuingCountry = "GB"), "show an error if issuing country is selected as GB",
+          (Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "GB"), "show an error if issuing country is selected as GB",
             "You cannot select United Kingdom when entering an overseas address")
         )
 
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
-            registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(data._1), "ATED") { result =>
+            registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(data._1.toSeq: _*), "ATED") { result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include(data._3)
             }
@@ -200,32 +184,28 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
         }
 
         "If we have no cache then an exception must be thrown" in {
-          val inputJson = createJson()
-          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson),"ATED", None, hasCache = false) { result =>
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*),"ATED", None, hasCache = false) { result =>
             val thrown = the[RuntimeException] thrownBy await(result)
             thrown.getMessage must be("No registration details found")
           }
         }
 
         "If registration details entered are valid, continue button must redirect to the next page" in {
-          val inputJson = createJson()
-          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED") { result =>
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED") { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result) must be(Some("/business-customer/review-details/ATED"))
           }
         }
 
         "If registration details entered are valid, continue button must redirect to redirectUrl when present" in {
-          val inputJson = createJson()
-          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some("/api/anywhere")) { result =>
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some("/api/anywhere")) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result) must be(Some("/api/anywhere"))
           }
         }
 
         "redirect url is invalid format" in {
-          val inputJson = createJson()
-          registerWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some("http://website.com")) { result =>
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some("http://website.com")) { result =>
             status(result) must be(BAD_REQUEST)
           }
         }
@@ -305,7 +285,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
     test(result)
   }
 
-  def registerWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsJson], service: String = service, redirectUrl: Option[String] = None, hasCache: Boolean = true)(test: Future[Result] => Any) {
+  def registerWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], service: String = service, redirectUrl: Option[String] = None, hasCache: Boolean = true)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -339,7 +319,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
     test(result)
   }
 
-  def submitWithAuthorisedUserFailure(fakeRequest: FakeRequest[AnyContentAsJson], redirectUrl: Option[String] = None)(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserFailure(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], redirectUrl: Option[String] = None)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 

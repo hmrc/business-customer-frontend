@@ -29,7 +29,7 @@ lazy val microservice: Project = Project(appName, file("."))
     defaultSettings(),
     scoverageSettings,
     scalacOptions += "-Ywarn-unused:-explicits,-implicits",
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.15",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true,
     majorVersion := 4,
