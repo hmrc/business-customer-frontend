@@ -16,25 +16,26 @@
 
 package controllers.nonUKReg
 
+import java.util.UUID
+
 import builders.SessionBuilder
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.BusinessVerificationController
+import javax.inject.Provider
 import models.PaySAQuestion
 import org.jsoup.Jsoup
 import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
+import views.html.nonUkReg.paySAQuestion
 
-import java.util.UUID
-import javax.inject.Provider
 import scala.concurrent.Future
 
 
@@ -48,7 +49,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val service = "amls"
   val invalidService = "scooby-doo"
   val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
-  val injectedViewInstance = inject[views.html.nonUkReg.paySAQuestion]
+  val injectedViewInstance: paySAQuestion = inject[views.html.nonUkReg.paySAQuestion]
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
@@ -66,7 +67,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     override val controllerId = "test"
   }
 
-  override def beforeEach = {
+  override def beforeEach: Unit = {
     reset(mockAuthConnector)
     reset(mockBackLinkCache)
   }
@@ -116,7 +117,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     "continue" must {
 
       "respond with NotFound when invalid service is in uri" in {
-        val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paySA": ""}"""))
+        val fakeRequest = FakeRequest("POST", "/").withFormUrlEncodedBody(Map("paySA" -> "").toSeq: _*)
         when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
         intercept[NotFoundException] {
           continueWithAuthorisedClient(fakeRequest, invalidService) { result =>
@@ -126,14 +127,14 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       }
 
       "if user doesn't select any radio button, show form error with bad_request" in {
-        val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paySA": ""}"""))
+        val fakeRequest = FakeRequest("POST", "/").withFormUrlEncodedBody(Map("paySA" -> "").toSeq: _*)
         when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
         continueWithAuthorisedClient(fakeRequest, service) { result =>
           status(result) must be(BAD_REQUEST)
         }
       }
       "if user select 'yes', redirect it to business verification page" in {
-        val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paySA": "true"}"""))
+        val fakeRequest = FakeRequest("POST", "/").withFormUrlEncodedBody(Map("paySA" -> "true").toSeq: _*)
         when(mockBusinessVerificationControllerProv.get())
             .thenReturn(mockBusinessVerificationController)
         when(mockBusinessVerificationController.controllerId)
@@ -146,7 +147,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
         }
       }
       "if user select 'no', redirect it to business registration page" in {
-        val fakeRequest = FakeRequest().withJsonBody(Json.parse("""{"paySA": "false"}"""))
+        val fakeRequest = FakeRequest("POST", "/").withFormUrlEncodedBody(Map("paySA" -> "false").toSeq: _*)
         continueWithAuthorisedClient(fakeRequest, service) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some(s"/business-customer/register/$service/NUK"))
@@ -158,7 +159,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   }
 
 
-  def viewWithAuthorisedAgent(serviceName: String)(test: Future[Result] => Any) = {
+  def viewWithAuthorisedAgent(serviceName: String)(test: Future[Result] => Any): Any = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -175,7 +176,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   }
 
 
-  def viewWithAuthorisedClient(serviceName: String)(test: Future[Result] => Any) = {
+  def viewWithAuthorisedClient(serviceName: String)(test: Future[Result] => Any): Any = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -192,7 +193,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     test(result)
   }
 
-  def viewWithAuthorisedClientWistSavedData(serviceName: String)(test: Future[Result] => Any) = {
+  def viewWithAuthorisedClientWistSavedData(serviceName: String)(test: Future[Result] => Any): Any = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     val successModel = PaySAQuestion(Some(false))
@@ -211,7 +212,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   }
 
 
-  def continueWithAuthorisedClient(fakeRequest: FakeRequest[AnyContentAsJson], serviceName: String)(test: Future[Result] => Any) = {
+  def continueWithAuthorisedClient(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], serviceName: String)(test: Future[Result] => Any): Any = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))

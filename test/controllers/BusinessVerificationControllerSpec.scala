@@ -16,6 +16,8 @@
 
 package controllers
 
+import java.util.UUID
+
 import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
@@ -25,7 +27,6 @@ import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, Messages}
-import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
@@ -34,7 +35,6 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html._
 
-import java.util.UUID
 import scala.concurrent.Future
 
 class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
@@ -166,7 +166,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "continue" must {
 
       "selecting continue with no business type selected must display error message" in new Setup {
-        continueWithAuthorisedUserJson(controller, "", FakeRequest().withJsonBody(Json.parse( """{"businessType" : ""}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "")) { result =>
           status(result) must be(BAD_REQUEST)
           contentAsString(result) must include("Select your type of business")
         }
@@ -174,8 +174,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
       "if non-uk with capital-gains-tax service, continue to registration page" in new Setup {
         when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        continueWithAuthorisedUserJson(controller, "NUK", FakeRequest()
-          .withJsonBody(Json.parse( """{"businessType" : "NUK"}""")), "capital-gains-tax") { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "NUK"), "capital-gains-tax") { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include(s"/business-customer/register/capital-gains-tax/NUK")
         }
@@ -183,7 +182,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
       "if non-uk, continue to registration page" in new Setup {
         willSaveBackLink("/business-customer/business-verification/ATED")
-        continueWithAuthorisedUserJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NUK"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "NUK")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include(s"/ated-subscription/previous")
         }
@@ -191,7 +190,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
       "if non-uk Agent, continue to ATED NRL page" in new Setup {
         willSaveBackLink("/business-customer/business-verification/ATED")
-        continueWithAuthorisedAgentJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NUK"}"""))) { result =>
+        continueWithAuthorisedAgentJson(controller, "NUK", FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessType" -> "NUK").toSeq: _*)) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include(s"/business-customer/nrl/ATED")
         }
@@ -199,7 +198,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
       "if new, continue to NEW registration page" in new Setup {
         willSaveBackLink(s"/business-customer/business-verification/$service")
-        continueWithAuthorisedUserJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NEW"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "NEW")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include(s"/business-customer/register-gb/$service/NEW")
         }
@@ -207,7 +206,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
       "if group, continue to GROUP registration page" in new Setup {
         willSaveBackLink(s"/business-customer/business-verification/$service")
-        continueWithAuthorisedUserJson(controller, "NUK", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "GROUP"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "GROUP")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include(s"/business-customer/register-gb/$service/GROUP")
         }
@@ -215,7 +214,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
       "for any other option, redirect to home page again" in new Setup {
         when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        continueWithAuthorisedUserJson(controller, "XYZ", FakeRequest().withJsonBody(Json.parse("""{"businessType" : "XYZ"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "XYZ")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some(s"/business-customer/agent/$service"))
         }
@@ -225,42 +224,33 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting Sole Trader option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedSaUserJson(controller, "SOP", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType": "SOP",
-            |  "isSaAccount": "true",
-            |  "isOrgAccount": "false"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedSaUserJson(controller, Map(
+          "businessType" -> "SOP",
+          "isSaAccount"               -> "true",
+          "isOrgAccount"              -> "false"
+        )) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
       }
 
       "fail with a bad request when SOP is selected for an Org user" in new Setup {
-        continueWithAuthorisedUserJson(controller, "SOP", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType" : "SOP",
-            |  "isSaAccount": "false",
-            |  "isOrgAccount": "true"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedUserJson(controller,  Map(
+          "businessType" -> "SOP",
+          "isSaAccount"               -> "false",
+          "isOrgAccount"              -> "true"
+        )) { result =>
           status(result) must be(BAD_REQUEST)
           contentAsString(result) must include("You are logged in as an organisation with your Government Gateway ID. You cannot select sole trader or self-employed as your business type. You need to have an individual Government Gateway ID and enrol for Self Assessment")
         }
       }
 
       "redirect to next screen to allow additional form fields to be entered when user has both Sa and Org and selects SOP" in new Setup {
-        continueWithAuthorisedSaOrgUserJson(controller, "SOP", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType": "SOP",
-            |  "isSaAccount": "true",
-            |  "isOrgAccount": "true"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedSaOrgUserJson(controller, Map(
+          "businessType" -> "SOP",
+          "isSaAccount"               -> "true",
+          "isOrgAccount"              -> "true"
+        )) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
@@ -310,35 +300,29 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting None Resident Landlord option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, "NRL", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "NRL"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "NRL")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
       }
 
       "fail with a bad request when NRL is selected for an Sa user" in new Setup {
-        continueWithAuthorisedSaUserJson(controller, "NRL", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType": "NRL",
-            |  "isSaAccount": "true",
-            |  "isOrgAccount": "false"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedSaUserJson(controller, Map(
+          "businessType" -> "NRL",
+          "isSaAccount"               -> "true",
+          "isOrgAccount"              -> "false"
+        )) { result =>
           status(result) must be(BAD_REQUEST)
           contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
         }
       }
 
       "redirect to next screen to allow additional form fields to be entered when user has both Sa and Org and selects LTD" in new Setup {
-        continueWithAuthorisedSaOrgUserJson(controller, "LTD", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType": "NRL",
-            |  "isSaAccount": "true",
-            |  "isOrgAccount":"true"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedSaOrgUserJson(controller, Map(
+          "businessType" -> "NRL",
+          "isSaAccount"               -> "true",
+          "isOrgAccount"              -> "true"
+        )) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
@@ -390,35 +374,29 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting Limited Company option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, "LTD", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "LTD"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "LTD")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
       }
 
       "fail with a bad request when LTD is selected for an Sa user" in new Setup {
-        continueWithAuthorisedSaUserJson(controller, "LTD", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType": "LTD",
-            |  "isSaAccount": "true",
-            |  "isOrgAccount": "false"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedSaUserJson(controller, Map(
+          "businessType" -> "LTD",
+          "isSaAccount"               -> "true",
+          "isOrgAccount"              -> "false"
+        )) { result =>
           status(result) must be(BAD_REQUEST)
           contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
         }
       }
 
       "redirect to next screen to allow additional form fields to be entered when user has both Sa and Org and selects LTD" in new Setup {
-        continueWithAuthorisedSaOrgUserJson(controller, "LTD", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType": "LTD",
-            |  "isSaAccount": "true",
-            |  "isOrgAccount":"true"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedSaOrgUserJson(controller, Map(
+          "businessType" -> "LTD",
+          "isSaAccount"               -> "true",
+          "isOrgAccount"              -> "true"
+        )) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
@@ -468,35 +446,29 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting Unit Trust option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, "UT", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "UT"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "UT")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
       }
 
       "fail with a bad request when UT is selected for an Sa user" in new Setup {
-        continueWithAuthorisedSaUserJson(controller, "UT", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType": "UT",
-            |  "isSaAccount": "true",
-            |  "isOrgAccount": "false"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedSaUserJson(controller, Map(
+          "businessType" -> "UT",
+          "isSaAccount"               -> "true",
+          "isOrgAccount"              -> "false"
+        )) { result =>
           status(result) must be(BAD_REQUEST)
           contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
         }
       }
 
       "redirect to next screen to allow additional form fields to be entered when user has both Sa and Org and selects UT" in new Setup {
-        continueWithAuthorisedSaOrgUserJson(controller, "UT", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType": "UT",
-            |  "isSaAccount": "true",
-            |  "isOrgAccount":"true"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedSaOrgUserJson(controller, Map(
+          "businessType" -> "UT",
+          "isSaAccount"               -> "true",
+          "isOrgAccount"              -> "true"
+        )) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
@@ -529,7 +501,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting Unincorporated Body option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, "UIB", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "UIB"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "UIB")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
@@ -578,7 +550,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
     "when selecting Ordinary business partnership" must {
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, "OBP", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "OBP"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "OBP")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
@@ -627,7 +599,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
     "when selecting Limited Liability Partnership option" must {
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, "LLP", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "LLP"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "LLP")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
@@ -675,7 +647,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
     "when selecting Limited Partnership option" must {
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, "LP", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "LP"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "LP")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
@@ -725,35 +697,29 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting Unlimited Company option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, "ULTD", FakeRequest().withJsonBody(Json.parse( """{"businessType" : "ULTD"}"""))) { result =>
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "ULTD")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
       }
 
       "fail with a bad request when ULTD is selected for an Sa user" in new Setup {
-        continueWithAuthorisedSaUserJson(controller, "ULTD", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType": "ULTD",
-            |  "isSaAccount": "true",
-            |  "isOrgAccount": "false"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedSaUserJson(controller, Map(
+          "businessType" -> "ULTD",
+          "isSaAccount"               -> "true",
+          "isOrgAccount"              -> "false"
+        )) { result =>
           status(result) must be(BAD_REQUEST)
           contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
         }
       }
 
       "redirect to next screen to allow additional form fields to be entered when user has both Sa and Org and selects ULTD" in new Setup {
-        continueWithAuthorisedSaOrgUserJson(controller, "ULTD", FakeRequest().withJsonBody(Json.parse(
-          """
-            |{
-            |  "businessType": "ULTD",
-            |  "isSaAccount": "true",
-            |  "isOrgAccount":"true"
-            |}
-          """.stripMargin))) { result =>
+        continueWithAuthorisedSaOrgUserJson(controller, Map(
+          "businessType" -> "ULTD",
+          "isSaAccount"               -> "true",
+          "isOrgAccount"              -> "true"
+        )) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-verification/ATED/businessForm")
         }
@@ -898,28 +864,30 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def continueWithAuthorisedUserJson(controller: BusinessVerificationController,
-                                     businessType: String,
-                                     fakeRequest: FakeRequest[AnyContentAsJson],
+                                     fields: Map[String, String],
                                      service: String = service)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
-
+    def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
+      FakeRequest("POST", "/")
+        .withSession(
+          "sessionId" -> sessionId,
+          "token" -> "RANDOMTOKEN",
+          "userId" -> userId)
+        .withHeaders(Headers("Authorization" -> "value"))
+        .withFormUrlEncodedBody(fields.toSeq: _*)
+    }
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-    val result = controller.continue(service).apply(fakeRequest.withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value"))
-    )
+    val result = controller.continue(service).apply(generateRequest)
 
     test(result)
   }
 
   def continueWithAuthorisedAgentJson(controller: BusinessVerificationController,
                                      businessType: String,
-                                     fakeRequest: FakeRequest[AnyContentAsJson],
+                                     fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
                                      service: String = service)(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
@@ -938,38 +906,43 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def continueWithAuthorisedSaUserJson(controller: BusinessVerificationController,
-                                       businessType: String,
-                                       fakeRequest: FakeRequest[AnyContentAsJson])(test: Future[Result] => Any) {
+                                       fields: Map[String, String])(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
-
+    def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
+      FakeRequest("POST", "/")
+        .withSession(
+          "sessionId" -> sessionId,
+          "token" -> "RANDOMTOKEN",
+          "userId" -> userId)
+        .withHeaders(Headers("Authorization" -> "value"))
+        .withFormUrlEncodedBody(fields.toSeq: _*)
+    }
     AuthBuilder.mockAuthorisedSaUser(userId, mockAuthConnector)
 
-    val result = controller.continue(service).apply(fakeRequest.withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value"))
-    )
+    val result = controller.continue(service).apply(generateRequest)
 
     test(result)
   }
 
   def continueWithAuthorisedSaOrgUserJson(controller: BusinessVerificationController,
-                                          businessType: String,
-                                          fakeRequest: FakeRequest[AnyContentAsJson])(test: Future[Result] => Any) {
+                                          fields: Map[String, String])(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
+    def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
+      FakeRequest("POST", "/")
+        .withSession(
+          "sessionId" -> sessionId,
+          "token" -> "RANDOMTOKEN",
+          "userId" -> userId)
+        .withHeaders(Headers("Authorization" -> "value"))
+        .withFormUrlEncodedBody(fields.toSeq: _*)
+    }
 
     AuthBuilder.mockAuthorisedSaOrgUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-    val result = controller.continue(service).apply(fakeRequest.withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value"))
-    )
+    val result = controller.continue(service).apply(generateRequest)
 
     test(result)
   }
@@ -987,7 +960,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value"))
+      .withHeaders(Headers("Authorization" -> "value")).withMethod("POST")
     )
 
     test(result)

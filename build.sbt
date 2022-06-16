@@ -8,7 +8,7 @@ lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 
 lazy val plugins: Seq[Plugins] = Seq(play.sbt.PlayScala, SbtDistributablesPlugin)
 lazy val playSettings: Seq[Setting[_]] = Seq.empty
-val silencerVersion = "1.7.1"
+val silencerVersion = "1.7.9"
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
@@ -29,7 +29,7 @@ lazy val microservice: Project = Project(appName, file("."))
     defaultSettings(),
     scoverageSettings,
     scalacOptions += "-Ywarn-unused:-explicits,-implicits",
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.15",
     libraryDependencies ++= appDependencies,
     retrieveManaged := true,
     majorVersion := 4,
