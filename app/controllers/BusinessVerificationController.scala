@@ -198,9 +198,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                               backLink: Option[String])
                              (implicit authContext: StandardAuthRetrievals, req: Request[AnyContent]): Future[Result] = {
     limitedLiabilityPartnershipForm.bindFromRequest.fold(
-      formWithErrors => currentBackLink.map(implicit backLink =>
-        BadRequest(templateLLP(formWithErrors, authContext.isAgent, service, businessType, backLink))
-      ),
+      formWithErrors => Future.successful(BadRequest(templateLLP(formWithErrors, authContext.isAgent, service, businessType, backLink))),
       llpFormData => {
         val organisation = Organisation(llpFormData.businessName, Llp)
         businessMatchingService.matchBusinessWithOrganisationName(isAnAgent = authContext.isAgent,
