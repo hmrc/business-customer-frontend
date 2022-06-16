@@ -28,7 +28,6 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.JsValue
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
@@ -122,7 +121,6 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
         isAGroup = false, directMatch = false, Some("agent123"))
 
       "validate form" must {
-        type InputJson = JsValue
         type TestMessage = String
         type ErrorMessage = String
 

@@ -18,7 +18,7 @@ package builders
 
 import java.util.UUID
 
-import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, AnyContentAsJson, Headers}
+import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Headers}
 import play.api.test.FakeRequest
 
 object SessionBuilder {

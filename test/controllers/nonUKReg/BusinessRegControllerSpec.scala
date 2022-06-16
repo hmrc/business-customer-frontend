@@ -26,7 +26,6 @@ import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.JsValue
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
@@ -168,7 +167,6 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           )
         }
 
-        type InputJson = JsValue
         type TestMessage = String
         type ErrorMessage = String
 
