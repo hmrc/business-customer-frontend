@@ -51,10 +51,15 @@
     }
 }
 
+@hintContent = {
+    <p class="govuk-body">@messages("bc.business-verification.utr.help.answer_1")</p>
+    <p class="govuk-body">@messages("bc.business-verification.utr.help.answer_2")</p>
+}
+
 @helpQuestionAnswer = @{
     isAgent match {
         case true => Html(messages("bc.business-verification.utr.help.answer.agent"))
-        case false => Html(messages("bc.business-verification.utr.help.answer"))
+        case false => hintContent
     }
 }
 
@@ -62,7 +67,7 @@
     <div class="govuk-hint">@messages("bc.business-verification.utr.hint")</div>
     @govukDetails(Details(
         summary = Text(messages("bc.business-verification.utr.help.question")),
-        content = HtmlContent(messages("bc.business-verification.utr.help.answer"))
+        content = HtmlContent(helpQuestionAnswer)
     ))
 }
 
