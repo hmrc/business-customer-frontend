@@ -58,8 +58,20 @@
   <h2 class="govuk-heading-s" id="details-not-found-name-changed-reason-header">@messages("bc.details-not-found.name-changed-reason.header")</h2>
   <p  class="govuk-body" id="details-not-found-name-changed-reason-text">@messages("bc.details-not-found.name-changed-reason.text")</p>
   <ul class="govuk-list govuk-list--bullet">
-    <li>@Html(messages("bc.details-not-found.name-changed-reason.text.li1"))</li>
-    <li>@Html(messages("bc.details-not-found.name-changed-reason.text.li2"))</li>
+    <li>
+        <p class="govuk-body">@messages("bc.details-not-found.name-changed-reason.text.li1")
+            <a class="govuk-link" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/corporation-tax-enquiries">
+                @messages("bc.details-not-found.name-changed-reason.text.li1.link")
+            </a>
+        </p>
+    </li>
+    <li>
+        <p class="govuk-body">@messages("bc.details-not-found.name-changed-reason.text.li2")
+            <a class="govuk-link" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees">
+                @messages("bc.details-not-found.name-changed-reason.text.li2.link")
+            </a>
+        </p>
+    </li>
   </ul>
   <p class="govuk-body" id="details-not-found-name-changed-reason-text-24-hours">@messages("bc.details-not-found.name-changed-reason.text.24-hours")</p>
 

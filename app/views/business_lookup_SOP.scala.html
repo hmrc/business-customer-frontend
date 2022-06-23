@@ -51,11 +51,16 @@
     }
 }
 
+@hintContent = {
+    <p class="govuk-body">@messages("bc.business-verification.utr.help.answer_1")</p>
+    <p class="govuk-body">@messages("bc.business-verification.utr.help.answer_2")</p>
+}
+
 @htmlHint = {
     <div class="govuk-hint">@messages("bc.business-verification.utr.hint")</div>
     @govukDetails(Details(
         summary = Text(messages("bc.business-verification.utr.help.question")),
-        content = HtmlContent(messages("bc.business-verification.utr.help.answer"))
+        content = HtmlContent(hintContent)
     ))
 }
 

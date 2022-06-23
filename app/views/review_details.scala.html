@@ -61,8 +61,19 @@
         @businessDetailsMatchText
     </p>
     <ul class="govuk-list govuk-list--bullet">
-        <li id="wrong-account-text-item-1">@Html(messages("business-review.registered-with-companies-house.text"))</li>
-        <li id="wrong-account-text-item-2">@Html(messages("business-review.sole-trader.text"))</li>
+        <li id="wrong-account-text-item-1">
+            <p class="govuk-body">@messages("business-review.registered-with-companies-house.text")
+                <a class="govuk-link" href="https://www.gov.uk/file-changes-to-a-company-with-companies-house">
+                    @messages("business-review.registered-with-companies-house.text.link")</a>.
+            </p>
+        </li>
+
+        <li id="wrong-account-text-item-2">
+            <p class="govuk-body">@messages("business-review.sole-trader.text")
+                <a class="govuk-link" href="https://www.gov.uk/tell-hmrc-change-of-details/change-name-or-address">
+                    @messages("business-review.sole-trader.text.link")</a>.
+            </p>
+        </li>
     </ul>
 }
 
