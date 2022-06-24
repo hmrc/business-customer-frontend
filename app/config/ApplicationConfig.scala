@@ -71,6 +71,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
       case "AMLS" => "anti-money-laundering"
       case "ATED" => "ated-subscription"
       case "AWRS" => "alcohol-wholesale-scheme"
+      case "FHDDS" => "fhdds"
       case _ => logger.warn(s"[ApplicationConfig][accessibilityStatementFrontendUrl] - Invalid service: '$service'")
     }
     s"$accessibilityStatementFrontendHost$accessibilityStatementFrontendUrl/$statement?referrerUrl=$referrerUrl"
