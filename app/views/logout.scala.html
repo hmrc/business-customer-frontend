@@ -21,7 +21,7 @@
 
 @()(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@bcMain(title = titleBuilder(messages("bc.signout-title")), userLoggedIn = false) {
+@bcMain(title = titleBuilder(messages("bc.signout-title")), userLoggedIn = false, displaySignOut = false) {
 
     <h1 id="bc-signout-header" class="govuk-heading-xl">@messages("bc.signout-header")</h1>
 
