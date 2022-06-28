@@ -34,7 +34,10 @@
     problemLinkHelper: HmrcReportTechnicalIssueHelper,
 )
 
-@(pageTitle: Option[String] = None, scripts: Option[Html],service: String)(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@(pageTitle: Option[String] = None,
+  scripts: Option[Html],
+  displaySignOut: Boolean = true,
+  service: String)(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @beforeContentBlock = {
 }
@@ -56,7 +59,7 @@
 @hmrcLayout(
     pageTitle = pageTitle,
     additionalHeadBlock = Some(hmrcTimeoutDialogHelper(signOutUrl = signOutUrl)),
-    signOutUrl = Some(signOutUrl),
+    signOutUrl = if (displaySignOut) Some(signOutUrl) else None,
     serviceName = appConfig.getNavTitle(service).map(s => messages(s)),
     accessibilityStatementUrl = Some(appConfig.accessibilityStatementFrontendUrl(service, getReferrer())),
     beforeContentBlock = Some(beforeContentBlock),
