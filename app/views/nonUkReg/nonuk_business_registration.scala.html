@@ -38,7 +38,8 @@
     $(document).ready(function() {
 
       accessibleAutocomplete.enhanceSelectElement({
-        selectElement: document.querySelector('#businessAddress\\.country')
+            defaultValue: '',
+            selectElement: document.querySelector('#businessAddress\\.country')
       })
 
     });
@@ -122,7 +123,7 @@
                   label = Label(
                       content = Text(messages("bc.business-registration.country"))
                   ),
-                  items = Seq(SelectItem(Some(""), "")) ++ displayDetails.listOfIsoCode.map {
+                  items = Seq(SelectItem(Some(""), "Select a country")) ++ displayDetails.listOfIsoCode.map {
                       case (code, country) => SelectItem(
                           value = Some(code),
                           text = country
