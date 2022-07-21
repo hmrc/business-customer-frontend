@@ -40,25 +40,25 @@
   backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
-<script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
-<script src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
-<script src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
-<script>
-    $(document).ready(function() {
+  <script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
+  <script src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
+  <script src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
+  <script>
+         $(document).ready(function() {
 
-      accessibleAutocomplete.enhanceSelectElement({
-          defaultValue: '',
-          selectElement: document.querySelector('#issuingCountry')
-      })
+           accessibleAutocomplete.enhanceSelectElement({
+               defaultValue: '',
+               selectElement: document.querySelector('#issuingCountry')
+           })
 
-      // Where .multiple-choice uses the data-target attribute
-      // to toggle hidden content
-      var showHideContent = new GOVUK.ShowHideContent()
-      showHideContent.init()
+            // Where .multiple-choice uses the data-target attribute
+            // to toggle hidden content
+            var showHideContent = new GOVUK.ShowHideContent()
+            showHideContent.init()
 
-      //Clear out form when switching back to no
-      clearInputValues()
-    });
+            //Clear out form when switching back to no
+            clearInputValues()
+         });
   </script>
 }
 
