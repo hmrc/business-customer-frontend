@@ -33,16 +33,16 @@
 @(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
-<script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
-<script>
-    $(document).ready(function() {
+  <script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
+  <script>
+         $(document).ready(function() {
 
-      accessibleAutocomplete.enhanceSelectElement({
-            defaultValue: '',
-            selectElement: document.querySelector('#businessAddress\\.country')
-      })
+           accessibleAutocomplete.enhanceSelectElement({
+                 defaultValue: '',
+                 selectElement: document.querySelector('#businessAddress\\.country')
+           })
 
-    });
+         });
   </script>
 }
 

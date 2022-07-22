@@ -5,7 +5,7 @@ function clearInputValues() {
           // Do nothing
         } else {
             $('#businessUniqueId').val('');
-            $('#issuingCountry_').prop('selectedIndex',0);
+            $('#issuingCountry-select').prop('selectedIndex',0);
             $('#issuingCountry').val('');
             $('#issuingInstitution').val('');
         }
