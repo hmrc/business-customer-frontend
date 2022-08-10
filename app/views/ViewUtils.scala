@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import config.ApplicationConfig
-@import views.ViewUtils.titleBuilder
+package views
 
-@this(bcMain: bcMain)
+import play.api.data.Form
+import play.api.i18n.Messages
 
-@()(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+object ViewUtils {
 
-@bcMain(title = titleBuilder(messages("bc.unauthorised.title")), supportLinkEnabled = false) {
-
-  <h1 class="govuk-heading-xl">@messages("bc.unauthorised.heading")</h1>
-  
+  def titleBuilder(title: String, form: Option[Form[_]] = None)(implicit messages: Messages): String =
+    form match {
+      case Some(f) if f.hasErrors || f.hasGlobalErrors =>s"${messages("bc.error.title.prefix")} $title - GOV.UK"
+      case _ => title + " - GOV.UK"
+    }
 }

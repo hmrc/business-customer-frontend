@@ -16,6 +16,8 @@
 
 package controllers.nonUKReg
 
+import java.util.UUID
+
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import models.{Address, BusinessRegistration}
@@ -24,16 +26,14 @@ import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
+import views.html.nonUkReg.business_registration
 
-import java.util.UUID
 import scala.concurrent.Future
-
 
 class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
@@ -44,7 +44,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
   val mockOverseasCompanyRegController: OverseasCompanyRegController = mock[OverseasCompanyRegController]
-  val injectedViewInstance = inject[views.html.nonUkReg.business_registration]
+  val injectedViewInstance: business_registration = inject[views.html.nonUkReg.business_registration]
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
@@ -94,8 +94,8 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your overseas business registered name and address? - GOV.UK")
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-registration-header").text() must be("What is your overseas business registered name and address?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text must include("What is your overseas business registered name and address?")
           document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
           document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
           document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
@@ -115,8 +115,8 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is your overseas business registered name and address? - GOV.UK")
-          document.getElementById("business-verification-text").text() must be("This section is: ATED registration")
-          document.getElementById("business-registration-header").text() must be("What is your overseas business registered name and address?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.select("h1").text must include("What is your overseas business registered name and address?")
           document.getElementById("businessName").`val`() must be("ACME")
           document.getElementById("businessAddress.line_1").`val`() must be("line 1")
           document.getElementById("businessAddress.line_2").`val`() must be("line 2")
@@ -132,8 +132,8 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           val document = Jsoup.parse(contentAsString(result))
 
           document.title() must be("What is the registered business name and address of your overseas agency? - GOV.UK")
-          document.getElementById("business-verification-text").text() must be("This section is: ATED agency set up")
-          document.getElementById("business-registration-header").text() must be("What is the registered business name and address of your overseas agency?")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.select("h1").text must include("What is the registered business name and address of your overseas agency?")
           document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
           document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
           document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
@@ -155,23 +155,18 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
                        line3: String = "",
                        line4: String = "",
                        postcode: String = "12345678",
-                       country: String = "FR") =
-          Json.parse(
-            s"""
-               |{
-               |  "businessName": "$businessName",
-               |  "businessAddress": {
-               |    "line_1": "$line1",
-               |    "line_2": "$line2",
-               |    "line_3": "$line3",
-               |    "line_4": "$line4",
-               |    "postcode": "$postcode",
-               |    "country": "$country"
-               |  }
-               |}
-          """.stripMargin)
+                       country: String = "FR") = {
+          Map(
+            "businessName" -> s"$businessName",
+            "businessAddress.line_1" -> s"$line1",
+            "businessAddress.line_2" -> s"$line2",
+            "businessAddress.line_3" -> s"$line3",
+            "businessAddress.line_4" -> s"$line4",
+            "businessAddress.postcode" -> s"$postcode",
+            "businessAddress.country" -> s"$country"
+          )
+        }
 
-        type InputJson = JsValue
         type TestMessage = String
         type ErrorMessage = String
 
@@ -179,7 +174,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           val inputJson = createJson(businessName = "", line1 = "", line2 = "", postcode = "", country = "")
           when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-          submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
+          submitWithAuthorisedUserSuccess(serviceName, FakeRequest("POST", "/").withFormUrlEncodedBody(inputJson.toSeq: _*)) { result =>
             status(result) must be(BAD_REQUEST)
             contentAsString(result) must include("Enter a business name")
             contentAsString(result) must include("Enter address line 1")
@@ -190,20 +185,20 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         }
 
         // inputJson , test message, error message
-        val formValidationInputDataSet: Seq[(InputJson, TestMessage, ErrorMessage)] = Seq(
+        val formValidationInputDataSet: Seq[(Map[String, String], TestMessage, ErrorMessage)] = Seq(
           (createJson(businessName = "a" * 106), "If entered, Business name must be maximum of 105 characters", "The business name cannot be more than 105 characters"),
           (createJson(line1 = "a" * 36), "If entered, Address line 1 must be maximum of 35 characters", "Address line 1 cannot be more than 35 characters"),
           (createJson(line2 = "a" * 36), "If entered, Address line 2 must be maximum of 35 characters", "Address line 2 cannot be more than 35 characters"),
           (createJson(line3 = "a" * 36), "Address line 3 is optional but if entered, must be maximum of 35 characters", "Address line 3 cannot be more than 35 characters"),
           (createJson(line4 = "a" * 36), "Address line 4 is optional but if entered, must be maximum of 35 characters", "Address line 4 cannot be more than 35 characters"),
-          (createJson(postcode = "a" * 11), "Postcode is optional but if entered, must be maximum of 10 characters", "Enter a valid postal code"),
+          (createJson(postcode = "a" * 11), "Postcode is optional but if entered, must be maximum of 10 characters", "Enter a valid postcode"),
           (createJson(country = "GB"), "show an error if country is selected as GB", "You cannot select United Kingdom when entering an overseas address")
         )
 
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
             when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-            submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(data._1)) { result =>
+            submitWithAuthorisedUserSuccess(serviceName, FakeRequest("POST", "/").withFormUrlEncodedBody(data._1.toSeq: _*)) { result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include(data._3)
             }
@@ -213,7 +208,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         "If registration details entered are valid, continue button must redirect to review details page" in {
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           val inputJson = createJson()
-          submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
+          submitWithAuthorisedUserSuccess(serviceName, FakeRequest("POST", "/").withFormUrlEncodedBody(inputJson.toSeq: _*)) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result).get must include(s"/business-customer/register/non-uk-client/overseas-company/$serviceName/false")
           }
@@ -222,7 +217,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         "If registration details entered are valid and business-identifier question is selected as No, continue button must redirect to review details page" in {
           val inputJson = createJson()
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
+          submitWithAuthorisedUserSuccess(serviceName, FakeRequest("POST", "/").withFormUrlEncodedBody(inputJson.toSeq: _*)) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result).get must include(s"/business-customer/register/non-uk-client/overseas-company/$serviceName/false")
           }
@@ -230,42 +225,77 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
 
         "fail if we are a client for ATED and have no PostCode" in {
-          val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          submitWithAuthorisedUserSuccess(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
+          submitWithAuthorisedUserSuccess(serviceName, FakeRequest("POST", "/").withFormUrlEncodedBody(Map(
+            "businessName" -> "ACME",
+            "businessAddress.line_1" -> "line_1",
+            "businessAddress.line_2" -> "line_2",
+            "businessAddress.line_3" -> "",
+            "businessAddress.line_4" -> "",
+            "businessAddress.postcode" -> "",
+            "businessAddress.country" -> "FR"
+          ).toSeq: _*)) { result =>
             status(result) must be(BAD_REQUEST)
           }
         }
 
         "pass if we are a client for AWRS and have no PostCode" in {
-          val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          submitWithAuthorisedUserSuccess("AWRS", FakeRequest().withJsonBody(inputJson)) { result =>
+          submitWithAuthorisedUserSuccess("AWRS", FakeRequest("POST", "/").withFormUrlEncodedBody(Map(
+            "businessName" -> "ACME",
+            "businessAddress.line_1" -> "line_1",
+            "businessAddress.line_2" -> "line_2",
+            "businessAddress.line_3" -> "",
+            "businessAddress.line_4" -> "",
+            "businessAddress.postcode" -> "",
+            "businessAddress.country" -> "FR"
+          ).toSeq: _*)) { result =>
             status(result) must be(SEE_OTHER)
           }
         }
 
         "pass if we are an agent for ATED and have no PostCode" in {
-          val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          submitWithAuthorisedAgent(serviceName, FakeRequest().withJsonBody(inputJson)) { result =>
+          submitWithAuthorisedAgent(serviceName, FakeRequest("POST", "/").withFormUrlEncodedBody(Map(
+            "businessName" -> "ACME",
+            "businessAddress.line_1" -> "line_1",
+            "businessAddress.line_2" -> "line_2",
+            "businessAddress.line_3" -> "",
+            "businessAddress.line_4" -> "",
+            "businessAddress.postcode" -> "",
+            "businessAddress.country" -> "FR"
+          ).toSeq: _*)) { result =>
             status(result) must be(SEE_OTHER)
           }
         }
 
         "pass if we are an agent for AWRS and have no PostCode" in {
-          val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          submitWithAuthorisedAgent("AWRS", FakeRequest().withJsonBody(inputJson)) { result =>
+          submitWithAuthorisedAgent("AWRS", FakeRequest("POST", "/").withFormUrlEncodedBody(Map(
+            "businessName" -> "ACME",
+            "businessAddress.line_1" -> "line_1",
+            "businessAddress.line_2" -> "line_2",
+            "businessAddress.line_3" -> "",
+            "businessAddress.line_4" -> "",
+            "businessAddress.postcode" -> "",
+            "businessAddress.country" -> "FR"
+          ).toSeq: _*)) { result =>
             status(result) must be(SEE_OTHER)
           }
         }
 
         "respond with NotFound when invalid service is in uri" in {
-          val inputJson = createJson(postcode = "")
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
           intercept[NotFoundException] {
-            submitWithAuthorisedAgent(invalidService, FakeRequest().withJsonBody(inputJson)) { result =>
+            submitWithAuthorisedAgent(invalidService, FakeRequest("POST", "/").withFormUrlEncodedBody(Map(
+              "businessName" -> "ACME",
+              "businessAddress.line_1" -> "line_1",
+              "businessAddress.line_2" -> "line_2",
+              "businessAddress.line_3" -> "",
+              "businessAddress.line_4" -> "",
+              "businessAddress.postcode" -> "",
+              "businessAddress.country" -> "FR"
+            ).toSeq: _*)) { result =>
               status(result) must be(NOT_FOUND)
             }
           }
@@ -363,7 +393,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     test(result)
   }
 
-  def submitWithAuthorisedUserSuccess(service: String, fakeRequest: FakeRequest[AnyContentAsJson], businessType: String = "NUK")(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserSuccess(service: String, fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], businessType: String = "NUK")(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -384,7 +414,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     test(result)
   }
 
-  def submitWithAuthorisedAgent(service: String, fakeRequest: FakeRequest[AnyContentAsJson], businessType: String = "NUK")(test: Future[Result] => Any) {
+  def submitWithAuthorisedAgent(service: String, fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], businessType: String = "NUK")(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 

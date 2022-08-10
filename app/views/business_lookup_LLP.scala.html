@@ -19,7 +19,15 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import views.html.helper.form
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukDetails : GovukDetails)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput,
+    govukDetails : GovukDetails,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(limitedLiabilityPartnershipForm: Form[forms.LimitedLiabilityPartnershipMatch],
  isAgent: Boolean,
@@ -27,24 +35,10 @@
  businessType: String,
  backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@headingId = @{
-    isAgent match {
-        case true => "business-type-agent-header"
-        case false => "business-type-header"
-    }
-}
-
 @headingText = @{
     isAgent match {
         case true => messages("bc.business-verification-selected-agent-header")
         case false => messages("bc.business-verification-selected-user-header")
-    }
-}
-
-@headingSecondaryId = @{
-    isAgent match {
-        case true => "business-verification-agent-text"
-        case false => "business-verification-text"
     }
 }
 
@@ -55,23 +49,42 @@
     }
 }
 
+@hintContent = {
+    <p class="govuk-body">@messages("bc.business-verification.utr.help.answer_1")</p>
+    <p class="govuk-body">@messages("bc.business-verification.utr.help.answer_2")</p>
+}
+
 @htmlHint = {
     <div class="govuk-hint">@messages("bc.business-verification.utr.hint")</div>
     @govukDetails(Details(
         summary = Text(messages("bc.business-verification.utr.help.question")),
-        content = HtmlContent(messages("bc.business-verification.utr.help.answer"))
+        content = HtmlContent(hintContent)
     ))
 }
 
-@bcMain(title = headingText, service = service) {
-    @pageHeadersAndError(
-        backLink,
-        headingSecondaryId,
-        headingSecondaryText,
-        headingId,
-        headingText,
-        Some(bcErrorSummary(limitedLiabilityPartnershipForm, "bc.business-verification-error.general.llp"))
-    )
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
+
+@bcMain(title = titleBuilder(headingText, Some(limitedLiabilityPartnershipForm)), service = service) {
+
+    @backLinkHtml
+
+    @if(limitedLiabilityPartnershipForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(limitedLiabilityPartnershipForm))
+    }
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@headingSecondaryText</span>
+            @headingText
+        </h1>
+    </header>
 
     @if(isAgent){
         @bcCheckAgency()
@@ -106,6 +119,10 @@
                 ).withFormField(limitedLiabilityPartnershipForm("psaUTR"))
             )
 
-        <button id="submit" type="submit" class="govuk-button"> @messages("bc.business-registration.submit") </button>
+            @govukButton(Button(
+                content = Text(messages("bc.business-registration.submit")),
+                inputType = Some("submit"),
+                attributes = Map("id" -> "submit")
+            ))
     }
 }

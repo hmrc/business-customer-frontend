@@ -16,6 +16,8 @@
 
 package controllers
 
+import java.util.UUID
+
 import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
 import models.{Address, ReviewDetails}
@@ -23,29 +25,27 @@ import org.jsoup.Jsoup
 import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsJson, Headers, MessagesControllerComponents, Result}
+import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
+import views.html.business_group_registration
 
-import java.util.UUID
 import scala.concurrent.Future
-
 
 class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
-  val request = FakeRequest()
+  val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val service = "ATED"
-  val mockAuthConnector = mock[AuthConnector]
-  val mockBusinessRegistrationService = mock[BusinessRegistrationService]
-  val mockBackLinkCache = mock[BackLinkCacheConnector]
-  val mockReviewDetailController = mock[ReviewDetailsController]
-  val injectedViewInstance = inject[views.html.business_group_registration]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
+  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockReviewDetailController: ReviewDetailsController = mock[ReviewDetailsController]
+  val injectedViewInstance: business_group_registration = inject[views.html.business_group_registration]
 
-  val appConfig = inject[ApplicationConfig]
-  implicit val mcc = inject[MessagesControllerComponents]
+  val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestBusinessRegController extends BusinessRegUKController(
     mockAuthConnector,
@@ -56,9 +56,9 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     mockReviewDetailController,
     mcc
   ) {
-    override val authConnector = mockAuthConnector
+    override val authConnector: AuthConnector = mockAuthConnector
     override val controllerId = "test"
-    override val backLinkCacheConnector = mockBackLinkCache
+    override val backLinkCacheConnector: BackLinkCacheConnector = mockBackLinkCache
   }
 
   val serviceName: String = "ATED"
@@ -73,14 +73,12 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
         }
       }
 
-
       "respond with a redirect for /send & be redirected to the unauthorised page" in {
         submitWithUnAuthorisedUser() { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include("/business-customer/unauthorised")
         }
       }
-
     }
 
     "Authorised Users" must {
@@ -93,8 +91,8 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be("Create AWRS group - GOV.UK")
-            document.getElementById("business-verification-text").text() must be("This section is: AWRS registration")
-            document.getElementById("business-registration.header").text() must be("Create AWRS group")
+            document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
+            document.select("h1").text() must include("Create AWRS group")
 
             document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
             document.getElementById("businessName-hint").text() must be("This is your registered company name")
@@ -116,8 +114,8 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be("Create AWRS group - GOV.UK")
-            document.getElementById("business-verification-text").text() must be("This section is: AWRS registration")
-            document.getElementById("business-registration.header").text() must be("New business details")
+            document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
+            document.select("h1").text() must include("New business details")
             document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
             document.getElementById("businessName-hint").text() must be("This is your registered company name")
             document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
@@ -133,36 +131,11 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       "validate form" must {
 
-        def createJson(businessName: String = "ACME",
-                       line1: String = "line-1",
-                       line2: String = "line-2",
-                       line3: String = "",
-                       line4: String = "",
-                       postcode: String = "AA1 1AA",
-                       country: String = "GB") =
-          Json.parse(
-            s"""
-               |{
-               |  "businessName": "$businessName",
-               |  "businessAddress": {
-               |    "line_1": "$line1",
-               |    "line_2": "$line2",
-               |    "line_3": "$line3",
-               |    "line_4": "$line4",
-               |    "postcode": "$postcode",
-               |    "country": "$country"
-               |  }
-               |}
-          """.stripMargin)
-
-        type InputJson = JsValue
         type TestMessage = String
         type ErrorMessage = String
 
         "not be empty for a Group" in {
-          val inputJson = createJson(businessName = "", line1 = "", line2 = "", postcode = "")
-
-          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson)) {
+          submitWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessName" -> "", "businessAddress.line_1" -> "", "businessAddress.line_2" -> "", "businessAddress.line_3" -> "", "businessAddress.line_4" -> "", "businessAddress.postcode" -> "", "businessAddress.country" -> "GB").toSeq: _*)) {
             result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include("Enter a business name")
@@ -173,9 +146,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
         }
 
         "not contains special character(,) for a Group" in {
-          val inputJson = createJson(businessName = "some name", line1 = "line 1", line2 = "line 2", postcode = "AA, AA1")
-
-          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson)) {
+          submitWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessName" -> "some name", "businessAddress.line_1" -> "line 1", "businessAddress.line_2" -> "line 2", "businessAddress.line_3" -> "", "businessAddress.line_4" -> "", "businessAddress.postcode" -> "AA, AA1", "businessAddress.country" -> "GB").toSeq: _*)) {
             result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include("Enter a valid postcode")
@@ -183,19 +154,19 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
         }
 
         // inputJson , test message, error message
-        val formValidationInputDataSet: Seq[(InputJson, TestMessage, ErrorMessage)] = Seq(
-          (createJson(businessName = "a" * 106), "If entered, Business name must be maximum of 105 characters", "The business name cannot be more than 105 characters"),
-          (createJson(line1 = "a" * 36), "If entered, Address line 1 must be maximum of 35 characters", "Address line 1 cannot be more than 35 characters"),
-          (createJson(line2 = "a" * 36), "If entered, Address line 2 must be maximum of 35 characters", "Address line 2 cannot be more than 35 characters"),
-          (createJson(line3 = "a" * 36), "Address line 3 is optional but if entered, must be maximum of 35 characters", "Address line 3 cannot be more than 35 characters"),
-          (createJson(line4 = "a" * 36), "Address line 4 is optional but if entered, must be maximum of 35 characters", "Address line 4 cannot be more than 35 characters"),
-          (createJson(postcode = "a" * 11), "If entered, Postcode must be maximum of 10 characters", "The postcode cannot be more than 10 characters"),
-          (createJson(postcode = "1234567890"), "If entered, Postcode must be a valid postcode", "Enter a valid postcode")
+        val formValidationInputDataSet: Seq[(Map[String, String], TestMessage, ErrorMessage)] = Seq(
+          (Map("businessName" -> s"${"a" * 106}", "businessAddress.line_1" -> "line-1", "businessAddress.line_2" -> "line-2", "businessAddress.line_3" -> "", "businessAddress.line_4" -> "", "businessAddress.postcode" -> "AA1 1AA", "businessAddress.country" -> "GB"), "If entered, Business name must be maximum of 105 characters", "The business name cannot be more than 105 characters"),
+          (Map("businessName" -> "ACME", "businessAddress.line_1" -> s"${"a" * 36}", "businessAddress.line_2" -> "line-2", "businessAddress.line_3" -> "", "businessAddress.line_4" -> "", "businessAddress.postcode" -> "AA1 1AA", "businessAddress.country" -> "GB"), "If entered, Address line 1 must be maximum of 35 characters", "Address line 1 cannot be more than 35 characters"),
+          (Map("businessName" -> "ACME", "businessAddress.line_1" -> "line-1", "businessAddress.line_2" -> s"${"a" * 36}", "businessAddress.line_3" -> "", "businessAddress.line_4" -> "", "businessAddress.postcode" -> "AA1 1AA", "businessAddress.country" -> "GB"), "If entered, Address line 2 must be maximum of 35 characters", "Address line 2 cannot be more than 35 characters"),
+          (Map("businessName" -> "ACME", "businessAddress.line_1" -> "line-1", "businessAddress.line_2" -> "line-2", "businessAddress.line_3" -> s"${"a" * 36}", "businessAddress.line_4" -> "", "businessAddress.postcode" -> "AA1 1AA", "businessAddress.country" -> "GB"), "Address line 3 is optional but if entered, must be maximum of 35 characters", "Address line 3 cannot be more than 35 characters"),
+          (Map("businessName" -> "ACME", "businessAddress.line_1" -> "line-1", "businessAddress.line_2" -> "line-2", "businessAddress.line_3" -> "", "businessAddress.line_4" -> s"${"a" * 36}", "businessAddress.postcode" -> "AA1 1AA", "businessAddress.country" -> "GB"), "Address line 4 is optional but if entered, must be maximum of 35 characters", "Address line 4 cannot be more than 35 characters"),
+          (Map("businessName" -> "ACME", "businessAddress.line_1" -> "line-1", "businessAddress.line_2" -> "line-2", "businessAddress.line_3" -> "", "businessAddress.line_4" -> "", "businessAddress.postcode" -> s"${"a" * 11}", "businessAddress.country" -> "GB"), "If entered, Postcode must be maximum of 10 characters", "The postcode cannot be more than 10 characters"),
+          (Map("businessName" -> "ACME", "businessAddress.line_1" -> "line-1", "businessAddress.line_2" -> "line-2", "businessAddress.line_3" -> "", "businessAddress.line_4" -> "", "businessAddress.postcode" -> "1234567890", "businessAddress.country" -> "GB"), "If entered, Postcode must be a valid postcode", "Enter a valid postcode")
         )
 
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
-            submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(data._1)) { result =>
+            submitWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(data._1.toSeq: _*)) { result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include(data._3)
             }
@@ -203,9 +174,15 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
         }
 
         "If registration details entered are valid, continue button must redirect to review details page" in {
-          val inputJson = createJson()
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          submitWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson)) { result =>
+          submitWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map(
+            "businessName" -> "ACME",
+              "businessAddress.line_1" -> "line-1",
+              "businessAddress.line_2" -> "line-2",
+              "businessAddress.line_3" -> "",
+              "businessAddress.line_4" -> "",
+              "businessAddress.postcode" -> "AA1 1AA",
+              "businessAddress.country" -> "GB").toSeq: _*)) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result).get must include(s"/business-customer/review-details/$service")
           }
@@ -227,7 +204,6 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
-
     test(result)
   }
 
@@ -244,10 +220,8 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
-
     test(result)
   }
-
 
   def submitWithUnAuthorisedUser(businessType: String = "GROUP")(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
@@ -262,11 +236,10 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
-
     test(result)
   }
 
-  def submitWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsJson], businessType: String = "GROUP")(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], businessType: String = "GROUP")(test: Future[Result] => Any) {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -285,9 +258,6 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
     )
-
     test(result)
   }
-
-
 }

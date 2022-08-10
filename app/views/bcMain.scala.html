@@ -22,6 +22,7 @@
 @(title: String,
   userLoggedIn: Boolean = true,
   supportLinkEnabled: Boolean = true,
+  displaySignOut: Boolean = true,
   service: String = "",
   pageScripts: Option[Html] = None,
   sidebarLinks: Option[Html] = None,
@@ -38,7 +39,8 @@
 }
 
 @layout(
-    pageTitle = Some(title).map(_ + " - GOV.UK"),
+    pageTitle = Some(title),
     scripts = Some(linkElement),
+    displaySignOut = displaySignOut,
     service =  service
 )(mainContent)

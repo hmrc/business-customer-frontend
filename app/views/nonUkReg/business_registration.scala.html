@@ -20,7 +20,16 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.form
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukDetails : GovukDetails, govukSelect: GovukSelect)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput,
+    govukDetails : GovukDetails,
+    govukSelect: GovukSelect,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(businessRegistrationForm: Form[models.BusinessRegistration],
   service: String,
@@ -34,7 +43,8 @@
     $(document).ready(function() {
 
       accessibleAutocomplete.enhanceSelectElement({
-        selectElement: document.querySelector('#businessAddress\\.country')
+            defaultValue: '',
+            selectElement: document.querySelector('#businessAddress\\.country')
       })
 
     });
@@ -48,24 +58,35 @@
   }
 }
 
-@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts)) {
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
 
-  @pageHeadersAndError(
-    backLink,
-    "business-verification-text",
-    messages(displayDetails.businessRegSubHeader, service),
-    "business-registration-header",
-    messages(displayDetails.businessRegHeader),
-    Some(bcErrorSummary(businessRegistrationForm, "bc.business-registration-error.general"))
-  )
+@bcMain(title = titleBuilder(messages(displayDetails.businessRegHeader), Some(businessRegistrationForm)), service = service, pageScripts = Some(pageScripts)) {
+
+    @backLinkHtml
+
+    @if(businessRegistrationForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(businessRegistrationForm))
+    }
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@messages(displayDetails.businessRegSubHeader, service)</span>
+            @messages(displayDetails.businessRegHeader)
+        </h1>
+    </header>
 
   @displayDetails.businessRegLede.map { businessRegLede =>
     <p class="govuk-body" id="business-registration-lede">@Html(messages(businessRegLede))</p>
   }
 
   @formHelper(action = controllers.nonUKReg.routes.BusinessRegController.send(service, messages(displayDetails.businessType))) {
-
-        <legend class="govuk-visually-hidden">@messages(displayDetails.businessRegHeader)</legend>
 
         @govukInput(
              Input(
@@ -125,20 +146,24 @@
           ))
         }
 
-          @govukSelect(
-              Select(
-                  label = Label(
-                      content = Text(messages("bc.business-registration.country"))
-                  ),
-                  items = Seq(SelectItem(Some(""), "")) ++ displayDetails.listOfIsoCode.map {
-                      case (code, country) => SelectItem(
-                          value = Some(code),
-                          text = country
-                      )
-                  }
-              ).withFormField(businessRegistrationForm("businessAddress.country"))
-          )
+        @govukSelect(
+            Select(
+                label = Label(
+                    content = Text(messages("bc.business-registration.country"))
+                ),
+                items = Seq(SelectItem(Some(""), "Select a country")) ++ displayDetails.listOfIsoCode.map {
+                    case (code, country) => SelectItem(
+                        value = Some(code),
+                        text = country
+                    )
+                }
+            ).withFormField(businessRegistrationForm("businessAddress.country"))
+        )
 
-    <button id="submit" type="submit" class="govuk-button">@submitButtonText</button>
+        @govukButton(Button(
+            content = Text(submitButtonText),
+            inputType = Some("submit"),
+            attributes = Map("id" -> "submit")
+        ))
   }
 }

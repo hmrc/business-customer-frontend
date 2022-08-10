@@ -18,44 +18,67 @@
 @import views.html.helpers._
 @import views.html.helper.form
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukRadios: GovukRadios)
+@import views.ViewUtils.titleBuilder
 
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukRadios: GovukRadios,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(paySAQuestionForm: Form[models.PaySAQuestion], service: String, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @implicitFormInstance = @{ Some(paySAQuestionForm) }
 
-@bcMain(title = messages("bc.nonuk.paySA.title"), service = service) {
-
-    @formHelper(action = controllers.nonUKReg.routes.PaySAQuestionController.continue(service)) {
-    @pageHeadersAndError(backLink, "paySa-subheader", messages("bc.nonuk.paySA.subheader", service.toUpperCase), "paySa-header", messages("bc.nonuk.paySA.header"),
-        Some(bcErrorSummary(paySAQuestionForm, "bc.nonuk.paySA.error.general")))
-
-
-    @govukRadios(
-         Radios(
-               fieldset = Some(Fieldset(
-                  classes = "govuk-radios--inline",
-                  legend = Some(Legend(
-                       classes = "govuk-visually-hidden",
-                       content = Text(messages("bc.nonuk.paySA.title"))
-                   ))
-              )),
-              items = Seq(
-                  RadioItem(
-                         content = Text(Messages("bc.radio.yes.label")),
-                         value = Some("true")
-                  ),
-                  RadioItem(
-                        content = Text(Messages("bc.radio.no.label")),
-                        value = Some("false")
-                  )
-              )
-         ).withFormField(paySAQuestionForm("paySA"))
-    )
-
-<button class="govuk-button" id="submit" type="submit"> @messages("bc.continue") </button>
-
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
 }
 
+@bcMain(title = titleBuilder(messages("bc.nonuk.paySA.title"), Some(paySAQuestionForm)), service = service) {
+
+    @backLinkHtml
+
+    @if(paySAQuestionForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(paySAQuestionForm))
+    }
+
+    @formHelper(action = controllers.nonUKReg.routes.PaySAQuestionController.continue(service)) {
+
+        @govukRadios(
+             Radios(
+                   fieldset = Some(Fieldset(
+                      legend = Some(Legend(
+                           classes = "govuk-visually-hidden",
+                           content = Text(messages("bc.nonuk.paySA.title"))
+                       ))
+                  )),
+                  items = Seq(
+                      RadioItem(
+                             content = Text(Messages("bc.radio.yes.label")),
+                             value = Some("true")
+                      ),
+                      RadioItem(
+                            content = Text(Messages("bc.radio.no.label")),
+                            value = Some("false")
+                      )
+                  ),
+                  classes = "govuk-radios--inline",
+             ).withFormField(paySAQuestionForm("paySA"))
+              .withHeadingAndSectionCaption(
+                heading = HtmlContent(messages("bc.nonuk.paySA.header")),
+                sectionCaption = HtmlContent(messages("bc.nonuk.paySA.subheader", service.toUpperCase))
+        ))
+
+        @govukButton(Button(
+            content = Text(messages("bc.continue")),
+            inputType = Some("submit"),
+            attributes = Map("id" -> "submit")
+        ))
+    }
 }

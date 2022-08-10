@@ -20,27 +20,55 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.form
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukSelect: GovukSelect)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput,
+    govukSelect: GovukSelect,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
-<script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
-<script>
-    $(document).ready(function() {
+  <script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
+  <script>
+         $(document).ready(function() {
 
-      accessibleAutocomplete.enhanceSelectElement({
-        selectElement: document.querySelector('#businessAddress\\.country')
-      })
+           accessibleAutocomplete.enhanceSelectElement({
+                 defaultValue: '',
+                 selectElement: document.querySelector('#businessAddress\\.country')
+           })
 
-    });
+         });
   </script>
 }
 
-@bcMain(title = messages(displayDetails.businessRegHeader), service = service, pageScripts = Some(pageScripts)) {
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
 
-  @pageHeadersAndError(backLink, "business-verification-text", messages(displayDetails.businessRegSubHeader), "non-uk-reg-header", messages(displayDetails.businessRegHeader),
-    Some(bcErrorSummary(businessRegistrationForm, "bc.non-uk-reg-error.general")))
+@bcMain(title = titleBuilder(messages(displayDetails.businessRegHeader), Some(businessRegistrationForm)), service = service, pageScripts = Some(pageScripts)) {
+
+     @backLinkHtml
+
+    @if(businessRegistrationForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(businessRegistrationForm))
+    }
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@messages(displayDetails.businessRegSubHeader)</span>
+            @messages(displayDetails.businessRegHeader)
+        </h1>
+    </header>
 
   @displayDetails.businessRegLede.map { businessRegLede =>
   <p class="govuk-body" id="non-uk-reg-lede">@Html(messages(businessRegLede))</p>
@@ -95,7 +123,7 @@
                   label = Label(
                       content = Text(messages("bc.business-registration.country"))
                   ),
-                  items = Seq(SelectItem(Some(""), "")) ++ displayDetails.listOfIsoCode.map {
+                  items = Seq(SelectItem(Some(""), "Select a country")) ++ displayDetails.listOfIsoCode.map {
                       case (code, country) => SelectItem(
                           value = Some(code),
                           text = country
@@ -104,7 +132,10 @@
               ).withFormField(businessRegistrationForm("businessAddress.country"))
       )
 
-  <button class="govuk-button" id="submit" type="submit">@Messages("bc.continue")</button>
-}
-
+     @govukButton(Button(
+        content = Text(messages("bc.continue")),
+        inputType = Some("submit"),
+        attributes = Map("id" -> "submit")
+     ))
+    }
 }

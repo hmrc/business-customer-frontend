@@ -15,27 +15,44 @@
  *@
 
 @import config._
-@import helpers.pageHeadersAndError
 @import views.html.helper.form
 @import uk.gov.hmrc.govukfrontend.views.html.components._
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukTable : GovukTable)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukTable : GovukTable,
+    govukBackLink : GovukBackLink,
+    govukButton : GovukButton,
+    govukWarningText : GovukWarningText)
 
 @(service: String, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[AnyContent], messages: Messages, appConfig: ApplicationConfig)
 
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
 
-@bcMain(title = messages("business-review.agent-editable.title", service), service = service) {
+@bcMain(title = titleBuilder(messages("business-review.agent-editable.title", service)), service = service) {
 
-  @pageHeadersAndError(backLink, "bc.business-registration-agent.text", messages("bc.business-registration.text.agent", service.toUpperCase), "bc.business-registration-agent.header", messages("business-review.agent-editable.title"))
+    @backLinkHtml
 
-  <div class="govuk-warning-text">
-      <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-      <div id="check-agency-details">
-      <strong class="govuk-warning-text__text">
-          <span class="govuk-warning-text__assistive">Warning</span>
-            @messages("business-review.check-agency.text")
-      </strong>
-      </div>
-  </div>
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@messages("bc.business-registration.text.agent", service.toUpperCase)</span>
+            @messages("business-review.agent-editable.title")
+        </h1>
+    </header>
+
+    @govukWarningText(WarningText(
+        iconFallbackText = "Warning",
+        content = Text(messages("business-review.check-agency.text")),
+        attributes = Map("id" -> "check-agency-details")
+   ))
 
     <dl class="govuk-summary-list" id="business-details" >
         <div class="govuk-summary-list__row">
@@ -46,7 +63,7 @@
                 @businessDetails.businessName
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="business-name-edit">@messages("bc.edit")
+                <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="business-name-edit">@messages("bc.change")
                     <span class="govuk-visually-hidden">@messages("business-review.business-name")</span>
                 </a>
             </dd>
@@ -67,7 +84,7 @@
                 </p>
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="business-reg-edit">@messages("bc.edit")
+                <a href='@controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.editAgent(service)' id="business-reg-edit">@messages("bc.change")
                     <span class="govuk-visually-hidden">@messages("business-review.address")</span>
                 </a>
             </dd>
@@ -83,7 +100,7 @@
                 @identification.idNumber
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)'>@messages("bc.edit")
+                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)'>@messages("bc.change")
                     <span class="govuk-visually-hidden">@messages("bc.non-uk-reg.businessUniqueId")</span>
                 </a>
             </dd>
@@ -97,7 +114,7 @@
                 @appConfig.getSelectedCountry(identification.issuingCountryCode)
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)'>@messages("bc.edit")
+                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)'>@messages("bc.change")
                     <span class="govuk-visually-hidden">@messages("bc.non-uk-reg.issuingCountry")</span>
                 </a>
             </dd>
@@ -111,7 +128,7 @@
                 @identification.issuingInstitution
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)'>@messages("bc.edit")
+                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)'>@messages("bc.change")
                     <span class="govuk-visually-hidden">@messages("bc.non-uk-reg.issuingInstitution")</span>
                 </a>
             </dd>
@@ -127,20 +144,19 @@
                 @messages("business-review.overseas-tax-reference.not-provided")
             </dd>
             <dd class="govuk-summary-list__actions">
-                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)'>@messages("bc.edit")
+                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)'>@messages("bc.change")
                     <span class="govuk-visually-hidden">@messages("business-review.overseas-tax-reference")</span>
                 </a>
             </dd>
         </div>
         }
-</dl>
+    </dl>
 
-
-  <div class="govuk-form-group">
       @formHelper(action = controllers.routes.ReviewDetailsController.continue(service)) {
-      <button class="govuk-button" id="submit" type="submit">
-        @messages("business-review.registration-button")
-      </button>
+        @govukButton(Button(
+           content = Text(messages("business-review.registration-button")),
+           inputType = Some("submit"),
+           attributes = Map("id" -> "submit")
+        ))
     }
-  </div>
 }

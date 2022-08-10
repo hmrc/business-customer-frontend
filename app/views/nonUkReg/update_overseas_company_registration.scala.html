@@ -21,7 +21,16 @@
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.form
-@this(bcMain: bcMain, formHelper: FormWithCSRF, govukInput: GovukInput, govukSelect: GovukSelect, govukRadios: GovukRadios)
+@import views.ViewUtils.titleBuilder
+
+@this(bcMain: bcMain,
+    formHelper: FormWithCSRF,
+    govukInput: GovukInput,
+    govukSelect: GovukSelect,
+    govukRadios: GovukRadios,
+    govukBackLink : GovukBackLink,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton : GovukButton)
 
 @(overseasCompanyForm: Form[models.OverseasCompany],
   service: String,
@@ -31,24 +40,25 @@
   backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
-<script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
-<script src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
-<script src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
-<script>
-    $(document).ready(function() {
+  <script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
+  <script src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
+  <script src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
+  <script>
+         $(document).ready(function() {
 
-      accessibleAutocomplete.enhanceSelectElement({
-        selectElement: document.querySelector('#issuingCountry')
-      })
+           accessibleAutocomplete.enhanceSelectElement({
+               defaultValue: '',
+               selectElement: document.querySelector('#issuingCountry')
+           })
 
-      // Where .multiple-choice uses the data-target attribute
-      // to toggle hidden content
-      var showHideContent = new GOVUK.ShowHideContent()
-      showHideContent.init()
+            // Where .multiple-choice uses the data-target attribute
+            // to toggle hidden content
+            var showHideContent = new GOVUK.ShowHideContent()
+            showHideContent.init()
 
-      //Clear out form when switching back to no
-      clearInputValues()
-    });
+            //Clear out form when switching back to no
+            clearInputValues()
+         });
   </script>
 }
 
@@ -67,7 +77,7 @@
             label = Label(
                 content = Text(messages("bc.non-uk-reg.issuingCountry"))
             ),
-            items = Seq(SelectItem(Some(""), "")) ++ countryList.map {
+            items = Seq(SelectItem(Some(""), "Select a country")) ++ countryList.map {
                 case (code, country) => SelectItem(
                 value = Some(code),
                 text = country
@@ -88,11 +98,24 @@
     )
 }
 
-@bcMain(title = messages(displayDetails.title), service = service, pageScripts = Some(pageScripts)) {
-  @pageHeadersAndError(backLink, "overseas-subheader", messages(displayDetails.subHeader, service.toUpperCase), "overseas-header", messages(displayDetails.header),
-    Some(bcErrorSummary(overseasCompanyForm, "bc.non-uk-reg-error.general")))
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
 
-@formHelper(action = controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.update(service, displayDetails.addClient, redirectUrl)) {
+@bcMain(title = titleBuilder(messages(displayDetails.title), Some(overseasCompanyForm)), service = service, pageScripts = Some(pageScripts)) {
+
+    @backLinkHtml
+
+    @if(overseasCompanyForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(overseasCompanyForm))
+    }
+
+    @formHelper(action = controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.update(service, displayDetails.addClient, redirectUrl)) {
 
         @govukRadios(
         Radios(
@@ -114,11 +137,15 @@
                 )
             )
         ).withFormField(overseasCompanyForm("hasBusinessUniqueId"))
-    )
+         .withHeadingAndSectionCaption(
+            heading = HtmlContent(messages(displayDetails.header)),
+            sectionCaption = HtmlContent(messages(displayDetails.subHeader, service.toUpperCase))
+         ))
 
-  <button class="govuk-button" id="submit" type="submit">@messages("bc.continue")</button>
-
-
-}
-
+        @govukButton(Button(
+            content = Text(messages("bc.continue")),
+            inputType = Some("submit"),
+            attributes = Map("id" -> "submit")
+        ))
+    }
 }
