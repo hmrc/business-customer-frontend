@@ -121,6 +121,8 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
         isAGroup = false, directMatch = false, Some("agent123"))
 
       "validate form" must {
+
+        type InputJson = JsValue
         type TestMessage = String
         type ErrorMessage = String
 
@@ -176,9 +178,8 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
         }
 
         "If updateNoRegister flag is set to true, must update registration rather then create a new one" in {
-          val inputJson = createJson()
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          updateWithAuthorisedUserSuccess(FakeRequest().withJsonBody(inputJson), "ATED", Some(businessReg),overseasDetails, reviewDetails) { result =>
+          updateWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some(businessReg),overseasDetails, reviewDetails) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result) must be(Some("/business-customer/review-details/ATED"))
           }
@@ -307,7 +308,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     test(result)
   }
 
-  def updateWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsJson],
+  def updateWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
                                       service: String = service,
                                       busRegCache : Option[BusinessRegistration] = None,
                                       overseasSave : OverseasCompany,
