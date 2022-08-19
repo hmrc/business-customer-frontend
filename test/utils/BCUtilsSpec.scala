@@ -56,7 +56,7 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
     "getSelectedCountry" must {
       "bring the correct country from the file" in {
         bcUtils.getSelectedCountry("GB") must be("United Kingdom")
-        bcUtils.getSelectedCountry("US") must be("USA")
+        bcUtils.getSelectedCountry("US") must be("United States")
         bcUtils.getSelectedCountry("VG") must be("British Virgin Islands")
         bcUtils.getSelectedCountry("UG") must be("Uganda")
         bcUtils.getSelectedCountry("zz") must be("zz")
@@ -65,8 +65,8 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
 
     "getIsoCodeMap" must {
       "return map of country iso-code to country name" in {
-        bcUtils.getIsoCodeTupleList must contain(("US", "USA :United States of America"))
-        bcUtils.getIsoCodeTupleList must contain(("GB", "United Kingdom :UK, GB, Great Britain"))
+        bcUtils.getIsoCodeTupleList must contain(("US", "United States"))
+        bcUtils.getIsoCodeTupleList must contain(("GB", "United Kingdom"))
         bcUtils.getIsoCodeTupleList must contain(("UG", "Uganda"))
       }
     }
