@@ -26,7 +26,6 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.JsValue
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
@@ -101,8 +100,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
       }
 
       "return business registration view for a user for Non-UK with saved data" in {
-        val overseasDetails = OverseasCompany(Some(false), Some("1234"))
-        viewWithAuthorisedAgentWithSomeData(serviceName, Some(overseasDetails)) { result =>
+        viewWithAuthorisedAgentWithSomeData(serviceName) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
@@ -122,7 +120,6 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
 
       "validate form" must {
 
-        type InputJson = JsValue
         type TestMessage = String
         type ErrorMessage = String
 
@@ -199,7 +196,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     }
   }
 
-  def viewWithUnAuthorisedUser()(test: Future[Result] => Any) {
+  def viewWithUnAuthorisedUser()(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -215,7 +212,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     test(result)
   }
 
-  def viewWithAuthorisedAgent(service: String)(test: Future[Result] => Any) {
+  def viewWithAuthorisedAgent(service: String)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -234,7 +231,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     test(result)
   }
 
-  def viewWithAuthorisedAgentWithSomeData(service: String, overseasDetails : Option[OverseasCompany])(test: Future[Result] => Any) {
+  def viewWithAuthorisedAgentWithSomeData(service: String)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -254,7 +251,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
   }
 
 
-  def viewWithAuthorisedUser(service: String, redirectUrl: Option[String] = None)(test: Future[Result] => Any) {
+  def viewWithAuthorisedUser(service: String, redirectUrl: Option[String] = None)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -278,7 +275,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
                                     busRegCache : Option[BusinessRegistration] = None,
                                     overseasSave : OverseasCompany,
                                     reviewDetails : ReviewDetails,
-                                    redirectUrl: Option[String] = None)(test: Future[Result] => Any) {
+                                    redirectUrl: Option[String] = None)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -313,7 +310,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
                                       busRegCache : Option[BusinessRegistration] = None,
                                       overseasSave : OverseasCompany,
                                       reviewDetails : ReviewDetails,
-                                      redirectUrl: Option[String] = None)(test: Future[Result] => Any) {
+                                      redirectUrl: Option[String] = None)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
