@@ -66,7 +66,7 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
     "getIsoCodeMap" must {
       "return map of country iso-code to country name" in {
         bcUtils.getIsoCodeTupleList must contain(("US", "United States"))
-        bcUtils.getIsoCodeTupleList must contain(("GB", "United Kingdom"))
+        bcUtils.getIsoCodeTupleList must contain(("GB", "United Kingdom :UK, GB, Great Britain"))
         bcUtils.getIsoCodeTupleList must contain(("UG", "Uganda"))
       }
     }
