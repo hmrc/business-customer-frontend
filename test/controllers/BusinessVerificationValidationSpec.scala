@@ -101,7 +101,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       |    "line_3": "line 3",
       |    "line_4": "line 4",
       |    "postcode": "AA1 1AA",
-      |    "country": "UK"
+      |    "country": "GB"
       |  },
       |  "sapNumber": "sap123",
       |  "safeId": "safe123",
@@ -123,7 +123,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       |    "line_3": "line 3",
       |    "line_4": "line 4",
       |    "postcode": "AA1 1AA",
-      |    "country": "UK"
+      |    "country": "GB"
       |  },
       |  "sapNumber": "sap123",
       |  "safeId": "safe123",
@@ -145,7 +145,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       |    "line_3": "line 3",
       |    "line_4": "line 4",
       |    "postcode": "AA1 1AA",
-      |    "country": "UK"
+      |    "country": "GB"
       |  },
       |  "sapNumber": "sap123",
       |  "safeId": "safe123",
@@ -167,7 +167,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       |    "line_3": "line 3",
       |    "line_4": "line 4",
       |    "postcode": "AA1 1AA",
-      |    "country": "UK"
+      |    "country": "GB"
       |  },
       |  "sapNumber": "sap123",
       |  "safeId": "safe123",
@@ -189,7 +189,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       |    "line_3": "line 3",
       |    "line_4": "line 4",
       |    "postcode": "AA1 1AA",
-      |    "country": "UK"
+      |    "country": "GB"
       |  },
       |  "sapNumber": "sap123",
       |  "safeId": "safe123",
@@ -211,7 +211,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       |    "line_3": "line 3",
       |    "line_4": "line 4",
       |    "postcode": "AA1 1AA",
-      |    "country": "UK"
+      |    "country": "GB"
       |  },
       |  "sapNumber": "sap123",
       |  "safeId": "safe123",
@@ -233,7 +233,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       |    "line_3": "line 3",
       |    "line_4": "line 4",
       |    "postcode": "AA1 1AA",
-      |    "country": "UK"
+      |    "country": "GB"
       |  },
       |  "sapNumber": "sap123",
       |  "safeId": "safe123",
@@ -466,6 +466,16 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
             redirectLocation(result).get must include(s"/business-customer/review-details/$service")
         }
       }
+
+      "for successful match with missing countryCode, status should be 303 and  user should be redirected to update overseas details reg" in new Setup {
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessOrgNRLNoCountry(FakeRequest("POST", "/").withFormUrlEncodedBody("businessName" -> "Business Name", "saUTR" -> s"$matchUtr"), controller) {
+          result =>
+            status(result) must be(SEE_OTHER)
+            redirectLocation(result).get must include(s"/business-customer/register/$service/NRL")
+        }
+      }
+
       "for unsuccessful match, status should be Redirect and  user should be on details not found page" in new Setup {
         submitWithAuthorisedUserFailure("NRL", FakeRequest("POST", "/").withFormUrlEncodedBody("businessName" -> "Business Name", "saUTR" -> s"$noMatchUtr"), controller) {
           result =>
@@ -580,6 +590,51 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
     )
 
     val result = controller.submit(service, businessType).apply(fullReq)
+
+    test(result)
+  }
+
+  def submitWithAuthorisedUserSuccessOrgNRLNoCountry(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
+                                                  controller: BusinessVerificationController)(test: Future[Result] => Any) {
+    val sessionId = s"session-${UUID.randomUUID}"
+    val userId = s"user-${UUID.randomUUID}"
+
+    builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+
+    val matchSuccessResponse = Json.parse(
+      """
+        |{
+        |  "businessName": "ACME",
+        |  "businessType": "Limited company",
+        |  "businessAddress": {
+        |    "line_1": "line 1",
+        |    "line_2": "line 2",
+        |    "line_3": "line 3",
+        |    "line_4": "line 4",
+        |    "postcode": "AA1 1AA",
+        |    "country": ""
+        |  },
+        |  "sapNumber": "sap123",
+        |  "safeId": "safe123",
+        |  "isAGroup": false,
+        |  "directMatch" : false,
+        |  "agentReferenceNumber": "agent123",
+        |  "isBusinessDetailsEditable": false
+        |}
+    """.stripMargin)
+
+    when(mockBusinessMatchingService.matchBusinessWithOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+    (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(matchSuccessResponse))
+
+    val fullReq = fakeRequest.withSession(
+      "sessionId" -> sessionId,
+      "token" -> "RANDOMTOKEN",
+      "userId" -> userId)
+      .withHeaders(Headers("Authorization" -> "value")
+      )
+
+    val result = controller.submit(service, "NRL").apply(fullReq)
 
     test(result)
   }

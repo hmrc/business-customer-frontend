@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.BusinessCustomerConstants.{BusinessRegDetailsId, OverseasRegDetailsId}
+import utils.BusinessCustomerConstants.{BusinessRegDetailsId, OverseasRegDetailsId, UpdateNotRegisterId}
 import utils.OverseasCompanyUtils
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -80,19 +80,29 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
           },
           overseasCompany => for {
             cachedBusinessReg <- businessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](BusinessRegDetailsId)
+            updateOrRegister  <- businessRegistrationCache.fetchAndGetCachedDetails[Boolean](UpdateNotRegisterId)
             _ <- businessRegistrationCache.cacheDetails[OverseasCompany](OverseasRegDetailsId, overseasCompany)
             _ <- cachedBusinessReg match {
-                case Some(businessReg) =>
-                  businessRegistrationService.registerBusiness(
-                    businessReg,
-                    overseasCompany,
-                    isGroup = false,
-                    isNonUKClientRegisteredByAgent = addClient,
-                    service,
-                    isBusinessDetailsEditable = true
-                  )
-                case None => throw new RuntimeException(s"[OverseasCompanyRegController][send] - service :$service. Error : No Cached BusinessRegistration")
-              }
+              case Some(businessReg) if updateOrRegister.getOrElse(false) =>
+                businessRegistrationService.updateRegisterBusiness(
+                  businessReg,
+                  overseasCompany,
+                  isGroup = false,
+                  isNonUKClientRegisteredByAgent = addClient,
+                  service,
+                  isBusinessDetailsEditable = true
+                )
+              case Some(businessReg) =>
+                businessRegistrationService.registerBusiness(
+                  businessReg,
+                  overseasCompany,
+                  isGroup = false,
+                  isNonUKClientRegisteredByAgent = addClient,
+                  service,
+                  isBusinessDetailsEditable = true
+                )
+              case None => throw new RuntimeException(s"[OverseasCompanyRegController][send] - service :$service. Error : No Cached BusinessRegistration")
+            }
             redirectPage <- redirectUrl match {
               case Some(x) => redirectToExternal(x, Some(controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, addClient, Some(x)).url))
               case None => redirectWithBackLink(

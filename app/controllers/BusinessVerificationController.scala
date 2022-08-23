@@ -74,8 +74,8 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
         formWithErrors =>
           currentBackLink map ( backLink =>
             BadRequest(template(formWithErrors, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink)
-          )
-        ),
+            )
+          ),
         value => {
           val returnCall = Some(routes.BusinessVerificationController.businessVerification(service).url)
           value.businessType match {
@@ -306,11 +306,19 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
           organisation = organisation, utr = nrlFormData.saUTR, service = service) flatMap { returnedResponse =>
           val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
           validatedReviewDetails match {
-            case Some(_) =>
-              redirectWithBackLink(reviewDetailsController.controllerId,
-                controllers.routes.ReviewDetailsController.businessDetails(service),
-                Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
-              )
+            case Some(details) =>
+              val countryCode = details.businessAddress.country
+              if(config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
+                redirectWithBackLink(reviewDetailsController.controllerId,
+                  controllers.nonUKReg.routes.BusinessRegController.register(service, businessType),
+                  Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
+                )
+              } else {
+                redirectWithBackLink(reviewDetailsController.controllerId,
+                  controllers.routes.ReviewDetailsController.businessDetails(service),
+                  Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
+                )
+              }
             case None =>
               Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
           }

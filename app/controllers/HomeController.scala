@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.BackLinkCacheConnector
+import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import javax.inject.{Inject, Provider}
 import models.ReviewDetails
@@ -26,6 +26,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.BusinessCustomerConstants.UpdateNotRegisterId
 
 import scala.concurrent.ExecutionContext
 
@@ -36,6 +37,7 @@ class HomeController @Inject()(val authConnector: AuthConnector,
                                businessMatchService: BusinessMatchingService,
                                businessVerificationController: Provider[BusinessVerificationController],
                                reviewDetailsController: ReviewDetailsController,
+                               businessRegCacheConnector: BusinessRegCacheConnector,
                                mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with BackLinkController with AuthActions {
 
@@ -50,10 +52,19 @@ class HomeController @Inject()(val authConnector: AuthConnector,
           futureJsValue flatMap {
             jsValue =>
               jsValue.validate[ReviewDetails] match {
-                case _: JsSuccess[ReviewDetails] =>
-                  redirectWithBackLink(
-                    reviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), backLinkUrl
-                  )
+                case details: JsSuccess[ReviewDetails] =>
+                  val countryCode = details.get.businessAddress.country
+                  if(config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
+                    businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
+                    redirectWithBackLink(
+                      businessVerificationController.get.controllerId,
+                      controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl
+                    )
+                  } else {
+                    redirectWithBackLink(
+                      reviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), backLinkUrl
+                    )
+                  }
                 case _: JsError =>
                   redirectWithBackLink(
                     businessVerificationController.get.controllerId,
