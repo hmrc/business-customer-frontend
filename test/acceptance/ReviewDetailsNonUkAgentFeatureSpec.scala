@@ -73,7 +73,7 @@ class ReviewDetailsNonUkAgentFeatureSpec extends AnyFeatureSpec with GuiceOneSer
 
       And("Business address is correct")
       assert(document.getElementById("business-address-title").text === "Registered address")
-      assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom")
+      assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom of Great Britain and Northern Ireland (the)")
       assert(document.getElementById("business-reg-edit").attr("href") === "/business-customer/agent/register/non-uk-client/ATED/edit")
 
       And("Overseas tax reference is correct")

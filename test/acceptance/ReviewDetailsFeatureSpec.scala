@@ -61,7 +61,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: ATED registration")
       assert(document.getElementById("business-name").text === "ACME")
-      assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom")
+      assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom of Great Britain and Northern Ireland (the)")
       assert(document.select(".govuk-details__summary-text").text === "Not the right details?")
       assert(document.getElementById("wrong-account-text").text === "If this is not the right business, you should sign out and change to another account")
       assert(document.getElementById("wrong-account-text-item-1").text()
@@ -96,7 +96,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: ATED registration")
       assert(document.getElementById("business-name").text === "ACME")
-      assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom")
+      assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom of Great Britain and Northern Ireland (the)")
       assert(document.select(".govuk-details__summary-text").text === "Not the right address?")
       assert(document.getElementById("wrong-account-text").text === "You will need to update your information outside of this service.")
       assert(document.getElementById("wrong-account-text-item-1").text()
@@ -132,7 +132,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       assert(document.select(".govuk-details__summary-text").text === "Not the right details?")
       assert(document.getElementById("business-name").text === "ACME")
-      assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom")
+      assert(document.getElementById("business-address").text === "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom of Great Britain and Northern Ireland (the)")
       assert(document.select(".govuk-button").text === "Confirm")
       assert(document.getElementById("bus-reg-edit") === null)
 

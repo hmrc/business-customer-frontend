@@ -40,16 +40,19 @@
   backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
-  <script src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
-  <script src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
-  <script src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
-  <script>
+
+    <script src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
+    <script src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
+    <script type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/location-autocomplete.min.js")'></script>
+
+    <script>
       $(document).ready(function() {
 
-        accessibleAutocomplete.enhanceSelectElement({
-          defaultValue: '',
-          selectElement: document.querySelector('#issuingCountry')
-        })
+        openregisterLocationPicker({
+        defaultValue: '',
+        selectElement: document.getElementById('issuingCountry'),
+        url: '@controllers.routes.Assets.versioned("location-autocomplete-graph.json")'
+      })
 
          // Where .multiple-choice uses the data-target attribute
          // to toggle hidden content
@@ -59,7 +62,7 @@
          //Clear out form when switching back to no
          clearInputValues()
       });
-  </script>
+    </script>
 }
 
 @conditionalHtml = {
