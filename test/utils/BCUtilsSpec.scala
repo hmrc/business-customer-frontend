@@ -59,6 +59,9 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
         bcUtils.getSelectedCountry("US") must be("United States of America (the)")
         bcUtils.getSelectedCountry("VG") must be("Virgin Islands (British)")
         bcUtils.getSelectedCountry("UG") must be("Uganda")
+        bcUtils.getSelectedCountry("AX") must be("Åland Islands")
+        bcUtils.getSelectedCountry("CI") must be("Côte d'Ivoire")
+        bcUtils.getSelectedCountry("CW") must be("Curaçao")
         bcUtils.getSelectedCountry("zz") must be("zz")
       }
     }
@@ -68,6 +71,9 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
         bcUtils.getIsoCodeTupleList must contain(("US", "United States of America (the)"))
         bcUtils.getIsoCodeTupleList must contain(("GB", "United Kingdom of Great Britain and Northern Ireland (the)"))
         bcUtils.getIsoCodeTupleList must contain(("UG", "Uganda"))
+        bcUtils.getIsoCodeTupleList must contain(("AX", "Åland Islands"))
+        bcUtils.getIsoCodeTupleList must contain(("CI", "Côte d'Ivoire"))
+        bcUtils.getIsoCodeTupleList must contain(("CW", "Curaçao"))
       }
     }
 
@@ -95,21 +101,21 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
     "businessTypeMap" must {
 
       "return the correct map for ated" in {
-        val typeMap = bcUtils.businessTypeMap("ated", false)
+        val typeMap = bcUtils.businessTypeMap("ated", isAgent = false)
         typeMap.size must be(7)
         typeMap.head._1 must be("LTD")
         typeMap(1)._1 must be("OBP")
       }
 
       "return the correct map for awrs" in {
-        val typeMap = bcUtils.businessTypeMap("awrs", false)
+        val typeMap = bcUtils.businessTypeMap("awrs", isAgent = false)
         typeMap.size must be(7)
         typeMap.head._1 must be("OBP")
         typeMap(1)._1 must be("GROUP")
       }
 
       "return the correct map for amls" in {
-        val typeMap = bcUtils.businessTypeMap("amls", false)
+        val typeMap = bcUtils.businessTypeMap("amls", isAgent = false)
         typeMap.size must be(5)
         typeMap mustBe Seq(
           "LTD" -> "bc.business-verification.LTD",
@@ -121,7 +127,7 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
       }
 
       "return the correct map for investment-tax-relief" in {
-        val typeMap = bcUtils.businessTypeMap("investment-tax-relief", false)
+        val typeMap = bcUtils.businessTypeMap("investment-tax-relief", isAgent = false)
         typeMap.size must be(1)
         typeMap mustBe Seq(
           "LTD" -> "bc.business-verification.LTD"
@@ -129,7 +135,7 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
       }
 
       "return the correct map for capital-gains-tax" in {
-        val typeMap = bcUtils.businessTypeMap("capital-gains-tax", false)
+        val typeMap = bcUtils.businessTypeMap("capital-gains-tax", isAgent = false)
         typeMap.size must be(6)
         typeMap mustBe Seq(
           "NUK" -> "bc.business-verification.NUK",
@@ -142,7 +148,7 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
       }
 
       "return the correct sequence for capital-gains-tax-agents" in {
-        val typeMap = bcUtils.businessTypeMap("capital-gains-tax-agents", false)
+        val typeMap = bcUtils.businessTypeMap("capital-gains-tax-agents", isAgent = false)
         typeMap.size must be(6)
         typeMap mustBe Seq(
           "LTD" -> "bc.business-verification.LTD",
@@ -155,7 +161,7 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
       }
 
       "return default map when passed nothing" in {
-        val typeMap = bcUtils.businessTypeMap("", false)
+        val typeMap = bcUtils.businessTypeMap("", isAgent = false)
         typeMap.size must be(6)
         typeMap mustBe Seq(
           "SOP" -> "bc.business-verification.SOP",
