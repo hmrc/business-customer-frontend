@@ -17,9 +17,9 @@
 package config
 
 import java.util.{Collections, PropertyResourceBundle}
-
 import play.api.Environment
 
+import java.io.InputStreamReader
 import scala.collection.JavaConverters
 import scala.util.{Success, Try}
 
@@ -31,7 +31,9 @@ trait BCUtils {
 
   lazy val resourceStream: PropertyResourceBundle =
     (environment.resourceAsStream("country-code.properties") flatMap { stream =>
-      val optBundle: Option[PropertyResourceBundle] = Try(new PropertyResourceBundle(stream)) match {
+
+      val inputStreamReader: InputStreamReader = new InputStreamReader(stream, "UTF-8")
+      val optBundle: Option[PropertyResourceBundle] = Try(new PropertyResourceBundle(inputStreamReader)) match {
         case Success(bundle) => Some(bundle)
         case _               => None
       }
