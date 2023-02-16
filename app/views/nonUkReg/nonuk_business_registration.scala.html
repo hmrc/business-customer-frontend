@@ -69,10 +69,12 @@
     </header>
 
   @displayDetails.businessRegLede.map { businessRegLede =>
-  <p class="govuk-body" id="non-uk-reg-lede">@Html(messages(businessRegLede))</p>
+    <p class="govuk-body" id="non-uk-reg-lede">@Html(messages(businessRegLede))</p>
   }
 
  @formHelper(action = controllers.nonUKReg.routes.AgentRegisterNonUKClientController.submit(service)) {
+
+    <fieldset class="govuk-fieldset">
 
       <legend class="govuk-visually-hidden">@messages(displayDetails.businessRegHeader)</legend>
 
@@ -129,6 +131,7 @@
                   }
               ).withFormField(businessRegistrationForm("businessAddress.country"))
       )
+    </fieldset>
 
      @govukButton(Button(
         content = Text(messages("bc.continue")),
