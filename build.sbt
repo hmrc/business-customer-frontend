@@ -1,7 +1,6 @@
 import play.sbt.routes.RoutesKeys.routesGenerator
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName: String = "business-customer-frontend"
 lazy val appDependencies: Seq[ModuleID] = AppDependencies()
@@ -25,7 +24,6 @@ lazy val microservice: Project = Project(appName, file("."))
     playSettings,
     routesGenerator := InjectedRoutesGenerator,
     scalaSettings,
-    publishingSettings,
     defaultSettings(),
     scoverageSettings,
     scalacOptions += "-Ywarn-unused:-explicits,-implicits",
