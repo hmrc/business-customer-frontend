@@ -6,19 +6,19 @@ object AppDependencies {
   val compile: Seq[ModuleID] = Seq(
     ws,
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-28" % "5.25.0",
-    "uk.gov.hmrc"       %% "domain"                     % "8.1.0-play-28",
+    "uk.gov.hmrc"       %% "domain"                     % "8.2.0-play-28",
     "uk.gov.hmrc"       %% "play-partials"              % "8.3.0-play-28",
-    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "6.5.0-play-28",
+    "uk.gov.hmrc"       %% "play-frontend-hmrc"         % "7.4.0-play-28",
     "uk.gov.hmrc"       %% "http-caching-client"        % "9.6.0-play-28",
     "com.typesafe.play" %% "play-json-joda"             % "2.9.3"
   )
 
   val test: Seq[ModuleID] = Seq(
     "uk.gov.hmrc" %% "bootstrap-test-play-28"  % "5.25.0"   % "test",
-    "org.jsoup"   %  "jsoup"                   % "1.15.3"   % "test",
-    "org.mockito" %  "mockito-core"            % "4.7.0"    % "test",
-    "org.mockito" %% "mockito-scala"           % "1.17.12"   % "test",
-    "org.mockito" %% "mockito-scala-scalatest" % "1.17.12"   % "test"
+    "org.jsoup"   %  "jsoup"                   % "1.15.4"   % "test",
+    "org.mockito" %  "mockito-core"            % "4.11.0"    % "test",
+    "org.mockito" %% "mockito-scala"           % "1.17.14"   % "test",
+    "org.mockito" %% "mockito-scala-scalatest" % "1.17.14"   % "test"
   )
 
   def apply(): Seq[ModuleID] = compile ++ test

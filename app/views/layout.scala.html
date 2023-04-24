@@ -21,7 +21,6 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardHeader
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTimeoutDialogHelper
-@import views.html.helper.CSPNonce
 @import config.ApplicationConfig
 @import _root_.utils.ReferrerUtils.getReferrer
 
@@ -63,6 +62,5 @@
     serviceName = appConfig.getNavTitle(service).map(s => messages(s)),
     accessibilityStatementUrl = Some(appConfig.accessibilityStatementFrontendUrl(service, getReferrer())),
     beforeContentBlock = Some(beforeContentBlock),
-    additionalScriptsBlock = Some(allScripts),
-    nonce = CSPNonce.get
+    additionalScriptsBlock = Some(allScripts)
 )(content)
