@@ -17,11 +17,12 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.BackLinkCacheConnector
+import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import forms.BusinessVerificationForms._
 import forms._
+
 import javax.inject.{Inject, Singleton}
 import models._
 import play.api.data.Form
@@ -46,6 +47,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                                                templateLP: views.html.business_lookup_LP,
                                                templateNRL: views.html.business_lookup_NRL,
                                                templateDetailsNotFound: views.html.details_not_found,
+                                               businessRegCacheConnector: BusinessRegCacheConnector,
                                                val backLinkCacheConnector: BackLinkCacheConnector,
                                                val businessMatchingService: BusinessMatchingService,
                                                val businessRegUKController: BusinessRegUKController,
@@ -309,6 +311,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
             case Some(details) =>
               val countryCode = details.businessAddress.country
               if(config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
+                businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
                 redirectWithBackLink(reviewDetailsController.controllerId,
                   controllers.nonUKReg.routes.BusinessRegController.register(service, businessType),
                   Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)

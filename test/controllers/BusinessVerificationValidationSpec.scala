@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.BackLinkCacheConnector
+import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import org.mockito.{ArgumentMatchers, MockitoSugar}
 import org.scalatestplus.play.PlaySpec
@@ -29,12 +29,11 @@ import play.api.test.{FakeRequest, Injecting}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import java.util.UUID
 
+import java.util.UUID
 import views.html.{business_lookup_LLP, business_lookup_LP, business_lookup_LTD, business_lookup_NRL, business_lookup_OBP, business_lookup_SOP, business_lookup_UIB, business_verification, details_not_found}
 
 import scala.concurrent.Future
-
 
 class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
@@ -42,6 +41,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
   val mockBusinessMatchingService: BusinessMatchingService = mock[BusinessMatchingService]
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockBusinessRegCacheConnector: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   val service = "ATED"
   val matchUtr: SaUtr = new SaUtrGenerator().nextSaUtr
   val noMatchUtr: SaUtr = new SaUtrGenerator().nextSaUtr
@@ -77,6 +77,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       injectedViewInstanceLP,
       injectedViewInstanceNRL,
       injectedViewInstanceDetailsNotFound,
+      mockBusinessRegCacheConnector,
       mockBackLinkCache,
       mockBusinessMatchingService,
       mockBusinessRegUKController,
@@ -473,6 +474,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
           result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result).get must include(s"/business-customer/register/$service/NRL")
+            verify(mockBusinessRegCacheConnector, times(1)).cacheDetails(ArgumentMatchers.eq("Update_No_Register"), ArgumentMatchers.eq(true))(ArgumentMatchers.any(), ArgumentMatchers.any())
         }
       }
 
@@ -484,7 +486,6 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
         }
       }
     }
-
 
     "if the Unincorporated body form  is successfully validated:" must {
       "for successful match, status should be 303 and  user should be redirected to review details page" in new Setup {

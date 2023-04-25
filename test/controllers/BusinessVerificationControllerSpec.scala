@@ -17,10 +17,9 @@
 package controllers
 
 import java.util.UUID
-
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.BackLinkCacheConnector
+import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import org.jsoup.Jsoup
 import org.mockito.{ArgumentMatchers, MockitoSugar}
@@ -43,6 +42,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessMatchingService: BusinessMatchingService = mock[BusinessMatchingService]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockBusinessRegCacheConnector: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   val service = "ATED"
   val invalidService = "scooby-doo"
 
@@ -78,6 +78,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       injectedViewInstanceLP,
       injectedViewInstanceNRL,
       injectedViewInstanceDetailsNotFound,
+      mockBusinessRegCacheConnector,
       mockBackLinkCache,
       mockBusinessMatchingService,
       businessRegUKController,
