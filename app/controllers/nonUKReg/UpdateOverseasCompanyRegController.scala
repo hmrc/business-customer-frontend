@@ -56,7 +56,7 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
              redirectUrl,
             backLink))
 
-          businessRegistrationService.getDetails.map {
+          businessRegistrationService.getDetails().map {
             case Some(detailsTuple) =>
               Ok(template(overseasCompanyForm.fill(detailsTuple._3),
                  service,
@@ -78,7 +78,7 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
       redirectUrl match {
         case Some(x) if !appConfig.isRelative(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
         case _ =>
-          BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest).fold(
+          BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest()).fold(
             formWithErrors => {
               val backLink = getBackLink(service, redirectUrl)
               Future.successful(BadRequest(template(
@@ -91,7 +91,7 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
               )
             },
             overseasCompany =>
-              businessRegistrationService.getDetails.flatMap {
+              businessRegistrationService.getDetails().flatMap {
                 case Some(detailsTuple) =>
                   businessRegistrationService.updateRegisterBusiness(
                     detailsTuple._2,

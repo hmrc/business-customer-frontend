@@ -49,7 +49,7 @@
     </header>
 
     @govukWarningText(WarningText(
-        iconFallbackText = "Warning",
+        iconFallbackText = Some("Warning"),
         content = Text(messages("business-review.check-agency.text")),
         attributes = Map("id" -> "check-agency-details")
    ))

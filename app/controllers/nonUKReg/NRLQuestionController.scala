@@ -60,7 +60,7 @@ class NRLQuestionController @Inject()(val authConnector: AuthConnector,
 
   def continue(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service){ implicit authContext =>
-      nrlQuestionForm.bindFromRequest.fold(
+      nrlQuestionForm.bindFromRequest().fold(
         formWithErrors =>
           currentBackLink.map(backLink => BadRequest(template(formWithErrors, service, backLink))),
         formData => {

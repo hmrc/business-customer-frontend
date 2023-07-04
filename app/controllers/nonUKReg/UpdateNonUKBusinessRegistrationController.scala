@@ -73,7 +73,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
 
   def editAgent(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      businessRegistrationService.getDetails.map {
+      businessRegistrationService.getDetails().map {
         case Some(detailsTuple) =>
           val backLink = getBackLink(service, None)
           Ok(template(
@@ -96,7 +96,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
       redirectUrl match {
         case Some(x) if !appConfig.isRelative(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
         case _ =>
-          businessRegistrationService.getDetails.map {
+          businessRegistrationService.getDetails().map {
             case Some(detailsTuple) =>
               val backLink = getBackLink(service, redirectUrl)
               Ok(template(
@@ -120,7 +120,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
       redirectUrl match {
         case Some(x) if !appConfig.isRelative(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
         case _ =>
-          BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, authContext.isAgent, appConfig).fold(
+          BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest(), service, authContext.isAgent, appConfig).fold(
             formWithErrors => {
               val backLink = getBackLink(service, redirectUrl)
               Future.successful(BadRequest(template(formWithErrors,
@@ -132,7 +132,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
                 authContext.isAgent)))
             },
             registerData => {
-              businessRegistrationService.getDetails.flatMap {
+              businessRegistrationService.getDetails().flatMap {
                 case Some(detailsTuple) =>
                   businessRegistrationService.updateRegisterBusiness(
                     registerData,
