@@ -190,12 +190,14 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
             "businessAddress.line_4" -> "",
             "businessAddress.country" -> ""
           ).toSeq: _*), controller = controller) { result =>
+            val document = Jsoup.parse(contentAsString(result))
             status(result) must be(BAD_REQUEST)
-            contentAsString(result) must include("Enter a business name")
-            contentAsString(result) must include("Enter address line 1")
-            contentAsString(result) must include("Enter address line 2")
-            contentAsString(result) mustNot include("Enter a valid postcode")
-            contentAsString(result) must include("Enter a country")
+            document.getElementsByClass("govuk-error-summary__body").text() mustBe "Enter a business name Enter address line 1 Enter address line 2 Enter a country"
+            document.getElementsByClass("govuk-error-summary__body").text() mustNot include ("Enter a valid postcode")
+            document.getElementById("businessName-error").text() mustBe "Error: Enter a business name"
+            document.getElementById("businessAddress.line_1-error").text() mustBe "Error: Enter address line 1"
+            document.getElementById("businessAddress.line_2-error").text() mustBe "Error: Enter address line 2"
+            document.getElementById("businessAddress.country-error").text() mustBe "Error: Enter a country"
           }
         }
 
@@ -212,8 +214,10 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in new Setup {
             submitWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(data._1.toSeq: _*), controller = controller) { result =>
+              val document = Jsoup.parse(contentAsString(result))
               status(result) must be(BAD_REQUEST)
-              contentAsString(result) must include(data._3)
+              document.getElementsByClass("govuk-error-summary__body").text() mustBe data._3
+              document.getElementsByClass("govuk-error-message").text() mustBe "Error: " + data._3
             }
           }
         }

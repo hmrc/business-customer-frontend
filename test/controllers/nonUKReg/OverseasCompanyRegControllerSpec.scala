@@ -123,12 +123,23 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
         type TestMessage = String
         type ErrorMessage = String
 
+        "select a radio button" in {
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "").toSeq: _*), "ATED", Some(businessReg), overseasDetails,reviewDetails) { result =>
+            val document = Jsoup.parse(contentAsString(result))
+            status(result) must be(BAD_REQUEST)
+            document.getElementsByClass("govuk-error-summary__body").text() mustBe "Select yes if you have an overseas company registration number"
+            document.getElementById("hasBusinessUniqueId-error").text() mustBe "Error: Select yes if you have an overseas company registration number"
+          }
+        }
+
         "not be empty" in {
           registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "", "issuingInstitution" -> "", "issuingCountry" -> "").toSeq: _*), "ATED", Some(businessReg), overseasDetails,reviewDetails) { result =>
+            val document = Jsoup.parse(contentAsString(result))
             status(result) must be(BAD_REQUEST)
-            contentAsString(result) must include("Enter the country that issued the overseas company registration number")
-            contentAsString(result) must include("Enter an institution that issued the overseas company registration number")
-            contentAsString(result) must include("Enter an overseas company registration number")
+            document.getElementsByClass("govuk-error-summary__body").text() mustBe "Enter an overseas company registration number Enter the country that issued the overseas company registration number Enter an institution that issued the overseas company registration number"
+            document.getElementById("businessUniqueId-error").text() mustBe "Error: Enter an overseas company registration number"
+            document.getElementById("issuingCountry-error").text() mustBe "Error: Enter the country that issued the overseas company registration number"
+            document.getElementById("issuingInstitution-error").text() mustBe "Error: Enter an institution that issued the overseas company registration number"
           }
         }
 
@@ -145,13 +156,15 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
             registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(data._1.toSeq: _*), "ATED", Some(businessReg),overseasDetails, reviewDetails) { result =>
+              val document = Jsoup.parse(contentAsString(result))
               status(result) must be(BAD_REQUEST)
-              contentAsString(result) must include(data._3)
+              document.getElementsByClass("govuk-error-summary__body").text() mustBe data._3
+              document.getElementsByClass("govuk-error-message").text() mustBe "Error: " + data._3
             }
           }
         }
 
-        "If we have no cache then an execption must be thrown" in {
+        "If we have no cache then an exception must be thrown" in {
           registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", None,overseasDetails, reviewDetails) { result =>
             val thrown = the[RuntimeException] thrownBy await(result)
             thrown.getMessage must be("[OverseasCompanyRegController][send] - service :ATED. Error : No Cached BusinessRegistration")
