@@ -20,7 +20,7 @@ import java.util.{Collections, PropertyResourceBundle}
 import play.api.Environment
 
 import java.io.InputStreamReader
-import scala.collection.JavaConverters
+import scala.jdk.CollectionConverters
 import scala.util.{Success, Try}
 
 trait BCUtils {
@@ -62,7 +62,7 @@ trait BCUtils {
   }
 
   def getIsoCodeTupleList: List[(String, String)] = {
-    JavaConverters.iterableAsScalaIterable(Collections.list(resourceStream.getKeys))
+    CollectionConverters.IterableHasAsScala(Collections.list(resourceStream.getKeys)).asScala
       .toList.map(key => (key, resourceStream.getString(key))).sortBy{case (_,v) => v}
   }
 
