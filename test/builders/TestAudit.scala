@@ -41,5 +41,5 @@ class TestAudit(auditConnector: AuditConnector) extends Audit("test", auditConne
     ()
   }
 
-  override def sendDataEvent: (DataEvent) => Unit = captureDataEvent
+  override def sendDataEvent(de: DataEvent)(implicit ec: ExecutionContext): Unit = captureDataEvent(de)
 }
