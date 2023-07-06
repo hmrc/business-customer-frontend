@@ -120,7 +120,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     }
   }
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     reset(mockAuthConnector)
     reset(mockBackLinkCache)
     reset(mockAgentRegistrationService)

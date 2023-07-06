@@ -168,7 +168,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
     mockDataCacheConnector
   )
 
-  override def beforeEach = {
+  override def beforeEach() = {
     reset(mockBusinessMatchingConnector)
     reset(mockDataCacheConnector)
   }

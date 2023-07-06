@@ -51,7 +51,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
   val cacheMap = CacheMap(id = formId, Map("date" -> formDataJson))
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     reset(mockSessionCache)
   }
 

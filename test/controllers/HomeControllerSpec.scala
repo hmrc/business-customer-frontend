@@ -72,7 +72,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
     override val controllerId = "test"
   }
 
-  override def beforeEach = {
+  override def beforeEach() = {
     reset(mockAuthConnector)
     reset(mockBusinessMatchingService)
     reset(mockBackLinkCache)

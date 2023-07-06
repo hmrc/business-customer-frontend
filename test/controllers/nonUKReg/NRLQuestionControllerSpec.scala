@@ -64,7 +64,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     override val controllerId = "test"
   }
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     reset(mockAuthConnector)
     reset(mockBackLinkCache)
   }

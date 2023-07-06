@@ -40,7 +40,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
   val mockAuthConnector = mock[AuthConnector]
   val mockDataCacheConnector = mock[DataCacheConnector]
 
-  override def beforeEach = {
+  override def beforeEach() = {
     reset(mockDataCacheConnector)
     reset(mockAuthConnector)
   }

@@ -51,7 +51,7 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
   }
 
 
-  override def beforeEach = {
+  override def beforeEach() = {
     reset(mockAuthConnector)
     reset(mockBackLinkCache)
   }

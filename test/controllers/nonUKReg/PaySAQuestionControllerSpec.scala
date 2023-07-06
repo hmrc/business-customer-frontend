@@ -67,7 +67,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     override val controllerId = "test"
   }
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     reset(mockAuthConnector)
     reset(mockBackLinkCache)
   }

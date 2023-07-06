@@ -62,7 +62,7 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   val userType = "sa"
   val service = "ATED"
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     reset(mockHttp)
   }
 
