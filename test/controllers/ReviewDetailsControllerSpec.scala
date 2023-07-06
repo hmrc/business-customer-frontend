@@ -312,7 +312,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       .withHeaders(Headers("Authorization" -> "value"))
   }
 
-  private def continueWithUnAuthorisedUser(service: String)(test: Future[Result] => Any) {
+  private def continueWithUnAuthorisedUser(service: String)(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
@@ -320,7 +320,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     test(result)
   }
 
-  private def continueWithAuthorisedUser(service: String)(test: Future[Result] => Any) {
+  private def continueWithAuthorisedUser(service: String)(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
@@ -330,7 +330,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
 
 
-  private def continueWithAuthorisedAgentEMAC(service: String)(test: Future[Result] => Any) {
+  private def continueWithAuthorisedAgentEMAC(service: String)(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
@@ -340,7 +340,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     test(result)
   }
 
-  private def continueWithDuplicategentEmac(service: String)(test: Future[Result] => Any) {
+  private def continueWithDuplicategentEmac(service: String)(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
@@ -350,7 +350,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     test(result)
   }
 
-  private def continueWithWrongRoleUserEmac(service: String)(test: Future[Result] => Any) {
+  private def continueWithWrongRoleUserEmac(service: String)(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
@@ -361,7 +361,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   }
 
 
-  private def continueWithInvalidAgentEmac(service: String)(test: Future[Result] => Any) {
+  private def continueWithInvalidAgentEmac(service: String)(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
@@ -405,7 +405,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     testDetailsController
   }
 
-  def businessDetailsWithUnAuthorisedUser(test: Future[Result] => Any) {
+  def businessDetailsWithUnAuthorisedUser(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)

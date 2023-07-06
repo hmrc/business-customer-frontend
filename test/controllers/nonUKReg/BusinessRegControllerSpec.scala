@@ -304,7 +304,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     }
   }
 
-  def registerWithUnAuthorisedUser(businessType: String = "NUK")(test: Future[Result] => Any) {
+  def registerWithUnAuthorisedUser(businessType: String = "NUK")(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -319,7 +319,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     test(result)
   }
 
-  def registerWithAuthorisedAgent(service: String, businessType: String)(test: Future[Result] => Any) {
+  def registerWithAuthorisedAgent(service: String, businessType: String)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
@@ -337,7 +337,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     test(result)
   }
 
-  def registerWithAuthorisedUser(service: String, businessType: String)(test: Future[Result] => Any) {
+  def registerWithAuthorisedUser(service: String, businessType: String)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -356,7 +356,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     test(result)
   }
 
-  def registerWithAuthorisedUserWithSomeData(service: String, businessType: String, businessRegistration: Option[BusinessRegistration])(test: Future[Result] => Any) {
+  def registerWithAuthorisedUserWithSomeData(service: String, businessType: String, businessRegistration: Option[BusinessRegistration])(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
@@ -377,7 +377,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   }
 
 
-  def submitWithUnAuthorisedUser(service: String, businessType: String = "NUK")(test: Future[Result] => Any) {
+  def submitWithUnAuthorisedUser(service: String, businessType: String = "NUK")(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -393,7 +393,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     test(result)
   }
 
-  def submitWithAuthorisedUserSuccess(service: String, fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], businessType: String = "NUK")(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserSuccess(service: String, fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], businessType: String = "NUK")(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -414,7 +414,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     test(result)
   }
 
-  def submitWithAuthorisedAgent(service: String, fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], businessType: String = "NUK")(test: Future[Result] => Any) {
+  def submitWithAuthorisedAgent(service: String, fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], businessType: String = "NUK")(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -434,7 +434,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     test(result)
   }
 
-  def submitWithAuthorisedUserFailure(service: String, fakeRequest: FakeRequest[AnyContentAsJson], businessType: String = "NUK")(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserFailure(service: String, fakeRequest: FakeRequest[AnyContentAsJson], businessType: String = "NUK")(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 

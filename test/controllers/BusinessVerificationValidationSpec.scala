@@ -247,7 +247,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
   val matchFailureResponse: JsValue = Json.parse( """{"reason":"Sorry. Business details not found. Try with correct UTR and/or name."}""")
 
-  def submitWithUnAuthorisedUser(businessType: String, controller: BusinessVerificationController)(test: Future[Result] => Any) {
+  def submitWithUnAuthorisedUser(businessType: String, controller: BusinessVerificationController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -563,7 +563,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
   def submitWithAuthorisedUserSuccessOrg(businessType: String,
                                          fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
-                                         controller: BusinessVerificationController)(test: Future[Result] => Any) {
+                                         controller: BusinessVerificationController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -596,7 +596,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def submitWithAuthorisedUserSuccessOrgNRLNoCountry(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
-                                                  controller: BusinessVerificationController)(test: Future[Result] => Any) {
+                                                  controller: BusinessVerificationController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -642,7 +642,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
   def submitWithAuthorisedUserSuccessIndividual(businessType: String,
                                                 fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
-                                                controller: BusinessVerificationController)(test: Future[Result] => Any) {
+                                                controller: BusinessVerificationController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -664,7 +664,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
   def submitWithAuthorisedUserFailure(businessType: String,
                                       fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
-                                      controller: BusinessVerificationController)(test: Future[Result] => Any) {
+                                      controller: BusinessVerificationController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -686,7 +686,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
   def submitWithAuthorisedUserFailureIndividual(businessType: String,
                                                 fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
-                                                controller: BusinessVerificationController)(test: Future[Result] => Any) {
+                                                controller: BusinessVerificationController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 

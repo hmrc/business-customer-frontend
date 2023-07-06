@@ -74,7 +74,7 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
   }
 
 
-  def backLink(backLink: Option[String])(test: Future[Result] => Any) {
+  def backLink(backLink: Option[String])(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 

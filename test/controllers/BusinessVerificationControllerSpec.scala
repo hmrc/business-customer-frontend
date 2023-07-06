@@ -793,7 +793,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
   def businessVerificationWithAuthorisedUser(controller: BusinessVerificationController)
                                             (test: Future[Result] => Any,
-                                             serviceName: String = service) {
+                                             serviceName: String = service): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -811,7 +811,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def businessVerificationWithAuthorisedAgent(controller: BusinessVerificationController)
-                                             (test: Future[Result] => Any) {
+                                             (test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -830,7 +830,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
   def businessLookupWithAuthorisedUser(controller: BusinessVerificationController,
                                        businessType: String,
-                                       serviceName: String = service)(test: Future[Result] => Any) {
+                                       serviceName: String = service)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -847,7 +847,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     test(result)
   }
 
-  def businessVerificationWithUnAuthorisedUser(controller: BusinessVerificationController)(test: Future[Result] => Any) {
+  def businessVerificationWithUnAuthorisedUser(controller: BusinessVerificationController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -866,7 +866,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
   def continueWithAuthorisedUserJson(controller: BusinessVerificationController,
                                      fields: Map[String, String],
-                                     service: String = service)(test: Future[Result] => Any) {
+                                     service: String = service)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
@@ -889,7 +889,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   def continueWithAuthorisedAgentJson(controller: BusinessVerificationController,
                                      businessType: String,
                                      fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
-                                     service: String = service)(test: Future[Result] => Any) {
+                                     service: String = service)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -907,7 +907,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def continueWithAuthorisedSaUserJson(controller: BusinessVerificationController,
-                                       fields: Map[String, String])(test: Future[Result] => Any) {
+                                       fields: Map[String, String])(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
@@ -927,7 +927,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def continueWithAuthorisedSaOrgUserJson(controller: BusinessVerificationController,
-                                          fields: Map[String, String])(test: Future[Result] => Any) {
+                                          fields: Map[String, String])(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
@@ -950,7 +950,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
   def continueWithAuthorisedUser(controller: BusinessVerificationController,
                                  businessType: String,
-                                 fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any) {
+                                 fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -968,7 +968,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def businessLookupWithAuthorisedAgent(controller: BusinessVerificationController,
-                                        businessType: String)(test: Future[Result] => Any) {
+                                        businessType: String)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
