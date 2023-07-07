@@ -67,7 +67,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with Matchers with GuiceOne
 
     "pass validation when valid NonUK postcode and Country containing leading and trailing spaces applied" in {
 
-      val testinput = input + ("businessAddress.postcode" -> "1234567890", "businessAddress.country" -> " IN ")
+      val testinput = input ++ Map("businessAddress.postcode" -> "1234567890", "businessAddress.country" -> " IN ")
 
       val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
       BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
@@ -82,7 +82,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with Matchers with GuiceOne
 
     "pass validation when NonUK postcode and Country contain leading and trailing spaces applied" in {
 
-      val testinput = input + ("businessAddress.postcode" -> "  111 111 ", "businessAddress.country" -> " IN ")
+      val testinput = input ++ Map("businessAddress.postcode" -> "  111 111 ", "businessAddress.country" -> " IN ")
 
       val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
       BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
@@ -121,7 +121,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with Matchers with GuiceOne
         hasErrors => {
           hasErrors.errors.length mustBe 2
           hasErrors.errors.head.message mustBe "bc.business-registration-error.postcode.length"
-          hasErrors.errors.seq(1).message mustBe "bc.business-registration-error.postcode.invalid"
+          hasErrors.errors(1).message mustBe "bc.business-registration-error.postcode.invalid"
         },
         _ => {
           fail("There is a problem")
@@ -147,7 +147,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with Matchers with GuiceOne
 
     "fail validation when NonUK postcode with GB country selected" in {
 
-      val testinput = input + ("businessAddress.postcode" -> "677 101", "businessAddress.country" -> "GB")
+      val testinput = input ++ Map("businessAddress.postcode" -> "677 101", "businessAddress.country" -> "GB")
 
       val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
       BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
@@ -179,7 +179,7 @@ class BusinessRegistrationFormsSpec extends PlaySpec with Matchers with GuiceOne
 
     "fail validation where there is no Country supplied yet still trims the postcode on amended form" in {
 
-      val testinput = input + ("businessAddress.postcode" -> " TF1 1TT ", "businessAddress.country" -> "")
+      val testinput = input ++ Map("businessAddress.postcode" -> " TF1 1TT ", "businessAddress.country" -> "")
 
       val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
       BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
