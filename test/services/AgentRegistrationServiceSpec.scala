@@ -45,7 +45,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite 
   val mockAuditable = mock[Auditable]
 
   val appConfig = inject[ApplicationConfig]
-  implicit val mcc = inject[MessagesControllerComponents]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestAgentRegistrationService extends AgentRegistrationService(
     mockTaxEnrolmentConnector,

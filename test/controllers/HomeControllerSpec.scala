@@ -57,7 +57,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
   val testReviewDetails = (address: Address) => ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
   val appConfig = inject[ApplicationConfig]
-  implicit val mcc = inject[MessagesControllerComponents]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestHomeController extends HomeController(
     mockAuthConnector,

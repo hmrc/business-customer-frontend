@@ -46,7 +46,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
   }
 
   val appConfig = inject[ApplicationConfig]
-  implicit val mcc = inject[MessagesControllerComponents]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestBusinessCustomerController extends BusinessCustomerController(
     mockAuthConnector,

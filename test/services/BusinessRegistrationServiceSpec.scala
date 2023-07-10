@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
-  implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
+  implicit val user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
   val mockDataCacheConnector = mock[DataCacheConnector]
   val service = "ATED"
 

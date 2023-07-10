@@ -54,7 +54,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSu
     reset(mockHttpClient)
   }
 
-  implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
+  implicit val user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
   val service = "ATED"
 
   "NewBusinessCustomerConnector" must {

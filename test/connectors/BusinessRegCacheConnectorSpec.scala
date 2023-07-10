@@ -22,7 +22,7 @@ import org.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import play.api.test.Injecting
@@ -39,7 +39,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   case class FormData(name: String)
 
   object FormData {
-    implicit val formats = Json.format[FormData]
+    implicit val formats: OFormat[FormData] = Json.format[FormData]
   }
 
   val formId = "form-id"
@@ -56,7 +56,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   }
 
   val appConfig = inject[ApplicationConfig]
-  implicit val mcc = inject[MessagesControllerComponents]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   val mockHttpClient = mock[DefaultHttpClient]
 

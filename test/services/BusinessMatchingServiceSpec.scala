@@ -156,7 +156,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
 
   val testOrganisation = Organisation("org name", "org type")
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val service = "ated"
 
