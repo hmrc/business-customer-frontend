@@ -17,14 +17,14 @@
 package connectors
 
 import config.ApplicationConfig
+
 import javax.inject.Inject
 import play.api.libs.json.Format
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessRegCacheConnector @Inject()(val http: DefaultHttpClient,
                                           config: ApplicationConfig) extends SessionCache {
@@ -35,10 +35,10 @@ class BusinessRegCacheConnector @Inject()(val http: DefaultHttpClient,
 
   val sourceId: String = "BC_NonUK_Business_Details"
 
-  def fetchAndGetCachedDetails[T](formId: String)(implicit hc: HeaderCarrier, formats: Format[T]): Future[Option[T]] =
+  def fetchAndGetCachedDetails[T](formId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[Option[T]] =
     fetchAndGetEntry[T](key = formId)
 
-  def cacheDetails[T](formId: String, formData: T)(implicit hc: HeaderCarrier, formats: Format[T]): Future[T] = {
+  def cacheDetails[T](formId: String, formData: T)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[T] = {
     cache[T](formId, formData).map(_ => formData)
   }
 }

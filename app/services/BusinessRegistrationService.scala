@@ -17,13 +17,13 @@
 package services
 
 import connectors.{BusinessCustomerConnector, DataCacheConnector}
+
 import javax.inject.Inject
 import models._
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import utils.SessionUtils
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class BusinessRegistrationService @Inject()(val businessCustomerConnector: BusinessCustomerConnector,
@@ -36,7 +36,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
                        isNonUKClientRegisteredByAgent: Boolean = false,
                        service: String,
                        isBusinessDetailsEditable: Boolean = false)
-                      (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[ReviewDetails] = {
+                      (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[ReviewDetails] = {
 
     val businessRegisterDetails = createBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
 
@@ -59,7 +59,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
                              isNonUKClientRegisteredByAgent: Boolean = false,
                              service: String,
                              isBusinessDetailsEditable: Boolean = false)
-                            (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[ReviewDetails] = {
+                            (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[ReviewDetails] = {
 
     val updateRegisterDetails = createUpdateBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
 
@@ -85,7 +85,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
   }
 
 
-  def getDetails()(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
+  def getDetails()(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
 
     def createBusinessRegistration(reviewDetailsOpt: Option[ReviewDetails]) : Option[(String, BusinessRegistration, OverseasCompany)] = {
       reviewDetailsOpt.flatMap( details =>

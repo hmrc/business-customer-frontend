@@ -17,14 +17,14 @@
 package connectors
 
 import config.ApplicationConfig
+
 import javax.inject.Inject
 import models.BackLinkModel
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class BackLinkCacheConnector @Inject()(val http: DefaultHttpClient,
                                        config: ApplicationConfig) extends SessionCache {
@@ -36,11 +36,11 @@ class BackLinkCacheConnector @Inject()(val http: DefaultHttpClient,
 
   private def getKey(pageId: String) = s"$sourceId:$pageId"
 
-  def fetchAndGetBackLink(pageId: String)(implicit hc: HeaderCarrier): Future[Option[String]] = {
+  def fetchAndGetBackLink(pageId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
     fetchAndGetEntry[BackLinkModel](getKey(pageId)).map(_.flatMap(_.backLink))
   }
 
-  def saveBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier): Future[Option[String]] = {
+  def saveBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
     cache[BackLinkModel](getKey(pageId), BackLinkModel(returnUrl)).map(_ => returnUrl)
   }
 
