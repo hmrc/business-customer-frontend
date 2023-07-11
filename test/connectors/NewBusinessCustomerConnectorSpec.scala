@@ -31,13 +31,15 @@ import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import java.util.UUID
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   val mockHttpClient = mock[DefaultHttpClient]
   val mockAuditable = mock[Auditable]
   val appConfig = inject[ApplicationConfig]
+
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   object TestNewBusinessCustomerConnector extends NewBusinessCustomerConnector(
     appConfig,

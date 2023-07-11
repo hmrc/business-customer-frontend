@@ -31,12 +31,14 @@ import uk.gov.hmrc.play.audit.DefaultAuditConnector
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import java.util.UUID
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
   val service = "ATED"
   implicit val authData: StandardAuthRetrievals = AuthBuilder.createSaUser()
+
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   val mockHttp: DefaultHttpClient = mock[DefaultHttpClient]
   val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
