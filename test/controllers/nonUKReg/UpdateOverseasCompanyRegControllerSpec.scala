@@ -96,7 +96,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
           issuingInstitution = Some("issuingInstitution"),
           issuingCountry = None
         )
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editClientWithAuthorisedUser(serviceName) { result =>
@@ -118,7 +118,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
           issuingCountry = None
         )
 
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editClientWithAuthorisedAgent(serviceName, Some("/api/anywhere")) { result =>
@@ -138,7 +138,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
       "throw an exception if we have no data" in {
 
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
         editClientWithAuthorisedUser(serviceName) { result =>
           val thrown = the[RuntimeException] thrownBy await(result)
@@ -252,7 +252,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(),
       ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-    (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
+    (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
@@ -299,14 +299,14 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
       issuingCountry = None
     )
     if (hasCache)
-      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
+      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
     else
-      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val successModel = ReviewDetails("ACME", Some("Unincorporated body"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-    (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
+    (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
     val result = TestNonUKController.update(service, addClient = true, redirectUrl).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,

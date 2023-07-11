@@ -386,7 +386,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
     "if the Ordinary Business Partnership form is successfully validated:" must {
       "for successful match, status should be 303 and user should be redirected to review details page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUserSuccessOrg("OBP", FakeRequest("POST", "/").withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"), controller) {
           result =>
             status(result) must be(SEE_OTHER)
@@ -404,7 +404,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
     "if the Limited Liability Partnership form is successfully validated:" must {
       "for successful match, status should be 303 and  user should be redirected to review details page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUserSuccessOrg("LLP", FakeRequest("POST", "/").withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"), controller) {
           result =>
             status(result) must be(SEE_OTHER)
@@ -422,7 +422,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
     "if the Limited Partnership form is successfully validated:" must {
       "for successful match, status should be 303 and user should be redirected to review details page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUserSuccessOrg("LP", FakeRequest("POST", "/").withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"), controller) {
           result =>
             status(result) must be(SEE_OTHER)
@@ -440,7 +440,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
     "if the Sole Trader form  is successfully validated:" must {
       "for successful match, status should be 303 and  user should be redirected to review details page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUserSuccessIndividual("SOP", FakeRequest("POST", "/").withFormUrlEncodedBody("firstName" -> "First Name", "lastName" -> "Last Name", "saUTR" -> s"$matchUtr"), controller) {
           result =>
             status(result) must be(SEE_OTHER)
@@ -460,7 +460,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
     "if the Non Resident Landlord is successfully validated:" must {
       "for successful match, status should be 303 and  user should be redirected to review details page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUserSuccessOrg("NRL", FakeRequest("POST", "/").withFormUrlEncodedBody("businessName" -> "Business Name", "saUTR" -> s"$matchUtr"), controller) {
           result =>
             status(result) must be(SEE_OTHER)
@@ -469,12 +469,12 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "for successful match with missing countryCode, status should be 303 and  user should be redirected to update overseas details reg" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUserSuccessOrgNRLNoCountry(FakeRequest("POST", "/").withFormUrlEncodedBody("businessName" -> "Business Name", "saUTR" -> s"$matchUtr"), controller) {
           result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result).get must include(s"/business-customer/register/$service/NRL")
-            verify(mockBusinessRegCacheConnector, times(1)).cacheDetails(ArgumentMatchers.eq("Update_No_Register"), ArgumentMatchers.eq(true))(ArgumentMatchers.any(), ArgumentMatchers.any())
+            verify(mockBusinessRegCacheConnector, times(1)).cacheDetails(ArgumentMatchers.eq("Update_No_Register"), ArgumentMatchers.eq(true))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
         }
       }
 
@@ -489,7 +489,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
     "if the Unincorporated body form  is successfully validated:" must {
       "for successful match, status should be 303 and  user should be redirected to review details page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUserSuccessOrg("UIB", FakeRequest("POST", "/").withFormUrlEncodedBody("cotaxUTR" -> s"$matchUtr", "businessName" -> "Business Name"), controller) {
           result =>
             status(result) must be(SEE_OTHER)
@@ -507,7 +507,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
     "if the Limited Company form  is successfully validated:" must {
       "for successful match, status should be 303 and  user should be redirected to review details page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUserSuccessOrg("LTD", FakeRequest("POST", "/").withFormUrlEncodedBody("cotaxUTR" -> s"$matchUtr", "businessName" -> "Business Name"), controller) {
           result =>
             status(result) must be(SEE_OTHER)
@@ -532,7 +532,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
         }
       }
       "for unsuccessful match, status should be Redirect and user should be on details not found page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUserFailure("UT", FakeRequest("POST", "/").withFormUrlEncodedBody("cotaxUTR" -> s"$noMatchUtr", "businessName" -> "Business Name"), controller) {
           result =>
             status(result) must be(SEE_OTHER)
@@ -550,7 +550,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
         }
       }
       "for unsuccessful match, status should be Redirect and user should be on details not found page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         submitWithAuthorisedUserFailure("ULTD", FakeRequest("POST", "/").withFormUrlEncodedBody("cotaxUTR" -> s"$noMatchUtr", "businessName" -> "Business Name"), controller) {
           result =>
             status(result) must be(SEE_OTHER)
@@ -568,7 +568,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val matchSuccessResponse = businessType match {
       case "UIB" => matchSuccessResponseUIB
@@ -581,7 +581,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       case "ULTD" => matchSuccessResponseLTD
     }
     when(mockBusinessMatchingService.matchBusinessWithOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-    (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(matchSuccessResponse))
+    (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(matchSuccessResponse))
 
     val fullReq = fakeRequest.withSession(
       "sessionId" -> sessionId,
@@ -601,7 +601,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val matchSuccessResponse = Json.parse(
       """
@@ -626,7 +626,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
     """.stripMargin)
 
     when(mockBusinessMatchingService.matchBusinessWithOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-    (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(matchSuccessResponse))
+    (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(matchSuccessResponse))
 
     val fullReq = fakeRequest.withSession(
       "sessionId" -> sessionId,
@@ -647,9 +647,9 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-    when(mockBusinessMatchingService.matchBusinessWithIndividualName(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+    when(mockBusinessMatchingService.matchBusinessWithIndividualName(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(matchSuccessResponseSOP))
 
     val result = controller.submit(service, businessType).apply(fakeRequest.withSession(
@@ -669,9 +669,9 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-    when(mockBusinessMatchingService.matchBusinessWithOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+    when(mockBusinessMatchingService.matchBusinessWithOrganisationName(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(matchFailureResponse))
 
     val result = controller.submit(service, businessType).apply(fakeRequest.withSession(
@@ -691,8 +691,8 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    when(mockBusinessMatchingService.matchBusinessWithIndividualName(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBusinessMatchingService.matchBusinessWithIndividualName(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(matchFailureResponse))
 
     val result = controller.submit(service, businessType).apply(fakeRequest.withSession(

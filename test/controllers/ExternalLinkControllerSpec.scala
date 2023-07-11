@@ -79,7 +79,7 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(backLink))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(backLink))
     val result = TestExternalLinkController.backLink(service).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
