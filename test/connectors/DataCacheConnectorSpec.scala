@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
@@ -46,6 +46,7 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with M
   }
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test-sessionid")))
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   "DataCacheConnector" must {
 

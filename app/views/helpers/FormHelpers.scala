@@ -35,7 +35,7 @@ object FormHelpers {
    */
   def getErrors(field: Field, form: Form[_]): Seq[FormError] = {
     form.errors.filter { error => error.key == field.name || error.args.contains(field.name) || field.name == error.args.fold(error.key) {
-      _ + "." + _
+      _.toString + "." + _.toString
     }
     }
   }

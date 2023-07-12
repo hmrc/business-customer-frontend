@@ -56,7 +56,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
 
   def send(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service){ implicit authContext =>
-      BusinessRegistrationForms.validateUK(businessRegistrationForm.bindFromRequest).fold(
+      BusinessRegistrationForms.validateUK(businessRegistrationForm.bindFromRequest()).fold(
         formWithErrors => currentBackLink map (backLink =>
           BadRequest(template(formWithErrors, authContext.isAgent, service, displayDetails(businessType, service), backLink))
         ),

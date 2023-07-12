@@ -17,14 +17,14 @@
 package connectors
 
 import config.ApplicationConfig
+
 import javax.inject.Inject
 import models.ReviewDetails
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DataCacheConnector @Inject()(val http: DefaultHttpClient,
                                    val config: ApplicationConfig) extends SessionCache {
@@ -35,15 +35,15 @@ class DataCacheConnector @Inject()(val http: DefaultHttpClient,
 
   val sourceId: String = "BC_Business_Details"
 
-  def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier): Future[Option[ReviewDetails]] =
+  def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
     fetchAndGetEntry[ReviewDetails](sourceId)
 
-  def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier): Future[Option[ReviewDetails]] = {
+  def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] = {
     cache[ReviewDetails](sourceId, reviewDetails) map {
       _.getEntry[ReviewDetails](sourceId)
     }
   }
 
-  def clearCache(implicit hc: HeaderCarrier): Future[HttpResponse] = remove()
+  def clearCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = remove()
 
 }

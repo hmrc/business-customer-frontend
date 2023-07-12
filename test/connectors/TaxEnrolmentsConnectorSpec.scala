@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.GovernmentGatewayConstants
 
 import java.util.UUID
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
@@ -53,7 +53,7 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
     override val enrolmentUrl: String = ""
   }
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     reset(mockHttpClient)
   }
 
@@ -69,6 +69,7 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
     val successfulSubscribeJson = Json.toJson(response)
     val subscribeFailureResponseJson = Json.parse( """{"reason" : "Error happened"}""")
     implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+    implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
     "enrol user" must {
       "works for a user" in {

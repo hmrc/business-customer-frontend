@@ -57,7 +57,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
   val testReviewDetails = (address: Address) => ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
   val appConfig = inject[ApplicationConfig]
-  implicit val mcc = inject[MessagesControllerComponents]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestHomeController extends HomeController(
     mockAuthConnector,
@@ -72,7 +72,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
     override val controllerId = "test"
   }
 
-  override def beforeEach = {
+  override def beforeEach() = {
     reset(mockAuthConnector)
     reset(mockBusinessMatchingService)
     reset(mockBackLinkCache)
@@ -102,7 +102,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
               result =>
                 status(result) must be(SEE_OTHER)
                 redirectLocation(result).get must include(s"/business-customer/review-details/$service")
-                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any())
+                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
             }
           }
 
@@ -115,8 +115,8 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
               result =>
                 status(result) must be(SEE_OTHER)
                 redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
-                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any())
-                verify(mockBusinessRegCacheConnector, times(1)).cacheDetails(ArgumentMatchers.eq("Update_No_Register"), ArgumentMatchers.eq(true))(ArgumentMatchers.any(), ArgumentMatchers.any())
+                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+                verify(mockBusinessRegCacheConnector, times(1)).cacheDetails(ArgumentMatchers.eq("Update_No_Register"), ArgumentMatchers.eq(true))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
             }
           }
 
@@ -130,7 +130,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
               result =>
                 status(result) must be(SEE_OTHER)
                 redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
-                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any())
+                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
             }
           }
         }
@@ -144,7 +144,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
             result =>
               status(result) must be(SEE_OTHER)
               redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
-              verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any())
+              verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
           }
         }
       }
@@ -152,49 +152,49 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
 
   }
 
-  def getWithUnAuthorisedUser(test: Future[Result] => Any) {
+  def getWithUnAuthorisedUser(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
   }
 
-  def getWithUnAuthenticated(test: Future[Result] => Any) {
+  def getWithUnAuthenticated(test: Future[Result] => Any): Unit = {
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSessionNoUser())
     test(result)
   }
 
-  def getWithAuthorisedUserMatched(address: Address)(test: Future[Result] => Any) {
+  def getWithAuthorisedUserMatched(address: Address)(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val reviewDetails = Json.toJson(testReviewDetails(address))
-    when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+    when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Some(Future.successful(reviewDetails)))
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
   }
 
-  def getWithAuthorisedUserNotMatched(test: Future[Result] => Any) {
+  def getWithAuthorisedUserNotMatched(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val notFound = Json.parse( """{"Reason" : "Text from reason column"}""")
-    when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+    when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Some(Future.successful(notFound)))
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
   }
 
-  def getWithAuthorisedUserNoUTR(test: Future[Result] => Any) {
+  def getWithAuthorisedUserNoUTR(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(None)
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)

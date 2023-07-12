@@ -64,7 +64,7 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
 
   def submit(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit userContext =>
-      BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest, service, isAgent = true, appConfig).fold(
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest(), service, isAgent = true, appConfig).fold(
         formWithErrors => {
           currentBackLink.map(backLink =>
             BadRequest(template(formWithErrors, service, displayDetails, backLink))

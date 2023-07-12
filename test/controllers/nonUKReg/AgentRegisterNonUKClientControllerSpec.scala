@@ -110,7 +110,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
       }
 
       "return business registration view for a Non-UK based client by agent with a back link" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some("http://backLink")))
         viewWithAuthorisedUser(service, "NUK", Some("http://backLink"), Some("http://cachedBackLink"), controller) { result =>
           status(result) must be(OK)
@@ -136,7 +136,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
       "return business registration view for a Non-UK based client by agent with some saved data" in new Setup {
         val regAddress: Address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
         val businessReg: BusinessRegistration = BusinessRegistration("ACME", regAddress)
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some("http://backLink")))
         viewWithAuthorisedUserWithSomeData(service, Some(businessReg), "NUK", Some("http://backLink"), Some("http://cachedBackLink"), controller) { result =>
           status(result) must be(OK)
@@ -223,7 +223,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
         }
 
         "If registration details entered are valid, continue button must redirect to service specific redirect url" in new Setup {
-          when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+          when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
           submitWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map(
             "businessName" -> "ACME",
             "businessAddress.line_1" -> "line_1",
@@ -257,12 +257,12 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
   }
 
   def registerWithUnAuthorisedUser(businessType: String = "NUK", backLink: Option[String] = None, controller: AgentRegisterNonUKClientController)
-                                  (test: Future[Result] => Any) {
+                                  (test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
@@ -273,12 +273,12 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     test(result)
   }
 
-  def registerWithAuthorisedAgent(service: String, businessType: String, backLink: Option[String] = None, controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any) {
+  def registerWithAuthorisedAgent(service: String, businessType: String, backLink: Option[String] = None, controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
@@ -289,14 +289,14 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     test(result)
   }
 
-  def viewWithAuthorisedUser(service: String, businessType: String, backLink: Option[String] = None, cachedBackLink: Option[String] = None, controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any) {
+  def viewWithAuthorisedUser(service: String, businessType: String, backLink: Option[String] = None, cachedBackLink: Option[String] = None, controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(cachedBackLink))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(cachedBackLink))
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
@@ -307,15 +307,15 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     test(result)
   }
 
-  def viewWithAuthorisedUserWithSomeData(service: String, businessRegistration: Option[BusinessRegistration], businessType: String, backLink: Option[String] = None, cachedBackLink: Option[String] = None, controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any) {
+  def viewWithAuthorisedUserWithSomeData(service: String, businessRegistration: Option[BusinessRegistration], businessType: String, backLink: Option[String] = None, cachedBackLink: Option[String] = None, controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = BusinessRegistration("ACME", address)
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(cachedBackLink))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(cachedBackLink))
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](ArgumentMatchers.any())
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
+      (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
 
     val result = controller.view(service, backLink).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
@@ -327,12 +327,12 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
   }
 
 
-  def submitWithUnAuthorisedUser(businessType: String = "NUK", redirectUrl: Option[String] = Some("http://"), controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any) {
+  def submitWithUnAuthorisedUser(businessType: String = "NUK", redirectUrl: Option[String] = Some("http://"), controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.submit(service).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
@@ -343,17 +343,17 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     test(result)
   }
 
-  def submitWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], service: String = service, redirectUrl: Option[String] = Some("http://"), controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], service: String = service, redirectUrl: Option[String] = Some("http://"), controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
     val successModel = BusinessRegistration("ACME", address)
 
-    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+    when(mockBusinessRegistrationCache.cacheDetails[BusinessRegistration](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(successModel))
 
 
@@ -366,7 +366,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     test(result)
   }
 
-  def submitWithAuthorisedUserFailure(fakeRequest: FakeRequest[AnyContentAsJson], redirectUrl: Option[String] = Some("http://"), controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserFailure(fakeRequest: FakeRequest[AnyContentAsJson], redirectUrl: Option[String] = Some("http://"), controller: AgentRegisterNonUKClientController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 

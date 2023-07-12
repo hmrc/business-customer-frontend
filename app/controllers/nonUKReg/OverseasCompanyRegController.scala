@@ -72,7 +72,7 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service){ implicit authContext =>
       redirectUrl match {
         case Some(x) if !appConfig.isRelative(x) => Future.successful(BadRequest("The redirect url is not correctly formatted"))
-        case _ => BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest).fold(
+        case _ => BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest()).fold(
           formWithErrors => {
             currentBackLink.map(backLink => BadRequest(template(formWithErrors, service,
               displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl, backLink))

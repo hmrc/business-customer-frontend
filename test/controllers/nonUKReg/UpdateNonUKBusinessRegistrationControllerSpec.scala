@@ -96,7 +96,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           issuingInstitution = Some("issuingInstitution"),
           issuingCountry = None
         )
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editClientWithAuthorisedUser(serviceName, "NUK") { result =>
@@ -123,7 +123,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           issuingInstitution = Some("issuingInstitution"),
           issuingCountry = None
         )
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editClientWithAuthorisedAgent(serviceName, "NUK") { result =>
@@ -153,7 +153,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
       }
 
       "throw an exception if we have no data" in {
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
         editClientWithAuthorisedUser(serviceName, "NUK") { result =>
           val thrown = the[RuntimeException] thrownBy await(result)
@@ -174,7 +174,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           issuingInstitution = Some("issuingInstitution"),
           issuingCountry = None
         )
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editAgentWithAuthorisedUser(serviceName, "NUK") { result =>
@@ -201,7 +201,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
           issuingInstitution = Some("issuingInstitution"),
           issuingCountry = None
         )
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
         editAgentWithAuthorisedAgent(serviceName, "NUK") { result =>
@@ -224,7 +224,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
       "throw an exception if we have no data" in {
 
-        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(None))
 
         editAgentWithAuthorisedUser(serviceName, "NUK") { result =>
@@ -406,7 +406,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     }
   }
 
-  def editWithUnAuthorisedUser(businessType: String = "NUK")(test: Future[Result] => Any) {
+  def editWithUnAuthorisedUser(businessType: String = "NUK")(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -422,7 +422,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     test(result)
   }
 
-  def editClientWithAuthorisedAgent(service: String, businessType: String, redirectUrl: Option[String] = None)(test: Future[Result] => Any) {
+  def editClientWithAuthorisedAgent(service: String, businessType: String, redirectUrl: Option[String] = None)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -438,7 +438,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     test(result)
   }
 
-  def editClientWithAuthorisedUser(service: String, businessType: String)(test: Future[Result] => Any) {
+  def editClientWithAuthorisedUser(service: String, businessType: String)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -448,7 +448,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(),
       ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
@@ -463,7 +463,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     test(result)
   }
 
-  def editAgentWithAuthorisedAgent(service: String, businessType: String)(test: Future[Result] => Any) {
+  def editAgentWithAuthorisedAgent(service: String, businessType: String)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -479,7 +479,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     test(result)
   }
 
-  def editAgentWithAuthorisedUser(service: String, businessType: String)(test: Future[Result] => Any) {
+  def editAgentWithAuthorisedUser(service: String, businessType: String)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -489,7 +489,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(),
       ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-    (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
+    (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
@@ -504,7 +504,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     test(result)
   }
 
-  def submitWithUnAuthorisedUser(businessType: String = "NUK", redirectUrl: Option[String] = Some("/api/anywhere"))(test: Future[Result] => Any) {
+  def submitWithUnAuthorisedUser(businessType: String = "NUK", redirectUrl: Option[String] = Some("/api/anywhere"))(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -520,7 +520,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     test(result)
   }
 
-  def submitWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], service: String = service, redirectUrl: Option[String] = Some("/api/anywhere"), hasCache: Boolean = true)(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], service: String = service, redirectUrl: Option[String] = Some("/api/anywhere"), hasCache: Boolean = true)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -535,15 +535,15 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
       issuingCountry = None
     )
     if (hasCache) {
-      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
+      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
     } else {
-      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     }
 
     val successModel = ReviewDetails("ACME", Some("Unincorporated body"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
+      (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
     val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
@@ -555,7 +555,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     test(result)
   }
 
-  def submitWithAuthorisedAgent(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], service: String = service, redirectUrl: Option[String] = Some("/api/anywhere"), hasCache: Boolean = true)(test: Future[Result] => Any) {
+  def submitWithAuthorisedAgent(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], service: String = service, redirectUrl: Option[String] = Some("/api/anywhere"), hasCache: Boolean = true)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
@@ -570,15 +570,15 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
       issuingCountry = None
     )
     if (hasCache) {
-      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
+      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
     } else {
-      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     }
 
     val successModel = ReviewDetails("ACME", Some("Unincorporated body"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-    (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
+    (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
     val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
@@ -590,7 +590,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     test(result)
   }
 
-  def submitWithAuthorisedUserFailure(fakeRequest: FakeRequest[AnyContentAsJson], redirectUrl: Option[String] = Some("/api/anywhere"))(test: Future[Result] => Any) {
+  def submitWithAuthorisedUserFailure(fakeRequest: FakeRequest[AnyContentAsJson], redirectUrl: Option[String] = Some("/api/anywhere"))(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 

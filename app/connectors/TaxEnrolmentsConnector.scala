@@ -18,6 +18,7 @@ package connectors
 
 import audit.Auditable
 import config.ApplicationConfig
+
 import javax.inject.Inject
 import metrics.{MetricsEnum, MetricsService}
 import models._
@@ -29,8 +30,7 @@ import uk.gov.hmrc.play.audit.model.EventTypes
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.GovernmentGatewayConstants
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
                                        implicit val config: ApplicationConfig,
@@ -39,7 +39,7 @@ class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
 
   val enrolmentUrl = s"${config.taxEnrolments}/tax-enrolments"
 
-  def enrol(enrolRequest: NewEnrolRequest, groupId: String, arn: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def enrol(enrolRequest: NewEnrolRequest, groupId: String, arn: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val enrolmentKey = s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}~${GovernmentGatewayConstants.KnownFactsAgentRefNo}~$arn"
     val postUrl = s"""$enrolmentUrl/groups/$groupId/enrolments/$enrolmentKey"""
     val jsonData = Json.toJson(enrolRequest)
@@ -70,7 +70,7 @@ class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
     }
   }
 
-  private def auditEnrolCall(postUrl: String, input: NewEnrolRequest, response: HttpResponse)(implicit hc: HeaderCarrier): Unit = {
+  private def auditEnrolCall(postUrl: String, input: NewEnrolRequest, response: HttpResponse)(implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
     val eventType = response.status match {
       case CREATED => EventTypes.Succeeded
       case _ => EventTypes.Failed

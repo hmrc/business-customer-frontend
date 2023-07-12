@@ -60,7 +60,7 @@ class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
 
   def continue(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      paySAQuestionForm.bindFromRequest.fold(
+      paySAQuestionForm.bindFromRequest().fold(
         formWithErrors => currentBackLink.map(backLink =>
           BadRequest(template(formWithErrors, service, backLink))
         ),

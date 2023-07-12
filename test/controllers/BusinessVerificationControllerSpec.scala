@@ -174,7 +174,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "if non-uk with capital-gains-tax service, continue to registration page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         continueWithAuthorisedUserJson(controller, Map("businessType" -> "NUK"), "capital-gains-tax") { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result).get must include(s"/business-customer/register/capital-gains-tax/NUK")
@@ -214,7 +214,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "for any other option, redirect to home page again" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         continueWithAuthorisedUserJson(controller, Map("businessType" -> "XYZ")) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some(s"/business-customer/agent/$service"))
@@ -787,18 +787,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   private def willSaveBackLink(backLink : String) =
     when(mockBackLinkCache.saveBackLink(
       ArgumentMatchers.eq(null),
-      ArgumentMatchers.eq(Some(backLink)))(ArgumentMatchers.any()))
+      ArgumentMatchers.eq(Some(backLink)))(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(None))
 
 
   def businessVerificationWithAuthorisedUser(controller: BusinessVerificationController)
                                             (test: Future[Result] => Any,
-                                             serviceName: String = service) {
+                                             serviceName: String = service): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some("/ated-subscription/appoint-agent")))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("/ated-subscription/appoint-agent")))
 
     val result = controller.businessVerification(serviceName).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
@@ -811,12 +811,12 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def businessVerificationWithAuthorisedAgent(controller: BusinessVerificationController)
-                                             (test: Future[Result] => Any) {
+                                             (test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.businessVerification(service).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
@@ -830,12 +830,12 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
   def businessLookupWithAuthorisedUser(controller: BusinessVerificationController,
                                        businessType: String,
-                                       serviceName: String = service)(test: Future[Result] => Any) {
+                                       serviceName: String = service)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.businessForm(serviceName, businessType).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
@@ -847,12 +847,12 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     test(result)
   }
 
-  def businessVerificationWithUnAuthorisedUser(controller: BusinessVerificationController)(test: Future[Result] => Any) {
+  def businessVerificationWithUnAuthorisedUser(controller: BusinessVerificationController)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.businessVerification(service).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
@@ -866,7 +866,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
   def continueWithAuthorisedUserJson(controller: BusinessVerificationController,
                                      fields: Map[String, String],
-                                     service: String = service)(test: Future[Result] => Any) {
+                                     service: String = service)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
@@ -879,7 +879,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         .withFormUrlEncodedBody(fields.toSeq: _*)
     }
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.continue(service).apply(generateRequest)
 
@@ -889,12 +889,12 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   def continueWithAuthorisedAgentJson(controller: BusinessVerificationController,
                                      businessType: String,
                                      fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
-                                     service: String = service)(test: Future[Result] => Any) {
+                                     service: String = service)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.continue(service).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
@@ -907,7 +907,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def continueWithAuthorisedSaUserJson(controller: BusinessVerificationController,
-                                       fields: Map[String, String])(test: Future[Result] => Any) {
+                                       fields: Map[String, String])(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
@@ -927,7 +927,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def continueWithAuthorisedSaOrgUserJson(controller: BusinessVerificationController,
-                                          fields: Map[String, String])(test: Future[Result] => Any) {
+                                          fields: Map[String, String])(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
@@ -941,7 +941,7 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     }
 
     AuthBuilder.mockAuthorisedSaOrgUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.continue(service).apply(generateRequest)
 
@@ -950,12 +950,12 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
   def continueWithAuthorisedUser(controller: BusinessVerificationController,
                                  businessType: String,
-                                 fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any) {
+                                 fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.continue(service).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
@@ -968,12 +968,12 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def businessLookupWithAuthorisedAgent(controller: BusinessVerificationController,
-                                        businessType: String)(test: Future[Result] => Any) {
+                                        businessType: String)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = controller.businessForm(service, businessType).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,

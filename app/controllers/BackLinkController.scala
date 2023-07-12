@@ -21,23 +21,22 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc.{Call, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait BackLinkController {
   val controllerId: String
   val backLinkCacheConnector: BackLinkCacheConnector
 
-  def setBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier): Future[Option[String]] =
+  def setBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] =
     backLinkCacheConnector.saveBackLink(pageId, returnUrl)
 
-  def currentBackLink(implicit hc: HeaderCarrier):Future[Option[String]] =
+  def currentBackLink(implicit hc: HeaderCarrier, ec: ExecutionContext):Future[Option[String]] =
     backLinkCacheConnector.fetchAndGetBackLink(controllerId)
 
-  def redirectToExternal(redirectCall: String, returnUrl: Option[String])(implicit hc: HeaderCarrier): Future[Result] =
+  def redirectToExternal(redirectCall: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
     setBackLink("ExternalLinkController", returnUrl) map (_ => Redirect(redirectCall))
 
-  def forwardBackLinkToNextPage(nextPageId: String, redirectCall: Call)(implicit hc: HeaderCarrier): Future[Result] = {
+  def forwardBackLinkToNextPage(nextPageId: String, redirectCall: Call)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
     for {
       currentBackLink <- currentBackLink
       _ <- setBackLink(nextPageId, currentBackLink)
@@ -47,6 +46,6 @@ trait BackLinkController {
   }
 
   def redirectWithBackLink(nextPageId: String, redirectCall: Call, backCall: Option[String])
-                          (implicit hc: HeaderCarrier): Future[Result] =
+                          (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
     setBackLink(nextPageId, backCall) map (_ => Redirect(redirectCall))
 }

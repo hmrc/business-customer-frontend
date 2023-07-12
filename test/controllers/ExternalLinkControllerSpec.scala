@@ -39,7 +39,7 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
   val mockBackLinkCache = mock[BackLinkCacheConnector]
 
   val appConfig = inject[ApplicationConfig]
-  implicit val mcc = inject[MessagesControllerComponents]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestExternalLinkController extends ExternalLinkController(
     mockAuthConnector,
@@ -51,7 +51,7 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
   }
 
 
-  override def beforeEach = {
+  override def beforeEach() = {
     reset(mockAuthConnector)
     reset(mockBackLinkCache)
   }
@@ -74,12 +74,12 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
   }
 
 
-  def backLink(backLink: Option[String])(test: Future[Result] => Any) {
+  def backLink(backLink: Option[String])(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(backLink))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(backLink))
     val result = TestExternalLinkController.backLink(service).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",

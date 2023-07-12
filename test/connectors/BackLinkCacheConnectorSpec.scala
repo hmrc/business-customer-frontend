@@ -28,12 +28,14 @@ import play.api.test.Injecting
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import scala.concurrent.ExecutionContext
 
 import scala.concurrent.Future
 
 class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test-sessionid")))
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
   val mockSessionCache: SessionCache = mock[SessionCache]
   val mockHttpClient: DefaultHttpClient = mock[DefaultHttpClient]
 

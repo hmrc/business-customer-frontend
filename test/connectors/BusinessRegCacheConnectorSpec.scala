@@ -22,7 +22,7 @@ import org.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import play.api.test.Injecting
@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar  with BeforeAndAfterEach with Injecting {
 
@@ -39,7 +39,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   case class FormData(name: String)
 
   object FormData {
-    implicit val formats = Json.format[FormData]
+    implicit val formats: OFormat[FormData] = Json.format[FormData]
   }
 
   val formId = "form-id"
@@ -51,12 +51,12 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
   val cacheMap = CacheMap(id = formId, Map("date" -> formDataJson))
 
-  override def beforeEach: Unit = {
+  override def beforeEach(): Unit = {
     reset(mockSessionCache)
   }
 
   val appConfig = inject[ApplicationConfig]
-  implicit val mcc = inject[MessagesControllerComponents]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   val mockHttpClient = mock[DefaultHttpClient]
 
@@ -68,6 +68,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   }
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test-sessionid")))
+  implicit val ec: ExecutionContext = mcc.executionContext
 
   "BusinessRegCacheConnector" must {
 

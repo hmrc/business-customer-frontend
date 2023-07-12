@@ -30,8 +30,8 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val injectedViewInstanceUnauthorised = inject[views.html.unauthorised]
   val injectedViewInstanceLogout = inject[views.html.logout]
 
-  implicit val lang = Lang.defaultLang
-  implicit val appConfig = inject[ApplicationConfig]
+  implicit val lang: Lang = Lang.defaultLang
+  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   trait Setup {
     val controller = new ApplicationController(
