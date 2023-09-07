@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.form
 @import views.ViewUtils.titleBuilder
+@import views.html.helper.CSPNonce
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
@@ -34,8 +35,8 @@
 
 @pageScripts = {
 
-    <script type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/location-autocomplete.min.js")'></script>
-    <script type="text/javascript">
+    <script @CSPNonce.attr type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/location-autocomplete.min.js")'></script>
+    <script @CSPNonce.attr type="text/javascript">
       openregisterLocationPicker({
         defaultValue: '',
         selectElement: document.getElementById('businessAddress.country'),
