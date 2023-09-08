@@ -258,7 +258,6 @@ bc.business-verification-error.general.saUTR = Enter a Self Assessment Unique Ta
 
 bc.business-verification-error.general.businessName = Enter a business name
 
-bc.business-verification-error.summaryHeader = There is a problem with this page
 bc.business-verification-error.general.businessType = Select your type of business
 bc.business-verification-error.not-selected = Select your type of business
 bc.business-verification-error.general.business-type-llp-form = Your business details have not been found. Please check that your details are correct and try again
