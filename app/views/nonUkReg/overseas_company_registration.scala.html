@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.form
 @import views.ViewUtils.titleBuilder
+@import views.html.helper.CSPNonce
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
@@ -41,11 +42,11 @@
 
 @pageScripts = {
 
-    <script src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
-    <script src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
-    <script type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/location-autocomplete.min.js")'></script>
+    <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
+    <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
+    <script @CSPNonce.attr type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/location-autocomplete.min.js")'></script>
 
-    <script>
+    <script @CSPNonce.attr>
       $(document).ready(function() {
 
         openregisterLocationPicker({
