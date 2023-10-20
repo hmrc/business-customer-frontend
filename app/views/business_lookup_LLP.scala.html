@@ -49,19 +49,6 @@
     }
 }
 
-@hintContent = {
-    <p class="govuk-body">@messages("bc.business-verification.utr.help.answer_1")</p>
-    <p class="govuk-body">@messages("bc.business-verification.utr.help.answer_2")</p>
-}
-
-@htmlHint = {
-    <div class="govuk-hint">@messages("bc.business-verification.utr.hint")</div>
-    @govukDetails(Details(
-        summary = Text(messages("bc.business-verification.utr.help.question")),
-        content = HtmlContent(hintContent)
-    ))
-}
-
 @backLinkHtml = {
     @if(backLink.isDefined) {
         @govukBackLink(BackLink(
@@ -107,14 +94,16 @@
                 ).withFormField(limitedLiabilityPartnershipForm("businessName"))
             )
 
+            <h2 class="govuk-heading-s">@Messages("bc.business-verification.coUTRFieldpsaUTR")</h2>
+            <p class="govuk-body">@Html(messages("bc.business-verification.utr.findUTR"))</p>
             @govukInput(
                 Input(
                     label = Label(
-                        content = Text(Messages("bc.business-verification.partnerUTRField")),
-                        classes = "govuk-label--s"
+                        content = Text(Messages("bc.business-verification.coUTRFieldpsaUTR")),
+                        classes = "govuk-visually-hidden"
                     ),
                     hint = Some(Hint(
-                        content = HtmlContent(htmlHint)
+                        content = Text(Messages("bc.business-verification.utr.hint"))
                     ))
                 ).withFormField(limitedLiabilityPartnershipForm("psaUTR"))
             )
