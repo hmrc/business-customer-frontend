@@ -96,7 +96,12 @@ bc.business-verification.partnerNameField = Partnership name
 bc.business-verification.partnerNameHint = This is the name that you registered with HMRC
 bc.business-verification.partnerUTRField = Partnership Self Assessment Unique Taxpayer Reference (UTR)
 bc.business-verification.registered-name.hint = This is the registered name on your incorporation certificate.
-bc.business-verification.utr.findUTR = You can <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/find-lost-utr-number">find a lost UTR (opens in new tab)</a>
+
+bc.business-verification.utr.yourUTR = Your UTR can be 10 or 13 digits long. You can
+bc.business-verification.utr.yourUTRLink = find it in your Personal Tax Account (opens in new tab)
+bc.business-verification.utr.yourUTR2 = , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
+bc.business-verification.utr.findUTR = Find a lost UTR (opens in new tab)
+
 bc.business-verification.utr.hint = This is 10 numbers, for example 1234567890. It will be on tax returns and other letters about Corporation Tax. It may be called ‘reference’, ‘UTR’ or ‘official use’.
 
 bc.business-verification.back = Back
