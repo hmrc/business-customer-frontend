@@ -267,10 +267,16 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "firstName").text() must be("First name")
           document.getElementsByAttributeValue("for", "lastName").text() must be("Last name")
-          document.getElementsByAttributeValue("for", "saUTR").text() must include("What is your Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementsByAttributeValue("for", "saUTR").text() must be("What is your Self Assessment Unique Taxpayer Reference (UTR)?")
           document.getElementById("saUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
-          document.getElementsByClass("govuk-back-link").attr("href") must include("/business-customer/business-verification/AWRS")
+          document.getElementById("submit").text() must be("Continue")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/AWRS")
+          document.select("#main-content > div > div > form > p:nth-child(4)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(5) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(5) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -284,10 +290,16 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
           document.getElementsByAttributeValue("for", "firstName").text() must be("First name")
           document.getElementsByAttributeValue("for", "lastName").text() must be("Last name")
-          document.getElementsByAttributeValue("for", "saUTR").text() must include("What is your Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementsByAttributeValue("for", "saUTR").text() must be("What is your Self Assessment Unique Taxpayer Reference (UTR)?")
           document.getElementById("saUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
-
+          document.getElementById("submit").text() must be("Continue")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(4)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(5) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(5) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
@@ -331,14 +343,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.select("h1").text() must include("Your Self Assessment details")
           document.getElementById("business-type-paragraph").text() must be("Enter your Self Assessment details and we will attempt to match them against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "saUTR").text() must include("Self Assessment Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "saUTR").text() must be("What is your Self Assessment Unique Taxpayer Reference (UTR)?")
           document.getElementById("saUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/register/non-uk-client/paySA/ATED")
-
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -399,13 +415,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.select("h1").text() must include("Your business details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
           document.getElementById("cotaxUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -417,11 +438,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
           document.select("h1").text() must include("Your agency details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
           document.getElementById("cotaxUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
@@ -465,17 +493,20 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.select("h1").text() must include("Your business details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
           document.getElementById("cotaxUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
-
     }
 
     "when selecting Unincorporated Body option" must {
@@ -495,13 +526,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
           document.select("h1").text() must include("Your business details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
           document.getElementById("cotaxUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/AWRS")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -513,11 +549,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
           document.select("h1").text() must include("Your agency details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
@@ -538,13 +581,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.select("h1").text() must include("Your business details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your partnership name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your partnership name?")
           document.select("#businessName-hint").text() must be("This is the name that you registered with HMRC")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must include("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
           document.getElementById("psaUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -556,11 +604,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
           document.select("h1").text() must include("Your agency details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your partnership name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your partnership name?")
           document.select("#businessName-hint").text() must be("This is the name that you registered with HMRC")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must include("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
           document.getElementById("psaUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
@@ -581,13 +636,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.select("h1").text() contains "What are your business details?"
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must include("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
           document.getElementById("psaUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -598,11 +658,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
           document.select("h1").text() must include("Your agency details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must include("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
           document.getElementById("psaUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
@@ -624,13 +691,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.select("h1").text() must include("Your business details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your partnership name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your partnership name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must include("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -641,11 +713,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
           document.select("h1").text() must include("Your agency details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your partnership name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your partnership name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must include("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
           document.getElementById("psaUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
@@ -689,14 +768,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.select("h1").text() contains "What are your business details?"
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
           document.getElementById("cotaxUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -708,11 +791,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
           document.select("h1").text() must include("Your agency details")
           document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
           document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must include("Corporation Tax Unique Taxpayer Reference (UTR)")
+          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
           document.getElementById("cotaxUTR").attr("type") must be("text")
-          document.getElementById("submit").text() must include("Continue")
+          document.getElementById("submit").text() must be("Continue")
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
+          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account (opens in new tab) , on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").text() must be("find it in your Personal Tax Account (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(3) > a").attr("href") must be("https://www.gov.uk/personal-tax-account")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Find a lost UTR (opens in new tab)")
+          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
