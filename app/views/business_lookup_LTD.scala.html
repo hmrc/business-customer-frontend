@@ -51,12 +51,6 @@
     }
 }
 
-@helpQuestionAnswer = @{
-    isAgent match {
-        case true => Html(messages("bc.business-verification.utr.help.answer.agent"))
-    }
-}
-
 @backLinkHtml = {
     @if(backLink.isDefined) {
         @govukBackLink(BackLink(
