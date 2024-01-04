@@ -16,9 +16,7 @@
 
 package models
 
-import org.joda.time.LocalDate
-import play.api.libs.json.JodaReads.DefaultJodaLocalDateReads
-import play.api.libs.json.JodaWrites.DefaultJodaLocalDateWrites
+import java.time.LocalDate
 import play.api.libs.json.{Format, Json}
 
 case class EtmpAddress(addressLine1: String,
@@ -44,7 +42,6 @@ case class EtmpIndividual(firstName: String,
                           dateOfBirth: LocalDate)
 
 object EtmpIndividual {
-  implicit val dateFormat: Format[LocalDate] = Format(DefaultJodaLocalDateReads, DefaultJodaLocalDateWrites)
   implicit val formats: Format[EtmpIndividual] = Json.format[EtmpIndividual]
 }
 
