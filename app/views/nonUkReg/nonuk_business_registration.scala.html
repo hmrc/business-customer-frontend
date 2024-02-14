@@ -36,6 +36,11 @@
 @pageScripts = {
 
     <script @CSPNonce.attr type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/accessible-autocomplete.min.js")'></script>
+    <script @CSPNonce.attr type="text/javascript">
+            accessibleAutocomplete.enhanceSelectElement({
+                 selectElement: document.querySelector('#businessAddress\\.country')
+            })
+    </script>
 }
 
 @backLinkHtml = {
@@ -111,8 +116,7 @@
                   )
              ).withFormField(businessRegistrationForm("businessAddress.line_4"))
       )
-
-      @govukSelect(
+     @govukSelect(
               Select(
                   label = Label(
                       content = Text(messages("bc.business-registration.country"))
