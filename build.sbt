@@ -26,11 +26,12 @@ lazy val microservice: Project = Project(appName, file("."))
     defaultSettings(),
     scoverageSettings,
     scalacOptions += "-Ywarn-unused:-explicits,-implicits",
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.12",
     libraryDependencies ++= appDependencies,
+    libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
     retrieveManaged := true,
     majorVersion := 4,
-    Compile / scalacOptions ++= Seq("-Wconf:src=target/.*:s", "-Wconf:src=routes/.*:s", "-Wconf:cat=unused-imports&src=html/.*:s")
+    Compile/scalacOptions ++= Seq("-Wconf:src=target/.*:s", "-Wconf:src=routes/.*:s", "-Wconf:cat=unused-imports&src=html/.*:s", "-Wconf:cat=unused-imports&src=html/.*:s")
   )
   .settings(
 
@@ -44,5 +45,4 @@ lazy val microservice: Project = Project(appName, file("."))
   .settings(
     resolvers += Resolver.jcenterRepo
   )
-
   .disablePlugins(JUnitXmlReportPlugin)

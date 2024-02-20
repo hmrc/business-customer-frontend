@@ -18,14 +18,13 @@ package metrics
 
 import com.codahale.metrics.Timer.Context
 import com.codahale.metrics.{Counter, MetricRegistry, Timer}
-import com.kenshoo.play.metrics.Metrics
 import javax.inject.Inject
 import metrics.MetricsEnum.MetricsEnum
 
 
-class MetricsService @Inject()(val metrics: Metrics)  {
+class MetricsService @Inject()(val metrics: MetricRegistry) {
 
-  val registry: MetricRegistry = metrics.defaultRegistry
+  val registry: MetricRegistry = metrics
 
   val timers: Map[MetricsEnum, Timer] = Map(
     MetricsEnum.GG_AGENT_ENROL -> registry.timer("gg-enrol-agent-ated-response-timer"),
