@@ -3,7 +3,6 @@ import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 
 val appName: String = "business-customer-frontend"
-lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 
 lazy val plugins: Seq[Plugins] = Seq(play.sbt.PlayScala, SbtDistributablesPlugin)
 lazy val playSettings: Seq[Setting[_]] = Seq.empty
@@ -18,7 +17,7 @@ lazy val scoverageSettings = {
   )
 }
 lazy val microservice: Project = Project(appName, file("."))
-  .enablePlugins(plugins: _*)
+  .enablePlugins(plugins *)
   .settings(
     playSettings,
     routesGenerator := InjectedRoutesGenerator,
@@ -27,7 +26,7 @@ lazy val microservice: Project = Project(appName, file("."))
     scoverageSettings,
     scalacOptions += "-Ywarn-unused:-explicits,-implicits",
     scalaVersion := "2.13.12",
-    libraryDependencies ++= appDependencies,
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
     retrieveManaged := true,
     majorVersion := 4,
