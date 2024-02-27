@@ -94,8 +94,10 @@
             )
 
             <h2 class="govuk-heading-s">@Messages("bc.business-verification.coUTRFieldpsaUTR")</h2>
-            <p class="govuk-body">@Messages("bc.business-verification.utr.yourUTR") <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/personal-tax-account">@Messages("bc.business-verification.utr.yourUTRLink")</a> @Messages("bc.business-verification.utr.yourUTR2")</p>
-            <p class="govuk-body"><a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/find-utr-number">@Messages("bc.business-verification.utr.findUTR")</a>.</p>
+            <p class="govuk-body">@Messages("bc.business-verification.utr.selfAssessmentUTR")</p>
+            <p class="govuk-body">
+                <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/find-utr-number">@Messages("bc.business-verification.utr.selfAssessmentUTRLink")</a>
+            </p>
             @govukInput(
                 Input(
                     label = Label(
