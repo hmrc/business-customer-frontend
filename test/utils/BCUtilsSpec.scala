@@ -87,12 +87,6 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
       "for amls as service name, return amls" in {
         bcUtils.getNavTitle("amls") must be(Some("bc.amls.serviceName"))
       }
-      "for investment-tax-relief as service name, return investment-tax-relief" in {
-        bcUtils.getNavTitle("investment-tax-relief") must be(Some("bc.investment-tax-relief.serviceName"))
-      }
-      "for fhdds as service name, return investment-tax-relief" in {
-        bcUtils.getNavTitle("fhdds") must be(Some("bc.fhdds.serviceName"))
-      }
       "for other as service name, return None" in {
         bcUtils.getNavTitle("abcd") must be(None)
       }
@@ -123,14 +117,6 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
           "OBP" -> "bc.business-verification.amls.PRT",
           "LLP" -> "bc.business-verification.amls.LP.LLP",
           "UIB" -> "bc.business-verification.amls.UIB"
-        )
-      }
-
-      "return the correct map for investment-tax-relief" in {
-        val typeMap = bcUtils.businessTypeMap("investment-tax-relief", isAgent = false)
-        typeMap.size must be(1)
-        typeMap mustBe Seq(
-          "LTD" -> "bc.business-verification.LTD"
         )
       }
 

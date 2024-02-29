@@ -12,7 +12,6 @@ bc.awrs.serviceName = Register as an alcohol wholesaler or producer
 bc.amls.serviceName = Anti Money Laundering Supervision
 bc.fhdds.serviceName = Apply for the Fulfilment House Due Diligence Scheme
 service.homePageUrl = /business-customer
-bc.investment-tax-relief.serviceName = Apply for Enterprise Investment Scheme
 
 business-review.user.title = Check this is the business you want to register
 business-review.agent.title = Confirm your agency’s details
