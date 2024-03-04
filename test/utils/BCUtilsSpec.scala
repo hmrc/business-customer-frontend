@@ -90,6 +90,9 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
       "for other as service name, return None" in {
         bcUtils.getNavTitle("abcd") must be(None)
       }
+      "for fhdds as service name, return  Apply for the Fulfilment House Due Diligence Scheme" in {
+        bcUtils.getNavTitle("fhdds") must be(Some("bc.fhdds.serviceName"))
+      }
     }
 
     "businessTypeMap" must {
