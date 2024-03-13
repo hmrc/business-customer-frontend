@@ -72,7 +72,6 @@ trait BCUtils {
       case "awrs" => Some("bc.awrs.serviceName")
       case "amls" => Some("bc.amls.serviceName")
       case "fhdds" => Some("bc.fhdds.serviceName")
-      case "investment-tax-relief" => Some("bc.investment-tax-relief.serviceName")
       case _ => None
     }
   }
@@ -109,7 +108,6 @@ trait BCUtils {
     }
 
     service.toLowerCase match {
-      case "investment-tax-relief" => Seq("LTD" -> "bc.business-verification.LTD")
       case "awrs" => Seq(
         "OBP" -> "bc.business-verification.PRT", "GROUP" -> "bc.business-verification.GROUP", "LTD" -> "bc.business-verification.LTD",
         "LLP" -> "bc.business-verification.LLP", "LP" -> "bc.business-verification.LP",
