@@ -5,7 +5,7 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 val appName: String = "business-customer-frontend"
 
 lazy val plugins: Seq[Plugins] = Seq(play.sbt.PlayScala, SbtDistributablesPlugin)
-lazy val playSettings: Seq[Setting[_]] = Seq.empty
+lazy val playSettings: Seq[Setting[?]] = Seq.empty
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
@@ -30,7 +30,12 @@ lazy val microservice: Project = Project(appName, file("."))
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
     retrieveManaged := true,
     majorVersion := 4,
-    Compile/scalacOptions ++= Seq("-Wconf:src=target/.*:s", "-Wconf:src=routes/.*:s", "-Wconf:cat=unused-imports&src=html/.*:s", "-Wconf:cat=unused-imports&src=html/.*:s")
+    Compile/scalacOptions ++= Seq(
+      "-Wconf:src=target/.*:s",
+      "-Wconf:src=routes/.*:s",
+      "-Wconf:cat=unused-imports&src=html/.*:s",
+      "-Wconf:cat=unused-imports&src=html/.*:s"
+    )
   )
   .settings(
 

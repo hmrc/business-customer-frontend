@@ -35,10 +35,10 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
 
   val service = "ATED"
 
-  val mockAuthConnector = mock[AuthConnector]
-  val mockBackLinkCache = mock[BackLinkCacheConnector]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
 
-  val appConfig = inject[ApplicationConfig]
+  val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestExternalLinkController extends ExternalLinkController(
@@ -51,7 +51,7 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
   }
 
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     reset(mockAuthConnector)
     reset(mockBackLinkCache)
   }
