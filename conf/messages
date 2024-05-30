@@ -78,8 +78,6 @@ bc.business-verification.amls.LP.LLP = Limited partnership or limited liability 
 bc.business-verification.amls.UIB = Unincorporated association or trust
 bc.business-verification.amls.PRT = Partnership
 
-bc.business-agent.confirmation.happens-next-item4 = let you know they have sent you the request. You will have 28 days to sign in and accept the agent request. You will not receive an email notification
-
 bc.business-verification.NEW = New business
 bc.business-verification.GROUP = Group
 
@@ -302,25 +300,6 @@ bc.nonuk.overseas.agent.add-client.subheader = Add a client
 bc.nonuk.overseas.client.title = Do you have an overseas company registration number?
 bc.nonuk.overseas.client.header = Do you have an overseas company registration number?
 bc.nonuk.overseas.client.subheader = {0} registration
-
-##### NON-UK CLIENT REGISTRATION
-
-bc.nonuk.client.reg.title = Does your client have a UK Unique Tax Reference for their business?
-bc.nonuk.client.reg.header = Does your client have a UK Unique Tax Reference for their business?
-bc.nonuk.client.reg.subheader = Add a client
-bc.nonuk.client.reg.yes.label = Yes
-bc.nonuk.client.reg.no.label = No
-bc.nonuk.client.reg.question.true.info-title = Your agent reference is GG123456
-bc.nonuk.client.reg.question.true-text1 = <p>You need to give this agent reference to your client so they can authorise you.</p><p>Your client will then need to:</p>
-bc.nonuk.client.reg.question.true-info1 = Register their company to use the new <a href="" target="_blank" rel="noreferrer noopener">ATED service</a>, they may need to create a new organisational Government Gateway account.
-bc.nonuk.client.reg.question.true-info2 = Enter the agent reference you gave them.
-bc.nonuk.client.reg.question.true-info3 = Let you know once they have completed this process.
-bc.nonuk.client.reg.question.true-text2 = <p>You have 28 days to sign in and accept the agent request, you won’t receive an email notification.</p><p>The ATED1 and 64-8 do not cover you for this service.</p>
-bc.nonuk.client.reg.question.true.box.text = If you have a number of agents working on ATED within your organisation you may want to filter your pending clients. To do this you need to add administrators to your account in Government Gateway. To complete the process give your clients your Agent ID as well as your agent reference.
-bc.nonuk.client.reg.question.true.reveal = What is an Agent ID?
-bc.nonuk.client.reg.question.true.reveal-text = An Agent ID is generated when you <a href="http://www.gateway.gov.uk/Default.aspx" target="_blank" rel="noreferrer noopener" >create an agent adminstrator Government Gateway account.</a>
-bc.nonuk.client.reg.view-clients = View all my clients
-bc.nonuk.client.reg.unique-tax-reference.not-selected = You must select an option
 
 ##### NON-UK REGISTRATION OF CLIENT BY AGENT
 
