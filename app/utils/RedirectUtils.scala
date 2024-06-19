@@ -16,17 +16,31 @@
 
 package utils
 
-import java.net.URI
+import play.api.mvc.Result
+import play.api.mvc.Results.BadRequest
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
+import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 
-import scala.util.Try
+import java.net.URI
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 object RedirectUtils {
-  def asRelativeUrl(url: String): Option[String] = {
-    for {
-      uri      <- Try(new URI(url)).toOption
-      path     <- Option(uri.getPath).filterNot(_.isEmpty)
-      query    <- Option(uri.getQuery).map("?" + _).orElse(Some(""))
-      fragment <- Option(uri.getRawFragment).map("#" + _).orElse(Some(""))
-    } yield s"$path$query$fragment"
+  def getRelativeOrBadRequest(redirectUrl: RedirectUrl)(action: String => Future[Result]): Future[Result] = {
+    Try(redirectUrl.get(OnlyRelative).url) match {
+      case Success(value) =>
+        action(value)
+      case Failure(exception) =>
+        Future.successful(BadRequest("The redirect url is not correctly formatted"))
+    }
+  }
+
+  def getRelativeOrBadRequestOpt(redirectUrl: Option[RedirectUrl])(action: Option[String] => Future[Result]): Future[Result] = {
+    Try(redirectUrl.map(_.get(OnlyRelative).url)) match {
+      case Success(value) =>
+        action(value)
+      case Failure(exception) =>
+        Future.successful(BadRequest("The redirect url is not correctly formatted"))
+    }
   }
 }

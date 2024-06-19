@@ -19,12 +19,15 @@ package controllers
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.auth.AuthActions
+
 import javax.inject.{Inject, Provider}
 import models.ReviewDetails
 import play.api.libs.json.{JsError, JsSuccess}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
+import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.UpdateNotRegisterId
 
@@ -45,7 +48,7 @@ class HomeController @Inject()(val authConnector: AuthConnector,
   implicit val executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "HomeController"
 
-  def homePage(service: String, backLinkUrl: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+  def homePage(service: String, backLinkUrl: Option[RedirectUrl]): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       businessMatchService.matchBusinessWithUTR(isAnAgent = authContext.isAgent, service) match {
         case Some(futureJsValue) =>
@@ -58,24 +61,24 @@ class HomeController @Inject()(val authConnector: AuthConnector,
                     businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
                     redirectWithBackLink(
                       businessVerificationController.get.controllerId,
-                      controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl
+                      controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(_.get(OnlyRelative).url)
                     )
                   } else {
                     redirectWithBackLink(
-                      reviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), backLinkUrl
+                      reviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), backLinkUrl.map(_.get(OnlyRelative).url)
                     )
                   }
                 case _: JsError =>
                   redirectWithBackLink(
                     businessVerificationController.get.controllerId,
-                    controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl
+                    controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(_.get(OnlyRelative).url)
                   )
               }
           }
         case None =>
           redirectWithBackLink(
             businessVerificationController.get.controllerId,
-            controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl
+            controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(_.get(OnlyRelative).url)
           )
       }
     }
