@@ -23,18 +23,17 @@ import controllers.{BackLinkController, ReviewDetailsController}
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
 import models.{BusinessRegistration, OverseasCompany}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
-import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.{BusinessRegDetailsId, OverseasRegDetailsId, UpdateNotRegisterId}
+import utils.RedirectUtils.redirectUrlGetRelativeOrDev
 import utils.{OverseasCompanyUtils, RedirectUtils}
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.ExecutionContext
 
 class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
                                              val backLinkCacheConnector: BackLinkCacheConnector,
@@ -74,7 +73,7 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
       BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest()).fold(
         formWithErrors => {
           currentBackLink.map(backLink => BadRequest(template(formWithErrors, service,
-            displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl.map(_.get(OnlyRelative).url), backLink))
+            displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, redirectUrl.map(redirectUrlGetRelativeOrDev(_).url), backLink))
           )
         },
         overseasCompany => for {

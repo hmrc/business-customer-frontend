@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.RedirectUtils
+import utils.RedirectUtils.redirectUrlGetRelativeOrDev
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -43,7 +44,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
 
   private def getBackLink(service: String, redirectUrl: Option[RedirectUrl]): Some[String] = {
     redirectUrl match {
-      case Some(url) => Some(redirectUrl.map(_.get(OnlyRelative).url).get)
+      case Some(_) => Some(redirectUrl.map(redirectUrlGetRelativeOrDev(_).url).get)
       case None => Some(controllers.routes.ReviewDetailsController.businessDetails(service).url)
     }
   }
@@ -125,7 +126,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
             Future.successful(BadRequest(template(formWithErrors,
               service,
               displayDetails(service, isRegisterClient),
-              redirectUrl.map(_.get(OnlyRelative).url),
+              redirectUrl.map(redirectUrlGetRelativeOrDev(_).url),
               isRegisterClient,
               backLink,
               authContext.isAgent)))
@@ -142,7 +143,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
                   isBusinessDetailsEditable = true
                 ).map { _ =>
                   redirectUrl match {
-                    case Some(url) => Redirect(url.get(OnlyRelative).url)
+                    case Some(url) => Redirect(redirectUrlGetRelativeOrDev(url).url)
                     case _ => Redirect(controllers.routes.ReviewDetailsController.businessDetails(service))
                   }
                 }

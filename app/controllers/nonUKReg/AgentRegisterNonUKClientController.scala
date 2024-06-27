@@ -22,18 +22,17 @@ import controllers.BackLinkController
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
-
-import javax.inject.Inject
 import models.{BusinessRegistration, BusinessRegistrationDisplayDetails}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
-import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
+import utils.RedirectUtils.redirectUrlGetRelativeOrDev
 
-import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnector,
@@ -57,7 +56,7 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
       } yield {
         val backLinkOption: Option[String] =
           if (backLinkUrl.isDefined) {
-            Try(backLinkUrl.map(_.get(OnlyRelative).url)) match {
+            Try(backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)) match {
               case Success(url) => url
               case Failure(_) => backLink
             }

@@ -19,18 +19,17 @@ package controllers
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.auth.AuthActions
-
-import javax.inject.{Inject, Provider}
 import models.ReviewDetails
 import play.api.libs.json.{JsError, JsSuccess}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
-import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.UpdateNotRegisterId
+import utils.RedirectUtils.redirectUrlGetRelativeOrDev
 
+import javax.inject.{Inject, Provider}
 import scala.concurrent.ExecutionContext
 
 
@@ -61,24 +60,24 @@ class HomeController @Inject()(val authConnector: AuthConnector,
                     businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
                     redirectWithBackLink(
                       businessVerificationController.get.controllerId,
-                      controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(_.get(OnlyRelative).url)
+                      controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
                     )
                   } else {
                     redirectWithBackLink(
-                      reviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), backLinkUrl.map(_.get(OnlyRelative).url)
+                      reviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
                     )
                   }
                 case _: JsError =>
                   redirectWithBackLink(
                     businessVerificationController.get.controllerId,
-                    controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(_.get(OnlyRelative).url)
+                    controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
                   )
               }
           }
         case None =>
           redirectWithBackLink(
             businessVerificationController.get.controllerId,
-            controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(_.get(OnlyRelative).url)
+            controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
           )
       }
     }

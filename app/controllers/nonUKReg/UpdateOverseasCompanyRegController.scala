@@ -20,16 +20,15 @@ import config.ApplicationConfig
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
-
-import javax.inject.Inject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
-import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.RedirectUtils.redirectUrlGetRelativeOrDev
 import utils.{OverseasCompanyUtils, RedirectUtils}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
@@ -54,7 +53,7 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
            service,
            displayDetails(authContext.isAgent, addClient, service),
           appConfig.getIsoCodeTupleList,
-            redirectUrl.map(_.get(OnlyRelative).url),
+            redirectUrl.map(redirectUrlGetRelativeOrDev(_).url),
           backLink))
 
         businessRegistrationService.getDetails().map {
@@ -78,13 +77,13 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
     authorisedFor(service){ implicit authContext =>
       BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest()).fold(
         formWithErrors => {
-          val backLink = getBackLink(service, redirectUrl.map(_.get(OnlyRelative).url))
+          val backLink = getBackLink(service, redirectUrl.map(redirectUrlGetRelativeOrDev(_).url))
           Future.successful(BadRequest(template(
             formWithErrors,
             service,
             displayDetails(authContext.isAgent, addClient, service),
             appConfig.getIsoCodeTupleList,
-            redirectUrl.map(_.get(OnlyRelative).url),
+            redirectUrl.map(redirectUrlGetRelativeOrDev(_).url),
             backLink))
           )
         },
