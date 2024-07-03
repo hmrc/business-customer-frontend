@@ -20,11 +20,23 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.test.Injecting
+import utils.RedirectUtils.asRelativeUrl
 
 class RedirectUtilsSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerTest with Injecting {
 
   "asRelativeUrl" should {
 
+    "return a relative url for the provided absolute url" in {
+
+      asRelativeUrl("https://www.tax.service.gov.uk/business-customer/business-verification/ATED") should
+        be(Some("/business-customer/business-verification/ATED"))
+    }
+
+    "return a relative url with a query and fragment" in {
+      val url = "www.fakenotrealtestingwebsite.co.uk/part-one/part-two?q=test#test"
+
+      RedirectUtils.asRelativeUrl(url) should be (Some(url))
+    }
 
   }
 

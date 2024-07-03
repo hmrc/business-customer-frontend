@@ -16,40 +16,17 @@
 
 package utils
 
-import config.ApplicationConfig
-import play.api.mvc.Result
-import play.api.mvc.Results.BadRequest
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrlPolicy.Id
-import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, PermitAllOnDev, RedirectUrl, SafeRedirectUrl}
+import java.net.URI
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 object RedirectUtils {
-
-  def redirectUrlGetRelativeOrDev(redirectUrl: RedirectUrl)
-                                 (implicit applicationConfig: ApplicationConfig): Id[SafeRedirectUrl] = {
-    redirectUrl.get(OnlyRelative | PermitAllOnDev(applicationConfig.environment))
-  }
-
-  def getRelativeOrBadRequest(redirectUrl: RedirectUrl)(action: String => Future[Result])
-                             (implicit applicationConfig: ApplicationConfig): Future[Result] = {
-    Try(redirectUrlGetRelativeOrDev(redirectUrl).url) match {
-      case Success(value) =>
-        action(value)
-      case Failure(exception) =>
-        Future.successful(BadRequest("The redirect url is not correctly formatted"))
-    }
-  }
-
-  def getRelativeOrBadRequestOpt(redirectUrl: Option[RedirectUrl])(action: Option[String] => Future[Result])
-                                (implicit applicationConfig: ApplicationConfig): Future[Result] = {
-    Try(redirectUrl.map(redirectUrlGetRelativeOrDev(_).url)) match {
-      case Success(value) =>
-        action(value)
-      case Failure(exception) =>
-        Future.successful(BadRequest("The redirect url is not correctly formatted"))
-    }
+  def asRelativeUrl(url: String): Option[String] = {
+    for {
+      uri      <- Try(new URI(url)).toOption
+      path     <- Option(uri.getPath).filterNot(_.isEmpty)
+      query    <- Option(uri.getQuery).map("?" + _).orElse(Some(""))
+      fragment <- Option(uri.getRawFragment).map("#" + _).orElse(Some(""))
+    } yield s"$path$query$fragment"
   }
 }

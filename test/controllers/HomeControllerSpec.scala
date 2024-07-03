@@ -17,10 +17,10 @@
 package controllers
 
 import java.util.UUID
+
 import builders.{AuthBuilder, SessionBuilder}
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
-
 import javax.inject.Provider
 import models.{Address, ReviewDetails}
 import org.mockito.{ArgumentMatchers, MockitoSugar}
@@ -33,7 +33,6 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
 import scala.concurrent.Future
 
@@ -107,15 +106,6 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
             }
           }
 
-          "if match is found, be redirected to Review Details page with relative backlink" in {
-            getWithAuthorisedUserMatched(testAddress, Some(RedirectUrl("/relative"))) {
-              result =>
-                status(result) must be(SEE_OTHER)
-                redirectLocation(result).get must include(s"/business-customer/review-details/$service")
-                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-            }
-          }
-
           "if match is found but has no country code, set updateNotRegister flag and redirect to business verification" in {
             when(mockBusinessVerificationControllerProv.get())
               .thenReturn(mockBusinessVerificationController)
@@ -127,19 +117,6 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
                 redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
                 verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
                 verify(mockBusinessRegCacheConnector, times(1)).cacheDetails(ArgumentMatchers.eq("Update_No_Register"), ArgumentMatchers.eq(true))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-            }
-          }
-
-          "if match is found but has no country code, set updateNotRegister flag and redirect to business verification with a relative backlink" in {
-            when(mockBusinessVerificationControllerProv.get())
-              .thenReturn(mockBusinessVerificationController)
-            when(mockBusinessVerificationController.controllerId)
-              .thenReturn("test")
-            getWithAuthorisedUserMatched(testAddressNoCountry, Some(RedirectUrl("/relative"))) {
-              result =>
-                status(result) must be(SEE_OTHER)
-                redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
-                verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
             }
           }
 
@@ -163,21 +140,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
           when(mockBusinessVerificationController.controllerId)
             .thenReturn("test")
 
-          getWithAuthorisedUserNoUTR() {
-            result =>
-              status(result) must be(SEE_OTHER)
-              redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
-              verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-          }
-        }
-
-        "if has no UTR, be redirected to Business verification page with redirect url" in {
-          when(mockBusinessVerificationControllerProv.get())
-            .thenReturn(mockBusinessVerificationController)
-          when(mockBusinessVerificationController.controllerId)
-            .thenReturn("test")
-
-          getWithAuthorisedUserNoUTR(Some(RedirectUrl("/relative"))) {
+          getWithAuthorisedUserNoUTR {
             result =>
               status(result) must be(SEE_OTHER)
               redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
@@ -200,10 +163,9 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
   def getWithUnAuthenticated(test: Future[Result] => Any): Unit = {
     val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSessionNoUser())
     test(result)
-
   }
 
-  def getWithAuthorisedUserMatched(address: Address, backLink: Option[RedirectUrl] = None)(test: Future[Result] => Any): Unit = {
+  def getWithAuthorisedUserMatched(address: Address)(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
@@ -211,7 +173,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
     val reviewDetails = Json.toJson(testReviewDetails(address))
     when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Some(Future.successful(reviewDetails)))
-    val result = TestHomeController.homePage(service, backLink).apply(SessionBuilder.buildRequestWithSession(userId))
+    val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
   }
 
@@ -227,14 +189,14 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
     test(result)
   }
 
-  def getWithAuthorisedUserNoUTR(backLink: Option[RedirectUrl] = None)(test: Future[Result] => Any): Unit = {
+  def getWithAuthorisedUserNoUTR(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
     when(mockBusinessMatchingService.matchBusinessWithUTR(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(None)
-    val result = TestHomeController.homePage(service, backLink).apply(SessionBuilder.buildRequestWithSession(userId))
+    val result = TestHomeController.homePage(service, None).apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
   }
 

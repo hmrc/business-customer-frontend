@@ -17,6 +17,7 @@
 package controllers.nonUKReg
 
 import java.util.UUID
+
 import config.ApplicationConfig
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
@@ -31,7 +32,6 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import views.html.nonUkReg.update_business_registration
 
 import scala.concurrent.Future
@@ -428,7 +428,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
-    val result = TestNonUKController.edit(serviceName, redirectUrl.map(RedirectUrl(_))).apply(FakeRequest().withSession(
+    val result = TestNonUKController.edit(serviceName, redirectUrl).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -510,7 +510,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
 
-    val result = TestNonUKController.update(service, redirectUrl.map(RedirectUrl(_)), isRegisterClient = true).apply(FakeRequest().withSession(
+    val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -545,7 +545,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
       (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
-    val result = TestNonUKController.update(service, redirectUrl.map(RedirectUrl(_)), isRegisterClient = true).apply(fakeRequest.withSession(
+    val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -580,7 +580,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
-    val result = TestNonUKController.update(service, redirectUrl.map(RedirectUrl(_)), isRegisterClient = true).apply(fakeRequest.withSession(
+    val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -596,7 +596,7 @@ class UpdateNonUKBusinessRegistrationControllerSpec extends PlaySpec with GuiceO
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
-    val result = TestNonUKController.update(service, redirectUrl.map(RedirectUrl(_)), isRegisterClient = true).apply(fakeRequest.withSession(
+    val result = TestNonUKController.update(service, redirectUrl, isRegisterClient = true).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
