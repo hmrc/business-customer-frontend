@@ -23,7 +23,6 @@
 @import views.html.helper.form
 @import views.ViewUtils.titleBuilder
 @import views.html.helper.CSPNonce
-@import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
@@ -119,7 +118,7 @@
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(overseasCompanyForm))
     }
 
-    @formHelper(action = controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.update(service, displayDetails.addClient, redirectUrl.map(RedirectUrl(_)))) {
+    @formHelper(action = controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.update(service, displayDetails.addClient, redirectUrl)) {
 
         @govukRadios(
         Radios(

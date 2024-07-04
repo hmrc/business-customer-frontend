@@ -17,6 +17,7 @@
 package controllers.nonUKReg
 
 import java.util.UUID
+
 import config.ApplicationConfig
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
@@ -31,7 +32,6 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import views.html.nonUkReg.update_overseas_company_registration
 
 import scala.concurrent.Future
@@ -233,7 +233,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
-    val result = TestNonUKController.viewForUpdate(serviceName, addClient = false, redirectUrl.map(RedirectUrl(_))).apply(FakeRequest().withSession(
+    val result = TestNonUKController.viewForUpdate(serviceName, addClient = false, redirectUrl).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -274,7 +274,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
 
-    val result = TestNonUKController.update(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(FakeRequest().withSession(
+    val result = TestNonUKController.update(service, addClient = true, redirectUrl).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -308,7 +308,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
     when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
 
-    val result = TestNonUKController.update(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(fakeRequest.withSession(
+    val result = TestNonUKController.update(service, addClient = true, redirectUrl).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -324,7 +324,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
-    val result = TestNonUKController.update(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(fakeRequest.withSession(
+    val result = TestNonUKController.update(service, addClient = true, redirectUrl).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
