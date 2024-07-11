@@ -98,4 +98,5 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   def isRelative(url: String): Boolean = isRelativeUrl(url) || conf.baseUrl("auth").contains("localhost")
 
   def getFile(path: String): File = environment.getFile(path)
+  lazy val allowedHosts = oldConfig.get[Seq[String]]("allowedHosts")
 }
