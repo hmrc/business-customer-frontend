@@ -21,7 +21,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results.BadRequest
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrlPolicy.Id
-import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, PermitAllOnDev, RedirectUrl, SafeRedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.{AbsoluteWithHostnameFromAllowlist, OnlyRelative, RedirectUrl, SafeRedirectUrl}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
@@ -30,7 +30,7 @@ object RedirectUtils {
 
   def redirectUrlGetRelativeOrDev(redirectUrl: RedirectUrl)
                                  (implicit applicationConfig: ApplicationConfig): Id[SafeRedirectUrl] = {
-    redirectUrl.get(OnlyRelative | PermitAllOnDev(applicationConfig.environment))
+    redirectUrl.get(OnlyRelative | AbsoluteWithHostnameFromAllowlist(applicationConfig.allowedHosts: _*))
   }
 
   def getRelativeOrBadRequest(redirectUrl: RedirectUrl)(action: String => Future[Result])
