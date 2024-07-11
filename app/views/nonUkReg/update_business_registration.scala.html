@@ -22,6 +22,7 @@
 @import views.html.helper.form
 @import views.ViewUtils.titleBuilder
 @import views.html.helper.CSPNonce
+@import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
@@ -82,7 +83,7 @@
     <p class="govuk-body" id="business-reg-lede">@Html(messages(businessRegLede))</p>
   }
 
-    @formHelper(action = controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.update(service, redirectUrl, isRegisterClient)) {
+    @formHelper(action = controllers.nonUKReg.routes.UpdateNonUKBusinessRegistrationController.update(service, redirectUrl.map(RedirectUrl(_)), isRegisterClient)) {
 
         @govukInput(
              Input(
