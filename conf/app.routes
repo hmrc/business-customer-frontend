@@ -22,8 +22,8 @@ GET         /keep-alive                                                         
 GET         /logout/:service                                                    controllers.ApplicationController.logout(service: String)
 GET         /signed-out                                                         controllers.ApplicationController.signedOut
 
-GET         /agent/:service                                                     controllers.HomeController.homePage(service: String, backLinkUrl: Option[String] ?= None)
-GET         /:service                                                           controllers.HomeController.homePage(service: String, backLinkUrl: Option[String] ?= None)
+GET         /agent/:service                                                     controllers.HomeController.homePage(service: String, backLinkUrl: Option[RedirectUrl] ?= None)
+GET         /:service                                                           controllers.HomeController.homePage(service: String, backLinkUrl: Option[RedirectUrl] ?= None)
 
 GET         /logoutAndRedirectToHome/:service                                   controllers.ApplicationController.logoutAndRedirectToHome(service:String)
 
@@ -36,18 +36,18 @@ POST        /register/non-uk-client/paySA/:service                              
 GET         /register/:service/:businessType                                    controllers.nonUKReg.BusinessRegController.register(service: String, businessType: String)
 POST        /send                                                               controllers.nonUKReg.BusinessRegController.send(service: String, businessType: String)
 
-GET         /agent/register/non-uk-client/:service                              controllers.nonUKReg.AgentRegisterNonUKClientController.view(service: String, backLinkUrl: Option[String] ?= None)
+GET         /agent/register/non-uk-client/:service                              controllers.nonUKReg.AgentRegisterNonUKClientController.view(service: String, backLinkUrl: Option[RedirectUrl] ?= None)
 POST        /agent/register/non-uk-client/:service                              controllers.nonUKReg.AgentRegisterNonUKClientController.submit(service: String)
 
-GET         /register/non-uk-client/overseas-company/:service/:addClient        controllers.nonUKReg.OverseasCompanyRegController.view(service: String, addClient: Boolean, redirectUrl: Option[String] ?= None)
-POST        /register/non-uk-client/overseas-company/:service/:addClient        controllers.nonUKReg.OverseasCompanyRegController.register(service: String, addClient: Boolean, redirectUrl: Option[String] ?= None)
+GET         /register/non-uk-client/overseas-company/:service/:addClient        controllers.nonUKReg.OverseasCompanyRegController.view(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] ?= None)
+POST        /register/non-uk-client/overseas-company/:service/:addClient        controllers.nonUKReg.OverseasCompanyRegController.register(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] ?= None)
 
-GET         /register/non-uk-client/edit-overseas-company/:service/:addClient   controllers.nonUKReg.UpdateOverseasCompanyRegController.viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[String] ?= None)
-POST        /register/non-uk-client/edit-overseas-company/:service/:addClient   controllers.nonUKReg.UpdateOverseasCompanyRegController.update(service: String, addClient: Boolean, redirectUrl: Option[String] ?= None)
+GET         /register/non-uk-client/edit-overseas-company/:service/:addClient   controllers.nonUKReg.UpdateOverseasCompanyRegController.viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] ?= None)
+POST        /register/non-uk-client/edit-overseas-company/:service/:addClient   controllers.nonUKReg.UpdateOverseasCompanyRegController.update(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] ?= None)
 
 GET         /agent/register/non-uk-client/:service/edit                         controllers.nonUKReg.UpdateNonUKBusinessRegistrationController.editAgent(service: String)
-GET         /register/non-uk-client/:service/edit                               controllers.nonUKReg.UpdateNonUKBusinessRegistrationController.edit(service: String, redirectUrl: Option[String] ?= None)
-POST        /register/non-uk-client/:service/edit/:isRegisterClient             controllers.nonUKReg.UpdateNonUKBusinessRegistrationController.update(service: String, redirectUrl: Option[String] ?= None, isRegisterClient: Boolean)
+GET         /register/non-uk-client/:service/edit                               controllers.nonUKReg.UpdateNonUKBusinessRegistrationController.edit(service: String, redirectUrl: Option[RedirectUrl] ?= None)
+POST        /register/non-uk-client/:service/edit/:isRegisterClient             controllers.nonUKReg.UpdateNonUKBusinessRegistrationController.update(service: String, redirectUrl: Option[RedirectUrl] ?= None, isRegisterClient: Boolean)
 
 GET         /clear-cache/:service                                               controllers.BusinessCustomerController.clearCache(service: String)
 GET         /fetch-review-details/:service                                      controllers.BusinessCustomerController.getReviewDetails(service: String)

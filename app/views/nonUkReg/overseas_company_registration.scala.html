@@ -22,16 +22,17 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.form
 @import views.ViewUtils.titleBuilder
+@import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 @import views.html.helper.CSPNonce
 
 @this(bcMain: bcMain,
-    formHelper: FormWithCSRF,
-    govukInput: GovukInput,
-    govukSelect: GovukSelect,
-    govukRadios: GovukRadios,
-    govukBackLink : GovukBackLink,
-    govukErrorSummary: GovukErrorSummary,
-    govukButton : GovukButton)
+formHelper: FormWithCSRF,
+govukInput: GovukInput,
+govukSelect: GovukSelect,
+govukRadios: GovukRadios,
+govukBackLink : GovukBackLink,
+govukErrorSummary: GovukErrorSummary,
+govukButton : GovukButton)
 
 @(overseasCompanyForm: Form[models.OverseasCompany],
   service: String,
@@ -119,7 +120,7 @@
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(overseasCompanyForm))
     }
 
-  @formHelper(action = controllers.nonUKReg.routes.OverseasCompanyRegController.register(service, displayDetails.addClient, redirectUrl)) {
+  @formHelper(action = controllers.nonUKReg.routes.OverseasCompanyRegController.register(service, displayDetails.addClient, redirectUrl.map(RedirectUrl(_)))) {
 
     @govukRadios(
         Radios(

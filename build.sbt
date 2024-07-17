@@ -1,3 +1,4 @@
+import play.sbt.routes.RoutesKeys
 import play.sbt.routes.RoutesKeys.routesGenerator
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
@@ -21,6 +22,7 @@ lazy val microservice: Project = Project(appName, file("."))
   .settings(
     playSettings,
     routesGenerator := InjectedRoutesGenerator,
+    RoutesKeys.routesImport += "uk.gov.hmrc.play.bootstrap.binders.RedirectUrl",
     scalaSettings,
     defaultSettings(),
     scoverageSettings,
