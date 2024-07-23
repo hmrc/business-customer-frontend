@@ -22,11 +22,11 @@ import javax.inject.Inject
 import models.BackLinkModel
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BackLinkCacheConnector @Inject()(val http: DefaultHttpClient,
+class BackLinkCacheConnector @Inject()(val http: HttpClientV2,
                                        config: ApplicationConfig) extends SessionCache {
   val baseUri: String = config.baseUri
   val defaultSource: String = config.defaultSource

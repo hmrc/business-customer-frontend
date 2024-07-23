@@ -25,14 +25,14 @@ import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.audit.model.EventTypes
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 class BusinessMatchingConnector @Inject()(val audit: Auditable,
-                                          val http: DefaultHttpClient,
+                                          val http: HttpClientV2,
                                           val conf: ApplicationConfig) extends RawResponseReads with Logging {
 
   val baseUri = "business-matching"
@@ -42,7 +42,7 @@ class BusinessMatchingConnector @Inject()(val audit: Auditable,
             (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     val authLink = authContext.authLink
     val url = s"""${conf.businessMatching}/$authLink/$baseUri/$lookupUri/${lookupData.utr}/$userType"""
-    http.POST[JsValue, HttpResponse](url, Json.toJson(lookupData), Seq.empty) map { response =>
+    http.post(url"${url}").execute map { response =>
       auditMatchCall(lookupData, userType, response, service)
       response.status match {
         case OK | NOT_FOUND =>

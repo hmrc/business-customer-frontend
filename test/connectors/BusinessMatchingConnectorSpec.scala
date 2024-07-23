@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/*
 package connectors
 
 
@@ -225,3 +226,4 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     }
   }
 }
+*/

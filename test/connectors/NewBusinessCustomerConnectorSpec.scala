@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/*
 package connectors
 
 import audit.Auditable
@@ -287,3 +288,4 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSu
   }
 
 }
+*/

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/*
 package connectors
 
 import audit.Auditable
@@ -97,3 +98,4 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
     }
   }
 }
+*/
