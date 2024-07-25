@@ -44,4 +44,6 @@ class BackLinkCacheConnector @Inject()(val http: HttpClientV2,
     cache[BackLinkModel](getKey(pageId), BackLinkModel(returnUrl)).map(_ => returnUrl)
   }
 
+  def httpClientV2: HttpClientV2 = http
+
 }

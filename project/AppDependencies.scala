@@ -5,16 +5,15 @@ object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
     ws,
-    "uk.gov.hmrc"  %% "bootstrap-frontend-play-30"   % "8.6.0",
-    "uk.gov.hmrc"  %% "domain-play-30"               % "9.0.0",
-    "uk.gov.hmrc"  %% "play-partials-play-30"        % "9.1.0",
-    "uk.gov.hmrc"  %% "play-frontend-hmrc-play-30"   % "10.4.0",
-    "uk.gov.hmrc"  %% "http-caching-client-play-30"  % "11.2.0",
+    "uk.gov.hmrc"  %% "bootstrap-frontend-play-30"   % "9.0.0",
+    "uk.gov.hmrc"  %% "domain-play-30"               % "10.0.0",
+    "uk.gov.hmrc"  %% "play-partials-play-30"        % "10.0.0",
+    "uk.gov.hmrc"  %% "play-frontend-hmrc-play-30"   % "10.5.0",
+    "uk.gov.hmrc" %% "http-caching-client-play-30"   % "12.1.0",
   )
 
   val test: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"       %% "bootstrap-test-play-30"  % "9.0.0"    % Test,
-    "org.mockito"       %% "mockito-scala-scalatest" % "1.17.31"  % Test,
+    "uk.gov.hmrc"       %% "bootstrap-test-play-30"  % "9.0.0"    % Test
   )
   val itDependencies: Seq[ModuleID] = Seq()
 }

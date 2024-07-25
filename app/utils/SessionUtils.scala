@@ -17,7 +17,7 @@
 package utils
 
 import config.ApplicationConfig
-import play.api.mvc.Request
+import play.api.mvc.{Request, RequestHeader}
 
 import scala.util.Random
 
@@ -31,7 +31,7 @@ object SessionUtils {
     randomChars + nanoTime
   }
 
-  def findServiceInRequest(request: Request[_])(implicit appConfig: ApplicationConfig): String = {
+  def findServiceInRequest(request: RequestHeader)(implicit appConfig: ApplicationConfig): String = {
     val requestParts = request.uri.split("/")
     val serviceList = appConfig.serviceList
 

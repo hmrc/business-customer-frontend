@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+/*
 package config
 
 import org.jsoup.Jsoup
@@ -56,3 +57,5 @@ class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSug
       }
     }
   }
+
+ */

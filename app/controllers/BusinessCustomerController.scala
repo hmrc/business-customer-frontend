@@ -19,6 +19,7 @@ package controllers
 import config.ApplicationConfig
 import connectors.DataCacheConnector
 import controllers.auth.AuthActions
+
 import javax.inject.Inject
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -27,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
                                            config: ApplicationConfig,
@@ -39,16 +40,9 @@ class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
 
   def clearCache(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      dataCacheConnector.clearCache.map { x =>
-        x.status match {
-          case OK | NO_CONTENT =>
-            Ok
-          case errorStatus =>
-            logger.error(s"session has not been cleared for $service. Status: $errorStatus, Error: ${x.body}")
-            InternalServerError
-        }
+      dataCacheConnector.clearCache
+        .flatMap(_ => Future.successful(Ok))
       }
-    }
   }
 
   def getReviewDetails(service: String): Action[AnyContent] = Action.async { implicit request =>

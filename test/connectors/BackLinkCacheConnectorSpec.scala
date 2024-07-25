@@ -27,7 +27,7 @@ import play.api.test.Helpers._
 import play.api.test.Injecting
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 import scala.concurrent.ExecutionContext
 
 import scala.concurrent.Future
@@ -37,7 +37,7 @@ class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test-sessionid")))
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
   val mockSessionCache: SessionCache = mock[SessionCache]
-  val mockHttpClient: DefaultHttpClient = mock[DefaultHttpClient]
+  val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
 
   val appConfig = inject[ApplicationConfig]
 
@@ -53,7 +53,7 @@ class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
         when(mockSessionCache.fetchAndGetEntry[BackLinkModel](any())(any(), any(), any()))
           .thenReturn(Future.successful(Some(backLink)))
 
-        when(mockHttpClient.GET[CacheMap](any(), any(), any())(any(), any(), any()))
+        when(mockHttpClient.get(any())(any()))
           .thenReturn(Future.successful(CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink")))))))
 
         val result = connector.fetchAndGetBackLink("testPageId")
@@ -69,8 +69,7 @@ class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
         when(mockSessionCache.cache[ReviewDetails](any(), any())(any(), any(), any()))
           .thenReturn(Future.successful(returnedCacheMap))
 
-        when(mockHttpClient.PUT[BackLinkModel, CacheMap]
-          (any(), any(), any())(any(), any(), any(), any()))
+        when(mockHttpClient.put(any())(any()))
           .thenReturn(Future.successful(CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink")))))))
 
         val result = connector.saveBackLink("testPageId", backLink.backLink)

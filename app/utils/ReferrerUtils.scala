@@ -17,13 +17,12 @@
 package utils
 
 import java.net.URLEncoder
-
 import config.ApplicationConfig
-import play.api.mvc.Request
+import play.api.mvc.{Request, RequestHeader}
 
 object ReferrerUtils {
 
-  def getReferrer()(implicit request: Request[_], appConfig: ApplicationConfig): String =
+  def getReferrer()(implicit request: RequestHeader, appConfig: ApplicationConfig): String =
     URLEncoder.encode(s"${appConfig.platformHost}${request.path}", "UTF-8")
 
 }

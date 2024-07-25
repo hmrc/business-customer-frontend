@@ -21,13 +21,14 @@ import config.ApplicationConfig
 import javax.inject.Inject
 import models.ReviewDetails
 import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataCacheConnector @Inject()(val http: DefaultHttpClient,
-                                   val config: ApplicationConfig) extends SessionCache {
+class DataCacheConnector @Inject()(val http: HttpClientV2,
+                                   config: ApplicationConfig)
+                                  (implicit ec: ExecutionContext) extends SessionCache {
 
   val baseUri: String = config.baseUri
   val defaultSource: String = config.defaultSource
@@ -44,6 +45,8 @@ class DataCacheConnector @Inject()(val http: DefaultHttpClient,
     }
   }
 
-  def clearCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = remove()
+  def clearCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] = remove()
+
+  def httpClientV2: HttpClientV2 = http
 
 }
