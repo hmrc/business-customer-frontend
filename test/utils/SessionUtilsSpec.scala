@@ -17,7 +17,9 @@
 package utils
 
 import config.ApplicationConfig
-import org.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito._
 import org.scalatestplus.play.PlaySpec
 import play.api.test.FakeRequest
 

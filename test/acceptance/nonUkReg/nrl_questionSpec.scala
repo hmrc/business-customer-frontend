@@ -19,7 +19,7 @@ package acceptance.nonUkReg
 import config.ApplicationConfig
 import forms.BusinessRegistrationForms._
 import org.jsoup.Jsoup
-import org.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite

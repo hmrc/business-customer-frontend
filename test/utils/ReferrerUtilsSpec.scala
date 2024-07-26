@@ -17,7 +17,7 @@
 package utils
 
 import config.ApplicationConfig
-import org.mockito.MockitoSugar.{mock, when}
+import org.mockito.Mockito._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.guice.GuiceOneAppPerTest

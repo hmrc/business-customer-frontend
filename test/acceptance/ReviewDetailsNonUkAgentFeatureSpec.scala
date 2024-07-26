@@ -19,7 +19,7 @@ package acceptance
 import config.ApplicationConfig
 import models.{Address, Identification, ReviewDetails}
 import org.jsoup.Jsoup
-import org.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}

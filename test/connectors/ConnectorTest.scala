@@ -23,7 +23,7 @@ import uk.gov.hmrc.http.client.{RequestBuilder, HttpClientV2}
 import uk.gov.hmrc.http.HeaderCarrier
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito._
 import java.net.URL
 import uk.gov.hmrc.http.HttpReads
 import scala.concurrent.ExecutionContext
