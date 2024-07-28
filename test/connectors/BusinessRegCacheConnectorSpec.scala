@@ -29,13 +29,16 @@ import play.api.test.Helpers._
 import play.api.test.Injecting
 import uk.gov.hmrc.connectors.ConnectorTest
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with ConnectorTest with MockitoSugar  with BeforeAndAfterEach with Injecting {
 
   val mockSessionCache = mock[SessionCache]
+
+  override implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
   case class FormData(name: String)
 
@@ -77,8 +80,9 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
           //when(mockHttpClient.GET[CacheMap](any(), any(), any())(any(), any(), any()))
           //  .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
+
           when(mockHttpClient.get(any())(any)).thenReturn(requestBuilder)
-          when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, CacheMap("test", Map(formIdNotExist -> Json.toJson(formData))).toString)))
+          when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
           await(TestDataCacheConnector.fetchAndGetCachedDetails[FormData](formIdNotExist)) must be(Some(formData))
         }
@@ -87,12 +91,8 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
     "save form data" when {
       "valid form data with a valid form id is passed" in {
-        //when(mockHttpClient.PUT[FormData, CacheMap]
-         // (any(), any(), any())(any(), any(), any(), any()))
-         // .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
-
         when(mockHttpClient.put(any())(any)).thenReturn(requestBuilder)
-        when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, CacheMap("test", Map(formIdNotExist -> Json.toJson(formData))).toString)))
+        when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
 
         await(TestDataCacheConnector.cacheDetails[FormData](formId, formData)) must be(formData)

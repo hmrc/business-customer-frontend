@@ -27,8 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 class DataCacheConnector @Inject()(val http: HttpClientV2,
-                                   config: ApplicationConfig)
-                                  (implicit ec: ExecutionContext) extends SessionCache {
+                                   config: ApplicationConfig) extends SessionCache {
 
   val baseUri: String = config.baseUri
   val defaultSource: String = config.defaultSource
@@ -37,7 +36,7 @@ class DataCacheConnector @Inject()(val http: HttpClientV2,
   val sourceId: String = "BC_Business_Details"
 
   def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
-    fetchAndGetEntry[ReviewDetails](sourceId)
+   fetchAndGetEntry[ReviewDetails](sourceId)
 
   def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] = {
     cache[ReviewDetails](sourceId, reviewDetails) map {

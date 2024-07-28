@@ -51,12 +51,6 @@ class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
     val connector: BackLinkCacheConnector = new BackLinkCacheConnector(mockHttpClient, appConfig)
   }
 
-  /*object TestBackLinkCacheConnector extends BackLinkCacheConnector(
-    mockHttpClient, appConfig
-  ) {
-    override val baseUri = "business-customer"
-  }*/
-
   override def beforeEach(): Unit = {
     reset(mockHttpClient)
   }
@@ -70,11 +64,8 @@ class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
         when(mockSessionCache.fetchAndGetEntry[BackLinkModel](any())(any(), any(), any()))
           .thenReturn(Future.successful(Some(backLink)))
 
-        //when(mockHttpClient.get(any())(any()))
-        //  .thenReturn(Future.successful(CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink")))))))
-
         when(mockHttpClient.get(any())(any)).thenReturn(requestBuilder)
-        when(requestBuilder.execute[HttpResponse](any(), any())).thenReturn(Future.successful(HttpResponse(OK, CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink"))))).toString)))
+        when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink")))))))
 
         val result = connector.fetchAndGetBackLink("testPageId")
         await(result) must be(backLink.backLink)
@@ -89,8 +80,8 @@ class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
         when(mockSessionCache.cache[ReviewDetails](any(), any())(any(), any(), any()))
           .thenReturn(Future.successful(returnedCacheMap))
 
-       when(mockHttpClient.put(any())(any)).thenReturn(requestBuilder)
-        when(requestBuilder.execute[HttpResponse](any(), any())).thenReturn(Future.successful(HttpResponse(OK, CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink"))))).toString)))
+        when(mockHttpClient.put(any())(any)).thenReturn(requestBuilder)
+        when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink")))))))
 
         val result = connector.saveBackLink("testPageId", backLink.backLink)
         await(result) must be(backLink.backLink)

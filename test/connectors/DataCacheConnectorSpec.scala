@@ -30,9 +30,12 @@ import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with ConnectorTest with Injecting {
+
+  override implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
   val mockSessionCache = mock[SessionCache]
   val mockDefaultHttpClient = mock[HttpClientV2]
@@ -55,15 +58,11 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with C
         val reviewDetails: ReviewDetails =
           ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
-        //when(mockDefaultHttpClient.GET[CacheMap](any(), any(), any())(any(), any(), any()))
-        //  .thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
+          when(mockHttpClient.get(any())(any)).thenReturn(requestBuilder)
+          when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
 
-        when(mockDefaultHttpClient.get(any())(any)).thenReturn(requestBuilder)
-        when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails))).toString)))
-
-
-        val result: Future[Option[ReviewDetails]] = TestDataCacheConnector.fetchAndGetBusinessDetailsForSession
-        await(result) must be(Some(reviewDetails))
+          val result: Future[Option[ReviewDetails]] = TestDataCacheConnector.fetchAndGetBusinessDetailsForSession
+          await(result) must be(Some(reviewDetails))
       }
     }
 
@@ -72,12 +71,8 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with C
       "save the fetched business details" in {
         val reviewDetails: ReviewDetails = ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
-        //when(mockDefaultHttpClient.PUT[ReviewDetails, CacheMap]
-        //  (any(), any(),any())(any(), any(), any(), any()))
-        //  .thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
-
-        when(mockDefaultHttpClient.put(any())(any)).thenReturn(requestBuilder)
-        when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails))).toString)))
+        when(mockHttpClient.put(any())(any)).thenReturn(requestBuilder)
+        when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
 
         val result: Future[Option[ReviewDetails]] = TestDataCacheConnector.saveReviewDetails(reviewDetails)
         await(result).get must be(reviewDetails)
@@ -87,16 +82,11 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with C
 
     "clearCache" must {
       "clear the cache for the session" in {
-        //when(mockDefaultHttpClient.DELETE[HttpResponse]
-          //(any(), any())
-          //(any(), any(), any())
-        //).thenReturn(Future.successful(HttpResponse(OK, "")))
-
-        when(mockDefaultHttpClient.delete(any())(any)).thenReturn(requestBuilder)
-        when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, "")))
+        when(mockHttpClient.delete(any())(any)).thenReturn(requestBuilder)
+        when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
 
         val result: Future[Unit] = TestDataCacheConnector.clearCache
-        await(result) must be(OK)
+        await(result) must be(())
       }
     }
   }

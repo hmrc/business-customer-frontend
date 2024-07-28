@@ -20,15 +20,18 @@ import config.ApplicationConfig
 import connectors.DataCacheConnector
 import controllers.auth.AuthActions
 
+import scala.util.{Success, Failure}
+
 import javax.inject.Inject
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
                                            config: ApplicationConfig,
@@ -40,9 +43,15 @@ class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
 
   def clearCache(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      dataCacheConnector.clearCache
-        .flatMap(_ => Future.successful(Ok))
+      dataCacheConnector.clearCache.map { _ =>
+        logger.info("session has been cleared")
+        Ok
+      }.recover {
+        case t: Throwable =>
+          logger.error(s"session has not been cleared for $service. Status: 500, Error: ${t.getMessage}")
+          InternalServerError
       }
+    }
   }
 
   def getReviewDetails(service: String): Action[AnyContent] = Action.async { implicit request =>

@@ -30,7 +30,7 @@ import play.api.mvc.{Headers, MessagesControllerComponents}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -90,7 +90,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       "clearCache gives error" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, ""))
+        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn(Future.failed(new InternalServerException("Something went wrong.")))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(INTERNAL_SERVER_ERROR)
       }
