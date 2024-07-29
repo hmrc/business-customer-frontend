@@ -60,7 +60,6 @@
     @govukRadios(
         Radios(
             fieldset = Some(Fieldset(
-                classes = "govuk-radios--inline",
                 legend = Some(Legend(
                     classes = "govuk-visually-hidden",
                     content = Text(messages("bc.nrl.header"))
@@ -75,7 +74,8 @@
                     content = Text(Messages("bc.radio.no.label")),
                     value = Some("false")
                 )
-            )
+            ),
+            classes = "govuk-radios--inline"
         ).withFormField(nrlQuestionForm("paysSA"))
     )
 
