@@ -42,7 +42,7 @@ class BusinessMatchingConnector @Inject()(val audit: Auditable,
             (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     val authLink = authContext.authLink
     val url = s"""${conf.businessMatching}/$authLink/$baseUri/$lookupUri/${lookupData.utr}/$userType"""
-    http.post(url"${url}").execute map { response =>
+    http.post(url"${url}").withBody(Json.toJson(lookupData)).execute map { response =>
       auditMatchCall(lookupData, userType, response, service)
       response.status match {
         case OK | NOT_FOUND =>

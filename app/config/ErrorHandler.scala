@@ -17,7 +17,6 @@
 package config
 
 import javax.inject.Inject
-import play.api.Configuration
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.Results.{NotFound, Ok}
 import play.api.mvc.{Request, RequestHeader, Result, Results}
@@ -45,7 +44,7 @@ class ErrorHandler @Inject()(val messagesApi: MessagesApi,
     Future.successful(templateError(Messages("bc.generic.error.title"),
       Messages("bc.generic.error.header"),
       Messages("bc.generic.error.message"),
-      "SessionUtils.findServiceInRequest(request)",
+      SessionUtils.findServiceInRequest(request),
       URLEncoder.encode(request.uri, "UTF8")))
   }
 
@@ -61,18 +60,9 @@ class ErrorHandler @Inject()(val messagesApi: MessagesApi,
 
   override def resolveError(rh: RequestHeader, ex: Throwable): Future[Result] = {
     ex.getMessage match {
-      case "Service name not found" => //Future.successful(NotFound(notFoundTemplate(Request.apply(rh, ""))))
-        notFoundTemplate(Request.apply(rh, "")).map(NotFound(_))
+      case "Service name not found" => notFoundTemplate(Request.apply(rh, "")).map(NotFound(_))
 
       case _ => super.resolveError(rh, ex)
     }
   }
-
-  /*def resolveError(rh: RequestHeader, ex: Throwable): Future[Result] =
-    ex match {
-      case ApplicationException(result, _) => Future.successful(result)
-      case _ =>
-        internalServerErrorTemplate(rh)
-          .map(html => InternalServerError(html).withHeaders(CACHE_CONTROL -> "no-cache"))
-    }*/
 }
