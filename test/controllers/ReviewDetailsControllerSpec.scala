@@ -151,7 +151,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "show error page if we have no review details with no exception" in {
         businessDetailsWithAuthorisedUserNotFound { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must be("Sorry, we’re experiencing technical difficulties")
+          document.select("h1").text must be("Sorry, there is a problem with the service")
         }
       }
 
