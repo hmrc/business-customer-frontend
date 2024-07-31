@@ -20,18 +20,15 @@ import config.ApplicationConfig
 import connectors.DataCacheConnector
 import controllers.auth.AuthActions
 
-import scala.util.{Success, Failure}
-
 import javax.inject.Inject
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.concurrent.ExecutionContext
 
 class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
                                            config: ApplicationConfig,

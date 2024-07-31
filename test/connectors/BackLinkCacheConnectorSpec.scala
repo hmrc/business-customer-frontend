@@ -16,8 +16,6 @@
 
 package connectors
 
-import audit.Auditable
-import builders.AuthBuilder
 import config.ApplicationConfig
 import models._
 import org.mockito.ArgumentMatchers.any
@@ -25,14 +23,11 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
+import play.api.libs.json.Json
 import uk.gov.hmrc.connectors.ConnectorTest
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.play.audit.DefaultAuditConnector
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}

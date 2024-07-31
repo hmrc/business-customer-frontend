@@ -17,7 +17,7 @@
 package utils
 
 import config.ApplicationConfig
-import play.api.mvc.{Request, RequestHeader}
+import play.api.mvc.RequestHeader
 
 import scala.util.Random
 

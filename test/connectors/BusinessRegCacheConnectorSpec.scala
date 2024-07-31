@@ -25,7 +25,6 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.MessagesControllerComponents
-import play.api.test.Helpers._
 import play.api.test.Injecting
 import uk.gov.hmrc.connectors.ConnectorTest
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}

@@ -34,7 +34,6 @@ import services.AgentRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import views.html.{global_error, review_details, review_details_non_uk_agent}
 
 import java.util.UUID

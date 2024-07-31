@@ -23,7 +23,6 @@ import config.ApplicationConfig
 import models.{MatchBusinessData, StandardAuthRetrievals}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec

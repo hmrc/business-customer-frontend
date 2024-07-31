@@ -24,7 +24,7 @@ import metrics.{MetricsEnum, MetricsService}
 import models._
 import play.api.Logging
 import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.model.EventTypes
 import uk.gov.hmrc.http.client.HttpClientV2

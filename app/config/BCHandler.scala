@@ -18,8 +18,8 @@ package config
 
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.Results.{NotFound, Ok}
-import play.api.mvc.{Request, RequestHeader, Result, Results}
+import play.api.mvc.Results.NotFound
+import play.api.mvc.{Request, RequestHeader, Result}
 import play.twirl.api.Html
 
 import scala.concurrent.Future

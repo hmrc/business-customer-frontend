@@ -24,16 +24,14 @@ import models._
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test.Injecting
 import uk.gov.hmrc.connectors.ConnectorTest
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.client.HttpClientV2
 import utils.GovernmentGatewayConstants
 
 import java.util.UUID
@@ -80,13 +78,8 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
         when(mockMetrics.startTimer(ArgumentMatchers.any()))
             .thenReturn(mockContext)
 
-        //when(mockHttpClient.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //  (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).
-        //  thenReturn(Future.successful(HttpResponse(CREATED, successfulSubscribeJson.toString)))
-
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(CREATED, successfulSubscribeJson.toString)))
-
 
         val result = connector.enrol(request, groupId, arn)
         val enrolResponse = await(result)
@@ -94,18 +87,15 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
       }
 
       "return status is anything, for bad data sent for enrol" in new Setup {
-       // when(mockHttpClient.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(
-       //   ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        //  .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, subscribeFailureResponseJson.toString)))
-        when(mockMetrics.startTimer(ArgumentMatchers.any()))
-          .thenReturn(mockContext)
+          when(mockMetrics.startTimer(ArgumentMatchers.any()))
+            .thenReturn(mockContext)
 
-        when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
-        when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, subscribeFailureResponseJson.toString)))
+          when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
+          when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, subscribeFailureResponseJson.toString)))
 
-        val result = connector.enrol(request, groupId, arn)
-        val enrolResponse = await(result)
-        enrolResponse.status must not be(CREATED)
+          val result = connector.enrol(request, groupId, arn)
+          val enrolResponse = await(result)
+          enrolResponse.status must not be(CREATED)
       }
 
     }
