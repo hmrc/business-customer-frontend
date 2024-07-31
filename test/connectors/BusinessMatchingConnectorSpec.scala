@@ -131,9 +131,6 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     "for a successful match, return business details"  in new Setup {
       val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      //when(mockHttp.POST[MatchBusinessData, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(),
-      //  ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-       // .thenReturn(Future.successful(HttpResponse(OK, matchSuccessResponse.toString)))
 
       when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
       when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, matchSuccessResponse.toString)))
@@ -147,9 +144,6 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val responseJson = HttpResponse(OK, matchSuccessResponseInvalidJson.toString)
-      //when(mockHttp.POST[MatchBusinessData, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(),
-      //  ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-       // .thenReturn(Future.successful(responseJson))
 
       when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
       when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(responseJson))
@@ -162,9 +156,6 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     "for unsuccessful match, return error message"  in new Setup {
       val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      //when(mockHttp.POST[MatchBusinessData, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(),
-      //  ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-      //  .thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
 
       when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
       when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, matchFailureResponse.toString)))
@@ -176,9 +167,6 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     "throw service unavailable exception, if service is unavailable"  in new Setup {
       val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      //when(mockHttp.POST[MatchBusinessData, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(),
-      //  ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-      //  .thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, "")))
 
       when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
       when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, "")))
@@ -192,9 +180,6 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     "throw bad request exception, if bad request is passed"  in new Setup {
       val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      //when(mockHttp.POST[MatchBusinessData, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(),
-      //  ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-      //  .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
 
       when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
       when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
@@ -208,9 +193,6 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     "throw internal server error, if Internal server error status is returned"  in new Setup {
       val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      //when(mockHttp.POST[MatchBusinessData, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(),
-      //  ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-      //  .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
       when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
       when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
@@ -224,9 +206,6 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     "throw runtime exception, unknown status is returned"  in new Setup {
       val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      //when(mockHttp.POST[MatchBusinessData, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(),
-      //  ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-      //  .thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, "")))
 
       when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
       when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, "")))

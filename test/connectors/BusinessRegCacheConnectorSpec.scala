@@ -76,10 +76,6 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
       "return Some" when {
         "formId of the cached form does exist for defined data type" in {
-          //when(mockHttpClient.GET[CacheMap](any(), any(), any())(any(), any(), any()))
-          //  .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
-
-
           when(mockHttpClient.get(any())(any)).thenReturn(requestBuilder)
           when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
@@ -92,7 +88,6 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       "valid form data with a valid form id is passed" in {
         when(mockHttpClient.put(any())(any)).thenReturn(requestBuilder)
         when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
-
 
         await(TestDataCacheConnector.cacheDetails[FormData](formId, formData)) must be(formData)
       }
