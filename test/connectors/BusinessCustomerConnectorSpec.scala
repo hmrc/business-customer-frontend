@@ -70,12 +70,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         val knownFacts: KnownFactsForService = KnownFactsForService(List(KnownFact("type", "value")))
         val successResponse: JsValue = Json.toJson(knownFacts)
 
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-       //   (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-       // ).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
-
-
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
@@ -89,13 +83,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //  (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, matchFailureResponse.toString)))
-
-        //val requestBuilder: RequestBuilder = mock[RequestBuilder]
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, matchFailureResponse.toString)))
@@ -134,10 +121,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         val successResponse: JsValue = Json.toJson(businessResponseData)
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //  (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
@@ -152,10 +135,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         val successResponse: JsValue = Json.toJson(businessResponseData)
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //  (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        // ).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
@@ -170,10 +149,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         val successResponse: JsValue = Json.toJson(businessResponseData)
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-       //   (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
@@ -186,10 +161,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //    (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
@@ -206,10 +177,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         }
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //  (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
@@ -224,9 +191,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-       //when(mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-       //   (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-       // ).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
@@ -267,10 +231,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
       "for successful save, return Response as Json" in new Setup {
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //    (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(successResponse))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(successResponse))
@@ -282,10 +242,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       "for successful save with non-uk address, return Response as Json" in new Setup {
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //  (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(successResponse))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(successResponse))
@@ -297,10 +253,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       "for successful registration of NON-UK based client by an agent, return Response as Json" in new Setup {
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //  (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(successResponse))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(successResponse))
@@ -313,9 +265,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //  (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
@@ -329,10 +278,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //  (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
@@ -346,10 +291,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        //when(
-        //  mockHttp.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //  (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        //).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
 
         when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
         when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
