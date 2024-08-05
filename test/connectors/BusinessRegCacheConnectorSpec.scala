@@ -18,23 +18,26 @@ package connectors
 
 import config.ApplicationConfig
 import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar
+import org.mockito.Mockito._
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.MessagesControllerComponents
-import play.api.test.Helpers._
 import play.api.test.Injecting
+import uk.gov.hmrc.connectors.ConnectorTest
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar  with BeforeAndAfterEach with Injecting {
+class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with ConnectorTest with MockitoSugar  with BeforeAndAfterEach with Injecting {
 
   val mockSessionCache = mock[SessionCache]
+
+  override implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
   case class FormData(name: String)
 
@@ -58,8 +61,6 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   val appConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
-  val mockHttpClient = mock[DefaultHttpClient]
-
   object TestDataCacheConnector extends BusinessRegCacheConnector(
     mockHttpClient,
     appConfig
@@ -67,7 +68,6 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     override val sourceId: String = "BC_NonUK_Business_Details"
   }
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test-sessionid")))
   implicit val ec: ExecutionContext = mcc.executionContext
 
   "BusinessRegCacheConnector" must {
@@ -76,8 +76,8 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
       "return Some" when {
         "formId of the cached form does exist for defined data type" in {
-          when(mockHttpClient.GET[CacheMap](any(), any(), any())(any(), any(), any()))
-            .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
+          when(mockHttpClient.get(any())(any)).thenReturn(requestBuilder)
+          when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
           await(TestDataCacheConnector.fetchAndGetCachedDetails[FormData](formIdNotExist)) must be(Some(formData))
         }
@@ -86,9 +86,8 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
     "save form data" when {
       "valid form data with a valid form id is passed" in {
-        when(mockHttpClient.PUT[FormData, CacheMap]
-          (any(), any(), any())(any(), any(), any(), any()))
-          .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
+        when(mockHttpClient.put(any())(any)).thenReturn(requestBuilder)
+        when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
         await(TestDataCacheConnector.cacheDetails[FormData](formId, formData)) must be(formData)
       }

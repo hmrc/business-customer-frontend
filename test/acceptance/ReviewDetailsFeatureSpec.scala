@@ -19,7 +19,7 @@ package acceptance
 import config.ApplicationConfig
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
-import org.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite

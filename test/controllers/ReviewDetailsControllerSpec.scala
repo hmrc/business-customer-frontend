@@ -20,7 +20,9 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
-import org.mockito.{ArgumentMatchers, MockitoSugar}
+import org.mockito.ArgumentMatchers
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -30,8 +32,8 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.AgentRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import views.html.{global_error, review_details, review_details_non_uk_agent}
 
 import java.util.UUID
@@ -40,12 +42,14 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+
   val service = "ATED"
 
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockAgentRegistrationService: AgentRegistrationService = mock[AgentRegistrationService]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
-  val mockHttpClient: DefaultHttpClient = mock[DefaultHttpClient]
+  val mockHttpClient: HttpClientV2 = inject[HttpClientV2]
   val injectedViewInstanceNonUkAgent: review_details_non_uk_agent = inject[views.html.review_details_non_uk_agent]
   val injectedViewInstanceReviewDetails: review_details = inject[views.html.review_details]
   val injectedViewInstanceError: global_error = inject[views.html.global_error]
@@ -146,7 +150,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "show error page if we have no review details with no exception" in {
         businessDetailsWithAuthorisedUserNotFound { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must be("Sorry, we’re experiencing technical difficulties")
+          document.select("h1").text must be("Sorry, there is a problem with the service")
         }
       }
 

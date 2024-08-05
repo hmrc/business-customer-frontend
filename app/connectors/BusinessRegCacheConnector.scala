@@ -22,11 +22,11 @@ import javax.inject.Inject
 import play.api.libs.json.Format
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegCacheConnector @Inject()(val http: DefaultHttpClient,
+class BusinessRegCacheConnector @Inject()(val http: HttpClientV2,
                                           config: ApplicationConfig) extends SessionCache {
 
   val baseUri: String = config.baseUri
@@ -41,4 +41,6 @@ class BusinessRegCacheConnector @Inject()(val http: DefaultHttpClient,
   def cacheDetails[T](formId: String, formData: T)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[T] = {
     cache[T](formId, formData).map(_ => formData)
   }
+
+  def httpClientV2: HttpClientV2 = http
 }

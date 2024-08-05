@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,54 +16,53 @@
 
 package config
 
-import java.net.URLEncoder
-
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.Results.NotFound
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.twirl.api.Html
+
+import scala.concurrent.Future
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import utils.SessionUtils
 
-class BCHandlerImpl @Inject()(val messagesApi: MessagesApi,
-                              val templateError: views.html.global_error,
-                              config: ApplicationConfig) extends BCHandler {
-  lazy val appConfig: ApplicationConfig = config
-}
+import java.net.URLEncoder
 
-trait BCHandler extends FrontendErrorHandler with I18nSupport {
-  implicit val appConfig: ApplicationConfig
-  implicit val templateError: views.html.global_error
+class BCHandler @Inject()(val messagesApi: MessagesApi,
+                             val templateError: views.html.global_error)
+                            (implicit val configuration: ApplicationConfig, val ec: scala.concurrent.ExecutionContext) extends FrontendErrorHandler with I18nSupport {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = {
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)
+                                    (implicit request: RequestHeader): Future[Html] = {
     val service = SessionUtils.findServiceInRequest(request)
 
-    templateError(pageTitle, heading, message, service, URLEncoder.encode(request.uri, "UTF8"))
+
+    Future.successful(templateError(pageTitle, heading, message, service, URLEncoder.encode(request.uri, "UTF8")))
   }
 
-  override def internalServerErrorTemplate(implicit request: Request[_]): Html = {
-    templateError(
-      Messages("bc.generic.error.title"),
+  override def internalServerErrorTemplate(implicit request: RequestHeader): Future[Html] = {
+    Future.successful(templateError(Messages("bc.generic.error.title"),
       Messages("bc.generic.error.header"),
       Messages("bc.generic.error.message"),
       SessionUtils.findServiceInRequest(request),
-      URLEncoder.encode(request.uri, "UTF8")
-  )
+      URLEncoder.encode(request.uri, "UTF8")))
   }
 
-  override def notFoundTemplate(implicit request: Request[_]): Html = {
-    templateError(
+  override def notFoundTemplate(implicit request: RequestHeader): Future[Html] = {
+    Future.successful(templateError(
       Messages("bc.notFound.error.title"),
       Messages("bc.notFound.error.header"),
       Messages("bc.notFound.error.message"),
       SessionUtils.findServiceInRequest(request),
-      URLEncoder.encode(request.uri, "UTF8")
+      URLEncoder.encode(request.uri, "UTF8"))
     )
   }
 
-  override def resolveError(rh: RequestHeader, ex: Throwable): Result = ex.getMessage match {
-    case "Service name not found" => NotFound(notFoundTemplate(Request.apply(rh, "")))
-    case _ => super.resolveError(rh, ex)
+  override def resolveError(rh: RequestHeader, ex: Throwable): Future[Result] = {
+    ex.getMessage match {
+      case "Service name not found" => notFoundTemplate(Request.apply(rh, "")).map(NotFound(_))
+
+      case _ => super.resolveError(rh, ex)
+    }
   }
 }

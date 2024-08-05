@@ -22,7 +22,9 @@ import config.ApplicationConfig
 import connectors.BackLinkCacheConnector
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
-import org.mockito.{ArgumentMatchers, MockitoSugar}
+import org.mockito.ArgumentMatchers
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc._

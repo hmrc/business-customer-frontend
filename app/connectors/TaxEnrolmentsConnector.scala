@@ -24,10 +24,10 @@ import metrics.{MetricsEnum, MetricsService}
 import models._
 import play.api.Logging
 import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.model.EventTypes
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.http.client.HttpClientV2
 import utils.GovernmentGatewayConstants
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
                                        implicit val config: ApplicationConfig,
                                        val audit: Auditable,
-                                       val http: DefaultHttpClient) extends RawResponseReads with Logging {
+                                       val http: HttpClientV2) extends RawResponseReads with Logging {
 
   val enrolmentUrl = s"${config.taxEnrolments}/tax-enrolments"
 
@@ -45,7 +45,7 @@ class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
     val jsonData = Json.toJson(enrolRequest)
 
     val timerContext = metrics.startTimer(MetricsEnum.EMAC_AGENT_ENROL)
-    http.POST[JsValue, HttpResponse](postUrl, jsonData, Seq.empty) map { response =>
+    http.post(url"${postUrl}").withBody(jsonData).execute map { response =>
       timerContext.stop()
       auditEnrolCall(postUrl, enrolRequest, response)
       processResponse(response, postUrl, enrolRequest)
