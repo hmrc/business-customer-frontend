@@ -17,20 +17,15 @@
 package connectors
 
 import audit.Auditable
-import com.codahale.metrics.Timer
 import config.ApplicationConfig
-import metrics.MetricsService
 import models._
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.any
-import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.api.test.Injecting
-import uk.gov.hmrc.connectors.ConnectorTest
 import uk.gov.hmrc.http._
 import utils.GovernmentGatewayConstants
 
@@ -38,25 +33,17 @@ import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with ConnectorTest with BeforeAndAfterEach with Injecting {
-  val mockMetrics =  mock[MetricsService]
+class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
   val mockAuditable =  app.injector.instanceOf[Auditable]
   val appConfig =  app.injector.instanceOf[ApplicationConfig]
 
-  val mockContext: Timer.Context = mock[Timer.Context]
-
-  class Setup {
+  class Setup extends ConnectorTest1 {
     val connector: TaxEnrolmentsConnector = new TaxEnrolmentsConnector(
       mockMetrics,
       appConfig,
       mockAuditable,
       mockHttpClient
     )
-  }
-
-  override def beforeEach(): Unit = {
-    reset(mockMetrics)
-    reset(mockHttpClient)
   }
 
   lazy val groupId = "group-id"
@@ -77,9 +64,8 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
       "works for a user" in new Setup {
         when(mockMetrics.startTimer(ArgumentMatchers.any()))
             .thenReturn(mockContext)
-
-        when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
-        when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(CREATED, successfulSubscribeJson.toString)))
+        val inputBody: JsValue = Json.toJson(request)
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(CREATED, successfulSubscribeJson.toString)))
 
         val result = connector.enrol(request, groupId, arn)
         val enrolResponse = await(result)
@@ -89,9 +75,8 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
       "return status is anything, for bad data sent for enrol" in new Setup {
           when(mockMetrics.startTimer(ArgumentMatchers.any()))
             .thenReturn(mockContext)
-
-          when(mockHttpClient.post(any())(any)).thenReturn(requestBuilder)
-          when(requestBuilder.execute[HttpResponse](any, any)).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, subscribeFailureResponseJson.toString)))
+          val inputBody: JsValue = Json.toJson(request)
+          when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, subscribeFailureResponseJson.toString)))
 
           val result = connector.enrol(request, groupId, arn)
           val enrolResponse = await(result)

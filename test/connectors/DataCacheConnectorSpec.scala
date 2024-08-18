@@ -18,35 +18,27 @@ package connectors
 
 import config.ApplicationConfig
 import models.{Address, ReviewDetails}
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
-import play.api.test.Injecting
-import uk.gov.hmrc.connectors.ConnectorTest
-import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
-import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with ConnectorTest with Injecting {
+class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  override implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
-  val mockSessionCache = mock[SessionCache]
-  val mockDefaultHttpClient = mock[HttpClientV2]
 
-  val appConfig = inject[ApplicationConfig]
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
 
-  object TestDataCacheConnector extends DataCacheConnector(
-    mockHttpClient,
-    appConfig
-  ) {
-    override val sourceId: String = "BC_Business_Details"
+
+  class Setup extends ConnectorTest1 {
+    val connector: DataCacheConnector = new DataCacheConnector(mockHttpClient, appConfig)
   }
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -54,38 +46,35 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with C
   "DataCacheConnector" must {
 
     "fetchAndGetBusinessDetailsForSession" must {
-      "fetch saved BusinessDetails from SessionCache" in {
+      "fetch saved BusinessDetails from SessionCache" in new Setup {
         val reviewDetails: ReviewDetails =
           ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+        when(executeGet[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
 
-          when(mockHttpClient.get(any())(any)).thenReturn(requestBuilder)
-          when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
-
-          val result: Future[Option[ReviewDetails]] = TestDataCacheConnector.fetchAndGetBusinessDetailsForSession
+        val result: Future[Option[ReviewDetails]] = connector.fetchAndGetBusinessDetailsForSession
           await(result) must be(Some(reviewDetails))
       }
     }
 
     "saveAndReturnBusinessDetails" must {
 
-      "save the fetched business details" in {
+      "save the fetched business details" in new Setup {
         val reviewDetails: ReviewDetails = ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+        val inputBody: JsValue = Json.toJson(reviewDetails)
 
-        when(mockHttpClient.put(any())(any)).thenReturn(requestBuilder)
-        when(requestBuilderExecute[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
+        when(executePut[CacheMap](inputBody)).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
 
-        val result: Future[Option[ReviewDetails]] = TestDataCacheConnector.saveReviewDetails(reviewDetails)
+        val result: Future[Option[ReviewDetails]] = connector.saveReviewDetails(reviewDetails)
         await(result).get must be(reviewDetails)
       }
 
     }
 
     "clearCache" must {
-      "clear the cache for the session" in {
-        when(mockHttpClient.delete(any())(any)).thenReturn(requestBuilder)
-        when(requestBuilderExecute[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
+      "clear the cache for the session" in new Setup{
+        when(executeDelete[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
 
-        val result: Future[Unit] = TestDataCacheConnector.clearCache
+        val result: Future[Unit] = connector.clearCache
         await(result) must be(())
       }
     }
