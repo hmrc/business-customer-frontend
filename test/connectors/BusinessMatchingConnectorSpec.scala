@@ -41,7 +41,7 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   implicit val user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "userName")
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  class Setup extends ConnectorTest1 {
+  class Setup extends ConnectorTest {
     val connector: BusinessMatchingConnector = new BusinessMatchingConnector (
       mockAuditable,
       mockHttpClient,

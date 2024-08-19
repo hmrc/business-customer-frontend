@@ -50,7 +50,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   val appConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
-  class Setup extends ConnectorTest1 {
+  class Setup extends ConnectorTest {
     val connector: BusinessRegCacheConnector = new BusinessRegCacheConnector(mockHttpClient, appConfig)
   }
 

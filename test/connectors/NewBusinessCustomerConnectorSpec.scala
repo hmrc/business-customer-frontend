@@ -31,7 +31,7 @@ import uk.gov.hmrc.http._
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with ConnectorTest1  with Injecting {
+class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with ConnectorTest  with Injecting {
 
   val mockAuditable = mock[Auditable]
   val appConfig = inject[ApplicationConfig]

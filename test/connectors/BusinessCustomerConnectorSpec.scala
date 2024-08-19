@@ -43,7 +43,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   val mockAuditConnector: DefaultAuditConnector = app.injector.instanceOf[DefaultAuditConnector]
   val mockAuditable: Auditable = app.injector.instanceOf[Auditable]
 
-  class Setup extends ConnectorTest1 {
+  class Setup extends ConnectorTest {
     val connector = new BusinessCustomerConnector(
       mockHttpClient,
       mockAuditable,

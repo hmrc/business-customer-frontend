@@ -37,7 +37,7 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
   val mockAuditable =  app.injector.instanceOf[Auditable]
   val appConfig =  app.injector.instanceOf[ApplicationConfig]
 
-  class Setup extends ConnectorTest1 {
+  class Setup extends ConnectorTest {
     val connector: TaxEnrolmentsConnector = new TaxEnrolmentsConnector(
       mockMetrics,
       appConfig,

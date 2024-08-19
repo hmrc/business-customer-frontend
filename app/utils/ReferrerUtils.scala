@@ -23,7 +23,6 @@ import play.api.mvc.RequestHeader
 object ReferrerUtils {
 
   def getReferrer()(implicit request: RequestHeader, appConfig: ApplicationConfig): String = {
-    val platFormHost = if(appConfig.platformHost != null) appConfig.platformHost else ""
-    URLEncoder.encode(s"${platFormHost}${request.path}", "UTF-8")
+    URLEncoder.encode(s"${appConfig.platformHost}${request.path}", "UTF-8")
   }
 }

@@ -37,7 +37,7 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
   val appConfig = app.injector.instanceOf[ApplicationConfig]
 
 
-  class Setup extends ConnectorTest1 {
+  class Setup extends ConnectorTest {
     val connector: DataCacheConnector = new DataCacheConnector(mockHttpClient, appConfig)
   }
 

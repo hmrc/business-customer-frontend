@@ -36,7 +36,9 @@ class ReferrerUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerTe
       implicit val request: MessagesRequest[AnyContent] =
         new MessagesRequest[AnyContent](FakeRequest("GET", "/a-uri"), inject[MessagesApi])
 
-      getReferrer() mustBe "%2Fa-uri"
+      when(appConfig.platformHost).thenReturn("http://platformHost")
+
+      getReferrer() mustBe "http%3A%2F%2FplatformHost%2Fa-uri"
     }
 
 
