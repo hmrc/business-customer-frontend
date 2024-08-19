@@ -16,7 +16,6 @@
 
 package connectors
 
-import audit.Auditable
 import config.ApplicationConfig
 import models._
 import org.mockito.Mockito._
@@ -34,7 +33,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
-  val mockAuditable =  app.injector.instanceOf[Auditable]
   val appConfig =  app.injector.instanceOf[ApplicationConfig]
 
   class Setup extends ConnectorTest {

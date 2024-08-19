@@ -16,7 +16,6 @@
 
 package connectors
 
-import audit.Auditable
 import builders.AuthBuilder
 import config.ApplicationConfig
 import models._
@@ -41,7 +40,6 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
   val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   val mockAuditConnector: DefaultAuditConnector = app.injector.instanceOf[DefaultAuditConnector]
-  val mockAuditable: Auditable = app.injector.instanceOf[Auditable]
 
   class Setup extends ConnectorTest {
     val connector = new BusinessCustomerConnector(

@@ -16,8 +16,6 @@
 
 package connectors
 
-
-import audit.Auditable
 import builders.AuthBuilder
 import config.ApplicationConfig
 import models.{MatchBusinessData, StandardAuthRetrievals}
@@ -36,7 +34,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
 
   val mockAudit: DefaultAuditConnector = app.injector.instanceOf[DefaultAuditConnector]
-  val mockAuditable: Auditable = app.injector.instanceOf[Auditable]
   val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   implicit val user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "userName")
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global

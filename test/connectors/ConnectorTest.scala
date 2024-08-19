@@ -33,6 +33,7 @@ package connectors
  */
 
 
+import audit.Auditable
 import com.codahale.metrics.Timer
 import metrics.MetricsService
 import org.mockito.ArgumentMatchers
@@ -53,6 +54,7 @@ trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSu
   val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
   val mockMetrics =  mock[MetricsService]
   val mockContext: Timer.Context = mock[Timer.Context]
+  val mockAuditable = mock[Auditable]
 
   def executePostNoBody[A] = {
     val requestBuilder: RequestBuilder = mock[RequestBuilder]
