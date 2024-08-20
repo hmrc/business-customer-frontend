@@ -16,26 +16,29 @@
 
 package config
 
+import java.net.URLEncoder
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.Results.NotFound
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.twirl.api.Html
-
-import scala.concurrent.Future
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import utils.SessionUtils
+import scala.concurrent.{ExecutionContext, Future}
 
-import java.net.URLEncoder
+class BCHandlerImpl @Inject()(val messagesApi: MessagesApi,
+                              val templateError: views.html.global_error,
+                              config: ApplicationConfig)(implicit val ec: ExecutionContext) extends BCHandler {
+  lazy val appConfig: ApplicationConfig = config
+}
 
-class BCHandler @Inject()(val messagesApi: MessagesApi,
-                             val templateError: views.html.global_error)
-                            (implicit val configuration: ApplicationConfig, val ec: scala.concurrent.ExecutionContext) extends FrontendErrorHandler with I18nSupport {
+trait BCHandler extends FrontendErrorHandler with I18nSupport {
+  implicit val appConfig: ApplicationConfig
+  implicit val templateError: views.html.global_error
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)
-                                    (implicit request: RequestHeader): Future[Html] = {
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader): Future[Html] = {
     val service = SessionUtils.findServiceInRequest(request)
-
 
     Future.successful(templateError(pageTitle, heading, message, service, URLEncoder.encode(request.uri, "UTF8")))
   }

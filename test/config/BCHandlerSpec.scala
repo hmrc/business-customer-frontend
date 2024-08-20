@@ -24,7 +24,6 @@ import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import views.html.global_error
-
 import scala.concurrent.ExecutionContext
 
 class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
@@ -38,9 +37,8 @@ class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSug
 
     "retrieve the correct messages" in {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val errorHandler = new BCHandler(mcc.messagesApi,injectedViewInstanceError)( appConfig, ec)
-
-      errorHandler.internalServerErrorTemplate.map { result =>
+      val errorHandler = new BCHandlerImpl(mcc.messagesApi,injectedViewInstanceError, appConfig)
+      errorHandler.internalServerErrorTemplate.map{result =>
         val document = Jsoup.parse(contentAsString(result))
 
         document.title() must be("Sorry, there is a problem with the service - GOV.UK")
@@ -49,18 +47,19 @@ class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSug
       }
     }
   }
-  "calling onClientError for a page not found" must {
-      "retrieve the correct error messages" in {
-        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-        val errorHandler = new BCHandler(mcc.messagesApi, injectedViewInstanceError)(appConfig, ec)
-        errorHandler.notFoundTemplate.map { result =>
-          val document = Jsoup.parse(contentAsString(result))
 
-          "render page in English" in {
-            document.title must be("Page not found - 404 - GOV.UK")
-          }
+  "calling onClientError for a page not found" must {
+    "retrieve the correct messages" in {
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      val errorHandler = new BCHandlerImpl(mcc.messagesApi,injectedViewInstanceError, appConfig)
+      errorHandler.notFoundTemplate.map{result =>
+        val document = Jsoup.parse(contentAsString(result))
+
+        "render page in English" in {
+          document.title must be("Page not found - 404 - GOV.UK")
         }
       }
     }
   }
+}
 

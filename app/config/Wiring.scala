@@ -31,6 +31,7 @@ class Wiring extends Module {
 
   private def bindControllers: Seq[Binding[_]] = Seq(
     bind[ApplicationConfig].toSelf.eagerly(),
+    bind[BCHandler].to(classOf[BCHandlerImpl]),
     bind[AuthConnector].to(classOf[DefaultAuthConnector]),
     bind[AgentRegisterNonUKClientController].toSelf,
     bind[BusinessRegController].toSelf,
