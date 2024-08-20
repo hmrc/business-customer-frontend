@@ -16,45 +16,31 @@
 
 package connectors
 
-import audit.Auditable
 import builders.AuthBuilder
 import config.ApplicationConfig
 import models._
-import org.mockito.{ArgumentMatchers, MockitoSugar}
-import org.scalatest.BeforeAndAfterEach
+import org.mockito.Mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
-import play.api.test.Injecting
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
+class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  val mockHttpClient = mock[DefaultHttpClient]
-  val mockAuditable = mock[Auditable]
-  val appConfig = inject[ApplicationConfig]
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  object TestNewBusinessCustomerConnector extends NewBusinessCustomerConnector(
-    appConfig,
-    mockAuditable,
-    mockHttpClient
-  ) {
-    override val baseUri = "business-customer"
-    override val registerUri = "register"
-    override val updateRegistrationDetailsURI = "update"
-    override val knownFactsUri = "known-facts"
+  implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+
+  class Setup extends ConnectorTest {
+    val connector: NewBusinessCustomerConnector = new NewBusinessCustomerConnector(appConfig, mockAuditable, mockHttpClient)
   }
 
-  override def beforeEach(): Unit = {
-    reset(mockHttpClient)
-  }
 
   implicit val user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
   val service = "ATED"
@@ -68,26 +54,24 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSu
     val knownFacts = Verifiers(List(Verifier("type", "value")))
 
     "addKnownFacts" must {
-      "for successful knownFacts, return Response as HttpResponse" in {
+      "for successful knownFacts, return Response as HttpResponse" in new Setup {
         val successResponse = Json.toJson(knownFacts)
+        val inputBody: JsValue = Json.toJson(knownFacts)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
-        val result = TestNewBusinessCustomerConnector.addKnownFacts(knownFacts, "JARN123456")
+        val result = connector.addKnownFacts(knownFacts, "JARN123456")
         await(result).status must be(OK)
         await(result).json must be(successResponse)
       }
 
-      "for knownfacts Internal Server error, allow this through" in {
+      "for knownfacts Internal Server error, allow this through" in new Setup {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
+        val inputBody: JsValue = Json.toJson(knownFacts)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, matchFailureResponse.toString)))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, matchFailureResponse.toString)))
 
-        val result = TestNewBusinessCustomerConnector.addKnownFacts(knownFacts, "JARN123456")
+        val result = connector.addKnownFacts(knownFacts, "JARN123456")
         await(result).status must be(INTERNAL_SERVER_ERROR)
         await(result).json must be(matchFailureResponse)
       }
@@ -115,77 +99,73 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSu
         contactDetails = EtmpContactDetails()
       )
 
-      "for successful save, return Response as Json" in {
+      "for successful save, return Response as Json" in new Setup {
+        val businessResponseData = BusinessRegistrationResponse(processingDate = "2015-01-01", sapNumber = "SAP123123", safeId = "SAFE123123",
+          agentReferenceNumber = Some("AREF123123"))
+        val successResponse = Json.toJson(businessResponseData)
+        val inputBody: JsValue = Json.toJson(businessRequestData)
+
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
+
+        val result = connector.register(businessRequestData, service)
+        await(result) must be(businessResponseData)
+      }
+
+      "for successful save with non-uk address, return Response as Json" in new Setup {
+        val businessResponseData = BusinessRegistrationResponse(processingDate = "2015-01-01", sapNumber = "SAP123123", safeId = "SAFE123123",
+          agentReferenceNumber = Some("AREF123123"))
+        val successResponse = Json.toJson(businessResponseData)
+        val inputBody: JsValue = Json.toJson(businessRequestDataNonUK)
+
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
+
+        val result = connector.register(businessRequestDataNonUK, service)
+        await(result) must be(businessResponseData)
+      }
+
+      "for successful registration of NON-UK based client by an agent, return Response as Json" in new Setup {
         val businessResponseData = BusinessRegistrationResponse(processingDate = "2015-01-01", sapNumber = "SAP123123", safeId = "SAFE123123",
           agentReferenceNumber = Some("AREF123123"))
         val successResponse = Json.toJson(businessResponseData)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
+        implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        val inputBody: JsValue = Json.toJson(businessRequestDataNonUK)
 
-        val result = TestNewBusinessCustomerConnector.register(businessRequestData, service)
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
+
+        val result = connector.register(businessRequestDataNonUK, service, isNonUKClientRegisteredByAgent = true)
         await(result) must be(businessResponseData)
       }
 
-      "for successful save with non-uk address, return Response as Json" in {
-        val businessResponseData = BusinessRegistrationResponse(processingDate = "2015-01-01", sapNumber = "SAP123123", safeId = "SAFE123123",
-          agentReferenceNumber = Some("AREF123123"))
-        val successResponse = Json.toJson(businessResponseData)
-
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
-
-        val result = TestNewBusinessCustomerConnector.register(businessRequestDataNonUK, service)
-        await(result) must be(businessResponseData)
-      }
-
-      "for successful registration of NON-UK based client by an agent, return Response as Json" in {
-        val businessResponseData = BusinessRegistrationResponse(processingDate = "2015-01-01", sapNumber = "SAP123123", safeId = "SAFE123123",
-          agentReferenceNumber = Some("AREF123123"))
-        val successResponse = Json.toJson(businessResponseData)
-
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
-
-        val result = TestNewBusinessCustomerConnector.register(businessRequestDataNonUK, service, isNonUKClientRegisteredByAgent = true)
-        await(result) must be(businessResponseData)
-      }
-
-      "for Service Unavailable, throw an exception" in {
+      "for Service Unavailable, throw an exception" in new Setup {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
+        val inputBody: JsValue = Json.toJson(businessRequestData)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
 
-        val result = TestNewBusinessCustomerConnector.register(businessRequestData, service)
+        val result = connector.register(businessRequestData, service)
         val thrown = the[ServiceUnavailableException] thrownBy await(result)
         thrown.getMessage must include("Service Unavailable")
       }
 
-      "for Not Found, throw an exception" in {
+      "for Not Found, throw an exception" in new Setup {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
+        val inputBody: JsValue = Json.toJson(businessRequestData)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
 
-        val result = TestNewBusinessCustomerConnector.register(businessRequestData, service)
+        val result = connector.register(businessRequestData, service)
         val thrown = the[InternalServerException] thrownBy await(result)
         thrown.getMessage must include("Not Found")
       }
 
-      "for Unknown Error, throw an exception" in {
+      "for Unknown Error, throw an exception" in new Setup {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
+        val inputBody: JsValue = Json.toJson(businessRequestData)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
 
-        val result = TestNewBusinessCustomerConnector.register(businessRequestData, service)
+        val result = connector.register(businessRequestData, service)
         val thrown = the[InternalServerException] thrownBy await(result)
         thrown.getMessage must include("Unknown Status 999")
       }
@@ -218,68 +198,62 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSu
 
       val safeId = "SAFE123123"
       val successResponse = HttpResponse(OK, """{"processingDate": "2014-12-17T09:30:47Z"}""")
-      "for successful save, return Response as Json" in {
+      "for successful save, return Response as Json" in new Setup {
+        val inputBody: JsValue = Json.toJson(updateRequestData)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(successResponse))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(successResponse))
 
-        val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
+        val result = connector.updateRegistrationDetails(safeId, updateRequestData)
         await(result) must be(successResponse)
       }
 
-      "for successful save with non-uk address, return Response as Json" in {
+      "for successful save with non-uk address, return Response as Json" in new Setup {
+        val inputBody: JsValue = Json.toJson(updateRequestDataNonUk)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(successResponse))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(successResponse))
 
-        val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestDataNonUk)
+        val result = connector.updateRegistrationDetails(safeId, updateRequestDataNonUk)
         await(result) must be(successResponse)
       }
 
-      "for successful registration of NON-UK based client by an agent, return Response as Json" in {
+      "for successful registration of NON-UK based client by an agent, return Response as Json" in new Setup {
+        val inputBody: JsValue = Json.toJson(updateRequestDataNonUk)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(successResponse))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(successResponse))
 
-        val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestDataNonUk)
+        val result = connector.updateRegistrationDetails(safeId, updateRequestDataNonUk)
         await(result) must be(successResponse)
       }
 
-      "for Service Unavailable, throw an exception" in {
+      "for Service Unavailable, throw an exception" in new Setup {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
+        val inputBody: JsValue = Json.toJson(updateRequestData)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
 
-        val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
+        val result = connector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown = the[ServiceUnavailableException] thrownBy await(result)
         thrown.getMessage must include("Service Unavailable")
       }
 
-      "for Not Found, throw an exception" in {
+      "for Not Found, throw an exception" in new Setup {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
+        val inputBody: JsValue = Json.toJson(updateRequestData)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
 
-        val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
+        val result = connector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown = the[InternalServerException] thrownBy await(result)
         thrown.getMessage must include("Not Found")
       }
 
-      "for Unknown Error, throw an exception" in {
+      "for Unknown Error, throw an exception" in new Setup {
         val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
+        val inputBody: JsValue = Json.toJson(updateRequestData)
 
-        implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        when(mockHttpClient.POST[BusinessRegistration, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
 
-        val result = TestNewBusinessCustomerConnector.updateRegistrationDetails(safeId, updateRequestData)
+        val result = connector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown = the[InternalServerException] thrownBy await(result)
         thrown.getMessage must include("Unknown Status 999")
       }

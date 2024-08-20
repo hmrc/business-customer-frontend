@@ -17,24 +17,20 @@
 package connectors
 
 import config.ApplicationConfig
-import org.mockito.ArgumentMatchers.any
-import org.mockito.MockitoSugar
-import org.scalatest.BeforeAndAfterEach
+import org.mockito.Mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{JsValue, Json, OFormat}
 import play.api.mvc.MessagesControllerComponents
-import play.api.test.Helpers._
-import play.api.test.Injecting
-import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
+import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar  with BeforeAndAfterEach with Injecting {
+class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  val mockSessionCache = mock[SessionCache]
+  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
   case class FormData(name: String)
 
@@ -51,46 +47,33 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
   val cacheMap = CacheMap(id = formId, Map("date" -> formDataJson))
 
-  override def beforeEach(): Unit = {
-    reset(mockSessionCache)
+  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+
+  class Setup extends ConnectorTest {
+    val connector: BusinessRegCacheConnector = new BusinessRegCacheConnector(mockHttpClient, appConfig)
   }
 
-  val appConfig = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
-  val mockHttpClient = mock[DefaultHttpClient]
-
-  object TestDataCacheConnector extends BusinessRegCacheConnector(
-    mockHttpClient,
-    appConfig
-  ) {
-    override val sourceId: String = "BC_NonUK_Business_Details"
-  }
-
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("test-sessionid")))
   implicit val ec: ExecutionContext = mcc.executionContext
 
   "BusinessRegCacheConnector" must {
 
     "fetchAndGetBusinessDetailsForSession" must {
 
-      "return Some" when {
-        "formId of the cached form does exist for defined data type" in {
-          when(mockHttpClient.GET[CacheMap](any(), any(), any())(any(), any(), any()))
-            .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
+      "return Some formId of the cached form does exist for defined data type" in new Setup  {
+          when(executeGet[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
-          await(TestDataCacheConnector.fetchAndGetCachedDetails[FormData](formIdNotExist)) must be(Some(formData))
-        }
+          await(connector.fetchAndGetCachedDetails[FormData](formIdNotExist)) must be(Some(formData))
       }
     }
 
     "save form data" when {
-      "valid form data with a valid form id is passed" in {
-        when(mockHttpClient.PUT[FormData, CacheMap]
-          (any(), any(), any())(any(), any(), any(), any()))
-          .thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
+      "valid form data with a valid form id is passed" in new Setup {
+        val inputBody: JsValue = Json.toJson(formData)
+        when(executePut[CacheMap](inputBody)).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
 
-        await(TestDataCacheConnector.cacheDetails[FormData](formId, formData)) must be(formData)
+        await(connector.cacheDetails[FormData](formId, formData)) must be(formData)
       }
     }
   }

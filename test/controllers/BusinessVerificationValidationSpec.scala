@@ -19,7 +19,9 @@ package controllers
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
-import org.mockito.{ArgumentMatchers, MockitoSugar}
+import org.mockito.ArgumentMatchers
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}

@@ -20,7 +20,9 @@ import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.DataCacheConnector
 import models.{Address, ReviewDetails}
-import org.mockito.{ArgumentMatchers, MockitoSugar}
+import org.mockito.ArgumentMatchers
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
@@ -28,7 +30,7 @@ import play.api.mvc.{Headers, MessagesControllerComponents}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -88,7 +90,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       "clearCache gives error" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, ""))
+        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn(Future.failed(new InternalServerException("Something went wrong.")))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(INTERNAL_SERVER_ERROR)
       }

@@ -19,6 +19,7 @@ package controllers
 import config.ApplicationConfig
 import connectors.DataCacheConnector
 import controllers.auth.AuthActions
+
 import javax.inject.Inject
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -39,14 +40,13 @@ class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
 
   def clearCache(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      dataCacheConnector.clearCache.map { x =>
-        x.status match {
-          case OK | NO_CONTENT =>
-            Ok
-          case errorStatus =>
-            logger.error(s"session has not been cleared for $service. Status: $errorStatus, Error: ${x.body}")
-            InternalServerError
-        }
+      dataCacheConnector.clearCache.map { _ =>
+        logger.info("session has been cleared")
+        Ok
+      }.recover {
+        case t: Throwable =>
+          logger.error(s"session has not been cleared for $service. Status: 500, Error: ${t.getMessage}")
+          InternalServerError
       }
     }
   }

@@ -23,15 +23,15 @@ import javax.inject.Inject
 import models._
 import play.api.Logging
 import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.audit.model.EventTypes
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.GovernmentGatewayConstants
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
+class BusinessCustomerConnector @Inject()(val http: HttpClientV2,
                                           val audit: Auditable,
                                           implicit val config: ApplicationConfig) extends RawResponseReads with Logging {
 
@@ -44,7 +44,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/${GovernmentGatewayConstants.KnownFactsAgentServiceName}/$knownFactsUri"""
     val jsonData = Json.toJson(knownFacts)
-    http.POST[JsValue, HttpResponse](postUrl, jsonData, Seq.empty)
+    http.post(url"${postUrl}").withBody(jsonData).execute
   }
 
   def auditRegisterCall(input: BusinessRegistrationRequest, response: HttpResponse, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
@@ -89,7 +89,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$registerUri"""
     val jsonData = Json.toJson(registerData)
-    http.POST(postUrl, jsonData, Seq.empty) map { response =>
+    http.post(url"${postUrl}").withBody(jsonData).execute map { response =>
       auditRegisterCall(registerData, response, service, isNonUKClientRegisteredByAgent)
       response.status match {
         case OK => response.json.as[BusinessRegistrationResponse]
@@ -111,7 +111,7 @@ class BusinessCustomerConnector @Inject()(val http: DefaultHttpClient,
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$updateRegistrationDetailsURI/$safeId"""
     val jsonData = Json.toJson(updateRegistrationDetails)
-    http.POST(postUrl, jsonData, Seq.empty) map { response =>
+    http.post(url"${postUrl}").withBody(jsonData).execute map { response =>
       response.status match {
         case OK => response
         case NOT_FOUND =>

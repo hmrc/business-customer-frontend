@@ -16,45 +16,32 @@
 
 package connectors
 
-import audit.Auditable
-import com.codahale.metrics.Timer
 import config.ApplicationConfig
-import metrics.MetricsService
 import models._
-import org.mockito.{ArgumentMatchers, MockitoSugar}
-import org.scalatest.BeforeAndAfterEach
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.api.test.Injecting
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.GovernmentGatewayConstants
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
-  val mockMetrics = mock[MetricsService]
-  val mockHttpClient = mock[DefaultHttpClient]
-  val mockAuditable = mock[Auditable]
-  val appConfig = inject[ApplicationConfig]
+class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
+  val appConfig =  app.injector.instanceOf[ApplicationConfig]
 
-  val mockContext: Timer.Context = mock[Timer.Context]
-
-  object TestTaxEnrolmentsConnector extends TaxEnrolmentsConnector(
-    mockMetrics,
-    appConfig,
-    mockAuditable,
-    mockHttpClient
-  ) {
-    override val enrolmentUrl: String = ""
-  }
-
-  override def beforeEach(): Unit = {
-    reset(mockHttpClient)
+  class Setup extends ConnectorTest {
+    val connector: TaxEnrolmentsConnector = new TaxEnrolmentsConnector(
+      mockMetrics,
+      appConfig,
+      mockAuditable,
+      mockHttpClient
+    )
   }
 
   lazy val groupId = "group-id"
@@ -72,26 +59,26 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
     implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
     "enrol user" must {
-      "works for a user" in {
+      "works for a user" in new Setup {
         when(mockMetrics.startTimer(ArgumentMatchers.any()))
             .thenReturn(mockContext)
+        val inputBody: JsValue = Json.toJson(request)
+        when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(CREATED, successfulSubscribeJson.toString)))
 
-        when(mockHttpClient.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).
-          thenReturn(Future.successful(HttpResponse(CREATED, successfulSubscribeJson.toString)))
-
-        val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
+        val result = connector.enrol(request, groupId, arn)
         val enrolResponse = await(result)
         enrolResponse.status must be(CREATED)
       }
 
-      "return status is anything, for bad data sent for enrol" in {
-        when(mockHttpClient.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(
-          ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, subscribeFailureResponseJson.toString)))
-        val result = TestTaxEnrolmentsConnector.enrol(request, groupId, arn)
-        val enrolResponse = await(result)
-        enrolResponse.status must not be(CREATED)
+      "return status is anything, for bad data sent for enrol" in new Setup {
+          when(mockMetrics.startTimer(ArgumentMatchers.any()))
+            .thenReturn(mockContext)
+          val inputBody: JsValue = Json.toJson(request)
+          when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, subscribeFailureResponseJson.toString)))
+
+          val result = connector.enrol(request, groupId, arn)
+          val enrolResponse = await(result)
+          enrolResponse.status must not be(CREATED)
       }
 
     }

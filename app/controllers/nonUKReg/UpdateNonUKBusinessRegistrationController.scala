@@ -26,8 +26,7 @@ import models.{BusinessRegistrationDisplayDetails, StandardAuthRetrievals}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
-import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.RedirectUtils
 import utils.RedirectUtils.redirectUrlGetRelativeOrDev

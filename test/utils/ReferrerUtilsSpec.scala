@@ -17,36 +17,38 @@
 package utils
 
 import config.ApplicationConfig
-import org.mockito.MockitoSugar.{mock, when}
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito._
+import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.i18n.MessagesApi
 import play.api.mvc.{AnyContent, MessagesRequest}
 import play.api.test.{FakeRequest, Injecting}
 import utils.ReferrerUtils.getReferrer
 
-class ReferrerUtilsSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerTest with Injecting {
+class ReferrerUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerTest with Injecting {
+
+  implicit val appConfig: ApplicationConfig = mock[ApplicationConfig]
 
   "getReferrer" should {
 
     "return an encoded url containing a non defined platform host config val and request path" in {
-      implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
       implicit val request: MessagesRequest[AnyContent] =
         new MessagesRequest[AnyContent](FakeRequest("GET", "/a-uri"), inject[MessagesApi])
 
-      getReferrer() should be("%2Fa-uri")
+      when(appConfig.platformHost).thenReturn("http://platformHost")
+
+      getReferrer() mustBe "http%3A%2F%2FplatformHost%2Fa-uri"
     }
 
 
     "return an encoded url containing a defined platform host config val and request path" in {
-      implicit val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
-      when(mockAppConfig.platformHost).thenReturn("http://localhost:9923")
-
       implicit val request: MessagesRequest[AnyContent] =
         new MessagesRequest[AnyContent](FakeRequest("GET", "/a-uri"), inject[MessagesApi])
 
-      getReferrer() should be("http%3A%2F%2Flocalhost%3A9923%2Fa-uri")
+      when(appConfig.platformHost).thenReturn("http://localhost:9923")
+
+      getReferrer() mustBe "http%3A%2F%2Flocalhost%3A9923%2Fa-uri"
     }
 
   }

@@ -19,3 +19,7 @@ dist
 *.iws
 .DS_Store
 .bsp
+.bloop
+.metals
+project/.bloop
+project/metals.sbt
