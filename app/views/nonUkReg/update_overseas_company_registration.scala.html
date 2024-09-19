@@ -111,9 +111,8 @@
     }
 }
 
-@bcMain(title = titleBuilder(messages(displayDetails.title), Some(overseasCompanyForm)), service = service, pageScripts = Some(pageScripts)) {
-
-    @backLinkHtml
+@bcMain(title = titleBuilder(messages(displayDetails.title), Some(overseasCompanyForm)), service = service,
+  pageScripts = Some(pageScripts), backlink=Some(backLinkHtml)) {
 
     @if(overseasCompanyForm.errors.nonEmpty) {
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(overseasCompanyForm))

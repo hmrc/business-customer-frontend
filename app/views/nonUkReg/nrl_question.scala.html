@@ -38,9 +38,7 @@
     }
 }
 
-@bcMain(title = titleBuilder(messages("bc.nrl.title"), Some(nrlQuestionForm)), service = service) {
-
-    @backLinkHtml
+@bcMain(title = titleBuilder(messages("bc.nrl.title"), Some(nrlQuestionForm)), service = service, backlink=Some(backLinkHtml)) {
 
     @if(nrlQuestionForm.errors.nonEmpty) {
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(nrlQuestionForm))

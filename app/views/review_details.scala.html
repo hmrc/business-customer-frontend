@@ -86,9 +86,7 @@
     }
 }
 
-@bcMain(title = titleBuilder(headingText), service = service) {
-
-    @backLinkHtml
+@bcMain(title = titleBuilder(headingText), service = service, backlink=Some(backLinkHtml)) {
 
     <header>
         <h1 class="govuk-heading-xl">
