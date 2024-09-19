@@ -27,6 +27,7 @@
   pageScripts: Option[Html] = None,
   sidebarLinks: Option[Html] = None,
   sidebarClass: Option[String] = None,
+  backlink: Option[Html] = None,
 )(mainContent: Html)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @linkElement = {
@@ -40,6 +41,7 @@
 }
 
 @layout(
+    beforeContent = backlink,
     pageTitle = Some(title),
     scripts = Some(linkElement),
     displaySignOut = displaySignOut,
