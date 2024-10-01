@@ -38,9 +38,7 @@
     }
 }
 
-@bcMain(title = titleBuilder(messages("bc.details-not-found.header")), service = service) {
-
-  @backLinkHtml
+@bcMain(title = titleBuilder(messages("bc.details-not-found.header")), service = service, backlink=Some(backLinkHtml)) {
 
   @if(isAgent) {
     <span class="govuk-caption-xl hmrc-caption-xl" id="business-verification-agent-text">@messages("bc.business-verification.agent.text", service.toUpperCase)</span>

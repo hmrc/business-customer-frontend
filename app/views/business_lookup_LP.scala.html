@@ -58,9 +58,7 @@
     }
 }
 
-@bcMain(title = titleBuilder(headingText, Some(limitedPartnershipForm)), service = service) {
-
-    @backLinkHtml
+@bcMain(title = titleBuilder(headingText, Some(limitedPartnershipForm)), service = service, backlink=Some(backLinkHtml)) {
 
     @if(limitedPartnershipForm.errors.nonEmpty) {
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(limitedPartnershipForm))

@@ -26,10 +26,15 @@
     problemLinkHelper: HmrcReportTechnicalIssueHelper
 )
 
-@(pageTitle: Option[String] = None,
+@(beforeContent: Option[Html] = None,
+  pageTitle: Option[String] = None,
   scripts: Option[Html],
   displaySignOut: Boolean = true,
   service: String)(contentBlock: Html)(implicit request: RequestHeader, messages: Messages, appConfig: ApplicationConfig)
+
+@beforeContentBlock = {
+  @beforeContent
+}
 
 @content = {
     @contentBlock
@@ -55,6 +60,7 @@
         ),
         templateOverrides = TemplateOverrides(
             additionalScriptsBlock = Some(allScripts),
+            beforeContentBlock = Some(beforeContentBlock),
             additionalHeadBlock = Some(hmrcTimeoutDialogHelper(signOutUrl = signOutUrl))
         ),
         serviceName = appConfig.getNavTitle(service).map(s => messages(s)),

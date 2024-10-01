@@ -38,7 +38,7 @@
 }
 
 @layout(
-    Some(messages(pageTitle)).map(_ + " - GOV.UK"),
-    None,
+    pageTitle = Some(messages(pageTitle)).map(_ + " - GOV.UK"),
+    scripts = None,
     service = service
 )(content)

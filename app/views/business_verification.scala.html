@@ -57,9 +57,7 @@
     }
 }
 
-@bcMain(title = titleBuilder(headingText, Some(businessTypeForm)), service = service) {
-
-    @backLinkHtml
+@bcMain(title = titleBuilder(headingText, Some(businessTypeForm)), service = service, backlink=Some(backLinkHtml)) {
 
     @if(businessTypeForm.errors.nonEmpty) {
            @govukErrorSummary(ErrorSummary().withFormErrorsAsText(businessTypeForm))
