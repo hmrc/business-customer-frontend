@@ -137,5 +137,38 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       }
 
     }
+
+    "TimedOut" must {
+
+      "respond with a redirect" in new Setup {
+        val result = controller.logout(service).apply(FakeRequest())
+        status(result) must be(SEE_OTHER)
+      }
+
+      "be redirected to the feedback page for ATED service" in new Setup {
+        val result = controller.timedOut(service).apply(FakeRequest())
+        redirectLocation(result).get must include("/ated/logout")
+      }
+
+      "be redirected to the timed out page for AWRS service" in new Setup {
+        val result = controller.timedOut("AWRS").apply(FakeRequest())
+        redirectLocation(result).get must include("/alcohol-wholesale-scheme/timedOut")
+      }
+
+      "be redirected to the Bas Gateway page for AMLS service" in new Setup {
+        val result = controller.timedOut("AMLS").apply(FakeRequest())
+        redirectLocation(result).get must include("/bas-gateway/sign-out-without-state")
+      }
+
+      "be redirected to the feedback page for FHDDS service" in new Setup {
+        val result = controller.timedOut("FHDDS").apply(FakeRequest())
+        redirectLocation(result).get must include("/fhdds/sign-out")
+      }
+
+      "be redirected to the logout page for any other service other than ATED, AWRS and AMLS" in new Setup {
+        val result = controller.timedOut("TEST").apply(FakeRequest())
+        redirectLocation(result).get must include("/business-customer/signed-out")
+      }
+    }
   }
 }

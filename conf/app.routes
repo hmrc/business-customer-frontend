@@ -21,6 +21,7 @@ GET         /cancel                                                             
 GET         /keep-alive                                                         controllers.ApplicationController.keepAlive
 GET         /logout/:service                                                    controllers.ApplicationController.logout(service: String)
 GET         /signed-out                                                         controllers.ApplicationController.signedOut
+GET         /timedOut/:service                                                  controllers.ApplicationController.timedOut(service: String)
 
 GET         /agent/:service                                                     controllers.HomeController.homePage(service: String, backLinkUrl: Option[RedirectUrl] ?= None)
 GET         /:service                                                           controllers.HomeController.homePage(service: String, backLinkUrl: Option[RedirectUrl] ?= None)

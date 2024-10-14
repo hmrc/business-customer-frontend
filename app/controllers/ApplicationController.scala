@@ -54,6 +54,20 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
         Redirect(controllers.routes.ApplicationController.signedOut).withNewSession
     }
   }
+  def timedOut(service: String): Action[AnyContent] = Action {
+    service.toUpperCase match {
+      case "ATED" =>
+        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", "/ated/logout")).withNewSession
+      case "AWRS" =>
+        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.timedOutUrl", s"/awrs/timeOut")).withNewSession
+      case "AMLS" =>
+        Redirect(config.signOut)
+      case "FHDDS" =>
+        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", s"/fhdds/sign-out")).withNewSession
+      case _ =>
+        Redirect(controllers.routes.ApplicationController.signedOut).withNewSession
+    }
+  }
 
   def keepAlive: Action[AnyContent] = Action {Ok("OK")}
   def signedOut: Action[AnyContent] = Action { implicit request => Ok(templateLogout())}

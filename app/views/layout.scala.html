@@ -52,6 +52,10 @@
     routes.ApplicationController.logout(service).url
 }
 
+@timeOutUrl = @{
+  routes.ApplicationController.timedOut(service).url
+}
+
 @hmrcStandardPage(
     HmrcStandardPageParams(
         serviceURLs = ServiceURLs(
@@ -61,7 +65,7 @@
         templateOverrides = TemplateOverrides(
             additionalScriptsBlock = Some(allScripts),
             beforeContentBlock = Some(beforeContentBlock),
-            additionalHeadBlock = Some(hmrcTimeoutDialogHelper(signOutUrl = signOutUrl))
+            additionalHeadBlock = Some(hmrcTimeoutDialogHelper(signOutUrl = timeOutUrl, timeout = Some(90) ))
         ),
         serviceName = appConfig.getNavTitle(service).map(s => messages(s)),
         pageTitle = pageTitle
