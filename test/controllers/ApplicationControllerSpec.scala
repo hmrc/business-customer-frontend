@@ -141,7 +141,7 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     "TimedOut" must {
 
       "respond with a redirect" in new Setup {
-        val result = controller.logout(service).apply(FakeRequest())
+        val result = controller.timedOut(service).apply(FakeRequest())
         status(result) must be(SEE_OTHER)
       }
 

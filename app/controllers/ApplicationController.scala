@@ -41,35 +41,32 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
   }
 
   def logout(service: String): Action[AnyContent] = Action {
-    service.toUpperCase match {
-      case "ATED" =>
-        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", "/ated/logout")).withNewSession
-      case "AWRS" =>
-        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", s"/awrs/logout")).withNewSession
-      case "AMLS" =>
-        Redirect(config.signOut)
-      case "FHDDS" =>
-        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", s"/fhdds/sign-out")).withNewSession
-      case _ =>
-        Redirect(controllers.routes.ApplicationController.signedOut).withNewSession
-    }
+    redirectForSignedOut(service)
   }
-  def timedOut(service: String): Action[AnyContent] = Action {
-    service.toUpperCase match {
-      case "ATED" =>
-        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", "/ated/logout")).withNewSession
-      case "AWRS" =>
-        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.timedOutUrl", s"/awrs/timeOut")).withNewSession
-      case "AMLS" =>
-        Redirect(config.signOut)
-      case "FHDDS" =>
-        Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", s"/fhdds/sign-out")).withNewSession
-      case _ =>
-        Redirect(controllers.routes.ApplicationController.signedOut).withNewSession
-    }
+  def timedOut(service: String): Action[AnyContent] = Action { implicit request =>
+    redirectForSignedOut(service, true)
   }
 
-  def keepAlive: Action[AnyContent] = Action {Ok("OK")}
+  def redirectForSignedOut(service: String, redirectToTimeOut : Boolean = false) = {
+
+    service.toUpperCase match {
+         case "ATED" =>
+           Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", "/ated/logout")).withNewSession
+         case "AWRS" if(redirectToTimeOut) =>
+            Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.timedOutUrl", s"/awrs/timeOut")).withNewSession
+         case "AWRS" =>
+           Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", s"/awrs/logout")).withNewSession
+         case "AMLS" =>
+           Redirect(config.signOut)
+         case "FHDDS" =>
+           Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", s"/fhdds/sign-out")).withNewSession
+         case _ =>
+           Redirect(controllers.routes.ApplicationController.signedOut).withNewSession
+       }
+
+  }
+
+  def keepAlive: Action[AnyContent] = Action { _ => Ok("OK")}
   def signedOut: Action[AnyContent] = Action { implicit request => Ok(templateLogout())}
 
   def logoutAndRedirectToHome(service: String): Action[AnyContent] = Action {
