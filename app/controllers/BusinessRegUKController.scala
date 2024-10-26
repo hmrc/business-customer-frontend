@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.BackLinkCacheConnector
+import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
@@ -37,7 +37,8 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
                                         template: views.html.business_group_registration,
                                         businessRegistrationService: BusinessRegistrationService,
                                         reviewDetailsController: ReviewDetailsController,
-                                        mcc: MessagesControllerComponents)
+                                        mcc: MessagesControllerComponents,
+                                        val dataCacheConnector: DataCacheConnector)
   extends FrontendController(mcc) with BackLinkController with AuthActions {
 
   implicit val appConfig: ApplicationConfig = config
@@ -46,11 +47,19 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
 
   def register(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
-      currentBackLink map (backLink =>
-        Ok(template(businessRegistrationForm.copy(data = newMapping),
-          authContext.isAgent, service, displayDetails(businessType, service), backLink))
-      )
+      for {
+        backLink <- currentBackLink
+        businessRegistrationDetails <- dataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession
+      } yield {
+        val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
+        businessRegistrationDetails match {
+          case Some(businessRegistrationData) =>
+            Ok(template(businessRegistrationForm.copy(data = newMapping).fill(businessRegistrationData),
+              authContext.isAgent, service, displayDetails(businessType, service), backLink))
+          case None => Ok(template(businessRegistrationForm.copy(data = newMapping),
+            authContext.isAgent, service, displayDetails(businessType, service), backLink))
+        }
+      }
     }
   }
 

@@ -19,7 +19,7 @@ package connectors
 import config.ApplicationConfig
 
 import javax.inject.Inject
-import models.ReviewDetails
+import models.{BusinessRegistration, ReviewDetails}
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.HeaderCarrier
@@ -34,13 +34,24 @@ class DataCacheConnector @Inject()(val http: HttpClientV2,
   val domain: String = config.domain
 
   val sourceId: String = "BC_Business_Details"
+  private val sourceIdForFormPayload: String = "BC_Business_Details_form_payload"
 
   def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
    fetchAndGetEntry[ReviewDetails](sourceId)
 
+  def fetchAndGetBusinessRegistrationDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
+    fetchAndGetEntry[BusinessRegistration](sourceIdForFormPayload)
+
   def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] = {
     cache[ReviewDetails](sourceId, reviewDetails) map {
       _.getEntry[ReviewDetails](sourceId)
+    }
+  }
+
+  def saveBusinessRegistrationDetails(businessRegistration: BusinessRegistration)
+                                     (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] = {
+    cache[BusinessRegistration](sourceIdForFormPayload, businessRegistration) map {
+      _.getEntry[BusinessRegistration](sourceIdForFormPayload)
     }
   }
 

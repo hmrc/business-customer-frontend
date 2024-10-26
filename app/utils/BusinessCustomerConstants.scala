@@ -32,4 +32,5 @@ object BusinessCustomerConstants {
   val PaySaDetailsId = "Pay_Sa_Details"
   val NrlFormId = "NRL_Details"
   val UpdateNotRegisterId = "Update_No_Register"
+  val AWRSRegistrationDetails = "AWRS_Registration_Details_"
 }
