@@ -61,7 +61,7 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
               case Failure(_) => backLink
             }
           } else {
-            backLink
+            config.backToInformHMRCNrlUrl
           }
 
           businessRegistration match {
