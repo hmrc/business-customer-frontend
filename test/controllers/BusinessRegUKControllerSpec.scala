@@ -19,8 +19,8 @@ package controllers
 import java.util.UUID
 
 import config.ApplicationConfig
-import connectors.BackLinkCacheConnector
-import models.{Address, ReviewDetails}
+import connectors.{BackLinkCacheConnector, DataCacheConnector}
+import models.{Address, BusinessRegistration, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -45,7 +45,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
   val mockReviewDetailController: ReviewDetailsController = mock[ReviewDetailsController]
   val injectedViewInstance: business_group_registration = inject[views.html.business_group_registration]
-
+  val mockDataCacheConnector: DataCacheConnector = mock[DataCacheConnector]
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
@@ -56,7 +56,8 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     injectedViewInstance,
     mockBusinessRegistrationService,
     mockReviewDetailController,
-    mcc
+    mcc,
+    mockDataCacheConnector
   ) {
     override val authConnector: AuthConnector = mockAuthConnector
     override val controllerId = "test"
@@ -86,6 +87,8 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     "Authorised Users" must {
 
       "return business registration view for a user for Group" in {
+        when(mockDataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn
+          Future.successful(Some(BusinessRegistration("", Address("", "", Some(""), Some(""), Some(""), ""))))
 
         registerWithAuthorisedUser("awrs", "GROUP") {
           result =>
@@ -110,6 +113,8 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       "return business registration view for a user for New Business" in {
 
+        when(mockDataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn
+          Future.successful(None)
         registerWithAuthorisedUser("awrs", "NEW") {
           result =>
             status(result) must be(OK)

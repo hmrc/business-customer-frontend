@@ -45,6 +45,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
       reviewDetailsCache <- {
         val reviewDetails = createReviewDetails(registerResponse.sapNumber,
           registerResponse.safeId, registerResponse.agentReferenceNumber, isGroup, registerData, overseasCompany, isBusinessDetailsEditable)
+        dataCacheConnector.saveBusinessRegistrationDetails(registerData)
         dataCacheConnector.saveReviewDetails(reviewDetails)
       }
     } yield {

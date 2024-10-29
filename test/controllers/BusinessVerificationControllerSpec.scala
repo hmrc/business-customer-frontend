@@ -21,6 +21,16 @@ import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
+import forms.
+  {
+    BusinessType,
+    LimitedCompanyMatch,
+    LimitedLiabilityPartnershipMatch,
+    LimitedPartnershipMatch,
+    OrdinaryBusinessPartnershipMatch,
+    SoleTraderMatch,
+    UnincorporatedMatch
+  }
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -101,6 +111,18 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       "authorised users" must {
 
         "respond with OK" in new Setup {
+          when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())
+            (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+            .thenReturn(Future.successful(None))
+          businessVerificationWithAuthorisedUser(controller) ( result =>
+            status(result) must be(OK)
+          )
+        }
+
+        "respond with OK for cached data" in new Setup {
+          when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())
+            (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+            .thenReturn(Future.successful(Some(BusinessType(Some("TestBusinessType"), isSaAccount = false, isOrgAccount = false))))
           businessVerificationWithAuthorisedUser(controller) ( result =>
             status(result) must be(OK)
           )
@@ -116,6 +138,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
         "return Business Verification view for a user" in new Setup {
 
+          when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())
+            (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+            .thenReturn(Future.successful(None))
           businessVerificationWithAuthorisedUser(controller) { result =>
             val document = Jsoup.parse(contentAsString(result))
 
@@ -215,6 +240,14 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         }
       }
 
+      "if OBP(OrdinaryBusinessPartnership), continue to GROUP registration page for AWRS" in new Setup {
+        willSaveBackLink(s"/business-customer/business-verification/awrs")
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "OBP"), "awrs") { result =>
+          status(result) must be(SEE_OTHER)
+          redirectLocation(result).get must include(s"/business-customer/business-verification/awrs/businessForm/OBP")
+        }
+      }
+
       "for any other option, redirect to home page again" in new Setup {
         when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         continueWithAuthorisedUserJson(controller, Map("businessType" -> "XYZ")) { result =>
@@ -298,6 +331,105 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           document.select("#main-content > div > div > form > p:nth-child(4)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
           document.select("#main-content > div > div > form > p:nth-child(5) > a").text() must be("How to find your UTR (opens in new tab)")
           document.select("#main-content > div > div > form > p:nth-child(5) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
+        }
+      }
+
+      "return successful response for Sole Trader business type during AWRS journey without previous cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        businessLookupWithAuthorisedAgent(controller, "SOP", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Sole Trader business type during AWRS journey with previously cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(SoleTraderMatch("TestFirstName", "TestlastName", "TestSAUTR"))))
+        businessLookupWithAuthorisedAgent(controller, "SOP", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Limited Company business type during AWRS journey without previous cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedCompanyMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        businessLookupWithAuthorisedAgent(controller, "LTD", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Limited Company business type during AWRS journey with previously cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedCompanyMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(LimitedCompanyMatch("TestBusinessName", "TestCOTAXUTR"))))
+        businessLookupWithAuthorisedAgent(controller, "LTD", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Unincorporated business type during AWRS journey with previously cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[UnincorporatedMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(UnincorporatedMatch("TestBusinessName", "TestCOTAXUTR"))))
+        businessLookupWithAuthorisedAgent(controller, "UIB", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Ordinary Business Partnership business type during AWRS journey without previous cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[OrdinaryBusinessPartnershipMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        businessLookupWithAuthorisedAgent(controller, "OBP", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Ordinary Business Partnership business type during AWRS journey with previously cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[OrdinaryBusinessPartnershipMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(OrdinaryBusinessPartnershipMatch("TestBusinessName", "TestCOTAXUTR"))))
+        businessLookupWithAuthorisedAgent(controller, "OBP", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Limited Liability Partnership business type during AWRS journey without previous cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedLiabilityPartnershipMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        businessLookupWithAuthorisedAgent(controller, "LLP", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Limited Liability Partnership business type during AWRS journey with previously cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedLiabilityPartnershipMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(LimitedLiabilityPartnershipMatch("TestBusinessName", "TestPSAUTR"))))
+        businessLookupWithAuthorisedAgent(controller, "LLP", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Limited Partnership business type during AWRS journey without previous cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedPartnershipMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        businessLookupWithAuthorisedAgent(controller, "LP", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Limited Partnership business type during AWRS journey with previously cached data" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedPartnershipMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(LimitedPartnershipMatch("TestBusinessName", "TestPSAUTR"))))
+        businessLookupWithAuthorisedAgent(controller, "LP", "awrs") { result =>
+          status(result) must be(OK)
         }
       }
     }
@@ -509,6 +641,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "add additional form fields to the screen for entry" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[UnincorporatedMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
         businessLookupWithAuthorisedUser(controller, "UIB", "AWRS") { result =>
           status(result) must be(OK)
 
@@ -979,7 +1114,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
   }
 
   def businessLookupWithAuthorisedAgent(controller: BusinessVerificationController,
-                                        businessType: String)(test: Future[Result] => Any): Unit = {
+                                        businessType: String,
+                                        service: String = service)(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 

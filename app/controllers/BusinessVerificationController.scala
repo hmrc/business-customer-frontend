@@ -61,12 +61,21 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
   implicit val appConfig: ApplicationConfig = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "BusinessVerificationController"
+  private val businessTypeCacheKey: String = s"${AWRSRegistrationDetails}businessType"
 
   def businessVerification(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      currentBackLink map ( backLink =>
-        Ok(template(businessTypeForm, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink))
-      )
+      for {
+        backLink <- currentBackLink
+        businessTypeDetails <- businessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](businessTypeCacheKey)
+      } yield {
+        businessTypeDetails match {
+          case Some(businessTypeData) =>
+            Ok(template(businessTypeForm.fill(businessTypeData), authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink))
+          case None =>
+            Ok(template(businessTypeForm, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink))
+        }
+      }
     }
   }
 
@@ -79,6 +88,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
             )
           ),
         value => {
+          if (service.equalsIgnoreCase("awrs")) businessRegCacheConnector.cacheDetails(businessTypeCacheKey, value)
           val returnCall = Some(routes.BusinessVerificationController.businessVerification(service).url)
           value.businessType match {
             case Some("NUK") if service.equals("capital-gains-tax") =>
@@ -105,20 +115,84 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
   def businessForm(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       val backLink = Some(routes.BusinessVerificationController.businessVerification(service).url)
-      Future.successful(
         businessType match {
-          case "SOP" => Ok(templateSOP(soleTraderForm, authContext.isAgent, service, businessType, backLink))
-          case "LTD" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink))
-          case "UIB" => Ok(templateUIB(unincorporatedBodyForm, authContext.isAgent, service, businessType, backLink))
-          case "OBP" => Ok(templateOBP(ordinaryBusinessPartnershipForm, authContext.isAgent, service, businessType, backLink))
-          case "LLP" => Ok(templateLLP(limitedLiabilityPartnershipForm, authContext.isAgent, service, businessType, backLink))
-          case "LP" => Ok(templateLP(limitedPartnershipForm, authContext.isAgent, service, businessType, backLink))
-          case "UT" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink))
-          case "ULTD" => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink))
-          case "NRL" => Ok(templateNRL(nonResidentLandlordForm, authContext.isAgent, service, businessType, getNrlBackLink(service)))
+          case "SOP" => processSoleTraderForm(businessType, service, backLink, authContext)
+          case "LTD" => processLimitedCompanyForm(businessType, service, backLink, authContext)
+          case "UIB" => processUnincorporatedForm(businessType, service, backLink, authContext)
+          case "OBP" => processOrdinaryBusinessPartnershipForm(businessType, service, backLink, authContext)
+          case "LLP" => processLimitedLiabilityPartnershipForm(businessType, service, backLink, authContext)
+          case "LP" => processLimitedPartnershipForm(businessType, service, backLink, authContext)
+          case "UT" => Future.successful(Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink)))
+          case "ULTD" => Future.successful(Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink)))
+          case "NRL" => Future.successful(Ok(templateNRL(nonResidentLandlordForm, authContext.isAgent, service, businessType, getNrlBackLink(service))))
         }
-      )
     }
+  }
+
+  private def processSoleTraderForm(businessType: String, service: String, backLink: Some[String], authContext: StandardAuthRetrievals)
+                                   (implicit req: Request[AnyContent]): Future[Result] = {
+    if (service.equalsIgnoreCase("awrs")) {
+      businessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderMatch](s"$AWRSRegistrationDetails$businessType")
+        .map {
+          case Some(cachedData) => Ok(templateSOP(soleTraderForm.fill(cachedData), authContext.isAgent, service, businessType, backLink))
+          case None => Ok(templateSOP(soleTraderForm, authContext.isAgent, service, businessType, backLink))
+        }
+    } else Future.successful(Ok(templateSOP(soleTraderForm, authContext.isAgent, service, businessType, backLink)))
+  }
+
+  private def processLimitedCompanyForm(businessType: String, service: String, backLink: Some[String], authContext: StandardAuthRetrievals)
+                                       (implicit req: Request[AnyContent]): Future[Result] = {
+    if (service.equalsIgnoreCase("awrs")) {
+      businessRegCacheConnector.fetchAndGetCachedDetails[LimitedCompanyMatch](s"$AWRSRegistrationDetails$businessType")
+        .map {
+          case Some(cachedData) => Ok(templateLTD(limitedCompanyForm.fill(cachedData), authContext.isAgent, service, businessType, backLink))
+          case None => Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink))
+        }
+    } else Future.successful(Ok(templateLTD(limitedCompanyForm, authContext.isAgent, service, businessType, backLink)))
+  }
+
+  private def processUnincorporatedForm(businessType: String, service: String, backLink: Some[String], authContext: StandardAuthRetrievals)
+                                       (implicit req: Request[AnyContent]): Future[Result] = {
+    if (service.equalsIgnoreCase("awrs")) {
+      businessRegCacheConnector.fetchAndGetCachedDetails[UnincorporatedMatch](s"$AWRSRegistrationDetails$businessType")
+        .map {
+          case Some(cachedData) => Ok(templateUIB(unincorporatedBodyForm.fill(cachedData), authContext.isAgent, service, businessType, backLink))
+          case None => Ok(templateUIB(unincorporatedBodyForm, authContext.isAgent, service, businessType, backLink))
+        }
+    } else Future.successful(Ok(templateUIB(unincorporatedBodyForm, authContext.isAgent, service, businessType, backLink)))
+  }
+
+  private def processOrdinaryBusinessPartnershipForm(businessType: String, service: String, backLink: Some[String], authContext: StandardAuthRetrievals)
+                                                    (implicit req: Request[AnyContent]): Future[Result] = {
+    if (service.equalsIgnoreCase("awrs")) {
+      businessRegCacheConnector.fetchAndGetCachedDetails[OrdinaryBusinessPartnershipMatch](s"$AWRSRegistrationDetails$businessType")
+        .map {
+          case Some(cachedData) => Ok(templateOBP(ordinaryBusinessPartnershipForm.fill(cachedData), authContext.isAgent, service, businessType, backLink))
+          case None => Ok(templateOBP(ordinaryBusinessPartnershipForm, authContext.isAgent, service, businessType, backLink))
+        }
+    } else Future.successful(Ok(templateOBP(ordinaryBusinessPartnershipForm, authContext.isAgent, service, businessType, backLink)))
+  }
+
+  private def processLimitedLiabilityPartnershipForm(businessType: String, service: String, backLink: Some[String], authContext: StandardAuthRetrievals)
+                                                    (implicit req: Request[AnyContent]): Future[Result] = {
+    if (service.equalsIgnoreCase("awrs")) {
+      businessRegCacheConnector.fetchAndGetCachedDetails[LimitedLiabilityPartnershipMatch](s"$AWRSRegistrationDetails$businessType")
+        .map {
+          case Some(cachedData) => Ok(templateLLP(limitedLiabilityPartnershipForm.fill(cachedData), authContext.isAgent, service, businessType, backLink))
+          case None => Ok(templateLLP(limitedLiabilityPartnershipForm, authContext.isAgent, service, businessType, backLink))
+        }
+    } else Future.successful(Ok(templateLLP(limitedLiabilityPartnershipForm, authContext.isAgent, service, businessType, backLink)))
+  }
+
+  private def processLimitedPartnershipForm(businessType: String, service: String, backLink: Some[String], authContext: StandardAuthRetrievals)
+                                           (implicit req: Request[AnyContent]): Future[Result] = {
+    if (service.equalsIgnoreCase("awrs")) {
+      businessRegCacheConnector.fetchAndGetCachedDetails[LimitedPartnershipMatch](s"$AWRSRegistrationDetails$businessType")
+        .map {
+          case Some(cachedData) => Ok(templateLP(limitedPartnershipForm.fill(cachedData), authContext.isAgent, service, businessType, backLink))
+          case None => Ok(templateLP(limitedPartnershipForm, authContext.isAgent, service, businessType, backLink))
+        }
+    } else Future.successful(Ok(templateLP(limitedPartnershipForm, authContext.isAgent, service, businessType, backLink)))
   }
 
   def submit(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
@@ -159,6 +233,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
           val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
           validatedReviewDetails match {
             case Some(_) =>
+              if (service.equalsIgnoreCase("awrs")) businessRegCacheConnector.cacheDetails(s"$AWRSRegistrationDetails$businessType", unincorporatedFormData)
               redirectWithBackLink(reviewDetailsController.controllerId,
                 controllers.routes.ReviewDetailsController.businessDetails(service),
                 Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
@@ -182,6 +257,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
           val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
           validatedReviewDetails match {
             case Some(_) =>
+              if (service.equalsIgnoreCase("awrs")) businessRegCacheConnector.cacheDetails(s"$AWRSRegistrationDetails$businessType", soleTraderFormData)
               redirectWithBackLink(reviewDetailsController.controllerId,
                 controllers.routes.ReviewDetailsController.businessDetails(service),
                 Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
@@ -208,6 +284,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
           val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
           validatedReviewDetails match {
             case Some(_) =>
+              if (service.equalsIgnoreCase("awrs")) businessRegCacheConnector.cacheDetails(s"$AWRSRegistrationDetails$businessType", llpFormData)
               redirectWithBackLink(reviewDetailsController.controllerId,
                 controllers.routes.ReviewDetailsController.businessDetails(service),
                 Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
@@ -231,6 +308,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
           val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
           validatedReviewDetails match {
             case Some(_) =>
+              if (service.equalsIgnoreCase("awrs")) businessRegCacheConnector.cacheDetails(s"$AWRSRegistrationDetails$businessType", lpFormData)
               redirectWithBackLink(reviewDetailsController.controllerId,
                 controllers.routes.ReviewDetailsController.businessDetails(service),
                 Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
@@ -257,6 +335,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
           val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
           validatedReviewDetails match {
             case Some(_) =>
+              if (service.equalsIgnoreCase("awrs")) businessRegCacheConnector.cacheDetails(s"$AWRSRegistrationDetails$businessType", obpFormData)
               redirectWithBackLink(reviewDetailsController.controllerId,
                 controllers.routes.ReviewDetailsController.businessDetails(service),
                 Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
@@ -283,6 +362,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
           val validatedReviewDetails = returnedResponse.validate[ReviewDetails].asOpt
           validatedReviewDetails match {
             case Some(_) =>
+              if (service.equalsIgnoreCase("awrs")) businessRegCacheConnector.cacheDetails(s"$AWRSRegistrationDetails$businessType", limitedCompanyFormData)
               redirectWithBackLink(reviewDetailsController.controllerId,
                 controllers.routes.ReviewDetailsController.businessDetails(service),
                 Some(controllers.routes.BusinessVerificationController.businessForm(service, businessType).url)
