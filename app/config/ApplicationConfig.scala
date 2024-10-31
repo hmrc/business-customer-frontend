@@ -99,4 +99,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
 
   def getFile(path: String): File = environment.getFile(path)
   lazy val allowedHosts = oldConfig.get[Seq[String]]("allowedHosts")
+
+  lazy val backToInformHMRCNrlUrl: Option[String] = Option(conf.getConfString("agent-client-mandate-frontend.informHMRCNrlUrl",
+    "/mandate/agent/inform-HMRC/nrl"))
 }

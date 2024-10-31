@@ -91,7 +91,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
     "Authorised Users" must {
 
       "return business registration view for a Non-UK based client by agent with no back link" in new Setup {
-        viewWithAuthorisedUser(service, "NUK", None, Some("http://cachedBackLink"), controller) { result =>
+        viewWithAuthorisedUser(service, "NUK", None, Some("http://localhost:9959/mandate/agent/inform-HMRC/nrl"), controller) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
@@ -107,14 +107,14 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
           document.getElementById("submit").text() must be("Continue")
 
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("http://cachedBackLink")
+          document.getElementsByClass("govuk-back-link").attr("href") must be("http://localhost:9959/mandate/agent/inform-HMRC/nrl")
         }
       }
 
       "return business registration view for a Non-UK based client by agent with a back link" in new Setup {
         when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some("/api/anywhere")))
-        viewWithAuthorisedUser(service, "NUK", Some("/api/anywhere"), Some("http://cachedBackLink"), controller) { result =>
+        viewWithAuthorisedUser(service, "NUK", Some("/api/anywhere"), Some("http://localhost:9959/mandate/agent/inform-HMRC/nrl"), controller) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
@@ -140,7 +140,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
         val businessReg: BusinessRegistration = BusinessRegistration("ACME", regAddress)
         when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some("/api/anywhere")))
-        viewWithAuthorisedUserWithSomeData(service, Some(businessReg), "NUK", Some("/api/anywhere"), Some("http://cachedBackLink"), controller) { result =>
+        viewWithAuthorisedUserWithSomeData(service, Some(businessReg), "NUK", Some("/api/anywhere"), Some("http://localhost:9959/mandate/agent/inform-HMRC/nrl"), controller) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
