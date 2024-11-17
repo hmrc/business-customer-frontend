@@ -115,7 +115,7 @@ bc.business-verification-error.businessPartnerName = Enter a registered partners
 bc.business-verification-error.businessPartnerName.length = A partnership business name cannot be more than 105 characters
 
 bc.business-verification-error.cotaxutr = Enter a Corporation Tax Unique Taxpayer Reference
-bc.business-verification-error.cotaxutr.length = Corporation Tax Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10
+bc.business-verification-error.cotaxutr.length = Enter a 10-digit Unique Taxpayer Reference (UTR). If your UTR is 13 digits, enter only the last 10 digits
 bc.business-verification-error.psautr = Enter a Partnership Self Assessment Unique Taxpayer Reference
 bc.business-verification-error.psautr.length = Partnership Self Assessment Unique Taxpayer Reference must be 10 digits. If it is 13 digits only enter the last 10
 bc.business-verification-error.invalidSAUTR = The Self Assessment Unique Taxpayer Reference is not valid
