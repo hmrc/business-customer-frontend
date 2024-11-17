@@ -95,16 +95,25 @@
             )
 
             <h2 class="govuk-heading-s">@Messages("bc.business-verification.coUTRField")</h2>
-            <p class="govuk-body">@Messages("bc.business-verification.utr.corporationUTR")</p>
-            <p class="govuk-body">
-                <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.tax.service.gov.uk/ask-for-copy-of-your-corporation-tax-utr">@Messages("bc.business-verification.utr.corporationUTRLink")</a>
-            </p>
+            
             @govukInput(
                 Input(
                     label = Label(
                         content = Text(Messages("bc.business-verification.coUTRField")),
                         classes = "govuk-visually-hidden"
-                    )
+                    ),
+                     hint = Some(Hint(
+            content = HtmlContent(
+                 s"""
+                    <p class="govuk-body govuk-hint">${Messages("bc.business-verification.utr.corporationUTR")}</p>
+                    <p class="govuk-body govuk-hint">
+                        <a class="govuk-link" rel="noreferrer noopener" target="_blank" href="https://www.gov.uk/find-utr-number">
+                            ${Messages("bc.business-verification.utr.corporationUTRLink")}
+                        </a>
+                    </p>
+                """
+            )
+        )),
                 ).withFormField(limitedCompanyForm("cotaxUTR"))
             )
 
