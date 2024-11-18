@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,9 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
     Verifiers(verifiers)
   }
 
-  private def auditEnrolAgent(businessDetails: ReviewDetails, enrolResponse: HttpResponse, enrolReq: NewEnrolRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
+  private def auditEnrolAgent(businessDetails: ReviewDetails,
+                              enrolResponse: HttpResponse,
+                              enrolReq: NewEnrolRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
     val status = enrolResponse.status match {
       case CREATED => EventTypes.Succeeded
       case _ => EventTypes.Failed

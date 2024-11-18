@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -549,6 +549,12 @@ class BusinessVerificationControllerSpec
         }
       }
 
+      "return successful response for Sole Trader business type during neither AWRS nor ATED journey" in new Setup {
+        businessLookupWithAuthorisedAgent(controller, "SOP", "amls") { result =>
+          status(result) must be(OK)
+        }
+      }
+
       "return successful response for Sole Trader business type during AWRS journey with previously cached data" in new Setup {
         when(
           mockBusinessRegCacheConnector
@@ -583,6 +589,12 @@ class BusinessVerificationControllerSpec
         )
           .thenReturn(Future.successful(None))
         businessLookupWithAuthorisedAgent(controller, "LTD", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Limited Company business type during neither AWRS nor ATED journey" in new Setup {
+        businessLookupWithAuthorisedAgent(controller, "LTD", "amls") { result =>
           status(result) must be(OK)
         }
       }
@@ -629,6 +641,12 @@ class BusinessVerificationControllerSpec
         }
       }
 
+      "return successful response for Unincorporated business type during neither AWRS nor ATED journey" in new Setup {
+        businessLookupWithAuthorisedAgent(controller, "UIB", "amls") { result =>
+          status(result) must be(OK)
+        }
+      }
+
       "return successful response for Ordinary Business Partnership business type during AWRS journey without previous cached data" in new Setup {
         when(
           mockBusinessRegCacheConnector
@@ -642,6 +660,12 @@ class BusinessVerificationControllerSpec
         )
           .thenReturn(Future.successful(None))
         businessLookupWithAuthorisedAgent(controller, "OBP", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Ordinary Business Partnership type during neither AWRS nor ATED journey" in new Setup {
+        businessLookupWithAuthorisedAgent(controller, "OBP", "amls") { result =>
           status(result) must be(OK)
         }
       }
@@ -689,6 +713,12 @@ class BusinessVerificationControllerSpec
         }
       }
 
+      "return successful response for Limited Liability Partnership business type during neither AWRS nor ATED journey" in new Setup {
+        businessLookupWithAuthorisedAgent(controller, "LLP", "amls") { result =>
+          status(result) must be(OK)
+        }
+      }
+
       "return successful response for Limited Liability Partnership business type during AWRS journey with previously cached data" in new Setup {
         when(
           mockBusinessRegCacheConnector
@@ -728,6 +758,12 @@ class BusinessVerificationControllerSpec
         )
           .thenReturn(Future.successful(None))
         businessLookupWithAuthorisedAgent(controller, "LP", "awrs") { result =>
+          status(result) must be(OK)
+        }
+      }
+
+      "return successful response for Limited Partnership business type during neither AWRS nor ATED journey" in new Setup {
+        businessLookupWithAuthorisedAgent(controller, "LP", "amls") { result =>
           status(result) must be(OK)
         }
       }
@@ -920,6 +956,9 @@ class BusinessVerificationControllerSpec
       }
 
       "add additional form fields to the screen for entry" in new Setup {
+        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedCompanyMatch](ArgumentMatchers.any())
+          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(Some(LimitedCompanyMatch("TestBusinessName", "TestCOTAXUTR"))))
         businessLookupWithAuthorisedUser(controller, "LTD") { result =>
           status(result) must be(OK)
 

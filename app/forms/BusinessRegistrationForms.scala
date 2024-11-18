@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -218,7 +218,8 @@ object BusinessRegistrationForms {
 
     //the following code makes sure the errors are displayed in the same order as the fields appear on the page
     if (trimmedCountry.isEmpty){
-      countryForm.copy(errors = form.errors.filterNot(e => e.key == "businessAddress.country")).withError("businessAddress.country", "bc.business-registration-error.country")
+      countryForm.copy(errors = form.errors.filterNot(e => e.key == "businessAddress.country"))
+        .withError("businessAddress.country", "bc.business-registration-error.country")
     } else{
       countryForm
     }

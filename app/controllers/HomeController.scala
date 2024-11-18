@@ -63,8 +63,9 @@ class HomeController @Inject()(val authConnector: AuthConnector,
                       controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
                     )
                   } else {
-                    redirectWithBackLink(
-                      reviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
+                    redirectWithBackLink(reviewDetailsController.controllerId,
+                      controllers.routes.ReviewDetailsController.businessDetails(service),
+                      backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
                     )
                   }
                 case _: JsError =>

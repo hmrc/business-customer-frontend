@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,9 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
   }
 
 
-  def getDetails()(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
+  def getDetails()(implicit authContext: StandardAuthRetrievals,
+                   hc: HeaderCarrier,
+                   ec: ExecutionContext): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
 
     def createBusinessRegistration(reviewDetailsOpt: Option[ReviewDetails]) : Option[(String, BusinessRegistration, OverseasCompany)] = {
       reviewDetailsOpt.flatMap( details =>
