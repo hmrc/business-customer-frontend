@@ -21,16 +21,15 @@ import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
-import forms.
-  {
-    BusinessType,
-    LimitedCompanyMatch,
-    LimitedLiabilityPartnershipMatch,
-    LimitedPartnershipMatch,
-    OrdinaryBusinessPartnershipMatch,
-    SoleTraderMatch,
-    UnincorporatedMatch
-  }
+import forms.{
+  BusinessType,
+  LimitedCompanyMatch,
+  LimitedLiabilityPartnershipMatch,
+  LimitedPartnershipMatch,
+  OrdinaryBusinessPartnershipMatch,
+  SoleTraderMatch,
+  UnincorporatedMatch
+}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -48,60 +47,80 @@ import views.html._
 
 import scala.concurrent.Future
 
-class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
+class BusinessVerificationControllerSpec
+    extends PlaySpec
+    with GuiceOneServerPerSuite
+    with MockitoSugar
+    with Injecting {
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockBusinessMatchingService: BusinessMatchingService = mock[BusinessMatchingService]
+  val mockBusinessMatchingService: BusinessMatchingService =
+    mock[BusinessMatchingService]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
-  val mockBusinessRegCacheConnector: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  val mockBusinessRegCacheConnector: BusinessRegCacheConnector =
+    mock[BusinessRegCacheConnector]
   val service = "ATED"
   val invalidService = "scooby-doo"
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
-  implicit val messages: Messages = mcc.messagesApi.preferred(Seq(Lang.defaultLang))
+  implicit val mcc: MessagesControllerComponents =
+    inject[MessagesControllerComponents]
+  implicit val messages: Messages =
+    mcc.messagesApi.preferred(Seq(Lang.defaultLang))
 
-  val businessRegUKController: BusinessRegUKController = mock[BusinessRegUKController]
+  val businessRegUKController: BusinessRegUKController =
+    mock[BusinessRegUKController]
   val busRegController: BusinessRegController = mock[BusinessRegController]
   val nrlQuestionController: NRLQuestionController = mock[NRLQuestionController]
-  val reviewDetailsController: ReviewDetailsController = mock[ReviewDetailsController]
+  val reviewDetailsController: ReviewDetailsController =
+    mock[ReviewDetailsController]
   val homeController: HomeController = mock[HomeController]
-  val injectedViewInstance: business_verification = inject[views.html.business_verification]
-  val injectedViewInstanceSOP: business_lookup_SOP = inject[views.html.business_lookup_SOP]
-  val injectedViewInstanceLTD: business_lookup_LTD = inject[views.html.business_lookup_LTD]
-  val injectedViewInstanceUIB: business_lookup_UIB = inject[views.html.business_lookup_UIB]
-  val injectedViewInstanceOBP: business_lookup_OBP = inject[views.html.business_lookup_OBP]
-  val injectedViewInstanceLLP: business_lookup_LLP = inject[views.html.business_lookup_LLP]
-  val injectedViewInstanceLP: business_lookup_LP = inject[views.html.business_lookup_LP]
-  val injectedViewInstanceNRL: business_lookup_NRL = inject[views.html.business_lookup_NRL]
-  val injectedViewInstanceDetailsNotFound: details_not_found = inject[views.html.details_not_found]
+  val injectedViewInstance: business_verification =
+    inject[views.html.business_verification]
+  val injectedViewInstanceSOP: business_lookup_SOP =
+    inject[views.html.business_lookup_SOP]
+  val injectedViewInstanceLTD: business_lookup_LTD =
+    inject[views.html.business_lookup_LTD]
+  val injectedViewInstanceUIB: business_lookup_UIB =
+    inject[views.html.business_lookup_UIB]
+  val injectedViewInstanceOBP: business_lookup_OBP =
+    inject[views.html.business_lookup_OBP]
+  val injectedViewInstanceLLP: business_lookup_LLP =
+    inject[views.html.business_lookup_LLP]
+  val injectedViewInstanceLP: business_lookup_LP =
+    inject[views.html.business_lookup_LP]
+  val injectedViewInstanceNRL: business_lookup_NRL =
+    inject[views.html.business_lookup_NRL]
+  val injectedViewInstanceDetailsNotFound: details_not_found =
+    inject[views.html.details_not_found]
 
   class Setup {
-    val controller: BusinessVerificationController = new BusinessVerificationController(
-      appConfig,
-      mockAuthConnector,
-      injectedViewInstance,
-      injectedViewInstanceSOP,
-      injectedViewInstanceLTD,
-      injectedViewInstanceUIB,
-      injectedViewInstanceOBP,
-      injectedViewInstanceLLP,
-      injectedViewInstanceLP,
-      injectedViewInstanceNRL,
-      injectedViewInstanceDetailsNotFound,
-      mockBusinessRegCacheConnector,
-      mockBackLinkCache,
-      mockBusinessMatchingService,
-      businessRegUKController,
-      busRegController,
-      nrlQuestionController,
-      reviewDetailsController,
-      homeController,
-      mcc
-    ) {
-      override val controllerId = "test"
-    }
+    val controller: BusinessVerificationController =
+      new BusinessVerificationController(
+        appConfig,
+        mockAuthConnector,
+        injectedViewInstance,
+        injectedViewInstanceSOP,
+        injectedViewInstanceLTD,
+        injectedViewInstanceUIB,
+        injectedViewInstanceOBP,
+        injectedViewInstanceLLP,
+        injectedViewInstanceLP,
+        injectedViewInstanceNRL,
+        injectedViewInstanceDetailsNotFound,
+        mockBusinessRegCacheConnector,
+        mockBackLinkCache,
+        mockBusinessMatchingService,
+        businessRegUKController,
+        busRegController,
+        nrlQuestionController,
+        reviewDetailsController,
+        homeController,
+        mcc
+      ) {
+        override val controllerId = "test"
+      }
   }
 
   "BusinessVerificationController" must {
@@ -111,19 +130,41 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       "authorised users" must {
 
         "respond with OK" in new Setup {
-          when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())
-            (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          when(
+            mockBusinessRegCacheConnector
+              .fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any()
+              )
+          )
             .thenReturn(Future.successful(None))
-          businessVerificationWithAuthorisedUser(controller) ( result =>
+          businessVerificationWithAuthorisedUser(controller)(result =>
             status(result) must be(OK)
           )
         }
 
         "respond with OK for cached data" in new Setup {
-          when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())
-            (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-            .thenReturn(Future.successful(Some(BusinessType(Some("TestBusinessType"), isSaAccount = false, isOrgAccount = false))))
-          businessVerificationWithAuthorisedUser(controller) ( result =>
+          when(
+            mockBusinessRegCacheConnector
+              .fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any()
+              )
+          )
+            .thenReturn(
+              Future.successful(
+                Some(
+                  BusinessType(
+                    Some("TestBusinessType"),
+                    isSaAccount = false,
+                    isOrgAccount = false
+                  )
+                )
+              )
+            )
+          businessVerificationWithAuthorisedUser(controller)(result =>
             status(result) must be(OK)
           )
         }
@@ -131,32 +172,59 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         "respond with NotFound when invalid service is in uri" in new Setup {
           intercept[NotFoundException] {
 
-            businessVerificationWithAuthorisedUser(controller)(result =>
-              status(result) must be(NOT_FOUND), serviceName = invalidService)
+            businessVerificationWithAuthorisedUser(controller)(
+              result => status(result) must be(NOT_FOUND),
+              serviceName = invalidService
+            )
           }
         }
 
         "return Business Verification view for a user" in new Setup {
 
-          when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())
-            (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          when(
+            mockBusinessRegCacheConnector
+              .fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any()
+              )
+          )
             .thenReturn(Future.successful(None))
           businessVerificationWithAuthorisedUser(controller) { result =>
             val document = Jsoup.parse(contentAsString(result))
 
-
             document.title() must be("What is your business type? - GOV.UK")
-            document.getElementsByClass("govuk-caption-xl").text() must be("This section is ATED registration")
-            document.getElementsByTag("h1").text() must include("What is your business type?")
-            document.select(".govuk-radios__item").text() must include("Limited company")
-            document.select(".govuk-radios__item").text() must include("Limited liability partnership")
-            document.select(".govuk-radios__item").text() must include("partnership")
-            document.select(".govuk-radios__item").text() must include("I have an overseas company")
-            document.select(".govuk-radios__item").text() must include("Unit trust or collective investment vehicle")
-            document.select(".govuk-radios__item").text() must include("Limited partnership")
+            document.getElementsByClass("govuk-caption-xl").text() must be(
+              "This section is ATED registration"
+            )
+            document.getElementsByTag("h1").text() must include(
+              "What is your business type?"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "Limited company"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "Limited liability partnership"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "partnership"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "I have an overseas company"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "Unit trust or collective investment vehicle"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "Limited partnership"
+            )
             document.select("button").text() must be("Continue")
-            document.getElementsByClass("govuk-back-link").text() must be("Back")
-            document.getElementsByClass("govuk-back-link").attr("href") must be("/ated-subscription/appoint-agent")
+            document.getElementsByClass("govuk-back-link").text() must be(
+              "Back"
+            )
+            document.getElementsByClass("govuk-back-link").attr("href") must be(
+              "/ated-subscription/appoint-agent"
+            )
           }
         }
 
@@ -165,16 +233,36 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           businessVerificationWithAuthorisedAgent(controller) { result =>
             val document = Jsoup.parse(contentAsString(result))
 
-            document.title() must be("What is the business type for your agency? - GOV.UK")
-            document.getElementsByClass("govuk-caption-xl").text() must be("This section is ATED agency set up")
-            document.getElementsByTag("h1").text() must include("What is the business type for your agency?")
-            document.select(".govuk-radios__item").text() must include("Limited company")
-            document.select(".govuk-radios__item").text() must include("Sole trader self-employed")
-            document.select(".govuk-radios__item").text() must include("Limited liability partnership")
-            document.select(".govuk-radios__item").text() must include("partnership")
-            document.select(".govuk-radios__item").text() must include("I have an overseas company without a UK Unique Taxpayer Reference")
-            document.select(".govuk-radios__item").text() must include("Limited partnership")
-            document.select(".govuk-radios__item").text() must include("Unlimited company")
+            document.title() must be(
+              "What is the business type for your agency? - GOV.UK"
+            )
+            document.getElementsByClass("govuk-caption-xl").text() must be(
+              "This section is ATED agency set up"
+            )
+            document.getElementsByTag("h1").text() must include(
+              "What is the business type for your agency?"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "Limited company"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "Sole trader self-employed"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "Limited liability partnership"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "partnership"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "I have an overseas company without a UK Unique Taxpayer Reference"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "Limited partnership"
+            )
+            document.select(".govuk-radios__item").text() must include(
+              "Unlimited company"
+            )
             document.select("button").text() must be("Continue")
           }
         }
@@ -184,7 +272,9 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         "respond with a redirect & be redirected to the unauthorised page" in new Setup {
           businessVerificationWithUnAuthorisedUser(controller) { result =>
             status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include("/business-customer/unauthorised")
+            redirectLocation(result).get must include(
+              "/business-customer/unauthorised"
+            )
           }
         }
 
@@ -194,65 +284,116 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "continue" must {
 
       "selecting continue with no business type selected must display error message" in new Setup {
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "")) { result =>
-          status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("Select your type of business")
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "")) {
+          result =>
+            status(result) must be(BAD_REQUEST)
+            contentAsString(result) must include("Select your type of business")
         }
       }
 
       "if non-uk with capital-gains-tax service, continue to registration page" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "NUK"), "capital-gains-tax") { result =>
+        when(
+          mockBackLinkCache.saveBackLink(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any(), ArgumentMatchers.any())
+        ).thenReturn(Future.successful(None))
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "NUK"),
+          "capital-gains-tax"
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include(s"/business-customer/register/capital-gains-tax/NUK")
+          redirectLocation(result).get must include(
+            s"/business-customer/register/capital-gains-tax/NUK"
+          )
         }
       }
 
       "if non-uk, continue to registration page" in new Setup {
         willSaveBackLink("/business-customer/business-verification/ATED")
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "NUK")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "NUK")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include(s"/ated-subscription/previous")
+          redirectLocation(result).get must include(
+            s"/ated-subscription/previous"
+          )
         }
       }
 
       "if non-uk Agent, continue to ATED NRL page" in new Setup {
         willSaveBackLink("/business-customer/business-verification/ATED")
-        continueWithAuthorisedAgentJson(controller, "NUK", FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessType" -> "NUK").toSeq: _*)) { result =>
+        continueWithAuthorisedAgentJson(
+          controller,
+          "NUK",
+          FakeRequest("POST", "/").withFormUrlEncodedBody(
+            Map("businessType" -> "NUK").toSeq: _*
+          )
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include(s"/business-customer/nrl/ATED")
+          redirectLocation(result).get must include(
+            s"/business-customer/nrl/ATED"
+          )
         }
       }
 
       "if new, continue to NEW registration page" in new Setup {
         willSaveBackLink(s"/business-customer/business-verification/$service")
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "NEW")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "NEW")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include(s"/business-customer/register-gb/$service/NEW")
+          redirectLocation(result).get must include(
+            s"/business-customer/register-gb/$service/NEW"
+          )
         }
       }
 
       "if group, continue to GROUP registration page" in new Setup {
         willSaveBackLink(s"/business-customer/business-verification/$service")
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "GROUP")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "GROUP")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include(s"/business-customer/register-gb/$service/GROUP")
+          redirectLocation(result).get must include(
+            s"/business-customer/register-gb/$service/GROUP"
+          )
         }
       }
 
       "if OBP(OrdinaryBusinessPartnership), continue to GROUP registration page for AWRS" in new Setup {
         willSaveBackLink(s"/business-customer/business-verification/awrs")
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "OBP"), "awrs") { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "OBP"),
+          "awrs"
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include(s"/business-customer/business-verification/awrs/businessForm/OBP")
+          redirectLocation(result).get must include(
+            s"/business-customer/business-verification/awrs/businessForm/OBP"
+          )
         }
       }
 
       "for any other option, redirect to home page again" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "XYZ")) { result =>
+        when(
+          mockBackLinkCache.saveBackLink(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any(), ArgumentMatchers.any())
+        ).thenReturn(Future.successful(None))
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "XYZ")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result) must be(Some(s"/business-customer/agent/$service"))
+          redirectLocation(result) must be(
+            Some(s"/business-customer/agent/$service")
+          )
         }
       }
     }
@@ -260,35 +401,50 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting Sole Trader option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedSaUserJson(controller, Map(
-          "businessType" -> "SOP",
-          "isSaAccount"               -> "true",
-          "isOrgAccount"              -> "false"
-        )) { result =>
+        continueWithAuthorisedSaUserJson(
+          controller,
+          Map(
+            "businessType" -> "SOP",
+            "isSaAccount" -> "true",
+            "isOrgAccount" -> "false"
+          )
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
       "fail with a bad request when SOP is selected for an Org user" in new Setup {
-        continueWithAuthorisedUserJson(controller,  Map(
-          "businessType" -> "SOP",
-          "isSaAccount"               -> "false",
-          "isOrgAccount"              -> "true"
-        )) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map(
+            "businessType" -> "SOP",
+            "isSaAccount" -> "false",
+            "isOrgAccount" -> "true"
+          )
+        ) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("You are logged in as an organisation with your Government Gateway ID. You cannot select sole trader or self-employed as your business type. You need to have an individual Government Gateway ID and enrol for Self Assessment")
+          contentAsString(result) must include(
+            "You are logged in as an organisation with your Government Gateway ID. You cannot select sole trader or self-employed as your business type. You need to have an individual Government Gateway ID and enrol for Self Assessment"
+          )
         }
       }
 
       "redirect to next screen to allow additional form fields to be entered when user has both Sa and Org and selects SOP" in new Setup {
-        continueWithAuthorisedSaOrgUserJson(controller, Map(
-          "businessType" -> "SOP",
-          "isSaAccount"               -> "true",
-          "isOrgAccount"              -> "true"
-        )) { result =>
+        continueWithAuthorisedSaOrgUserJson(
+          controller,
+          Map(
+            "businessType" -> "SOP",
+            "isSaAccount" -> "true",
+            "isOrgAccount" -> "true"
+          )
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
@@ -297,19 +453,41 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
-          document.select("h1").text() must include("Your Self Assessment details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "firstName").text() must be("First name")
-          document.getElementsByAttributeValue("for", "lastName").text() must be("Last name")
-          document.getElementsByAttributeValue("for", "saUTR").text() must be("What is your Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: AWRS registration"
+          )
+          document.select("h1").text() must include(
+            "Your Self Assessment details"
+          )
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "firstName")
+            .text() must be("First name")
+          document
+            .getElementsByAttributeValue("for", "lastName")
+            .text() must be("Last name")
+          document.getElementsByAttributeValue("for", "saUTR").text() must be(
+            "What is your Self Assessment Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/AWRS")
-          document.select("#main-content > div > div > form > p:nth-child(4)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(5) > a").text() must be("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(5) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/AWRS"
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(4)")
+            .text() must include(
+            "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(5) > a")
+            .text() must be("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(5) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -318,25 +496,53 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
-          document.getElementsByTag("h1").text() must include("Your agency details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "firstName").text() must be("First name")
-          document.getElementsByAttributeValue("for", "lastName").text() must be("Last name")
-          document.getElementsByAttributeValue("for", "saUTR").text() must be("What is your Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED agency set up"
+          )
+          document.getElementsByTag("h1").text() must include(
+            "Your agency details"
+          )
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "firstName")
+            .text() must be("First name")
+          document
+            .getElementsByAttributeValue("for", "lastName")
+            .text() must be("Last name")
+          document.getElementsByAttributeValue("for", "saUTR").text() must be(
+            "What is your Self Assessment Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(4)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(5) > a").text() must be("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(5) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(4)")
+            .text() must include(
+            "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(5) > a")
+            .text() must be("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(5) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
       "return successful response for Sole Trader business type during AWRS journey without previous cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[SoleTraderMatch](ArgumentMatchers.any())(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
           .thenReturn(Future.successful(None))
         businessLookupWithAuthorisedAgent(controller, "SOP", "awrs") { result =>
           status(result) must be(OK)
@@ -344,17 +550,37 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "return successful response for Sole Trader business type during AWRS journey with previously cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(Some(SoleTraderMatch("TestFirstName", "TestlastName", "TestSAUTR"))))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[SoleTraderMatch](ArgumentMatchers.any())(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
+          .thenReturn(
+            Future.successful(
+              Some(
+                SoleTraderMatch("TestFirstName", "TestlastName", "TestSAUTR")
+              )
+            )
+          )
         businessLookupWithAuthorisedAgent(controller, "SOP", "awrs") { result =>
           status(result) must be(OK)
         }
       }
 
       "return successful response for Limited Company business type during AWRS journey without previous cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedCompanyMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[LimitedCompanyMatch](
+              ArgumentMatchers.any()
+            )(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
           .thenReturn(Future.successful(None))
         businessLookupWithAuthorisedAgent(controller, "LTD", "awrs") { result =>
           status(result) must be(OK)
@@ -362,26 +588,58 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "return successful response for Limited Company business type during AWRS journey with previously cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedCompanyMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(Some(LimitedCompanyMatch("TestBusinessName", "TestCOTAXUTR"))))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[LimitedCompanyMatch](
+              ArgumentMatchers.any()
+            )(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
+          .thenReturn(
+            Future.successful(
+              Some(LimitedCompanyMatch("TestBusinessName", "TestCOTAXUTR"))
+            )
+          )
         businessLookupWithAuthorisedAgent(controller, "LTD", "awrs") { result =>
           status(result) must be(OK)
         }
       }
 
       "return successful response for Unincorporated business type during AWRS journey with previously cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[UnincorporatedMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(Some(UnincorporatedMatch("TestBusinessName", "TestCOTAXUTR"))))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[UnincorporatedMatch](
+              ArgumentMatchers.any()
+            )(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
+          .thenReturn(
+            Future.successful(
+              Some(UnincorporatedMatch("TestBusinessName", "TestCOTAXUTR"))
+            )
+          )
         businessLookupWithAuthorisedAgent(controller, "UIB", "awrs") { result =>
           status(result) must be(OK)
         }
       }
 
       "return successful response for Ordinary Business Partnership business type during AWRS journey without previous cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[OrdinaryBusinessPartnershipMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[OrdinaryBusinessPartnershipMatch](
+              ArgumentMatchers.any()
+            )(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
           .thenReturn(Future.successful(None))
         businessLookupWithAuthorisedAgent(controller, "OBP", "awrs") { result =>
           status(result) must be(OK)
@@ -389,17 +647,42 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "return successful response for Ordinary Business Partnership business type during AWRS journey with previously cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[OrdinaryBusinessPartnershipMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(Some(OrdinaryBusinessPartnershipMatch("TestBusinessName", "TestCOTAXUTR"))))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[OrdinaryBusinessPartnershipMatch](
+              ArgumentMatchers.any()
+            )(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
+          .thenReturn(
+            Future.successful(
+              Some(
+                OrdinaryBusinessPartnershipMatch(
+                  "TestBusinessName",
+                  "TestCOTAXUTR"
+                )
+              )
+            )
+          )
         businessLookupWithAuthorisedAgent(controller, "OBP", "awrs") { result =>
           status(result) must be(OK)
         }
       }
 
       "return successful response for Limited Liability Partnership business type during AWRS journey without previous cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedLiabilityPartnershipMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[LimitedLiabilityPartnershipMatch](
+              ArgumentMatchers.any()
+            )(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
           .thenReturn(Future.successful(None))
         businessLookupWithAuthorisedAgent(controller, "LLP", "awrs") { result =>
           status(result) must be(OK)
@@ -407,17 +690,42 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "return successful response for Limited Liability Partnership business type during AWRS journey with previously cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedLiabilityPartnershipMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(Some(LimitedLiabilityPartnershipMatch("TestBusinessName", "TestPSAUTR"))))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[LimitedLiabilityPartnershipMatch](
+              ArgumentMatchers.any()
+            )(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
+          .thenReturn(
+            Future.successful(
+              Some(
+                LimitedLiabilityPartnershipMatch(
+                  "TestBusinessName",
+                  "TestPSAUTR"
+                )
+              )
+            )
+          )
         businessLookupWithAuthorisedAgent(controller, "LLP", "awrs") { result =>
           status(result) must be(OK)
         }
       }
 
       "return successful response for Limited Partnership business type during AWRS journey without previous cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedPartnershipMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[LimitedPartnershipMatch](
+              ArgumentMatchers.any()
+            )(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
           .thenReturn(Future.successful(None))
         businessLookupWithAuthorisedAgent(controller, "LP", "awrs") { result =>
           status(result) must be(OK)
@@ -425,9 +733,21 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       }
 
       "return successful response for Limited Partnership business type during AWRS journey with previously cached data" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedPartnershipMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-          .thenReturn(Future.successful(Some(LimitedPartnershipMatch("TestBusinessName", "TestPSAUTR"))))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[LimitedPartnershipMatch](
+              ArgumentMatchers.any()
+            )(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
+          .thenReturn(
+            Future.successful(
+              Some(LimitedPartnershipMatch("TestBusinessName", "TestPSAUTR"))
+            )
+          )
         businessLookupWithAuthorisedAgent(controller, "LP", "awrs") { result =>
           status(result) must be(OK)
         }
@@ -437,31 +757,46 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting None Resident Landlord option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "NRL")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "NRL")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
       "fail with a bad request when NRL is selected for an Sa user" in new Setup {
-        continueWithAuthorisedSaUserJson(controller, Map(
-          "businessType" -> "NRL",
-          "isSaAccount"               -> "true",
-          "isOrgAccount"              -> "false"
-        )) { result =>
+        continueWithAuthorisedSaUserJson(
+          controller,
+          Map(
+            "businessType" -> "NRL",
+            "isSaAccount" -> "true",
+            "isOrgAccount" -> "false"
+          )
+        ) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
+          contentAsString(result) must include(
+            "You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID."
+          )
         }
       }
 
       "redirect to next screen to allow additional form fields to be entered when user has both Sa and Org and selects LTD" in new Setup {
-        continueWithAuthorisedSaOrgUserJson(controller, Map(
-          "businessType" -> "NRL",
-          "isSaAccount"               -> "true",
-          "isOrgAccount"              -> "true"
-        )) { result =>
+        continueWithAuthorisedSaOrgUserJson(
+          controller,
+          Map(
+            "businessType" -> "NRL",
+            "isSaAccount" -> "true",
+            "isOrgAccount" -> "true"
+          )
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
@@ -470,19 +805,41 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
-          document.select("h1").text() must include("Your Self Assessment details")
-          document.getElementById("business-type-paragraph").text() must be("Enter your Self Assessment details and we will attempt to match them against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "saUTR").text() must be("What is your Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED registration"
+          )
+          document.select("h1").text() must include(
+            "Your Self Assessment details"
+          )
+          document.getElementById("business-type-paragraph").text() must be(
+            "Enter your Self Assessment details and we will attempt to match them against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document.getElementsByAttributeValue("for", "saUTR").text() must be(
+            "What is your Self Assessment Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/register/non-uk-client/paySA/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/register/non-uk-client/paySA/ATED"
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(3)")
+            .text() must include(
+            "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .text() must be("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -491,12 +848,24 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED agency set up"
+          )
           document.select("h1").text() must include("Your agency details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must include("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "saUTR").text() must include("Self Assessment Unique Taxpayer Reference (UTR)")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must include("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document
+            .getElementsByAttributeValue("for", "saUTR")
+            .text() must include(
+            "Self Assessment Unique Taxpayer Reference (UTR)"
+          )
           document.getElementById("saUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
 
@@ -507,31 +876,46 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting Limited Company option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "LTD")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "LTD")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
       "fail with a bad request when LTD is selected for an Sa user" in new Setup {
-        continueWithAuthorisedSaUserJson(controller, Map(
-          "businessType" -> "LTD",
-          "isSaAccount"               -> "true",
-          "isOrgAccount"              -> "false"
-        )) { result =>
+        continueWithAuthorisedSaUserJson(
+          controller,
+          Map(
+            "businessType" -> "LTD",
+            "isSaAccount" -> "true",
+            "isOrgAccount" -> "false"
+          )
+        ) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
+          contentAsString(result) must include(
+            "You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID."
+          )
         }
       }
 
       "redirect to next screen to allow additional form fields to be entered when user has both Sa and Org and selects LTD" in new Setup {
-        continueWithAuthorisedSaOrgUserJson(controller, Map(
-          "businessType" -> "LTD",
-          "isSaAccount"               -> "true",
-          "isOrgAccount"              -> "true"
-        )) { result =>
+        continueWithAuthorisedSaOrgUserJson(
+          controller,
+          Map(
+            "businessType" -> "LTD",
+            "isSaAccount" -> "true",
+            "isOrgAccount" -> "true"
+          )
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
@@ -540,19 +924,41 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED registration"
+          )
           document.select("h1").text() must include("Your business details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document
+            .getElementsByAttributeValue("for", "cotaxUTR")
+            .text() must be(
+            "What is your Corporation Tax Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. It will be on tax returns and other letters about Corporation Tax. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Ask for a copy of your Corporation Tax UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.tax.service.gov.uk/ask-for-copy-of-your-corporation-tax-utr")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(1)")
+            .text() must include(
+            "UTRs are 10 digits long, for example, ‘1234567890’. Some UTRs may appear as 13 digits, for example, ‘1234567890123’. If so, enter only the last 10 digits."
+          )
+          document.select("#cotaxUTR-hint > p:nth-child(2) > a").text() must be(
+            "Find your UTR number (opens in new tab)"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(2) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -561,19 +967,41 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED agency set up"
+          )
           document.select("h1").text() must include("Your agency details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document
+            .getElementsByAttributeValue("for", "cotaxUTR")
+            .text() must be(
+            "What is your Corporation Tax Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. It will be on tax returns and other letters about Corporation Tax. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Ask for a copy of your Corporation Tax UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.tax.service.gov.uk/ask-for-copy-of-your-corporation-tax-utr")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(1)")
+            .text() must include(
+            "UTRs are 10 digits long, for example, ‘1234567890’. Some UTRs may appear as 13 digits, for example, ‘1234567890123’. If so, enter only the last 10 digits."
+          )
+          document.select("#cotaxUTR-hint > p:nth-child(2) > a").text() must be(
+            "Find your UTR number (opens in new tab)"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(2) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
@@ -581,31 +1009,46 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting Unit Trust option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "UT")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "UT")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
       "fail with a bad request when UT is selected for an Sa user" in new Setup {
-        continueWithAuthorisedSaUserJson(controller, Map(
-          "businessType" -> "UT",
-          "isSaAccount"               -> "true",
-          "isOrgAccount"              -> "false"
-        )) { result =>
+        continueWithAuthorisedSaUserJson(
+          controller,
+          Map(
+            "businessType" -> "UT",
+            "isSaAccount" -> "true",
+            "isOrgAccount" -> "false"
+          )
+        ) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
+          contentAsString(result) must include(
+            "You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID."
+          )
         }
       }
 
       "redirect to next screen to allow additional form fields to be entered when user has both Sa and Org and selects UT" in new Setup {
-        continueWithAuthorisedSaOrgUserJson(controller, Map(
-          "businessType" -> "UT",
-          "isSaAccount"               -> "true",
-          "isOrgAccount"              -> "true"
-        )) { result =>
+        continueWithAuthorisedSaOrgUserJson(
+          controller,
+          Map(
+            "businessType" -> "UT",
+            "isSaAccount" -> "true",
+            "isOrgAccount" -> "true"
+          )
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
@@ -614,19 +1057,41 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED registration"
+          )
           document.select("h1").text() must include("Your business details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document
+            .getElementsByAttributeValue("for", "cotaxUTR")
+            .text() must be(
+            "What is your Corporation Tax Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. It will be on tax returns and other letters about Corporation Tax. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Ask for a copy of your Corporation Tax UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.tax.service.gov.uk/ask-for-copy-of-your-corporation-tax-utr")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(1)")
+            .text() must include(
+            "UTRs are 10 digits long, for example, ‘1234567890’. Some UTRs may appear as 13 digits, for example, ‘1234567890123’. If so, enter only the last 10 digits."
+          )
+          document.select("#cotaxUTR-hint > p:nth-child(2) > a").text() must be(
+            "Find your UTR number (opens in new tab)"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(2) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
@@ -634,33 +1099,68 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting Unincorporated Body option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "UIB")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "UIB")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
       "add additional form fields to the screen for entry" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[UnincorporatedMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[UnincorporatedMatch](
+              ArgumentMatchers.any()
+            )(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+        )
           .thenReturn(Future.successful(None))
         businessLookupWithAuthorisedUser(controller, "UIB", "AWRS") { result =>
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: AWRS registration"
+          )
           document.select("h1").text() must include("Your business details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document
+            .getElementsByAttributeValue("for", "cotaxUTR")
+            .text() must be(
+            "What is your Corporation Tax Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/AWRS")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. It will be on tax returns and other letters about Corporation Tax. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Ask for a copy of your Corporation Tax UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.tax.service.gov.uk/ask-for-copy-of-your-corporation-tax-utr")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/AWRS"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(1)")
+            .text() must include(
+            "UTRs are 10 digits long, for example, ‘1234567890’. Some UTRs may appear as 13 digits, for example, ‘1234567890123’. If so, enter only the last 10 digits."
+          )
+          document.select("#cotaxUTR-hint > p:nth-child(2) > a").text() must be(
+            "Find your UTR number (opens in new tab)"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(2) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -669,28 +1169,55 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED agency set up"
+          )
           document.select("h1").text() must include("Your agency details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document
+            .getElementsByAttributeValue("for", "cotaxUTR")
+            .text() must be(
+            "What is your Corporation Tax Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. It will be on tax returns and other letters about Corporation Tax. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Ask for a copy of your Corporation Tax UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.tax.service.gov.uk/ask-for-copy-of-your-corporation-tax-utr")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(1)")
+            .text() must include(
+            "UTRs are 10 digits long, for example, ‘1234567890’. Some UTRs may appear as 13 digits, for example, ‘1234567890123’. If so, enter only the last 10 digits."
+          )
+          document.select("#cotaxUTR-hint > p:nth-child(2) > a").text() must be(
+            "Find your UTR number (opens in new tab)"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(2) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
 
     "when selecting Ordinary business partnership" must {
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "OBP")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "OBP")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
@@ -699,19 +1226,39 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED registration"
+          )
           document.select("h1").text() must include("Your business details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your partnership name?")
-          document.select("#businessName-hint").text() must be("This is the name that you registered with HMRC")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your partnership name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the name that you registered with HMRC"
+          )
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be(
+            "What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(3)")
+            .text() must include(
+            "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .text() must be("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -720,28 +1267,53 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED agency set up"
+          )
           document.select("h1").text() must include("Your agency details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your partnership name?")
-          document.select("#businessName-hint").text() must be("This is the name that you registered with HMRC")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your partnership name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the name that you registered with HMRC"
+          )
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be(
+            "What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(3)")
+            .text() must include(
+            "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .text() must be("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
 
     "when selecting Limited Liability Partnership option" must {
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "LLP")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "LLP")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
@@ -750,19 +1322,41 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
-          document.select("h1").text() contains "What are your business details?"
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED registration"
+          )
+          document
+            .select("h1")
+            .text() contains "What are your business details?"
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be(
+            "What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(3)")
+            .text() must include(
+            "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .text() must be("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -770,50 +1364,92 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         businessLookupWithAuthorisedAgent(controller, "LLP") { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED agency set up"
+          )
           document.select("h1").text() must include("Your agency details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be(
+            "What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(3)")
+            .text() must include(
+            "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .text() must be("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
 
     "when selecting Limited Partnership option" must {
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "LP")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "LP")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
-
 
       "add additional form fields to the screen for entry" in new Setup {
         businessLookupWithAuthorisedUser(controller, "LP") { result =>
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED registration"
+          )
           document.select("h1").text() must include("Your business details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your partnership name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your partnership name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be(
+            "What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must include("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(4)").text() must include("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(4)")
+            .text() must include("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .text() must be("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -821,19 +1457,37 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         businessLookupWithAuthorisedAgent(controller, "LP") { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED agency set up"
+          )
           document.select("h1").text() must include("Your agency details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your partnership name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "psaUTR").text() must be("What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your partnership name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document.getElementsByAttributeValue("for", "psaUTR").text() must be(
+            "What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("psaUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(4)").text() must include("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("How to find your UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.gov.uk/find-utr-number")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#main-content > div > div > form > p:nth-child(4)")
+            .text() must include("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .text() must be("How to find your UTR (opens in new tab)")
+          document
+            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
@@ -841,31 +1495,46 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     "when selecting Unlimited Company option" must {
 
       "redirect to next screen to allow additional form fields to be entered" in new Setup {
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "ULTD")) { result =>
+        continueWithAuthorisedUserJson(
+          controller,
+          Map("businessType" -> "ULTD")
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
       "fail with a bad request when ULTD is selected for an Sa user" in new Setup {
-        continueWithAuthorisedSaUserJson(controller, Map(
-          "businessType" -> "ULTD",
-          "isSaAccount"               -> "true",
-          "isOrgAccount"              -> "false"
-        )) { result =>
+        continueWithAuthorisedSaUserJson(
+          controller,
+          Map(
+            "businessType" -> "ULTD",
+            "isSaAccount" -> "true",
+            "isOrgAccount" -> "false"
+          )
+        ) { result =>
           status(result) must be(BAD_REQUEST)
-          contentAsString(result) must include("You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID.")
+          contentAsString(result) must include(
+            "You are logged in as an individual with your Government Gateway ID. You cannot select limited company or partnership as your business type. You need to have an organisation Government Gateway ID."
+          )
         }
       }
 
       "redirect to next screen to allow additional form fields to be entered when user has both Sa and Org and selects ULTD" in new Setup {
-        continueWithAuthorisedSaOrgUserJson(controller, Map(
-          "businessType" -> "ULTD",
-          "isSaAccount"               -> "true",
-          "isOrgAccount"              -> "true"
-        )) { result =>
+        continueWithAuthorisedSaOrgUserJson(
+          controller,
+          Map(
+            "businessType" -> "ULTD",
+            "isSaAccount" -> "true",
+            "isOrgAccount" -> "true"
+          )
+        ) { result =>
           status(result) must be(SEE_OTHER)
-          redirectLocation(result).get must include("/business-verification/ATED/businessForm")
+          redirectLocation(result).get must include(
+            "/business-verification/ATED/businessForm"
+          )
         }
       }
 
@@ -874,20 +1543,43 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
-          document.select("h1").text() contains "What are your business details?"
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED registration"
+          )
+          document
+            .select("h1")
+            .text() contains "What are your business details?"
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document
+            .getElementsByAttributeValue("for", "cotaxUTR")
+            .text() must be(
+            "What is your Corporation Tax Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. It will be on tax returns and other letters about Corporation Tax. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Ask for a copy of your Corporation Tax UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.tax.service.gov.uk/ask-for-copy-of-your-corporation-tax-utr")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Ask for a copy of your Corporation Tax UTR (opens in new tab)")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(1)")
+            .text() must include(
+            "UTRs are 10 digits long, for example, ‘1234567890’. Some UTRs may appear as 13 digits, for example, ‘1234567890123’. If so, enter only the last 10 digits."
+          )
+          document.select("#cotaxUTR-hint > p:nth-child(2) > a").text() must be(
+            "Find your UTR number (opens in new tab)"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(2) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
 
@@ -896,20 +1588,41 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
           status(result) must be(OK)
 
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED agency set up")
+          document.getElementsByClass("govuk-caption-xl").text() must be(
+            "This section is: ATED agency set up"
+          )
           document.select("h1").text() must include("Your agency details")
-          document.getElementById("business-type-paragraph").text() must be("We will attempt to match your details against information we currently hold.")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("What is your registered company name?")
-          document.select("#businessName-hint").text() must be("This is the registered name on your incorporation certificate.")
-          document.getElementsByAttributeValue("for", "cotaxUTR").text() must be("What is your Corporation Tax Unique Taxpayer Reference (UTR)?")
+          document.getElementById("business-type-paragraph").text() must be(
+            "We will attempt to match your details against information we currently hold."
+          )
+          document
+            .getElementsByAttributeValue("for", "businessName")
+            .text() must be("What is your registered company name?")
+          document.select("#businessName-hint").text() must be(
+            "This is the registered name on your incorporation certificate."
+          )
+          document
+            .getElementsByAttributeValue("for", "cotaxUTR")
+            .text() must be(
+            "What is your Corporation Tax Unique Taxpayer Reference (UTR)?"
+          )
           document.getElementById("cotaxUTR").attr("type") must be("text")
           document.getElementById("submit").text() must be("Continue")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
-          document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED")
-          document.select("#main-content > div > div > form > p:nth-child(3)").text() must include("Your UTR can be 10 or 13 digits long. It will be on tax returns and other letters about Corporation Tax. It might be called ‘reference’, ‘UTR’ or ‘official use’.")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Ask for a copy of your Corporation Tax UTR (opens in new tab)")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").attr("href") must be("https://www.tax.service.gov.uk/ask-for-copy-of-your-corporation-tax-utr")
-          document.select("#main-content > div > div > form > p:nth-child(4) > a").text() must be("Ask for a copy of your Corporation Tax UTR (opens in new tab)")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(
+            "/business-customer/business-verification/ATED"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(1)")
+            .text() must include(
+            "UTRs are 10 digits long, for example, ‘1234567890’. Some UTRs may appear as 13 digits, for example, ‘1234567890123’. If so, enter only the last 10 digits."
+          )
+          document.select("#cotaxUTR-hint > p:nth-child(2) > a").text() must be(
+            "Find your UTR number (opens in new tab)"
+          )
+          document
+            .select("#cotaxUTR-hint > p:nth-child(2) > a")
+            .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
     }
@@ -920,99 +1633,155 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
       "called" in new Setup {
         AuthBuilder.mockAuthorisedUser("test", mockAuthConnector)
 
-        status(controller.detailsNotFound("ated", "businessType").apply(FakeRequest().withSession(
-          "sessionId" -> "test",
-          "token" -> "RANDOMTOKEN",
-          "userId" -> "userId")
-          .withHeaders(Headers("Authorization" -> "value"))
-        )) mustBe OK
+        status(
+          controller
+            .detailsNotFound("ated", "businessType")
+            .apply(
+              FakeRequest()
+                .withSession(
+                  "sessionId" -> "test",
+                  "token" -> "RANDOMTOKEN",
+                  "userId" -> "userId"
+                )
+                .withHeaders(Headers("Authorization" -> "value"))
+            )
+        ) mustBe OK
       }
     }
   }
 
-  private def willSaveBackLink(backLink : String) =
-    when(mockBackLinkCache.saveBackLink(
-      ArgumentMatchers.eq(null),
-      ArgumentMatchers.eq(Some(backLink)))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+  private def willSaveBackLink(backLink: String) =
+    when(
+      mockBackLinkCache.saveBackLink(
+        ArgumentMatchers.eq(null),
+        ArgumentMatchers.eq(Some(backLink))
+      )(ArgumentMatchers.any(), ArgumentMatchers.any())
+    )
       .thenReturn(Future.successful(None))
 
-
-  def businessVerificationWithAuthorisedUser(controller: BusinessVerificationController)
-                                            (test: Future[Result] => Any,
-                                             serviceName: String = service): Unit = {
+  def businessVerificationWithAuthorisedUser(
+      controller: BusinessVerificationController
+  )(test: Future[Result] => Any, serviceName: String = service): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some("/ated-subscription/appoint-agent")))
+    when(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+        ArgumentMatchers.any(),
+        ArgumentMatchers.any()
+      )
+    ).thenReturn(Future.successful(Some("/ated-subscription/appoint-agent")))
 
-    val result = controller.businessVerification(serviceName).apply(FakeRequest().withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value"))
-    )
+    val result = controller
+      .businessVerification(serviceName)
+      .apply(
+        FakeRequest()
+          .withSession(
+            "sessionId" -> sessionId,
+            "token" -> "RANDOMTOKEN",
+            "userId" -> userId
+          )
+          .withHeaders(Headers("Authorization" -> "value"))
+      )
 
     test(result)
   }
 
-  def businessVerificationWithAuthorisedAgent(controller: BusinessVerificationController)
-                                             (test: Future[Result] => Any): Unit = {
+  def businessVerificationWithAuthorisedAgent(
+      controller: BusinessVerificationController
+  )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+        ArgumentMatchers.any(),
+        ArgumentMatchers.any()
+      )
+    ).thenReturn(Future.successful(None))
 
-    val result = controller.businessVerification(service).apply(FakeRequest().withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value"))
-    )
+    val result = controller
+      .businessVerification(service)
+      .apply(
+        FakeRequest()
+          .withSession(
+            "sessionId" -> sessionId,
+            "token" -> "RANDOMTOKEN",
+            "userId" -> userId
+          )
+          .withHeaders(Headers("Authorization" -> "value"))
+      )
 
     test(result)
   }
 
-  def businessLookupWithAuthorisedUser(controller: BusinessVerificationController,
-                                       businessType: String,
-                                       serviceName: String = service)(test: Future[Result] => Any): Unit = {
+  def businessLookupWithAuthorisedUser(
+      controller: BusinessVerificationController,
+      businessType: String,
+      serviceName: String = service
+  )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+        ArgumentMatchers.any(),
+        ArgumentMatchers.any()
+      )
+    ).thenReturn(Future.successful(None))
 
-    val result = controller.businessForm(serviceName, businessType).apply(FakeRequest().withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value"))
-    )
+    val result = controller
+      .businessForm(serviceName, businessType)
+      .apply(
+        FakeRequest()
+          .withSession(
+            "sessionId" -> sessionId,
+            "token" -> "RANDOMTOKEN",
+            "userId" -> userId
+          )
+          .withHeaders(Headers("Authorization" -> "value"))
+      )
 
     test(result)
   }
 
-  def businessVerificationWithUnAuthorisedUser(controller: BusinessVerificationController)(test: Future[Result] => Any): Unit = {
+  def businessVerificationWithUnAuthorisedUser(
+      controller: BusinessVerificationController
+  )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+        ArgumentMatchers.any(),
+        ArgumentMatchers.any()
+      )
+    ).thenReturn(Future.successful(None))
 
-    val result = controller.businessVerification(service).apply(FakeRequest().withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value"))
-    )
+    val result = controller
+      .businessVerification(service)
+      .apply(
+        FakeRequest()
+          .withSession(
+            "sessionId" -> sessionId,
+            "token" -> "RANDOMTOKEN",
+            "userId" -> userId
+          )
+          .withHeaders(Headers("Authorization" -> "value"))
+      )
 
     test(result)
   }
 
-  def continueWithAuthorisedUserJson(controller: BusinessVerificationController,
-                                     fields: Map[String, String],
-                                     service: String = service)(test: Future[Result] => Any): Unit = {
+  def continueWithAuthorisedUserJson(
+      controller: BusinessVerificationController,
+      fields: Map[String, String],
+      service: String = service
+  )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
@@ -1020,40 +1789,60 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         .withSession(
           "sessionId" -> sessionId,
           "token" -> "RANDOMTOKEN",
-          "userId" -> userId)
+          "userId" -> userId
+        )
         .withHeaders(Headers("Authorization" -> "value"))
         .withFormUrlEncodedBody(fields.toSeq: _*)
     }
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+        ArgumentMatchers.any(),
+        ArgumentMatchers.any()
+      )
+    ).thenReturn(Future.successful(None))
 
     val result = controller.continue(service).apply(generateRequest)
 
     test(result)
   }
 
-  def continueWithAuthorisedAgentJson(controller: BusinessVerificationController,
-                                     businessType: String,
-                                     fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
-                                     service: String = service)(test: Future[Result] => Any): Unit = {
+  def continueWithAuthorisedAgentJson(
+      controller: BusinessVerificationController,
+      businessType: String,
+      fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
+      service: String = service
+  )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+        ArgumentMatchers.any(),
+        ArgumentMatchers.any()
+      )
+    ).thenReturn(Future.successful(None))
 
-    val result = controller.continue(service).apply(fakeRequest.withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value"))
-    )
+    val result = controller
+      .continue(service)
+      .apply(
+        fakeRequest
+          .withSession(
+            "sessionId" -> sessionId,
+            "token" -> "RANDOMTOKEN",
+            "userId" -> userId
+          )
+          .withHeaders(Headers("Authorization" -> "value"))
+      )
 
     test(result)
   }
 
-  def continueWithAuthorisedSaUserJson(controller: BusinessVerificationController,
-                                       fields: Map[String, String])(test: Future[Result] => Any): Unit = {
+  def continueWithAuthorisedSaUserJson(
+      controller: BusinessVerificationController,
+      fields: Map[String, String]
+  )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
@@ -1061,7 +1850,8 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         .withSession(
           "sessionId" -> sessionId,
           "token" -> "RANDOMTOKEN",
-          "userId" -> userId)
+          "userId" -> userId
+        )
         .withHeaders(Headers("Authorization" -> "value"))
         .withFormUrlEncodedBody(fields.toSeq: _*)
     }
@@ -1072,8 +1862,10 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
     test(result)
   }
 
-  def continueWithAuthorisedSaOrgUserJson(controller: BusinessVerificationController,
-                                          fields: Map[String, String])(test: Future[Result] => Any): Unit = {
+  def continueWithAuthorisedSaOrgUserJson(
+      controller: BusinessVerificationController,
+      fields: Map[String, String]
+  )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
@@ -1081,53 +1873,84 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
         .withSession(
           "sessionId" -> sessionId,
           "token" -> "RANDOMTOKEN",
-          "userId" -> userId)
+          "userId" -> userId
+        )
         .withHeaders(Headers("Authorization" -> "value"))
         .withFormUrlEncodedBody(fields.toSeq: _*)
     }
 
     AuthBuilder.mockAuthorisedSaOrgUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+        ArgumentMatchers.any(),
+        ArgumentMatchers.any()
+      )
+    ).thenReturn(Future.successful(None))
 
     val result = controller.continue(service).apply(generateRequest)
 
     test(result)
   }
 
-  def continueWithAuthorisedUser(controller: BusinessVerificationController,
-                                 businessType: String,
-                                 fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any): Unit = {
+  def continueWithAuthorisedUser(
+      controller: BusinessVerificationController,
+      businessType: String,
+      fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded]
+  )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+        ArgumentMatchers.any(),
+        ArgumentMatchers.any()
+      )
+    ).thenReturn(Future.successful(None))
 
-    val result = controller.continue(service).apply(fakeRequest.withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value")).withMethod("POST")
-    )
+    val result = controller
+      .continue(service)
+      .apply(
+        fakeRequest
+          .withSession(
+            "sessionId" -> sessionId,
+            "token" -> "RANDOMTOKEN",
+            "userId" -> userId
+          )
+          .withHeaders(Headers("Authorization" -> "value"))
+          .withMethod("POST")
+      )
 
     test(result)
   }
 
-  def businessLookupWithAuthorisedAgent(controller: BusinessVerificationController,
-                                        businessType: String,
-                                        service: String = service)(test: Future[Result] => Any): Unit = {
+  def businessLookupWithAuthorisedAgent(
+      controller: BusinessVerificationController,
+      businessType: String,
+      service: String = service
+  )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
     val userId = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+        ArgumentMatchers.any(),
+        ArgumentMatchers.any()
+      )
+    ).thenReturn(Future.successful(None))
 
-    val result = controller.businessForm(service, businessType).apply(FakeRequest().withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value"))
-    )
+    val result = controller
+      .businessForm(service, businessType)
+      .apply(
+        FakeRequest()
+          .withSession(
+            "sessionId" -> sessionId,
+            "token" -> "RANDOMTOKEN",
+            "userId" -> userId
+          )
+          .withHeaders(Headers("Authorization" -> "value"))
+      )
 
     test(result)
   }
