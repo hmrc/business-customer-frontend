@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,9 @@ class BusinessCustomerConnector @Inject()(val http: HttpClientV2,
   val knownFactsUri = "known-facts"
   val updateRegistrationDetailsURI = "update"
 
-  def addKnownFacts(knownFacts: KnownFactsForService)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  def addKnownFacts(knownFacts: KnownFactsForService)(implicit authContext: StandardAuthRetrievals,
+                                                      hc: HeaderCarrier,
+                                                      ec: ExecutionContext): Future[HttpResponse] = {
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/${GovernmentGatewayConstants.KnownFactsAgentServiceName}/$knownFactsUri"""
     val jsonData = Json.toJson(knownFacts)

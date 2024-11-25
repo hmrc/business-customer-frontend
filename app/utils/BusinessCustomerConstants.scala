@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,5 +32,5 @@ object BusinessCustomerConstants {
   val PaySaDetailsId = "Pay_Sa_Details"
   val NrlFormId = "NRL_Details"
   val UpdateNotRegisterId = "Update_No_Register"
-  val AWRSRegistrationDetails = "AWRS_Registration_Details_"
+  val CacheRegistrationDetails = "Cache_Registration_Details_"
 }

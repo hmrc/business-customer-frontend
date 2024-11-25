@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,9 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     }
   }
 
-  private def cacheIndividual(dataReturned: JsValue, directMatch: Boolean, utr: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+  private def cacheIndividual(dataReturned: JsValue,
+                              directMatch: Boolean,
+                              utr: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     val businessType = SoleTrader
     val individual = (dataReturned \ "individual").as[Individual]
     val addressReturned = getAddress(dataReturned)

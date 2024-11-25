@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -731,6 +731,18 @@ class BusinessVerificationValidationSpec
           )
         }
       }
+
+      "for successful match, status should be 303 and user should be redirected to review details page for neither AWRS nor ATED journey" in new Setup {
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessOrg("OBP", FakeRequest("POST", "/")
+          .withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"), controller, "amls") {
+          result =>
+            status(result) must be(SEE_OTHER)
+            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        }
+      }
+
       "for unsuccessful match, status should be Redirect and user should be on details not found page" in new Setup {
         submitWithAuthorisedUserFailure(
           "OBP",
@@ -791,6 +803,16 @@ class BusinessVerificationValidationSpec
           redirectLocation(result).get must include(
             s"/business-customer/review-details/awrs"
           )
+        }
+      }
+      "for successful match, status should be 303 and  user should be redirected to review details page for neither AWRS nor ATED journey" in new Setup {
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessOrg("LLP", FakeRequest("POST", "/")
+          .withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"), controller, "amls") {
+          result =>
+            status(result) must be(SEE_OTHER)
+            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
         }
       }
       "for unsuccessful match, status should be Redirect and user should be on details not found page" in new Setup {
@@ -855,6 +877,18 @@ class BusinessVerificationValidationSpec
           )
         }
       }
+
+      "for successful match, status should be 303 and  user should be redirected to review details page for neither ATED nor AWRS journey" in new Setup {
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessOrg("LP", FakeRequest("POST", "/")
+          .withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"), controller, "amls") {
+          result =>
+            status(result) must be(SEE_OTHER)
+            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        }
+      }
+
       "for unsuccessful match, status should be Redirect and user should be on details not found page" in new Setup {
         submitWithAuthorisedUserFailure(
           "LP",
@@ -919,6 +953,18 @@ class BusinessVerificationValidationSpec
           )
         }
       }
+
+      "for successful match, status should be 303 and  user should be redirected to review details page for neither AWRS nor ATED journey" in new Setup {
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessIndividual("SOP", FakeRequest("POST", "/")
+          .withFormUrlEncodedBody("firstName" -> "First Name", "lastName" -> "Last Name", "saUTR" -> s"$matchUtr"), controller, "amls") {
+          result =>
+            status(result) must be(SEE_OTHER)
+            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        }
+      }
+
       "for unsuccessful match, status should be Redirect and user should be on details not found page" in new Setup {
         submitWithAuthorisedUserFailureIndividual(
           "SOP",
@@ -1053,6 +1099,16 @@ class BusinessVerificationValidationSpec
           )
         }
       }
+      "for successful match, status should be 303 and  user should be redirected to review details page for neither AWRS nor ATED journey" in new Setup {
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessOrg("UIB", FakeRequest("POST", "/")
+          .withFormUrlEncodedBody("cotaxUTR" -> s"$matchUtr", "businessName" -> "Business Name"), controller, "amls") {
+          result =>
+            status(result) must be(SEE_OTHER)
+            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        }
+      }
       "for unsuccessful match, status should be Redirect and  user should be on same details not found page" in new Setup {
         submitWithAuthorisedUserFailure(
           "UIB",
@@ -1115,6 +1171,18 @@ class BusinessVerificationValidationSpec
           )
         }
       }
+
+      "for successful match, status should be 303 and  user should be redirected to review details page for neither AWRS nor ATED journey" in new Setup {
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessOrg("LTD", FakeRequest("POST", "/")
+          .withFormUrlEncodedBody("cotaxUTR" -> s"$matchUtr", "businessName" -> "Business Name"), controller, "amls") {
+          result =>
+            status(result) must be(SEE_OTHER)
+            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        }
+      }
+
       "for unsuccessful match, status should be Redirect and user should be on details not found page" in new Setup {
         submitWithAuthorisedUserFailure(
           "LTD",
