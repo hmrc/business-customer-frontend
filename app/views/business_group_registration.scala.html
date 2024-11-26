@@ -80,7 +80,8 @@
                     hint = Some(Hint(
                         content = Text(Messages("bc.business-registration.group.businessName.hintText"))
                     )),
-                    attributes = Map("maxLength" -> "140")
+                    attributes = Map("maxLength" -> "140"),
+                    autocomplete = Some("organization")
                 ).withFormField(businessRegistrationForm("businessName"))
             )
 
@@ -89,7 +90,8 @@
                     label = Label(
                         content = Text(Messages("bc.business-registration.line_1"))
                     ),
-                    attributes = Map("maxLength" -> "35")
+                    attributes = Map("maxLength" -> "35"),
+                    autocomplete = Some("address-line1")
                 ).withFormField(businessRegistrationForm("businessAddress.line_1"))
             )
 
@@ -98,7 +100,8 @@
                     label = Label(
                         content = Text(Messages("bc.business-registration.line_2"))
                     ),
-                    attributes = Map("maxLength" -> "35")
+                    attributes = Map("maxLength" -> "35"),
+                    autocomplete = Some("address-line2")
                 ).withFormField(businessRegistrationForm("businessAddress.line_2"))
             )
 
@@ -107,7 +110,8 @@
                     label = Label(
                         content = Text(Messages("bc.business-registration.group.line_3"))
                     ),
-                    attributes = Map("maxLength" -> "35")
+                    attributes = Map("maxLength" -> "35"),
+                    autocomplete = Some("address-line3")
                 ).withFormField(businessRegistrationForm("businessAddress.line_3"))
             )
 
@@ -116,7 +120,8 @@
                     label = Label(
                         content = Text(Messages("bc.business-registration.group.line_4"))
                     ),
-                    attributes = Map("maxLength" -> "35")
+                    attributes = Map("maxLength" -> "35"),
+                    autocomplete = Some("address-level2")
                 ).withFormField(businessRegistrationForm("businessAddress.line_4"))
             )
 
@@ -126,7 +131,8 @@
                         content = Text(Messages("bc.business-registration.postcode"))
                     ),
                     classes = "govuk-input--width-10",
-                    attributes = Map("maxLength" -> "10")
+                    attributes = Map("maxLength" -> "10"),
+                    autocomplete = Some("postal-code")
                 ).withFormField(businessRegistrationForm("businessAddress.postcode"))
             )
       </div>

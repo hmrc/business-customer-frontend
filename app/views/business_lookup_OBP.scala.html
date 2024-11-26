@@ -87,7 +87,8 @@
                     ),
                     hint = Some(Hint(
                         content = Text(Messages("bc.business-verification.partnerNameHint"))
-                    ))
+                    )),
+                    autocomplete = Some("organization")
                 ).withFormField(ordinaryBusinessPartnershipForm("businessName"))
             )
 
