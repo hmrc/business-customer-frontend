@@ -86,7 +86,8 @@
                     label = Label(
                         content = Text(Messages("bc.business-verification.firstNameField")),
                         classes = "govuk-label--s",
-                    )
+                    ),
+                    autocomplete = Some("given-name")
                 ).withFormField(soleTraderForm("firstName"))
             )
 
@@ -95,7 +96,8 @@
                     label = Label(
                         content = Text(Messages("bc.business-verification.lastNameField")),
                         classes = "govuk-label--s"
-                    )
+                    ),
+                    autocomplete = Some("family-name")
                 ).withFormField(soleTraderForm("lastName"))
             )
 

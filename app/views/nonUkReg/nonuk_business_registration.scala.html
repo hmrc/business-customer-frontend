@@ -82,7 +82,8 @@
              Input(
                   label = Label(
                       content = Text(Messages("bc.non-uk-reg.businessName"))
-                  )
+                  ),
+                  autocomplete = Some("organization")
              ).withFormField(businessRegistrationForm("businessName"))
         )
 
@@ -90,7 +91,8 @@
              Input(
                   label = Label(
                       content = Text(Messages("bc.non-uk-reg.line_1"))
-                  )
+                  ),
+                  autocomplete = Some("address-line1")
              ).withFormField(businessRegistrationForm("businessAddress.line_1"))
       )
 
@@ -98,7 +100,8 @@
              Input(
                   label = Label(
                       content = Text(Messages("bc.non-uk-reg.line_2"))
-                  )
+                  ),
+                  autocomplete = Some("address-line2")
              ).withFormField(businessRegistrationForm("businessAddress.line_2"))
       )
 
@@ -106,7 +109,8 @@
              Input(
                   label = Label(
                       content = Text(Messages("bc.non-uk-reg.line_3"))
-                  )
+                  ),
+                  autocomplete = Some("address-line3")
              ).withFormField(businessRegistrationForm("businessAddress.line_3"))
       )
 
@@ -114,7 +118,8 @@
              Input(
                   label = Label(
                       content = Text(Messages("bc.non-uk-reg.line_4"))
-                  )
+                  ),
+                  autocomplete = Some("address-level2")
              ).withFormField(businessRegistrationForm("businessAddress.line_4"))
       )
 

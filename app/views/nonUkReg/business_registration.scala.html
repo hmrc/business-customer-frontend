@@ -91,7 +91,8 @@
                   label = Label(
                       content = Text(Messages("bc.business-registration.businessName"))
 
-                  )
+                  ),
+                  autocomplete = Some("organization")
              ).withFormField(businessRegistrationForm("businessName"))
         )
 
@@ -99,7 +100,8 @@
              Input(
                   label = Label(
                       content = Text(Messages("bc.business-registration.line_1"))
-                  )
+                  ),
+                  autocomplete = Some("address-line1")
              ).withFormField(businessRegistrationForm("businessAddress.line_1"))
         )
 
@@ -107,7 +109,8 @@
              Input(
                   label = Label(
                       content = Text(Messages("bc.business-registration.line_2"))
-                  )
+                  ),
+                  autocomplete = Some("address-line2")
              ).withFormField(businessRegistrationForm("businessAddress.line_2"))
         )
 
@@ -115,7 +118,8 @@
              Input(
                   label = Label(
                       content = Text(Messages("bc.business-registration.line_3"))
-                  )
+                  ),
+                  autocomplete = Some("address-line3")
              ).withFormField(businessRegistrationForm("businessAddress.line_3"))
         )
 
@@ -123,7 +127,8 @@
              Input(
                   label = Label(
                       content = Text(Messages("bc.business-registration.line_4"))
-                  )
+                  ),
+                  autocomplete = Some("address-level2")
              ).withFormField(businessRegistrationForm("businessAddress.line_4"))
         )
 
@@ -134,7 +139,8 @@
                       content = Text(Messages("bc.non-uk-reg.postcode"))
                   ),
                   classes = "govuk-input--width-10",
-                  attributes = Map("maxLength" -> "10")
+                  attributes = Map("maxLength" -> "10"),
+                  autocomplete = Some("postal-code")
              ).withFormField(businessRegistrationForm("businessAddress.postcode"))
           )
 
