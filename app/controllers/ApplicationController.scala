@@ -55,7 +55,7 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
          case "AWRS" if(redirectToTimeOut) =>
             Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.timedOutUrl", s"/awrs/timeOut")).withNewSession
          case "AWRS" =>
-           Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", s"/awrs/logout")).withNewSession
+           Redirect(appConfig.conf.getConfString(s"${service.toLowerCase}.logoutUrl", s"//alcohol-wholesale-scheme/logout")).withNewSession
          case "AMLS" =>
            Redirect(config.signOut)
          case "FHDDS" =>

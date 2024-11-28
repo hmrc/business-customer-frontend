@@ -16,8 +16,6 @@
 
 package config
 
-import java.io.File
-
 import javax.inject.{Inject, Named, Singleton}
 import play.api.{Configuration, Environment, Logging}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -30,23 +28,14 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
                                   val environment: Environment,
                                   @Named("appName") val appName: String) extends BCUtils with Logging {
 
-  private val contactHost = conf.getConfString("contact-frontend.host", "")
-
   val serviceList: Seq[String] =  oldConfig.getOptional[Seq[String]]("microservice.services.names").getOrElse(
     throw new Exception("No services available in application configuration"))
 
-  val contactFormServiceIdentifier = "BUSINESS-CUSTOMER"
-
-  lazy val reportAProblemPartialUrl = s"$contactHost/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
-  lazy val reportAProblemNonJSUrl = s"$contactHost/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
-  lazy val defaultTimeoutSeconds: Int = conf.getInt("defaultTimeoutSeconds").toInt
-  lazy val timeoutCountdown: Int = conf.getInt("timeoutCountdown").toInt
   lazy val logoutUrl: String = conf.getString("logout.url")
   lazy val businessCustomer: String = conf.baseUrl("business-customer")
   lazy val businessMatching: String = conf.baseUrl("business-matching")
   lazy val taxEnrolments: String = conf.baseUrl("tax-enrolments")
   lazy val basGatewayHost: String = conf.getString("microservice.services.auth.bas-gateway-frontend.host")
-  lazy val addClientEmailPath: String = conf.getString(s"microservice.services.agent-client-mandate-frontend.select-service")
   lazy val accessibilityStatementFrontendHost: String = conf.getString(s"microservice.services.accessibility-statement-frontend.host")
   lazy val accessibilityStatementFrontendUrl: String = conf.getString(s"microservice.services.accessibility-statement-frontend.url")
   lazy val platformHost: String = Try(conf.getString("platform.frontend.host")).getOrElse("")
@@ -60,12 +49,6 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
     "cachable.session-cache.domain", throw new Exception(s"Could not find config 'cachable.session-cache.domain'")
   )
 
-  lazy val cookies: String = conf.getString("urls.footer.cookies")
-  lazy val accessibilityStatement: String = conf.getString("urls.footer.accessibility_statement")
-  lazy val privacy: String = conf.getString("urls.footer.privacy_policy")
-  lazy val termsConditions: String = conf.getString("urls.footer.terms_and_conditions")
-  lazy val govukHelp: String = conf.getString("urls.footer.help_page")
-
   def accessibilityStatementFrontendUrl(service: String, referrerUrl: String): String = {
     val statement = service.toUpperCase() match {
       case "AMLS" => "anti-money-laundering"
@@ -77,9 +60,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
     s"$accessibilityStatementFrontendHost$accessibilityStatementFrontendUrl/$statement?referrerUrl=$referrerUrl"
   }
 
-  def serviceSignOutUrl(service: String): String = conf.getConfString(s"delegated-service.${service.toLowerCase}.sign-out-url", logoutUrl)
   def continueURL(serviceName: String) = s"$loginCallback/$serviceName"
-  def signIn(serviceName: String) = s"$basGatewayHost/bas-gateway/sign-in?continue=${continueURL(serviceName)}"
 
   def agentConfirmationPath(service:String): String = {
     conf.getConfString(s"${service.toLowerCase}.agentConfirmationUrl", "/ated-subscription/agent-confirmation")
@@ -89,17 +70,9 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
       conf.getConfBool(s"${service.toLowerCase.trim}.validateNonUkClientPostCode", defBool = false)
   }
 
-  def serviceWelcomePath(service: String): String = conf.getString(s"microservice.services.${service.toLowerCase}.serviceStartUrl")
-  def serviceAccountPath(service: String): String = conf.getString(s"microservice.services.${service.toLowerCase}.accountSummaryUrl")
   def serviceRedirectUrl(service: String): String = conf.getString(s"microservice.services.${service.toLowerCase}.serviceRedirectUrl")
 
-  private def isRelativeUrl(url: String): Boolean = url.matches("^[/][^/].*")
-
-  def isRelative(url: String): Boolean = isRelativeUrl(url) || conf.baseUrl("auth").contains("localhost")
-
-  def getFile(path: String): File = environment.getFile(path)
   lazy val allowedHosts = oldConfig.get[Seq[String]]("allowedHosts")
-
 
   lazy val backToInformHMRCNrlUrl: Option[String] = Option(conf.getString("microservice.services.agent-client-mandate-frontend.informHMRCNrlUrl"))
 }
