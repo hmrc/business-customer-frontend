@@ -16,7 +16,6 @@
 
 package controllers.nonUKReg
 
-import java.util.UUID
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import models.{Address, BusinessRegistration}
@@ -35,6 +34,7 @@ import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import views.html.nonUkReg.nonuk_business_registration
 
+import java.util.UUID
 import scala.concurrent.Future
 
 
@@ -108,6 +108,57 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
 
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("http://localhost:9959/mandate/agent/inform-HMRC/nrl")
+        }
+      }
+
+      "return business registration view for a Non-UK based client by agent with cached back link" in new Setup {
+
+        val expectedBacklink = "http://localhost:9959/calling-service/backlink"
+        viewWithAuthorisedUser(service, "NUK", None, Some(expectedBacklink), controller) { result =>
+
+          status(result) must be(OK)
+          val document = Jsoup.parse(contentAsString(result))
+
+          document.title() must be("What is your client’s overseas registered business name and address? - GOV.UK")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: Add a client")
+          document.getElementsByTag("h1").text() must include("What is your client’s overseas registered business name and address?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
+          document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
+          document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
+          document.getElementsByAttributeValue("for", "businessAddress.line_3").text() must be("Address line 3 (optional)")
+          document.getElementsByAttributeValue("for", "businessAddress.line_4").text() must be("Address line 4 (optional)")
+          document.getElementsByAttributeValue("for", "businessAddress.country").text() must include("Country")
+          document.getElementById("submit").text() must be("Continue")
+
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(expectedBacklink)
+        }
+      }
+
+      "return business registration view for a Non-UK based client by agent and save backlink for future retrieval" in new Setup {
+
+        val expectedBacklink = "http://localhost:9959/calling-service/backlink"
+
+        viewWithAuthorisedUser(service, "NUK", Some(expectedBacklink), None, controller) { result =>
+
+          val document = Jsoup.parse(contentAsString(result))
+
+          verify(mockBackLinkCache, times(1)).
+            saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+
+          document.title() must be("What is your client’s overseas registered business name and address? - GOV.UK")
+          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: Add a client")
+          document.getElementsByTag("h1").text() must include("What is your client’s overseas registered business name and address?")
+          document.getElementsByAttributeValue("for", "businessName").text() must be("Business name")
+          document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
+          document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
+          document.getElementsByAttributeValue("for", "businessAddress.line_3").text() must be("Address line 3 (optional)")
+          document.getElementsByAttributeValue("for", "businessAddress.line_4").text() must be("Address line 4 (optional)")
+          document.getElementsByAttributeValue("for", "businessAddress.country").text() must include("Country")
+          document.getElementById("submit").text() must be("Continue")
+
+          document.getElementsByClass("govuk-back-link").text() must be("Back")
+          document.getElementsByClass("govuk-back-link").attr("href") must be(expectedBacklink)
         }
       }
 

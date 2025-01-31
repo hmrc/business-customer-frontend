@@ -26,6 +26,7 @@ import models.{BusinessRegistration, BusinessRegistrationDisplayDetails}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
@@ -51,17 +52,14 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
   def view(service: String, backLinkUrl: Option[RedirectUrl]): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       for {
-        backLink <- currentBackLink
+        fetchedBackLink <- currentBackLink
         businessRegistration <- businessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](BusinessRegDetailsId)
       } yield {
         val backLinkOption: Option[String] =
           if (backLinkUrl.isDefined) {
-            Try(backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)) match {
-              case Success(url) => url
-              case Failure(_) => backLink
-            }
+            handleDefinedBacklink(backLinkUrl, fetchedBackLink)
           } else {
-            config.backToInformHMRCNrlUrl
+            fetchedBackLink.orElse(config.backToInformHMRCNrlUrl)
           }
 
           businessRegistration match {
@@ -72,6 +70,15 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
           }
       }
     }
+  }
+
+  private def handleDefinedBacklink(backLinkUrl: Option[RedirectUrl], fetchedBackLink: Option[String])(implicit hc: HeaderCarrier) = {
+    val resolvedBacklink = Try(backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)) match {
+      case Success(url) => url
+      case Failure(_)   => fetchedBackLink
+    }
+    setBackLink(controllerId, resolvedBacklink)
+    resolvedBacklink
   }
 
   def submit(service: String): Action[AnyContent] = Action.async { implicit request =>
