@@ -67,10 +67,10 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
       }
     }
 
-    "Throw an exception if we have no back link" in {
+    "Return no content if we have no back link" in {
       backLink(None) { result =>
-        val thrown = the[RuntimeException] thrownBy await(result)
-        thrown.getMessage must be(s"[ExternalLinkController][backLink] No Back Link found. Service: $service")
+        status(result) must be(NO_CONTENT)
+        redirectLocation(result) must be(None)
       }
     }
   }
