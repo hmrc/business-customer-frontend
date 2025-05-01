@@ -39,7 +39,10 @@ class ExternalLinkController @Inject()(val authConnector: AuthConnector,
 
   def backLink(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(serviceName){ implicit authContext =>
-      currentBackLink.map(_.map(Redirect(_)).getOrElse(NoContent))
+      currentBackLink.map(_.map(Redirect(_)).getOrElse {
+        logger.warn(s"No Back Link found. Service: $serviceName")
+        NoContent
+      })
     }
   }
 }
