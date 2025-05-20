@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,4 +75,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   lazy val allowedHosts = oldConfig.get[Seq[String]]("allowedHosts")
 
   lazy val backToInformHMRCNrlUrl: Option[String] = Option(conf.getString("microservice.services.agent-client-mandate-frontend.informHMRCNrlUrl"))
+
+  def haveYouRegisteredUrl: String = conf.getString(s"microservice.services.awrs.haveYouRegisteredUrl")
+  def enrolmentJourneyFeature: Boolean = Try(conf.getBoolean("feature.enrolmentJourney")).getOrElse(false)
 }
