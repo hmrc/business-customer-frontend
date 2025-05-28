@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,15 @@
 
 package controllers
 
-import java.util.UUID
 import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
-import forms.{
-  BusinessType,
-  LimitedCompanyMatch,
-  LimitedLiabilityPartnershipMatch,
-  LimitedPartnershipMatch,
-  OrdinaryBusinessPartnershipMatch,
-  SoleTraderMatch,
-  UnincorporatedMatch
-}
+import forms._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, Messages}
@@ -45,6 +36,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html._
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class BusinessVerificationControllerSpec
@@ -226,6 +218,64 @@ class BusinessVerificationControllerSpec
               "/ated-subscription/appoint-agent"
             )
           }
+        }
+
+        "redirect to 'haveYouRegisteredUrl' if service is 'awrs' and enrolmentJourneyFeature is true, and no backlink is found" in {
+          val mockAppConfig = mock[ApplicationConfig]
+          val userId = s"user-${UUID.randomUUID}"
+          val service = "awrs"
+
+          AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
+          when(
+            mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )
+          ).thenReturn(Future.successful(None))
+          when(mockAppConfig.getNavTitle(service)).thenReturn(Some("bc.awrs.serviceName"))
+          when(mockAppConfig.serviceList).thenReturn(List(service))
+          when(mockAppConfig.enrolmentJourneyFeature).thenReturn(true)
+          when(mockAppConfig.haveYouRegisteredUrl).thenReturn("http://localhost:9913/alcohol-wholesale-scheme/have-you-registered")
+          when(mockAppConfig.businessTypeMap(service, isAgent = false)).thenReturn(Seq(
+            "OBP" -> "bc.business-verification.PRT", "GROUP" -> "bc.business-verification.GROUP", "LTD" -> "bc.business-verification.LTD",
+            "LLP" -> "bc.business-verification.LLP", "LP" -> "bc.business-verification.LP",
+            "SOP" -> "bc.business-verification.SOP", "UIB" -> "bc.business-verification.UIB"
+          ))
+          when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any())).thenReturn(Future.successful(None))
+
+          val businessVerificationController = new BusinessVerificationController(
+            mockAppConfig,
+            mockAuthConnector,
+            injectedViewInstance,
+            injectedViewInstanceSOP,
+            injectedViewInstanceLTD,
+            injectedViewInstanceUIB,
+            injectedViewInstanceOBP,
+            injectedViewInstanceLLP,
+            injectedViewInstanceLP,
+            injectedViewInstanceNRL,
+            injectedViewInstanceDetailsNotFound,
+            mockBusinessRegCacheConnector,
+            mockBackLinkCache,
+            mockBusinessMatchingService,
+            businessRegUKController,
+            busRegController,
+            nrlQuestionController,
+            reviewDetailsController,
+            homeController,
+            mcc
+          ) {
+            override val controllerId = "BusinessVerificationController"
+          }
+
+          val result = businessVerificationController.businessVerification(service)(FakeRequest())
+          status(result) mustBe OK
+
+          val document = Jsoup.parse(contentAsString(result))
+          document.getElementsByClass("govuk-back-link").attr("href") must be("http://localhost:9913/alcohol-wholesale-scheme/have-you-registered")
         }
 
         "return Business Verification view for an agent" in new Setup {

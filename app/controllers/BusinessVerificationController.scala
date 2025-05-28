@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,13 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
   def businessVerification(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       for {
-        backLink <- currentBackLink
+        rawBackLink <- currentBackLink
+        backLink: Option[String] = rawBackLink.orElse {
+          service match {
+            case "awrs" if appConfig.enrolmentJourneyFeature => Some(appConfig.haveYouRegisteredUrl)
+            case _ => rawBackLink
+          }
+        }
         businessTypeDetails <- businessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](s"$CacheRegistrationDetails$service")
       } yield {
         businessTypeDetails match {
