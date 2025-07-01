@@ -18,7 +18,7 @@ package acceptance.nonUkReg
 
 import config.ApplicationConfig
 import forms.BusinessRegistrationForms._
-import models.OverseasCompanyDisplayDetails
+import models.OverseasCompanyRegDisplayDetails
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
@@ -34,7 +34,7 @@ class overseas_company_registrationSpec extends AnyFeatureSpec with GuiceOneServ
 
   val service = "ATED"
   val injectedViewInstance: overseas_company_registration = inject[views.html.nonUkReg.overseas_company_registration]
-  val displayDetails: OverseasCompanyDisplayDetails = OverseasCompanyDisplayDetails(
+  val displayDetails: OverseasCompanyRegDisplayDetails = OverseasCompanyRegDisplayDetails(
     "dynamicTitle",
     "dynamicHeader",
     "dynamicSubHeader",
@@ -55,7 +55,7 @@ class overseas_company_registrationSpec extends AnyFeatureSpec with GuiceOneServ
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
-      val html = injectedViewInstance(overseasCompanyForm, service, displayDetails, List(("UK", "UK")), None, Some("backLinkUri"))
+      val html = injectedViewInstance(overseasCompanyRegForm, service, displayDetails, List(("UK", "UK")), None, Some("backLinkUri"))
 
       val document = Jsoup.parse(html.toString())
 
@@ -63,10 +63,7 @@ class overseas_company_registrationSpec extends AnyFeatureSpec with GuiceOneServ
       assert(document.select("h1").text contains displayDetails.header)
 
       Then("The subheader should be - dynamicSubHeader")
-      assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is dynamicSubHeader")
-
-      Then("The options should be Yes and No")
-      assert(document.select(".govuk-radios__item").text() === "Yes No")
+      assert(document.getElementsByClass("govuk-caption-xl").text() ===  displayDetails.subHeader)
 
       Then("The company registration number fields should exist")
       assert(document.getElementsByAttributeValue("for","businessUniqueId").text() === "Overseas company registration number")

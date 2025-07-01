@@ -1,4 +1,20 @@
 /*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +38,8 @@ import controllers.ReviewDetailsController
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
@@ -34,12 +50,12 @@ import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import views.html.nonUkReg.overseas_company
+import views.html.nonUkReg.overseas_company_registration
 
 import java.util.UUID
 import scala.concurrent.Future
 
-class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
+class OverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .configure("microservice.services.auth.host" -> "authprotected")
@@ -51,15 +67,14 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
   val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
-  val injectedViewInstance: overseas_company = inject[views.html.nonUkReg.overseas_company]
+  val injectedViewInstance: overseas_company_registration = inject[views.html.nonUkReg.overseas_company_registration]
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   val mockReviewDetailsController: ReviewDetailsController = mock[ReviewDetailsController]
-  val mockOverseasCompanyRegDetailsController: OverseasCompanyRegDetailsController = mock[OverseasCompanyRegDetailsController]
 
-  object TestController extends OverseasCompanyRegController(
+  object TestRegController extends OverseasCompanyRegDetailsController(
   mockAuthConnector,
   mockBackLinkCache,
   appConfig,
@@ -67,7 +82,6 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
   mockBusinessRegistrationService,
   mockBusinessRegistrationCache,
   mockReviewDetailsController,
-  mockOverseasCompanyRegDetailsController,
   mcc
   ) {
     override val controllerId = "test"
@@ -75,7 +89,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
 
   val serviceName: String = "ATED"
 
-  "OverseasCompanyRegController" must {
+  "OverseasCompanyRegDetailsController" must {
 
     "unauthorised users" must {
       "respond with a redirect for /view & be redirected to the unauthorised page" in {
@@ -94,7 +108,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number? - GOV.UK")
+          document.title() must be("Enter your overseas company registration details - GOV.UK")
         }
       }
 
@@ -109,7 +123,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Does your client have an overseas company registration number? - GOV.UK")
+          document.title() must be("Enter your client’s overseas company registration details - GOV.UK")
         }
       }
     }
@@ -123,33 +137,59 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
         isAGroup = false, directMatch = false, Some("agent123"))
 
       "validate form" must {
-        "select a radio button" in {
-          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "").toSeq: _*), "ATED", Some(businessReg), overseasDetails,reviewDetails) { result =>
+
+        type TestMessage = String
+        type ErrorMessage = String
+
+        "not be empty" in {
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "", "issuingInstitution" -> "", "issuingCountry" -> "").toSeq: _*), "ATED", Some(businessReg), overseasDetails,reviewDetails) { result =>
             val document = Jsoup.parse(contentAsString(result))
             status(result) must be(BAD_REQUEST)
-            document.getElementsByClass("govuk-error-summary__body").text() mustBe "Select yes if you have an overseas company registration number"
-            document.getElementById("hasBusinessUniqueId-error").text() mustBe "Error: Select yes if you have an overseas company registration number"
+            document.getElementsByClass("govuk-error-summary__body").text() mustBe "Enter an overseas company registration number Enter the country that issued the overseas company registration number Enter an institution that issued the overseas company registration number"
+            document.getElementById("businessUniqueId-error").text() mustBe "Error: Enter an overseas company registration number"
+            document.getElementById("issuingCountry-error").text() mustBe "Error: Enter the country that issued the overseas company registration number"
+            document.getElementById("issuingInstitution-error").text() mustBe "Error: Enter an institution that issued the overseas company registration number"
           }
         }
 
-        "If yes radio button is selected, continue button must redirect to the registration details page" in {
-          when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true").toSeq: _*), "ATED", Some(businessReg),overseasDetails, reviewDetails) { result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result) must be(Some("/business-customer/register/non-uk-client/overseas-company-reg/ATED/true"))
+        // inputJson , test message, error message
+        val formValidationInputDataSet: Seq[(Map[String, String], TestMessage, ErrorMessage)] = Seq(
+          (Map("businessUniqueId" -> s"${"a" * 61}", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR"), "businessUniqueId must be maximum of 60 characters",
+            "The overseas company registration number cannot be more than 60 characters"),
+          (Map("businessUniqueId" -> "some-id", "issuingInstitution" -> s"${"a" * 41}", "issuingCountry" -> "FR"), "issuingInstitution must be maximum of 40 characters",
+            "The institution that issued the overseas company registration number cannot be more than 40 characters"),
+          (Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "GB"), "show an error if issuing country is selected as GB",
+            "You cannot select United Kingdom when entering an overseas address")
+        )
+
+        formValidationInputDataSet.foreach { data =>
+          s"${data._2}" in {
+            registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(data._1.toSeq: _*), "ATED", Some(businessReg),overseasDetails, reviewDetails) { result =>
+              val document = Jsoup.parse(contentAsString(result))
+              status(result) must be(BAD_REQUEST)
+              document.getElementsByClass("govuk-error-summary__body").text() mustBe data._3
+              document.getElementsByClass("govuk-error-message").text() mustBe "Error: " + data._3
+            }
           }
         }
 
-        "If no radio button is selected, continue button must redirect to the redirectUrl" in {
+        "If we have no cache then an exception must be thrown" in {
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", None,overseasDetails, reviewDetails) { result =>
+            val thrown = the[RuntimeException] thrownBy await(result)
+            thrown.getMessage must be("[OverseasCompanyRegDetailsController][send] - service :ATED. Error : No Cached BusinessRegistration")
+          }
+        }
+
+        "If registration details entered are valid, continue button must redirect to the redirectUrl" in {
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "false").toSeq: _*), "ATED", Some(businessReg),overseasDetails, reviewDetails) { result =>
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some(businessReg),overseasDetails, reviewDetails) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result) must be(Some("/business-customer/review-details/ATED"))
           }
         }
 
         "If registration details entered are valid, continue button must redirect with to next page if no redirectUrl" in {
-          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "false").toSeq: _*), "ATED",
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED",
             Some(businessReg),overseasDetails, reviewDetails, Some("/api/anywhere")) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result) must be(Some("/api/anywhere"))
@@ -158,7 +198,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
 
         "If updateNoRegister flag is set to true, must update registration rather then create a new one" in {
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-          updateWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "false").toSeq: _*), "ATED", Some(businessReg),overseasDetails, reviewDetails) { result =>
+          updateWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some(businessReg),overseasDetails, reviewDetails) { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result) must be(Some("/business-customer/review-details/ATED"))
           }
@@ -169,7 +209,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
         }
 
         "redirect url is invalid format" in {
-          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "false").toSeq: _*), "ATED",
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED",
             Some(businessReg),overseasDetails, reviewDetails, Some("http://website.com")) { result =>
             status(result) must be(BAD_REQUEST)
           }
@@ -185,7 +225,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
     when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-    val result = TestController.view(serviceName, addClient = true).apply(FakeRequest().withSession(
+    val result = TestRegController.view(serviceName, addClient = true).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -204,7 +244,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
       (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-    val result = TestController.view(service, addClient = true).apply(FakeRequest().withSession(
+    val result = TestRegController.view(service, addClient = true).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -223,7 +263,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[OverseasCompany](ArgumentMatchers.any())
       (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(OverseasCompany(Some(true)))))
 
-    val result = TestController.view(service, addClient = true).apply(FakeRequest().withSession(
+    val result = TestRegController.view(service, addClient = true).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -243,7 +283,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
       (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-    val result = TestController.view(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(FakeRequest().withSession(
+    val result = TestRegController.view(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -278,7 +318,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
       ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(reviewDetails))
 
-    val result = TestController.submit(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(fakeRequest.withSession(
+    val result = TestRegController.register(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)
@@ -314,7 +354,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
       ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()
     )(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(reviewDetails))
 
-    val result = TestController.submit(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(fakeRequest.withSession(
+    val result = TestRegController.register(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(fakeRequest.withSession(
       "sessionId" -> sessionId,
       "token" -> "RANDOMTOKEN",
       "userId" -> userId)

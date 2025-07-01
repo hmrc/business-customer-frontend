@@ -301,6 +301,18 @@ bc.nonuk.overseas.client.title = Do you have an overseas company registration nu
 bc.nonuk.overseas.client.header = Do you have an overseas company registration number?
 bc.nonuk.overseas.client.subheader = {0} registration
 
+##### NON-UK CLIENT - OVERSEAS COMPANY REGISTRATION IDENTIFICATION
+
+bc.nonuk.overseas-reg.agent.title = Enter your overseas company registration details
+bc.nonuk.overseas-reg.agent.header = Enter your overseas company registration details
+bc.nonuk.overseas-reg.agent.subheader = {0} agency set up
+bc.nonuk.overseas-reg.agent.add-client.title = Enter your client’s overseas company registration details
+bc.nonuk.overseas-reg.agent.add-client.header = Enter your client’s overseas company registration details
+bc.nonuk.overseas-reg.agent.add-client.subheader = Add a client
+bc.nonuk.overseas-reg.client.title = Enter your overseas company registration details
+bc.nonuk.overseas-reg.client.header = Enter your overseas company registration details
+bc.nonuk.overseas-reg.client.subheader = {0} registration
+
 ##### NON-UK REGISTRATION OF CLIENT BY AGENT
 
 bc.non-uk-reg.title = What is your client’s overseas registered business name and address?

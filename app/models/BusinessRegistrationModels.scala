@@ -23,6 +23,11 @@ case class OverseasCompanyDisplayDetails(title: String,
                                          subHeader: String,
                                          addClient: Boolean)
 
+case class OverseasCompanyRegDisplayDetails(title: String,
+                                            header: String,
+                                            subHeader: String,
+                                            addClient: Boolean)
+
 case class BusinessRegistrationDisplayDetails(businessType: String,
                                               businessRegHeader: String,
                                               businessRegSubHeader: String,
