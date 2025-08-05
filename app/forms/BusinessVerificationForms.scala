@@ -81,9 +81,6 @@ object BusinessType {
   implicit val formats: Format[BusinessType] = Json.format[BusinessType]
 }
 
-case class SopNameData(firstName:String, lastName:String)
-case class SopUtrData(utr:String)
-
 
 case class BusinessDetails(businessType: String,
                            soleTrader: Option[SoleTraderMatch],
@@ -137,32 +134,24 @@ object BusinessVerificationForms extends BCUtils {
   )(BusinessType.apply)(BusinessType.unapply)
   )
 
-
-
-  case class SopNameData(firstName: String, lastName: String)
-  val sopNameForm: Form[SopNameData] = Form(mapping(
+  val soleTraderForm: Form[SoleTraderMatch] = Form(mapping(
     "firstName" -> text
-      .verifying("bc.business-verification-error.firstname",      x ⇒ x.trim.length > length0)
-      .verifying("bc.business-verification-error.firstname.length", x ⇒ x.isEmpty || (x.nonEmpty && x.length <= length40)),
-    "lastName"  -> text
-      .verifying("bc.business-verification-error.surname",        x ⇒ x.trim.length > length0)
-      .verifying("bc.business-verification-error.surname.length",  x ⇒ x.isEmpty || (x.nonEmpty && x.length <= length40))
-  )(SopNameData.apply)(SopNameData.unapply))
-
-  case class SopUtrData(saUTR: String)
-  val sopUtrForm: Form[SopUtrData] = Form(mapping(
+      .verifying("bc.business-verification-error.firstname", x => x.trim.length > length0)
+      .verifying("bc.business-verification-error.firstname.length", x => x.isEmpty || (x.nonEmpty && x.length <= length40)),
+    "lastName" -> text
+      .verifying("bc.business-verification-error.surname", x => x.trim.length > length0)
+      .verifying("bc.business-verification-error.surname.length", x => x.isEmpty || (x.nonEmpty && x.length <= length40)),
     "saUTR" -> text
-      .verifying("bc.business-verification-error.sautr",         x ⇒ x.replaceAll(" ", "").length > length0)
-      .verifying("bc.business-verification-error.sautr.length",  x ⇒ {
-        val t = x.replaceAll(" ", "")
-        t.isEmpty || (t.nonEmpty && t.matches("""^[0-9]{10}$"""))
+      .verifying("bc.business-verification-error.sautr", x => x.replaceAll(" ", "").length > length0)
+      .verifying("bc.business-verification-error.sautr.length", x => {
+        val trimmedString = x.replaceAll(" ", "")
+        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches("""^[0-9]{10}$"""))}
+      )
+      .verifying("bc.business-verification-error.invalidSAUTR", x => {
+        val trimmedString = x.replaceAll(" ", "")
+        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches("""^[0-9]{10}$"""))
       })
-      .verifying("bc.business-verification-error.invalidSAUTR",   x ⇒ {
-        val t = x.replaceAll(" ", "")
-        t.isEmpty || (validateUTR(t) || !t.matches("""^[0-9]{10}$"""))
-      })
-  )(SopUtrData.apply)(SopUtrData.unapply))
-
+  )(SoleTraderMatch.apply)(SoleTraderMatch.unapply))
 
   val limitedCompanyForm: Form[LimitedCompanyMatch] = Form(mapping(
     "businessName" -> text

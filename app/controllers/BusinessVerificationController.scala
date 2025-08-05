@@ -32,8 +32,6 @@ import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants._
-import forms.BusinessVerificationForms.{sopNameForm,sopUtrForm,sopName}
-
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -49,8 +47,6 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                                                templateLP: views.html.business_lookup_LP,
                                                templateNRL: views.html.business_lookup_NRL,
                                                templateDetailsNotFound: views.html.details_not_found,
-                                               TemplateSOPStep1: views.html.business_lookup_SOP_step1,
-                                               TemplateSOPStep2: views.html.business_lookup_SOP_step2,
                                                businessRegCacheConnector: BusinessRegCacheConnector,
                                                val backLinkCacheConnector: BackLinkCacheConnector,
                                                val businessMatchingService: BusinessMatchingService,
@@ -126,7 +122,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
     authorisedFor(service) { implicit authContext =>
       val backLink = Some(routes.BusinessVerificationController.businessVerification(service).url)
         businessType match {
-          case "SOP" => Future.successful(Redirect(routes.BusinessVerificationController.showSopName(service)))
+          case "SOP" => processSoleTraderForm(businessType, service, backLink, authContext)
           case "LTD" | "UT" | "ULTD" => processLimitedCompanyForm(businessType, service, backLink, authContext)
           case "UIB" => processUnincorporatedForm(businessType, service, backLink, authContext)
           case "OBP" => processOrdinaryBusinessPartnershipForm(businessType, service, backLink, authContext)
@@ -137,16 +133,16 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
     }
   }
 
-//  private def processSoleTraderForm(businessType: String, service: String, backLink: Some[String], authContext: StandardAuthRetrievals)
-//                                   (implicit req: Request[AnyContent]): Future[Result] = {
-//    if (services.exists(_.equalsIgnoreCase(service))) {
-//      businessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderMatch](s"$CacheRegistrationDetails${service}_$businessType")
-//        .map {
-//          case Some(cachedData) => Ok(templateSOP(soleTraderForm.fill(cachedData), authContext.isAgent, service, businessType, backLink))
-//          case None => Ok(templateSOP(soleTraderForm, authContext.isAgent, service, businessType, backLink))
-//        }
-//    } else Future.successful(Ok(templateSOP(soleTraderForm, authContext.isAgent, service, businessType, backLink)))
-//  }
+  private def processSoleTraderForm(businessType: String, service: String, backLink: Some[String], authContext: StandardAuthRetrievals)
+                                   (implicit req: Request[AnyContent]): Future[Result] = {
+    if (services.exists(_.equalsIgnoreCase(service))) {
+      businessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderMatch](s"$CacheRegistrationDetails${service}_$businessType")
+        .map {
+          case Some(cachedData) => Ok(templateSOP(soleTraderForm.fill(cachedData), authContext.isAgent, service, businessType, backLink))
+          case None => Ok(templateSOP(soleTraderForm, authContext.isAgent, service, businessType, backLink))
+        }
+    } else Future.successful(Ok(templateSOP(soleTraderForm, authContext.isAgent, service, businessType, backLink)))
+  }
 
   private def processLimitedCompanyForm(businessType: String, service: String, backLink: Some[String], authContext: StandardAuthRetrievals)
                                        (implicit req: Request[AnyContent]): Future[Result] = {
@@ -208,6 +204,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       val backLink = Some(routes.BusinessVerificationController.businessVerification(service).url)
       businessType match {
         case "UIB" => uibFormHandling(unincorporatedBodyForm, businessType, service, backLink)
+        case "SOP" => sopFormHandling(soleTraderForm, businessType, service, backLink)
         case "LLP" => llpFormHandling(limitedLiabilityPartnershipForm, businessType, service, backLink)
         case "LP" => lpFormHandling(limitedPartnershipForm, businessType, service, backLink)
         case "OBP" => obpFormHandling(ordinaryBusinessPartnershipForm, businessType, service, backLink)
@@ -431,92 +428,4 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
 
   private def getNrlBackLink(service: String) = Some(controllers.nonUKReg.routes.PaySAQuestionController.view(service).url)
 
-  def showSopName(service: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      val backLink = Some(routes.BusinessVerificationController.businessForm(service, "SOP").url)
-      Future.successful(
-        Ok(TemplateSOPStep1(sopNameForm, authContext.isAgent, service, "SOP",backLink))
-      )
-    }
-  }
-
-  def submitSopName(service: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      sopNameForm.bindFromRequest().fold(
-        errors =>
-          Future.successful(
-            BadRequest(TemplateSOPStep1(
-              errors,
-              authContext.isAgent,
-              service,
-              "SOP",
-              Some(routes.BusinessVerificationController.businessForm(service, "SOP").url)
-            ))
-          ),
-        data =>
-          businessRegCacheConnector
-            .cache[SopNameData](s"$CacheRegistrationDetails${service}_SOP", data)
-            .map(_ => Redirect(routes.BusinessVerificationController.showSopUtr(service)))
-      )
-    }
-  }
-  def showSopUtr(service: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      val backLink = Some(routes.BusinessVerificationController.showSopName(service).url)
-      Future.successful(
-        Ok(TemplateSOPStep2(sopUtrForm, authContext.isAgent, service, backLink))
-      )
-    }
-  }
-  def submitSopUtr(service: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      sopUtrForm.bindFromRequest().fold(
-        errors =>
-          Future.successful(
-            BadRequest(TemplateSOPStep2(
-              errors,
-              authContext.isAgent,
-              service,
-              Some(routes.BusinessVerificationController.showSopName(service).url)
-            ))
-          ),
-        data =>
-          businessRegCacheConnector
-            .fetchAndGetCachedDetails[SopNameData](s"$CacheRegistrationDetails${service}_SOP")
-            .flatMap {
-              case Some(name) =>
-                val individual = Individual(name.firstName, name.lastName, None)
-                businessMatchingService
-                  .matchBusinessWithIndividualName(
-                    isAnAgent = authContext.isAgent,
-                    individual = individual,
-                    saUTR       = data.saUTR,
-                    service     = service
-                  ).flatMap { returnedResponse =>
-                    val maybeReview = returnedResponse.validate[ReviewDetails].asOpt
-                    maybeReview match {
-                      case Some(_) =>
-                        if (services.exists(_.equalsIgnoreCase(service))) {
-                          businessRegCacheConnector.cacheDetails(
-                            s"$CacheRegistrationDetails${service}_SOP",
-                            name
-                          )
-                        }
-                        redirectWithBackLink(
-                          reviewDetailsController.controllerId,
-                          controllers.routes.ReviewDetailsController.businessDetails(service),
-                          Some(routes.BusinessVerificationController.businessForm(service, "SOP").url)
-                        )
-                      case None =>
-                        Future.successful(
-                          Redirect(routes.BusinessVerificationController.detailsNotFound(service, "SOP"))
-                        )
-                    }
-                  }
-              case None =>
-                Future.successful(Redirect(routes.BusinessVerificationController.showSopName(service)))
-            }
-      )
-    }
-  }
 }
