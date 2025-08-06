@@ -32,6 +32,17 @@ object SoleTraderMatch {
   implicit val formats: Format[SoleTraderMatch] = Json.format[SoleTraderMatch]
 }
 
+case class BusinessName(businessName: String)
+
+object BusinessName {
+  implicit val formats: Format[BusinessName] = Json.format[BusinessName]
+}
+
+case class Utr(utr: String)
+
+object Utr {
+  implicit val formats: Format[Utr] = Json.format[Utr]
+}
 
 case class LimitedCompanyMatch(businessName: String, cotaxUTR: String)
 
@@ -168,6 +179,25 @@ object BusinessVerificationForms extends BCUtils {
         trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches("""^[0-9]{10}$"""))
       })
   )(LimitedCompanyMatch.apply)(LimitedCompanyMatch.unapply))
+
+  val businessName: Form[BusinessName] = Form(mapping(
+    "businessName" -> text
+      .verifying("bc.business-verification-error.businessName", x => x.trim.length > length0)
+      .verifying("bc.business-verification-error.registeredName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105))
+  )(BusinessName.apply)(BusinessName.unapply))
+
+  val utr: Form[Utr] = Form(mapping(
+    "utr" -> text
+      .verifying("bc.business-verification-error.cotaxutr", x => x.replaceAll(" ", "").length > length0)
+      .verifying("bc.business-verification-error.cotaxutr.length", x => {
+        val trimmedString = x.replaceAll(" ", "")
+        trimmedString.isEmpty || (trimmedString.nonEmpty && trimmedString.matches("""^[0-9]{10}$"""))}
+      )
+      .verifying("bc.business-verification-error.invalidCOUTR", x => {
+        val trimmedString = x.replaceAll(" ", "")
+        trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches("""^[0-9]{10}$"""))
+      })
+  )(Utr.apply)(Utr.unapply))
 
   val nonResidentLandlordForm: Form[NonResidentLandlordMatch] = Form(mapping(
     "businessName" -> text

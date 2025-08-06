@@ -25,12 +25,7 @@ import org.mockito.Mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{
-  AnyContentAsFormUrlEncoded,
-  Headers,
-  MessagesControllerComponents,
-  Result
-}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessMatchingService
@@ -38,17 +33,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 
 import java.util.UUID
-import views.html.{
-  business_lookup_LLP,
-  business_lookup_LP,
-  business_lookup_LTD,
-  business_lookup_NRL,
-  business_lookup_OBP,
-  business_lookup_SOP,
-  business_lookup_UIB,
-  business_verification,
-  details_not_found
-}
+import views.html.{business_lookup_LLP, business_lookup_LP, business_lookup_LTD, business_lookup_NRL, business_lookup_OBP, business_lookup_SOP, business_lookup_UIB, business_verification, details_not_found, generic_business_name, generic_business_utr}
 
 import scala.concurrent.Future
 
@@ -80,6 +65,10 @@ class BusinessVerificationValidationSpec
   val mockHomeController: HomeController = mock[HomeController]
   val injectedViewInstance: business_verification =
     inject[views.html.business_verification]
+  val injectedViewInstanceBusinessName: generic_business_name =
+    inject[views.html.generic_business_name]
+  val injectedViewInstanceBusinessUtr: generic_business_utr =
+    inject[views.html.generic_business_utr]
   val injectedViewInstanceSOP: business_lookup_SOP =
     inject[views.html.business_lookup_SOP]
   val injectedViewInstanceLTD: business_lookup_LTD =
@@ -107,12 +96,11 @@ class BusinessVerificationValidationSpec
         appConfig,
         mockAuthConnector,
         injectedViewInstance,
+        injectedViewInstanceBusinessName,
+        injectedViewInstanceBusinessUtr,
         injectedViewInstanceSOP,
-        injectedViewInstanceLTD,
         injectedViewInstanceUIB,
         injectedViewInstanceOBP,
-        injectedViewInstanceLLP,
-        injectedViewInstanceLP,
         injectedViewInstanceNRL,
         injectedViewInstanceDetailsNotFound,
         mockBusinessRegCacheConnector,
