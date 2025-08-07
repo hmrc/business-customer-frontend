@@ -43,6 +43,10 @@ case class Utr(utr: String)
 object Utr {
   implicit val formats: Format[Utr] = Json.format[Utr]
 }
+case class SoleTraderName(firstName: String, lastName: String)
+object SoleTraderName {
+  implicit val Oformat: Format[SoleTraderName] = Json.format[SoleTraderName]
+}
 
 case class LimitedCompanyMatch(businessName: String, cotaxUTR: String)
 
@@ -278,4 +282,13 @@ object BusinessVerificationForms extends BCUtils {
       })
   )(LimitedPartnershipMatch.apply)(LimitedPartnershipMatch.unapply))
 
+  val soleTraderNameForm: Form[SoleTraderName] = Form(mapping(
+    "firstName" -> text
+      .verifying("bc.business-verification-error.firstname", x => x.trim.length > length0)
+      .verifying("bc.business-verification-error.firstname.length", x => x.isEmpty || (x.nonEmpty && x.length <= length40)),
+    "lastName" -> text
+      .verifying("bc.business-verification-error.surname", x => x.trim.length > length0)
+      .verifying("bc.business-verification-error.surname.length", x => x.isEmpty || (x.nonEmpty && x.length <= length40)),
+
+  )(SoleTraderName.apply)(SoleTraderName.unapply))
 }

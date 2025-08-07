@@ -92,8 +92,11 @@ bc.business-verification.coUTRField = What is your Corporation Tax Unique Taxpay
 bc.business-verification.psaUTR = Your Partnership Self Assessment Unique Taxpayer Reference (UTR)
 bc.business-verification.coUTRFieldpsaUTR = What is your Partnership Self Assessment Unique Taxpayer Reference (UTR)?
 bc.business-verification.coUTRFieldsaUTR = What is your Self Assessment Unique Taxpayer Reference (UTR)?
+bc.business-verification.saUTR = Your Self Assessment Unique Taxpayer Reference (UTR)
+bc.business-verification.coUTRFieldsaUTR.short = What is your Self Assessment UTR?
 bc.business-verification.businessNamefield = What is your registered company name?
 bc.business-verification.partnerNameField = What is your partnership name?
+bc.business-verification.SoleNameField = What is your name?
 bc.business-verification.partnerNameHint = This is the name that you registered with HMRC
 bc.business-verification.registered-name.hint = This is the registered name on your incorporation certificate.
 
@@ -106,6 +109,7 @@ bc.business-verification.utr.selfAssessmentUTRLink = How to find your UTR (opens
 bc.business-verification.back = Back
 bc.business-verification.submit = Register your agency
 bc.business-verification.submit.client = Continue
+
 
 bc.business-verification-error.firstname = Enter a first name
 bc.business-verification-error.firstname.length = A first name cannot be more than 40 characters

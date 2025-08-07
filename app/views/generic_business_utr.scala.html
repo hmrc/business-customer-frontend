@@ -84,7 +84,7 @@ heading: String,
 
     @formHelper(action = controllers.routes.BusinessVerificationController.submitBusinessUtrForm(service,businessType)) {
 
-            <h2 class="govuk-heading-s">@messages(question)</h2>
+            <h2 class="govuk-heading-s">@messages("bc.business-verification.coUTRFieldsaUTR.short")</h2>
 
             <input type="hidden" name="businessName" value="@{businessName}"/>
             @govukInput(

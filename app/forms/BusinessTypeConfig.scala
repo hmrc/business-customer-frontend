@@ -16,7 +16,7 @@
 
 package forms
 
-import forms.BusinessVerificationForms.{businessName, soleTraderForm}
+import forms.BusinessVerificationForms.{businessName}
 import play.api.data.Form
 
 object BusinessTypeConfig {
@@ -30,6 +30,8 @@ object BusinessTypeConfig {
     "LTD" -> BusinessFormConfig[BusinessName](businessName, "bc.business-verification.businessNamefield", "bc.business-verification.coUTR"),
     "LLP" -> BusinessFormConfig[BusinessName](businessName, "bc.business-verification.partnerNameField", "bc.business-verification.psaUTR"),
     "LP" -> BusinessFormConfig[BusinessName](businessName, "bc.business-verification.partnerNameField", "bc.business-verification.psaUTR"),
+    "OBP" -> BusinessFormConfig[BusinessName](businessName, "bc.business-verification.partnerNameField", "bc.business-verification.psaUTR"),
+    "UIB" -> BusinessFormConfig[BusinessName](businessName, "bc.business-verification.businessNamefield", "bc.business-verification.psaUTR")
   )
 
 }

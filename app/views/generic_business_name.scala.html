@@ -78,24 +78,44 @@
         @bcCheckAgency()
     }
 
-    @formHelper(action = controllers.routes.BusinessVerificationController.submitBusinessNameForm(service, businessType)) {
+      @formHelper(action = controllers.routes.BusinessVerificationController.submitBusinessNameForm(service, businessType)) {
+    @if(businessType == "SOP") {
+      @govukInput(
+        Input(
+          label = Label(
+            classes = "govuk-label--s",
+            content = Text(Messages("bc.business-verification.firstNameField"))
+          ),
+          autocomplete = Some("given-name")
+        ).withFormField(limitedCompanyForm("firstName"))
+      )
+      @govukInput(
+        Input(
+          label = Label(
+            classes = "govuk-label--s",
+            content = Text(Messages("bc.business-verification.lastNameField"))
+          ),
+          autocomplete = Some("family-name")
+        ).withFormField(limitedCompanyForm("lastName"))
+      )
+    } else {
+      @govukInput(
+        Input(
+          label = Label(
+            classes = "govuk-label--s"
+          ),
+          hint = Some(Hint(
+            content = Text(Messages("bc.business-verification.registered-name.hint"))
+          )),
+          autocomplete = Some("organization")
+        ).withFormField(limitedCompanyForm("businessName"))
+      )
+    }
+    @govukButton(Button(
+        content = Text(messages("bc.business-registration.submit")),
+        inputType = Some("submit"),
+        attributes = Map("id" -> "submit")
+        ))
 
-            @govukInput(
-                Input(
-                    label = Label(
-                        classes = "govuk-label--s"
-                    ),
-                    hint = Some(Hint(
-                        content = Text(Messages("bc.business-verification.registered-name.hint"))
-                    )),
-                    autocomplete = Some("organization")
-                ).withFormField(limitedCompanyForm("businessName"))
-            )
-
-            @govukButton(Button(
-                content = Text(messages("bc.business-registration.submit")),
-                inputType = Some("submit"),
-                attributes = Map("id" -> "submit")
-            ))
     }
 }

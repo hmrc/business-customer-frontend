@@ -63,7 +63,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
   implicit val appConfig: ApplicationConfig = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "BusinessVerificationController"
-  val services: Seq[String] = Seq("awrs", "ated")
+  val services: Seq[String] = Seq("awrs", "ated", "amls")
 
   def businessVerification(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
@@ -120,229 +120,183 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
     }
   }
 
-  /*def viewBusinessNameForm(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      val backLink = Some(routes.BusinessVerificationController.businessVerification(service).url)
-
-      def getCachedFormAndRender[T](form: Form[T], question: String)(implicit formats: Format[T]): Future[Result] = {
-        businessRegCacheConnector.fetchAndGetCachedDetails[T](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
-          .map {
-            case Some(cachedData) => Ok(genericBusinessName(form.fill(cachedData), question, authContext.isAgent, service, businessType, backLink))
-            case None => Ok(genericBusinessName(form, question, authContext.isAgent, service, businessType, backLink))
-          }
-      }
-
-      businessType match {
-        case "SOP" => processSoleTraderForm(businessType, service, backLink, authContext)
-        case "LTD" | "UT" | "ULTD" => getCachedFormAndRender(form = businessName, question = "bc.business-verification.businessNamefield")
-        case "UIB" => processUnincorporatedForm(businessType, service, backLink, authContext)
-        case "OBP" => processOrdinaryBusinessPartnershipForm(businessType, service, backLink, authContext)
-        case "LLP" => getCachedFormAndRender(form = businessName, question = "bc.business-verification.partnerNameField")
-        case "LP" => getCachedFormAndRender(form = businessName, question = "bc.business-verification.partnerNameField")
-        case "NRL" => Future.successful(Ok(templateNRL(nonResidentLandlordForm, authContext.isAgent, service, businessType, getNrlBackLink(service))))
-      }
-    }
-  }*/
-
-  def viewBusinessNameForm(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      val backLink = Some(routes.BusinessVerificationController.businessVerification(service).url)
-      configs.get(businessType).map { config =>
-        val businessNameForm = config.form.asInstanceOf[Form[BusinessName]]
-        businessRegCacheConnector.fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
-          .map {
-            case Some(cachedData) => Ok(genericBusinessName(businessNameForm.fill(cachedData),
-              config.questionKey,
+def viewBusinessNameForm(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
+  authorisedFor(service) { implicit authContext =>
+    val backLink = Some(routes.BusinessVerificationController.businessVerification(service).url)
+    if (businessType == "SOP") {
+      val questionKey = "bc.business-verification.SoleNameField"
+      businessRegCacheConnector
+        .fetchAndGetCachedDetails[SoleTraderName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
+        .map {
+          case Some(cached) =>
+            Ok(genericBusinessName(
+              forms.BusinessVerificationForms.soleTraderNameForm.fill(cached),
+              questionKey,
               authContext.isAgent,
               service,
               businessType,
-              backLink))
-            case None => Ok(genericBusinessName(businessNameForm, config.questionKey, authContext.isAgent, service, businessType, backLink))
+              backLink
+            ))
+          case None =>
+            Ok(genericBusinessName(
+              forms.BusinessVerificationForms.soleTraderNameForm,
+              questionKey,
+              authContext.isAgent,
+              service,
+              businessType,
+              backLink
+            ))
+        }
+    } else {
+      configs.get(businessType).map { config =>
+        val businessNameForm = config.form.asInstanceOf[Form[BusinessName]]
+        businessRegCacheConnector
+          .fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
+          .map {
+            case Some(cachedData) =>
+              Ok(genericBusinessName(businessNameForm.fill(cachedData), config.questionKey, authContext.isAgent, service, businessType, backLink))
+            case None =>
+              Ok(genericBusinessName(businessNameForm, config.questionKey, authContext.isAgent, service, businessType, backLink))
           }
       }.getOrElse(Future.successful(BadRequest("Invalid business type")))
     }
   }
+}
 
-  /*def submitBusinessNameForm(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      val backLink = Some(routes.BusinessVerificationController.viewBusinessNameForm(service, businessType).url)
-
-      def showErrorPage[T](form: Form[T], question: String)
-                                    (implicit formats: Format[T]): Future[Result] = {
-        Future.successful(BadRequest(genericBusinessName(form, question, authContext.isAgent, service, businessType, backLink)))
-      }
-
-      def redirectToBusinessFormUtr: Future[Result] = {
-        Future.successful(Redirect(controllers.routes.BusinessVerificationController.businessFormUtr(service, businessType)))
-      }
-
-      businessName.bindFromRequest().fold(
-        formWithErrors => {
-          businessType match {
-            case "SOP" => processSoleTraderForm(businessType, service, backLink, authContext)
-            case "LTD" | "UT" | "ULTD" => showErrorPage(formWithErrors, "bc.business-verification.businessNamefield")
-            case "UIB" => processUnincorporatedForm(businessType, service, backLink, authContext)
-            case "OBP" => processOrdinaryBusinessPartnershipForm(businessType, service, backLink, authContext)
-            case "LLP" => showErrorPage(formWithErrors, "bc.business-verification.partnerNameField")
-            case "LP" => showErrorPage(formWithErrors, "bc.business-verification.partnerNameField")
-            case "NRL" => Future.successful(Ok(templateNRL(nonResidentLandlordForm, authContext.isAgent, service, businessType, getNrlBackLink(service))))
-          }
-        },
-        businessNameData => {
-          if (services.exists(_.equalsIgnoreCase(service))) {
-            businessRegCacheConnector.cacheDetails(s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType", businessNameData)
-          }
-          businessType match {
-            case "SOP" => processSoleTraderForm(businessType, service, backLink, authContext)
-            case "LTD" | "UT" | "ULTD" =>
-              redirectToBusinessFormUtr
-            case "UIB" => processUnincorporatedForm(businessType, service, backLink, authContext)
-            case "OBP" => processOrdinaryBusinessPartnershipForm(businessType, service, backLink, authContext)
-            case "LLP" =>
-              redirectToBusinessFormUtr
-            case "LP" => redirectToBusinessFormUtr
-            case "NRL" => Future.successful(Ok(templateNRL(nonResidentLandlordForm, authContext.isAgent, service, businessType, getNrlBackLink(service))))
+def submitBusinessNameForm(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
+  authorisedFor(service) { implicit authContext =>
+    val backLink = Some(routes.BusinessVerificationController.viewBusinessNameForm(service, businessType).url)
+    if (businessType == "SOP") {
+      val questionKey = "bc.business-verification.SoleNameField"
+      soleTraderNameForm.bindFromRequest.fold(
+        formWithErrors =>
+          Future.successful(BadRequest(genericBusinessName(formWithErrors, questionKey, authContext.isAgent, service, businessType, backLink))),
+        nameData => {
+          val cacheAction =
+            if (services.exists(_.equalsIgnoreCase(service))) {
+              businessRegCacheConnector.cacheDetails(
+                s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType",
+                nameData
+              )
+            } else Future.unit
+          cacheAction.map { _ =>
+            Redirect(routes.BusinessVerificationController.viewBusinessFormUtr(service, businessType))
           }
         }
       )
-    }
-  }*/
-
-  def submitBusinessNameForm(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      val backLink = Some(routes.BusinessVerificationController.viewBusinessNameForm(service, businessType).url)
+    } else {
       configs.get(businessType) match {
         case Some(config: BusinessTypeConfig.BusinessFormConfig[BusinessName]) =>
           config.form.bindFromRequest().fold(
-            formWithErrors => {
-              Future.successful(BadRequest(genericBusinessName(formWithErrors, config.questionKey, authContext.isAgent, service, businessType, backLink)))
-            },
-          businessNameData => {
-            val cacheAction =
-              if (services.exists(_.equalsIgnoreCase(service))) {
-                businessRegCacheConnector.cacheDetails(s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType", businessNameData)
-              } else {
-                Future.unit
+            formWithErrors =>
+              Future.successful(BadRequest(genericBusinessName(formWithErrors, config.questionKey, authContext.isAgent, service, businessType, backLink))),
+            businessNameData => {
+              val cacheAction =
+                if (services.exists(_.equalsIgnoreCase(service))) {
+                  businessRegCacheConnector.cacheDetails(
+                    s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType",
+                    businessNameData
+                  )
+                } else Future.unit
+              cacheAction.map { _ =>
+                Redirect(routes.BusinessVerificationController.viewBusinessFormUtr(service, businessType))
               }
-            cacheAction.flatMap { _ =>
-              Future.successful(Redirect(routes.BusinessVerificationController.viewBusinessFormUtr(service, businessType)))
             }
-          }
           )
         case None => Future.successful(BadRequest("Invalid business type"))
       }
     }
   }
+}
 
   def viewBusinessFormUtr(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-
-      /*val backLink = Some(routes.BusinessVerificationController.businessForm(service, businessType).url)
-
-      val cachedBusinessNameFuture: Future[String] = businessRegCacheConnector
-        .fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
-        .map {
-          case Some(data) => data.businessName
-          case None => throw new RuntimeException("Business name not found in cache")
-        }
-
-      def getCachedFormAndRender[T](form: Form[T], heading: String, question: String, businessName: String)(implicit formats: Format[T]): Future[Result] = {
-        businessRegCacheConnector.fetchAndGetCachedDetails[T](s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType")
-          .map {
-            case Some(cachedData) => Ok(genericBusinessUtr(form.fill(cachedData),
-              heading,
-              question,
-              businessName,
-              authContext.isAgent,
-              service,
-              businessType,
-              backLink))
-            case None => Ok(genericBusinessUtr(form, heading, question, businessName, authContext.isAgent, service, businessType, backLink))
-          }
+  authorisedFor(service) { implicit authContext =>
+    val backLink = Some(routes.BusinessVerificationController.viewBusinessNameForm(service, businessType).url)
+    if (businessType == "SOP") {
+      for {
+        sopNameOpt <- businessRegCacheConnector
+          .fetchAndGetCachedDetails[SoleTraderName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
+        cachedUtr  <- businessRegCacheConnector
+          .fetchAndGetCachedDetails[Utr](s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType")
+      } yield {
+        val utrFormFilled: Form[Utr] = cachedUtr.map(utr.fill).getOrElse(utr)
+        val headingKey  = "bc.business-verification.saUTR"
+        val questionKey = if (authContext.isAgent) "bc.business-verification-selected-agent-header"
+                          else "bc.business-verification.client.text"
+        val displayName = sopNameOpt.map(n => s"${n.firstName} ${n.lastName}").getOrElse("")
+        Ok(genericBusinessUtr(
+          utrFormFilled,
+          headingKey,
+          questionKey,
+          displayName,
+          authContext.isAgent,
+          service,
+          businessType,
+          backLink
+        ))
       }
-
-      businessType match {
-        case "SOP" => processSoleTraderForm(businessType, service, backLink, authContext)
-        case "LTD" | "UT" | "ULTD" => getCachedFormAndRender(utr, "bc.business-verification.coUTR", "bc.business-verification.businessNamefield")
-        case "UIB" => processUnincorporatedForm(businessType, service, backLink, authContext)
-        case "OBP" => processOrdinaryBusinessPartnershipForm(businessType, service, backLink, authContext)
-        case "LLP" => getCachedFormAndRender(utr, "bc.business-verification.psaUTR", "bc.business-verification.psaUTR")
-        case "LP" => getCachedFormAndRender(utr, "bc.business-verification.psaUTR", "bc.business-verification.businessNamefield")
-        case "NRL" => Future.successful(Ok(templateNRL(nonResidentLandlordForm, authContext.isAgent, service, businessType, getNrlBackLink(service))))
-      }
-    }*/
-      val backLink = Some(routes.BusinessVerificationController.viewBusinessNameForm(service, businessType).url)
-      configs.get(businessType).map {
-          case config: BusinessTypeConfig.BusinessFormConfig[BusinessName] =>
-            for {
-              cachedBusinessNameString <- businessRegCacheConnector
-                .fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
-                .map(_.getOrElse(throw new RuntimeException("Business name not found in cache")))
-              cachedUtrData <- businessRegCacheConnector
-                .fetchAndGetCachedDetails[Utr](s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType")
-            } yield {
-              val utrForm = cachedUtrData.map(utr.fill).getOrElse(config.form)
-              Ok(genericBusinessUtr(utrForm,
-                config.utrQuestionKey,
-                config.questionKey,
-                cachedBusinessNameString.businessName,
-                authContext.isAgent,
-                service,
-                businessType,
-                backLink))
-            }
-          case _ => Future.successful(BadRequest("Invalid business type"))
+    } else {
+      configs.get(businessType).map { config =>
+        for {
+          cachedName <- businessRegCacheConnector
+            .fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
+            .map(_.getOrElse(throw new RuntimeException("Business name not found in cache")))
+          cachedUtr <- businessRegCacheConnector
+            .fetchAndGetCachedDetails[Utr](s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType")
+        } yield {
+          val utrFormFilled: Form[Utr] = cachedUtr.map(utr.fill).getOrElse(utr)
+          Ok(genericBusinessUtr(
+            utrFormFilled,
+            config.utrQuestionKey,
+            config.questionKey,
+            cachedName.businessName,
+            authContext.isAgent,
+            service,
+            businessType,
+            backLink
+          ))
         }
-        .getOrElse(Future.successful(BadRequest("Invalid business type")))
-        .recover {
-          case _: RuntimeException => InternalServerError("An error occurred while retrieving business details.")
-        }
+      }.getOrElse(Future.successful(BadRequest("Invalid business type")))
+       .recover { case _ => InternalServerError("An error occurred while retrieving business details.") }
     }
   }
+}
 
 
   def submitBusinessUtrForm(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service) { implicit authContext =>
-      /*val backLink = Some(routes.BusinessVerificationController.businessFormUtr(service, businessType).url)
-
-      val cachedBusinessNameFuture: Future[String] = businessRegCacheConnector
-        .fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
-        .map {
-          case Some(data) => data.businessName
-          case None => throw new RuntimeException("Business name not found in cache")
+  authorisedFor(service) { implicit authContext =>
+    val backLink = Some(routes.BusinessVerificationController.viewBusinessFormUtr(service, businessType).url)
+    if (businessType == "SOP") {
+      businessRegCacheConnector
+        .fetchAndGetCachedDetails[SoleTraderName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
+        .flatMap {
+          case Some(soleName) =>
+            handleSubmitUtrFormSoleTrader(soleName, service, businessType, backLink)
+          case None =>
+            Future.successful(Redirect(routes.BusinessVerificationController.viewBusinessNameForm(service, businessType)))
         }
-      cachedBusinessNameFuture.flatMap { cachedBusinessNameString =>
-        businessType match {
-          case "UIB" => uibFormHandling(unincorporatedBodyForm, businessType, service, backLink)
-          case "SOP" => sopFormHandling(soleTraderForm, businessType, service, backLink)
-          case "LLP" => llpFormHandling(utr, "bc.business-verification.psaUTR", "bc.business-verification.psaUTR", cachedBusinessNameString, businessType, service, backLink)
-          case "LP" => lpFormHandling(utr, "bc.business-verification.psaUTR", "bc.business-verification.psaUTR", cachedBusinessNameString, businessType, service, backLink)
-          case "OBP" => obpFormHandling(ordinaryBusinessPartnershipForm, businessType, service, backLink)
-          case "LTD" => ltdFormHandling(utr, "bc.business-verification.coUTR", "bc.business-verification.businessNamefield", cachedBusinessNameString, businessType, service, backLink)
-          case "UT" => ltdFormHandling(utr, "bc.business-verification.coUTR", "bc.business-verification.businessNamefield", cachedBusinessNameString, businessType, service, backLink)
-          case "ULTD" => ltdFormHandling(utr, "bc.business-verification.coUTR", "bc.business-verification.businessNamefield", cachedBusinessNameString, businessType, service, backLink)
-          case "NRL" => nrlFormHandling(nonResidentLandlordForm, businessType, service, getNrlBackLink(service))
+        .recover { case _: RuntimeException =>
+          InternalServerError("An error occurred while retrieving business details.")
         }
-      }
-      }*/
-
-      val backLink = Some(routes.BusinessVerificationController.viewBusinessFormUtr(service, businessType).url)
+    } else {
       configs.get(businessType).map {
-          case config: BusinessTypeConfig.BusinessFormConfig[BusinessName] =>
-            for {
-              cachedBusinessNameString <- businessRegCacheConnector
-                .fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
-                .map(_.getOrElse(throw new RuntimeException("Business name not found in cache")))
-              result <- handleSubmitUtrForm(config, cachedBusinessNameString.businessName, businessType, service, backLink)
-            } yield result
-          case _ =>
-            Future.successful(BadRequest("Invalid business type"))
-        }.getOrElse(Future.successful(BadRequest("Invalid business type")))
-        .recover {
-          case _: RuntimeException => InternalServerError("An error occurred while retrieving business details.")
+        case config: BusinessTypeConfig.BusinessFormConfig[BusinessName] =>
+          for {
+            cachedBusinessName <- businessRegCacheConnector
+              .fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
+              .map(_.getOrElse(throw new RuntimeException("Business name not found in cache")))
+            result <- handleSubmitUtrForm(config, cachedBusinessName.businessName, businessType, service, backLink)
+          } yield result
+        case _ =>
+          Future.successful(BadRequest("Invalid business type"))
+      }.getOrElse(Future.successful(BadRequest("Invalid business type")))
+        .recover { case _: RuntimeException =>
+          InternalServerError("An error occurred while retrieving business details.")
         }
     }
   }
+}
+
 
   private def handleSubmitUtrForm(
                              config: BusinessTypeConfig.BusinessFormConfig[BusinessName],
@@ -355,9 +309,57 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       case "LLP" => llpFormHandling(utr, config.utrQuestionKey, config.questionKey, businessName, businessType, service, backLink)
       case "LP" => lpFormHandling(utr, config.utrQuestionKey, config.questionKey, businessName, businessType, service, backLink)
       case "LTD" => ltdFormHandling(utr, config.utrQuestionKey, config.questionKey, businessName, businessType, service, backLink)
+      case "OBP" => lpFormHandling(utr, config.utrQuestionKey, config.questionKey, businessName, businessType, service, backLink)
+      case "UIB" => uibUtrFormHandling(utr, config.utrQuestionKey, config.questionKey, businessName, businessType, service, backLink)
       case _ => Future.successful(BadRequest("Invalid business type"))
     }
   }
+  private def handleSubmitUtrFormSoleTrader(
+    soleName: SoleTraderName,
+    service: String,
+    businessType: String,
+    backLink: Option[String]
+    )(implicit request: Request[AnyContent], authContext: StandardAuthRetrievals): Future[Result] = {
+      val headingKey  = "bc.business-verification.saUTR"
+      val questionKey = if (authContext.isAgent)
+                          "bc.business-verification-selected-agent-header"
+                        else
+                          "bc.business-verification.coUTRFieldsaUTR.short"
+      val nameForPage = s"${soleName.firstName} ${soleName.lastName}"
+    utr.bindFromRequest.fold(
+        formWithErrors =>
+          Future.successful(BadRequest(genericBusinessUtr(
+            formWithErrors, headingKey, questionKey, nameForPage, authContext.isAgent, service, businessType, backLink
+      ))),
+    utrData => {
+      val individual = Individual(soleName.firstName, soleName.lastName, None)
+      val utrValue   = utrData.utr.trim
+      businessMatchingService
+        .matchBusinessWithIndividualName(authContext.isAgent, individual, utrValue, service)
+        .flatMap { returnedJson =>
+          val validated = returnedJson.validate[ReviewDetails].asOpt
+          validated match {
+            case Some(_) =>
+              if (services.exists(_.equalsIgnoreCase(service))) {
+                businessRegCacheConnector.cacheDetails(
+                  s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType",
+                  utrData
+                )
+              }
+              redirectWithBackLink(
+                reviewDetailsController.controllerId,
+                controllers.routes.ReviewDetailsController.businessDetails(service),
+                Some(routes.BusinessVerificationController.viewBusinessFormUtr(service, businessType).url)
+              )
+            case None =>
+              Future.successful(
+                Redirect(routes.BusinessVerificationController.detailsNotFound(service, businessType))
+              )
+          }
+        }
+    }
+  )
+}
 
 
   private def processSoleTraderForm(businessType: String, service: String, backLink: Some[String], authContext: StandardAuthRetrievals)
@@ -613,6 +615,50 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
       }
     )
   }
+  private def uibUtrFormHandling(
+                                  uibUtrForm: Form[Utr],
+                                  heading: String,
+                                  question: String,
+                                  cachedBusinessNameString: String,
+                                  businessType: String,
+                                  service: String,
+                                  backLink: Option[String])
+                                (implicit authContext: StandardAuthRetrievals, req: Request[AnyContent]): Future[Result] = {
+  uibUtrForm.bindFromRequest().fold(
+    formWithErrors =>
+      Future.successful(BadRequest(genericBusinessUtr(
+        formWithErrors,
+        heading,
+        question,
+        cachedBusinessNameString,
+        authContext.isAgent,
+        service,
+        businessType,
+        backLink
+      ))),
+    uibData => {
+      val organisation = Organisation(cachedBusinessNameString, UnincorporatedBody)
+      businessMatchingService
+        .matchBusinessWithOrganisationName(authContext.isAgent, organisation, uibData.utr, service)
+        .flatMap { returnedResponse =>
+          val validated = returnedResponse.validate[ReviewDetails].asOpt
+          validated match {
+            case Some(_) =>
+              if (services.exists(_.equalsIgnoreCase(service))) {
+                businessRegCacheConnector.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", uibData)
+              }
+              redirectWithBackLink(
+                reviewDetailsController.controllerId,
+                controllers.routes.ReviewDetailsController.businessDetails(service),
+                Some(controllers.routes.BusinessVerificationController.viewBusinessFormUtr(service, businessType).url)
+              )
+            case None =>
+              Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
+          }
+        }
+    }
+  )
+}
 
   private def nrlFormHandling(nrlForm: Form[NonResidentLandlordMatch],
                               businessType: String,
