@@ -65,6 +65,21 @@ class BusinessRegistrationFormsSpec extends PlaySpec with Matchers with GuiceOne
       )
     }
 
+    "pass validation when valid NonUK postcode with extra punctuation applied" in {
+
+      val testinput = input + ("businessAddress.postcode" -> "641-026.")
+
+      val form: Form[BusinessRegistration] = BusinessRegistrationForms.businessRegistrationForm.bind(testinput)
+      BusinessRegistrationForms.validateCountryNonUKAndPostcode(form, "ated", isAgent = false, appConfig).fold(
+        hasErrors => {
+          hasErrors.errors.length mustBe 0
+        },
+        success => {
+          success.businessAddress.postcode mustBe Some("641026")
+        }
+      )
+    }
+
     "pass validation when valid NonUK postcode and Country containing leading and trailing spaces applied" in {
 
       val testinput = input ++ Map("businessAddress.postcode" -> "1234567890", "businessAddress.country" -> " IN ")

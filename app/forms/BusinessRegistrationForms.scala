@@ -37,6 +37,7 @@ object BusinessRegistrationForms {
 
   val NonUkPostCodeRegex = "^[a-zA-Z0-9]{1,10}+(?: [a-zA-Z0-9]{2,10})?$"
   val countryUK = "GB"
+  private val postcodeFormatPattern: String = "[+.:_,;=(){}\\[\\]\\-\\^\\*]"
 
   val businessRegistrationForm: Form[BusinessRegistration] = Form(
     mapping(
@@ -166,13 +167,17 @@ object BusinessRegistrationForms {
       registrationData.withError(key = "businessAddress.postcode",
         message = "bc.business-registration-error.postcode")
     } else {
-      if (!postCode.fold("")(x => x).matches(postcodeRegex)) {
+      if (!postCode.fold("")(x => sanitisePostcode(x)).matches(postcodeRegex)) {
         registrationData.withError(key = "businessAddress.postcode",
           message = "bc.business-registration-error.postcode.invalid")
       } else {
         registrationData
       }
     }
+  }
+
+  private def sanitisePostcode(postcode: String): String = {
+    postcode.toLowerCase().replaceAll(postcodeFormatPattern, "")
   }
 
   def validateCountryNonUKAndPostcode(registrationData: Form[BusinessRegistration],
@@ -190,6 +195,8 @@ object BusinessRegistrationForms {
       _.trim
     } filterNot {
       _.isEmpty
+    } map {
+      sanitisePostcode
     }
 
     def validateNonUkClientPostCode(service: String): Boolean = appConf.validateNonUkCode(service)
