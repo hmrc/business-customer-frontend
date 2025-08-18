@@ -70,20 +70,6 @@
             <input type="hidden" name="isSaAccount" value="@{isSaAccount}">
             <input type="hidden" name="isOrgAccount" value="@{isOrgAccount}">
 
-            <header>
-                <h1 class="govuk-heading-xl">
-                    <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@headingSecondaryText</span>
-                    @headingText
-                </h1>
-            </header>
-
-            <p class="govuk-body">@messages("bc.business-verification-lede")</p>
-            <p class="govuk-body">@messages("bc.business-verification-text-1")</p>
-
-            <p class="govuk-body"><strong>@messages("bc.business-verification.user.subheader")</strong></p>
-
-
-
             @govukRadios(
                 Radios(
                     fieldset = Some(Fieldset(
@@ -100,7 +86,10 @@
                     }
 
                 ).withFormField(businessTypeForm("businessType"))
-            )
+                .withHeadingAndSectionCaption(
+                    heading = HtmlContent(headingText),
+                    sectionCaption = HtmlContent(headingSecondaryText)
+                ))
 
         </div>
 
