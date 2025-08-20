@@ -30,6 +30,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import services.AgentRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -43,6 +44,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  implicit val messages: Messages = inject[MessagesApi].preferred(Seq(Lang.defaultLang))
 
   val service = "ATED"
 
@@ -157,7 +159,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "return Review Details view for a user, when user can't be directly found with login credentials" in {
         businessDetailsWithAuthorisedUser(nonDirectMatchReviewDetails) { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must include("Check this is the business you want to register")
+          document.select("h1").text must include(messages("business-review.user.header"))
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED/businessForm/LTD")
@@ -167,7 +169,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "return Review Details view for a user, when we directly found this user" in {
         businessDetailsWithAuthorisedUser(directMatchReviewDetails) { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must include("Check this is the business you want to register")
+          document.select("h1").text must include(messages("business-review.user.header"))
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED/businessForm/LTD")
