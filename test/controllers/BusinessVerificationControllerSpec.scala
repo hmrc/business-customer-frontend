@@ -220,7 +220,7 @@ class BusinessVerificationControllerSpec
           }
         }
 
-        "redirect to 'haveYouRegisteredUrl' if service is 'awrs' and enrolmentJourneyFeature is true, and no backlink is found" in {
+        "redirect to 'haveYouRegisteredUrl' if service is 'awrs', and no backlink is found" in {
           val mockAppConfig = mock[ApplicationConfig]
           val userId = s"user-${UUID.randomUUID}"
           val service = "awrs"
@@ -234,7 +234,6 @@ class BusinessVerificationControllerSpec
           ).thenReturn(Future.successful(None))
           when(mockAppConfig.getNavTitle(service)).thenReturn(Some("bc.awrs.serviceName"))
           when(mockAppConfig.serviceList).thenReturn(List(service))
-          when(mockAppConfig.enrolmentJourneyFeature).thenReturn(true)
           when(mockAppConfig.haveYouRegisteredUrl).thenReturn("http://localhost:9913/alcohol-wholesale-scheme/have-you-registered")
           when(mockAppConfig.businessTypeMap(service, isAgent = false)).thenReturn(Seq(
             "OBP" -> "bc.business-verification.PRT", "GROUP" -> "bc.business-verification.GROUP", "LTD" -> "bc.business-verification.LTD",
