@@ -77,5 +77,4 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   lazy val backToInformHMRCNrlUrl: Option[String] = Option(conf.getString("microservice.services.agent-client-mandate-frontend.informHMRCNrlUrl"))
 
   def haveYouRegisteredUrl: String = conf.getString(s"microservice.services.awrs.haveYouRegisteredUrl")
-  def enrolmentJourneyFeature: Boolean = Try(conf.getBoolean("feature.enrolmentJourney")).getOrElse(false)
 }

@@ -69,7 +69,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
         rawBackLink <- currentBackLink
         backLink: Option[String] = rawBackLink.orElse {
           service match {
-            case "awrs" if appConfig.enrolmentJourneyFeature => Some(appConfig.haveYouRegisteredUrl)
+            case "awrs" => Some(appConfig.haveYouRegisteredUrl)
             case _ => rawBackLink
           }
         }
