@@ -102,6 +102,10 @@
                     label = Label(
                         content = Text(Messages("bc.business-verification.coUTRFieldpsaUTR")),
                         classes = "govuk-visually-hidden"
+                    ),
+                    attributes = Map(
+                        "inputmode" -> "numeric",
+                        "pattern" -> "[0-9]*"
                     )
                 ).withFormField(ordinaryBusinessPartnershipForm("psaUTR"))
             )

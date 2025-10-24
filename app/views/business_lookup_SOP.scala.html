@@ -111,6 +111,10 @@
                     label = Label(
                         content = Text(Messages("bc.business-verification.coUTRFieldsaUTR")),
                         classes = "govuk-visually-hidden"
+                    ),
+                    attributes = Map(
+                        "inputmode" -> "numeric",
+                        "pattern" -> "[0-9]*"
                     )
                 ).withFormField(soleTraderForm("saUTR"))
             )

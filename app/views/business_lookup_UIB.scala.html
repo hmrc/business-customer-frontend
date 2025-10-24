@@ -108,9 +108,12 @@
                                     </a>
                                 </p>
                             """
-            )
-        ))
-                    
+                        )
+                    )),
+                    attributes = Map(
+                        "inputmode" -> "numeric",
+                        "pattern" -> "[0-9]*"
+                    )
                 ).withFormField(unincorporatedBodyForm("cotaxUTR"))
             )
 
