@@ -65,3 +65,6 @@ lazy val microservice: Project = Project(appName, file("."))
     )
   )
   .disablePlugins(JUnitXmlReportPlugin)
+
+addCommandAlias("runAllChecks", ";clean;compile;coverage;test;coverageReport")
+
