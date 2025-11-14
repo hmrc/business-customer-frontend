@@ -21,9 +21,15 @@ import play.api.i18n.Messages
 
 object ViewUtils {
 
-  def titleBuilder(title: String, form: Option[Form[_]] = None)(implicit messages: Messages): String =
+  def titleBuilder(title: String, form: Option[Form[_]] = None, service: Option[String] = None)(implicit messages: Messages): String = {
+    val serviceKey = service.map(s => s"bc.$s.serviceName").getOrElse("")
+    val serviceName = 
+      if (messages.isDefinedAt(serviceKey)) s" - ${messages(serviceKey)}"
+      else ""
+    
     form match {
-      case Some(f) if f.hasErrors || f.hasGlobalErrors =>s"${messages("bc.error.title.prefix")} $title - ${messages("bc.awrs.serviceName")} - GOV.UK"
-      case _ => title + s" - ${messages("bc.awrs.serviceName")} - GOV.UK"
+      case Some(f) if f.hasErrors || f.hasGlobalErrors =>s"${messages("bc.error.title.prefix")} $title ${serviceName} - GOV.UK"
+      case _ => title + s"${serviceName} - GOV.UK"
     }
+  }
 }
