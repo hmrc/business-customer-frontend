@@ -112,7 +112,7 @@ govukButton : GovukButton)
     }
 }
 
-@bcMain(title = titleBuilder(messages(displayDetails.title), Some(overseasCompanyForm)), service = service,
+@bcMain(title = titleBuilder(messages(displayDetails.title), Some(overseasCompanyForm), Some(service)), service = service,
   pageScripts = Some(pageScripts), backlink=Some(backLinkHtml)) {
 
     @if(overseasCompanyForm.errors.nonEmpty) {
