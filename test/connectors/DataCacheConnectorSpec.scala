@@ -16,29 +16,28 @@
 
 package connectors
 
-import config.ApplicationConfig
 import models.{Address, ReviewDetails}
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
-import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
+import repositories.SessionCacheRepository
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
+class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
-
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-
+  val mockSessionCacheRepo: SessionCacheRepository = mock[SessionCacheRepository]
 
   class Setup extends ConnectorTest {
-    val connector: DataCacheConnector = new DataCacheConnector(mockHttpClient, appConfig)
+    val connector: DataCacheConnector = new DataCacheConnector(mockSessionCacheRepo)
   }
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -46,23 +45,54 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
   "DataCacheConnector" must {
 
     "fetchAndGetBusinessDetailsForSession" must {
+
       "fetch saved BusinessDetails from SessionCache" in new Setup {
         val reviewDetails: ReviewDetails =
-          ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
-        when(executeGet[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
+          ReviewDetails(
+            "ACME",
+            Some("UIB"),
+            Address("line1", "line2", None, None, None, "country"),
+            "sap123",
+            "safe123",
+            isAGroup    = false,
+            directMatch = false,
+            Some("agent123")
+          )
+
+        when(
+          mockSessionCacheRepo
+            .getFromSession[ReviewDetails](
+              DataKey(ArgumentMatchers.any())
+            )(any(), any())
+        ).thenReturn(Future.successful(Some(reviewDetails)))
 
         val result: Future[Option[ReviewDetails]] = connector.fetchAndGetBusinessDetailsForSession
-          await(result) must be(Some(reviewDetails))
+        await(result) must be(Some(reviewDetails))
       }
     }
 
     "saveAndReturnBusinessDetails" must {
 
       "save the fetched business details" in new Setup {
-        val reviewDetails: ReviewDetails = ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
-        val inputBody: JsValue = Json.toJson(reviewDetails)
+        val reviewDetails: ReviewDetails =
+          ReviewDetails(
+            "ACME",
+            Some("UIB"),
+            Address("line1", "line2", None, None, None, "country"),
+            "sap123",
+            "safe123",
+            isAGroup    = false,
+            directMatch = false,
+            Some("agent123")
+          )
 
-        when(executePut[CacheMap](inputBody)).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
+        when(
+          mockSessionCacheRepo
+            .putSession[ReviewDetails](
+              DataKey(ArgumentMatchers.any()),
+              ArgumentMatchers.eq(reviewDetails)
+            )(any(), any(), any())
+        ).thenReturn(Future.successful(reviewDetails))
 
         val result: Future[Option[ReviewDetails]] = connector.saveReviewDetails(reviewDetails)
         await(result).get must be(reviewDetails)
@@ -71,8 +101,13 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
     }
 
     "clearCache" must {
-      "clear the cache for the session" in new Setup{
-        when(executeDelete[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
+
+      "clear the cache for the session" in new Setup {
+
+        when(
+          mockSessionCacheRepo
+            .deleteFromSession(any())
+        ).thenReturn(Future.successful(()))
 
         val result: Future[Unit] = connector.clearCache
         await(result) must be(())

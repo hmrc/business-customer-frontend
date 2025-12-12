@@ -16,34 +16,25 @@
 
 package connectors
 
-import config.ApplicationConfig
+import models.BackLinkModel
+import repositories.SessionCacheRepository
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import javax.inject.Inject
-import models.BackLinkModel
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.http.client.HttpClientV2
-
 import scala.concurrent.{ExecutionContext, Future}
 
-class BackLinkCacheConnector @Inject()(val http: HttpClientV2,
-                                       config: ApplicationConfig) extends SessionCache {
-  val baseUri: String = config.baseUri
-  val defaultSource: String = config.defaultSource
-  val domain: String = config.domain
+class BackLinkCacheConnector @Inject()(sessionCache: SessionCacheRepository){
+  import sessionCache._
 
   val sourceId: String = "BC_Back_Link"
 
-  private def getKey(pageId: String) = s"$sourceId:$pageId"
+  private def getKey(pageId: String): DataKey[BackLinkModel] = DataKey[BackLinkModel](s"$sourceId:$pageId")
 
-  def fetchAndGetBackLink(pageId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
-    fetchAndGetEntry[BackLinkModel](getKey(pageId)).map(_.flatMap(_.backLink))
-  }
+  def fetchAndGetBackLink(pageId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] =
+    getFromSession[BackLinkModel](getKey(pageId)).map(_.flatMap(_.backLink))
 
-  def saveBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
-    cache[BackLinkModel](getKey(pageId), BackLinkModel(returnUrl)).map(_ => returnUrl)
-  }
-
-  def httpClientV2: HttpClientV2 = http
+  def saveBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] =
+    putSession[BackLinkModel](getKey(pageId), BackLinkModel(returnUrl)).map(_.backLink)
 
 }

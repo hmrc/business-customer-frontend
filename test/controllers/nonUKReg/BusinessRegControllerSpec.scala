@@ -327,7 +327,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
-      (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
@@ -346,7 +346,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
-      (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,
@@ -366,7 +366,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](ArgumentMatchers.any())
-      (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
+      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
 
     val result = TestBusinessRegController.register(service, businessType).apply(FakeRequest().withSession(
       "sessionId" -> sessionId,

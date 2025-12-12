@@ -126,7 +126,6 @@ class BusinessVerificationControllerSpec
             mockBusinessRegCacheConnector
               .fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
                 ArgumentMatchers.any(),
-                ArgumentMatchers.any(),
                 ArgumentMatchers.any()
               )
           )
@@ -140,7 +139,6 @@ class BusinessVerificationControllerSpec
           when(
             mockBusinessRegCacheConnector
               .fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
-                ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any()
               )
@@ -176,7 +174,6 @@ class BusinessVerificationControllerSpec
           when(
             mockBusinessRegCacheConnector
               .fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
-                ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any()
               )
@@ -241,7 +238,6 @@ class BusinessVerificationControllerSpec
             "SOP" -> "bc.business-verification.SOP", "UIB" -> "bc.business-verification.UIB"
           ))
           when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
-                ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
@@ -588,7 +584,6 @@ class BusinessVerificationControllerSpec
           mockBusinessRegCacheConnector
             .fetchAndGetCachedDetails[SoleTraderMatch](ArgumentMatchers.any())(
               ArgumentMatchers.any(),
-              ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
         )
@@ -608,7 +603,6 @@ class BusinessVerificationControllerSpec
         when(
           mockBusinessRegCacheConnector
             .fetchAndGetCachedDetails[SoleTraderMatch](ArgumentMatchers.any())(
-              ArgumentMatchers.any(),
               ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
@@ -632,7 +626,6 @@ class BusinessVerificationControllerSpec
               ArgumentMatchers.any()
             )(
               ArgumentMatchers.any(),
-              ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
         )
@@ -655,7 +648,6 @@ class BusinessVerificationControllerSpec
               ArgumentMatchers.any()
             )(
               ArgumentMatchers.any(),
-              ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
         )
@@ -675,7 +667,6 @@ class BusinessVerificationControllerSpec
             .fetchAndGetCachedDetails[UnincorporatedMatch](
               ArgumentMatchers.any()
             )(
-              ArgumentMatchers.any(),
               ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
@@ -703,7 +694,6 @@ class BusinessVerificationControllerSpec
               ArgumentMatchers.any()
             )(
               ArgumentMatchers.any(),
-              ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
         )
@@ -725,7 +715,6 @@ class BusinessVerificationControllerSpec
             .fetchAndGetCachedDetails[OrdinaryBusinessPartnershipMatch](
               ArgumentMatchers.any()
             )(
-              ArgumentMatchers.any(),
               ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
@@ -752,7 +741,6 @@ class BusinessVerificationControllerSpec
               ArgumentMatchers.any()
             )(
               ArgumentMatchers.any(),
-              ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
         )
@@ -774,7 +762,6 @@ class BusinessVerificationControllerSpec
             .fetchAndGetCachedDetails[LimitedLiabilityPartnershipMatch](
               ArgumentMatchers.any()
             )(
-              ArgumentMatchers.any(),
               ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
@@ -801,7 +788,6 @@ class BusinessVerificationControllerSpec
               ArgumentMatchers.any()
             )(
               ArgumentMatchers.any(),
-              ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
         )
@@ -823,7 +809,6 @@ class BusinessVerificationControllerSpec
             .fetchAndGetCachedDetails[LimitedPartnershipMatch](
               ArgumentMatchers.any()
             )(
-              ArgumentMatchers.any(),
               ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )
@@ -1006,7 +991,7 @@ class BusinessVerificationControllerSpec
 
       "add additional form fields to the screen for entry" in new Setup {
         when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedCompanyMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+          (ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(LimitedCompanyMatch("TestBusinessName", "TestCOTAXUTR"))))
         businessLookupWithAuthorisedUser(controller, "LTD") { result =>
           status(result) must be(OK)
@@ -1204,7 +1189,6 @@ class BusinessVerificationControllerSpec
             .fetchAndGetCachedDetails[UnincorporatedMatch](
               ArgumentMatchers.any()
             )(
-              ArgumentMatchers.any(),
               ArgumentMatchers.any(),
               ArgumentMatchers.any()
             )

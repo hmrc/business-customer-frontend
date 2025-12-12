@@ -16,47 +16,33 @@
 
 package connectors
 
-import config.ApplicationConfig
+import models.{BusinessRegistration, ReviewDetails}
+import repositories.SessionCacheRepository
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import javax.inject.Inject
-import models.{BusinessRegistration, ReviewDetails}
-import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataCacheConnector @Inject()(val http: HttpClientV2,
-                                   config: ApplicationConfig) extends SessionCache {
+class DataCacheConnector @Inject()(sessionCache: SessionCacheRepository){
 
-  val baseUri: String = config.baseUri
-  val defaultSource: String = config.defaultSource
-  val domain: String = config.domain
-
-  val sourceId: String = "BC_Business_Details"
+  import sessionCache._
+  private val sourceId: String = "BC_Business_Details"
   private val sourceIdForFormPayload: String = "BC_Business_Details_form_payload"
 
   def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
-   fetchAndGetEntry[ReviewDetails](sourceId)
+   getFromSession[ReviewDetails](DataKey(sourceId))
 
-  def fetchAndGetBusinessRegistrationDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
-    fetchAndGetEntry[BusinessRegistration](sourceIdForFormPayload)
+  def fetchAndGetBusinessRegistrationDetailsForSession(implicit hc: HeaderCarrier): Future[Option[BusinessRegistration]] =
+   getFromSession[BusinessRegistration](DataKey(sourceIdForFormPayload))
 
-  def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] = {
-    cache[ReviewDetails](sourceId, reviewDetails) map {
-      _.getEntry[ReviewDetails](sourceId)
-    }
-  }
+  def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
+    putSession[ReviewDetails](DataKey(sourceId), reviewDetails).map(Some(_))
 
   def saveBusinessRegistrationDetails(businessRegistration: BusinessRegistration)
-                                     (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] = {
-    cache[BusinessRegistration](sourceIdForFormPayload, businessRegistration) map {
-      _.getEntry[BusinessRegistration](sourceIdForFormPayload)
-    }
-  }
+                                     (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
+    putSession[BusinessRegistration](DataKey(sourceIdForFormPayload), businessRegistration).map(Some(_))
 
-  def clearCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] = remove()
-
-  def httpClientV2: HttpClientV2 = http
+  def clearCache(implicit hc: HeaderCarrier): Future[Unit] = deleteFromSession
 
 }

@@ -16,49 +16,69 @@
 
 package connectors
 
-import config.ApplicationConfig
-import models._
+import models.BackLinkModel
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.Json
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.cache.client.CacheMap
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import repositories.SessionCacheRepository
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite  {
+class BackLinkCacheConnectorSpec
+  extends PlaySpec
+    with GuiceOneAppPerSuite
+    with MockitoSugar {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val hc: HeaderCarrier =
+    HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
+  val mockSessionCacheRepo: SessionCacheRepository = mock[SessionCacheRepository]
 
   class Setup extends ConnectorTest {
-    val connector: BackLinkCacheConnector = new BackLinkCacheConnector(mockHttpClient, appConfig)
+    val connector: BackLinkCacheConnector = new BackLinkCacheConnector(mockSessionCacheRepo)
   }
 
-
   "BackLinkCacheConnector" must {
+
     "fetchAndGetBackLink" must {
-      "fetch saved BusinessDetails from SessionCache with Feature Switch on" in new Setup {
-        val backLink: BackLinkModel = BackLinkModel(Some("testBackLink"))
-        when(executeGet[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink")))))))
+
+      "fetch saved back link from SessionCache" in new Setup {
+        val backLinkModel = BackLinkModel(Some("testBackLink"))
+
+        when(
+          mockSessionCacheRepo
+            .getFromSession[BackLinkModel](
+              DataKey(ArgumentMatchers.any())
+            )(any(), any())
+        ).thenReturn(Future.successful(Some(backLinkModel)))
 
         val result = connector.fetchAndGetBackLink("testPageId")
-        await(result) must be(backLink.backLink)
+        await(result) mustBe backLinkModel.backLink
       }
     }
 
     "saveAndReturnBusinessDetails" must {
-      "save the fetched business details with Feature Switch on" in new Setup {
-        val backLink: BackLinkModel = BackLinkModel(Some("testBackLink"))
-        val inputBody = Json.toJson(Json.toJson(BackLinkModel(Some("testBackLink"))))
-        when(executePut[CacheMap](inputBody)).thenReturn(Future.successful(CacheMap("test", Map("BC_Back_Link:testPageId" -> Json.toJson(BackLinkModel(Some("testBackLink")))))))
 
-        val result = connector.saveBackLink("testPageId", backLink.backLink)
-        await(result) must be(backLink.backLink)
+      "save the back link to SessionCache" in new Setup {
+        val backLinkModel = BackLinkModel(Some("testBackLink"))
+
+        when(
+          mockSessionCacheRepo
+            .putSession[BackLinkModel](
+              DataKey(ArgumentMatchers.any()),
+              any[BackLinkModel]
+            )(any(), any(), any())
+        ).thenReturn(Future.successful(backLinkModel))
+
+        val result = connector.saveBackLink("testPageId", backLinkModel.backLink)
+        await(result) mustBe backLinkModel.backLink
       }
     }
   }

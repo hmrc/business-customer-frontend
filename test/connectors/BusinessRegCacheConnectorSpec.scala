@@ -16,21 +16,27 @@
 
 package connectors
 
-import config.ApplicationConfig
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.{JsValue, Json, OFormat}
-import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.http.cache.client.CacheMap
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.libs.json.{Json, OFormat}
+import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
+class BusinessRegCacheConnectorSpec
+  extends PlaySpec
+    with GuiceOneAppPerSuite
+    with MockitoSugar {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   case class FormData(name: String)
 
@@ -38,42 +44,45 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
     implicit val formats: OFormat[FormData] = Json.format[FormData]
   }
 
-  val formId = "form-id"
-  val formIdNotExist = "no-form-id"
+  val formId: String        = "form-id"
+  val formIdNotExist: String = "no-form-id"
 
-  val formData = FormData("some-data")
+  val formData: FormData = FormData("some-data")
 
-  val formDataJson = Json.toJson(formData)
-
-  val cacheMap = CacheMap(id = formId, Map("date" -> formDataJson))
-
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  val mockSessionCacheRepo: SessionCacheRepository = mock[SessionCacheRepository]
 
   class Setup extends ConnectorTest {
-    val connector: BusinessRegCacheConnector = new BusinessRegCacheConnector(mockHttpClient, appConfig)
+    val connector: BusinessRegCacheConnector =
+      new BusinessRegCacheConnector(mockSessionCacheRepo)
   }
-
-
-  implicit val ec: ExecutionContext = mcc.executionContext
 
   "BusinessRegCacheConnector" must {
 
     "fetchAndGetBusinessDetailsForSession" must {
 
-      "return Some formId of the cached form does exist for defined data type" in new Setup  {
-          when(executeGet[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
+      "return Some(formData) if cached form exists for defined data type" in new Setup {
+        when(
+          mockSessionCacheRepo.getFromSession[FormData](
+            DataKey(ArgumentMatchers.any())
+          )(any(), any())
+        ).thenReturn(Future.successful(Some(formData)))
 
-          await(connector.fetchAndGetCachedDetails[FormData](formIdNotExist)) must be(Some(formData))
+        val result = connector.fetchAndGetCachedDetails[FormData](formIdNotExist)
+        await(result) mustBe Some(formData)
       }
     }
 
     "save form data" when {
       "valid form data with a valid form id is passed" in new Setup {
-        val inputBody: JsValue = Json.toJson(formData)
-        when(executePut[CacheMap](inputBody)).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
+        when(
+          mockSessionCacheRepo.putSession[FormData](
+            DataKey(ArgumentMatchers.any()),
+            ArgumentMatchers.eq(formData)
+          )(any(), any(), any())
+        ).thenReturn(Future.successful(formData))
 
-        await(connector.cacheDetails[FormData](formId, formData)) must be(formData)
+        val result = connector.cacheDetails[FormData](formId, formData)
+        await(result) mustBe formData
       }
     }
   }

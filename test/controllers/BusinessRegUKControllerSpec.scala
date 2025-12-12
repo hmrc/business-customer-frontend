@@ -87,7 +87,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     "Authorised Users" must {
 
       "return business registration view for a user for Group" in {
-        when(mockDataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn
+        when(mockDataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession(ArgumentMatchers.any())) thenReturn
           Future.successful(Some(BusinessRegistration("", Address("", "", Some(""), Some(""), Some(""), ""))))
 
         registerWithAuthorisedUser("awrs", "GROUP") {
@@ -113,7 +113,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       "return business registration view for a user for New Business" in {
 
-        when(mockDataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn
+        when(mockDataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession(ArgumentMatchers.any())) thenReturn
           Future.successful(None)
         registerWithAuthorisedUser("awrs", "NEW") {
           result =>

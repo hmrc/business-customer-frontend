@@ -82,7 +82,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       "clearCache successfully" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(OK, ""))
+        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(OK, ""))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(OK)
       }
@@ -90,7 +90,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       "clearCache gives error" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn(Future.failed(new InternalServerException("Something went wrong.")))
+        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any())) thenReturn(Future.failed(new InternalServerException("Something went wrong.")))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(INTERNAL_SERVER_ERROR)
       }

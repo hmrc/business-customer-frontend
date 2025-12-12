@@ -20,6 +20,7 @@ import javax.inject.{Inject, Named, Singleton}
 import play.api.{Configuration, Environment, Logging}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import scala.concurrent.duration.Duration
 import scala.util.Try
 
 @Singleton
@@ -42,12 +43,6 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   lazy val loginCallback: String = conf.getString("microservice.services.auth.login-callback.url")
   lazy val loginURL = s"$basGatewayHost/bas-gateway/sign-in"
   lazy val signOut = s"$basGatewayHost/bas-gateway/sign-out-without-state"
-
-  lazy val baseUri: String = conf.baseUrl("cachable.session-cache")
-  lazy val defaultSource: String = appName
-  lazy val domain: String = conf.getConfString(
-    "cachable.session-cache.domain", throw new Exception(s"Could not find config 'cachable.session-cache.domain'")
-  )
 
   def accessibilityStatementFrontendUrl(service: String, referrerUrl: String): String = {
     val statement = service.toUpperCase() match {
@@ -77,4 +72,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   lazy val backToInformHMRCNrlUrl: Option[String] = Option(conf.getString("microservice.services.agent-client-mandate-frontend.informHMRCNrlUrl"))
 
   def haveYouRegisteredUrl: String = conf.getString(s"microservice.services.awrs.haveYouRegisteredUrl")
+
+  lazy val mongoDbExpireAfterMinutes: Duration = conf.getDuration("mongodb.session.expireAfter")
+  lazy val mongoUri: String = conf.getString("mongodb.uri")
 }
