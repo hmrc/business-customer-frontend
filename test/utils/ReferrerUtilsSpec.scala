@@ -41,7 +41,6 @@ class ReferrerUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerTe
       getReferrer() mustBe "http%3A%2F%2FplatformHost%2Fa-uri"
     }
 
-
     "return an encoded url containing a defined platform host config val and request path" in {
       implicit val request: MessagesRequest[AnyContent] =
         new MessagesRequest[AnyContent](FakeRequest("GET", "/a-uri"), inject[MessagesApi])

@@ -17,7 +17,6 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -30,7 +29,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
-import services.AgentRegistrationService
+import services.{AgentRegistrationService, BackLinkCacheService, DataCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HttpResponse, NotFoundException}
 import views.html.{global_error, review_details, review_details_non_uk_agent}
@@ -38,25 +37,20 @@ import views.html.{global_error, review_details, review_details_non_uk_agent}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReviewDetailsControllerSpec
-  extends PlaySpec
-    with GuiceOneServerPerSuite
-    with MockitoSugar
-    with BeforeAndAfterEach
-    with Injecting {
+class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   val service = "ATED"
 
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockAgentRegistrationService: AgentRegistrationService = mock[AgentRegistrationService]
-  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockAuthConnector: AuthConnector                            = mock[AuthConnector]
+  val mockAgentRegistrationService: AgentRegistrationService      = mock[AgentRegistrationService]
+  val mockBackLinkCache: BackLinkCacheService                     = mock[BackLinkCacheService]
   val injectedViewInstanceNonUkAgent: review_details_non_uk_agent = inject[views.html.review_details_non_uk_agent]
-  val injectedViewInstanceReviewDetails: review_details = inject[views.html.review_details]
-  val injectedViewInstanceError: global_error = inject[views.html.global_error]
+  val injectedViewInstanceReviewDetails: review_details           = inject[views.html.review_details]
+  val injectedViewInstanceError: global_error                     = inject[views.html.global_error]
 
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  implicit val appConfig: ApplicationConfig      = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   val address: Address =
@@ -77,7 +71,7 @@ class ReviewDetailsControllerSpec
   )
 
   def testReviewDetailsController(reviewDetails: ReviewDetails): ReviewDetailsController = {
-    val mockDataCacheConnector: DataCacheConnector = mock[DataCacheConnector]
+    val mockDataCacheConnector: DataCacheService = mock[DataCacheService]
 
     when(
       mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(
@@ -102,7 +96,7 @@ class ReviewDetailsControllerSpec
   }
 
   def testReviewDetailsControllerNotFound: ReviewDetailsController = {
-    val mockDataCacheConnector: DataCacheConnector = mock[DataCacheConnector]
+    val mockDataCacheConnector: DataCacheService = mock[DataCacheService]
 
     when(
       mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(
@@ -429,23 +423,23 @@ class ReviewDetailsControllerSpec
   }
 
   def businessDetailsWithAuthorisedAgent(
-                                          reviewDetails: ReviewDetails
-                                        )(test: Future[Result] => Any): ReviewDetailsController = {
+      reviewDetails: ReviewDetails
+  )(test: Future[Result] => Any): ReviewDetailsController = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(
       mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
     ).thenReturn(Future.successful(None))
     val testDetailsController = testReviewDetailsController(reviewDetails)
-    val result              = testDetailsController.businessDetails(service).apply(fakeRequestWithSession(userId))
+    val result                = testDetailsController.businessDetails(service).apply(fakeRequestWithSession(userId))
 
     test(result)
     testDetailsController
   }
 
   def businessDetailsWithAuthorisedUser(
-                                         reviewDetails: ReviewDetails
-                                       )(test: Future[Result] => Any): ReviewDetailsController = {
+      reviewDetails: ReviewDetails
+  )(test: Future[Result] => Any): ReviewDetailsController = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
@@ -454,7 +448,7 @@ class ReviewDetailsControllerSpec
       Future.successful(Some("/business-customer/business-verification/ATED/businessForm/LTD"))
     )
     val testDetailsController = testReviewDetailsController(reviewDetails)
-    val result              = testDetailsController.businessDetails(service).apply(fakeRequestWithSession(userId))
+    val result                = testDetailsController.businessDetails(service).apply(fakeRequestWithSession(userId))
 
     test(result)
     testDetailsController
@@ -467,7 +461,7 @@ class ReviewDetailsControllerSpec
       mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
     ).thenReturn(Future.successful(None))
     val testDetailsController = testReviewDetailsControllerNotFound
-    val result              = testDetailsController.businessDetails(service).apply(fakeRequestWithSession(userId))
+    val result                = testDetailsController.businessDetails(service).apply(fakeRequestWithSession(userId))
 
     test(result)
     testDetailsController
@@ -485,4 +479,5 @@ class ReviewDetailsControllerSpec
 
     test(result)
   }
+
 }

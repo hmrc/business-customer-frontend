@@ -17,12 +17,11 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import models.ReviewDetails
 import play.api.libs.json.{JsError, JsSuccess}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService, BusinessRegCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -32,53 +31,57 @@ import utils.RedirectUtils.redirectUrlGetRelativeOrDev
 import javax.inject.{Inject, Provider}
 import scala.concurrent.ExecutionContext
 
+class HomeController @Inject() (val authConnector: AuthConnector,
+                                val backLinkCacheConnector: BackLinkCacheService,
+                                config: ApplicationConfig,
+                                businessMatchService: BusinessMatchingService,
+                                businessVerificationController: Provider[BusinessVerificationController],
+                                reviewDetailsController: ReviewDetailsController,
+                                businessRegCacheConnector: BusinessRegCacheService,
+                                mcc: MessagesControllerComponents)
+    extends FrontendController(mcc)
+    with BackLinkController
+    with AuthActions {
 
-class HomeController @Inject()(val authConnector: AuthConnector,
-                               val backLinkCacheConnector: BackLinkCacheConnector,
-                               config: ApplicationConfig,
-                               businessMatchService: BusinessMatchingService,
-                               businessVerificationController: Provider[BusinessVerificationController],
-                               reviewDetailsController: ReviewDetailsController,
-                               businessRegCacheConnector: BusinessRegCacheConnector,
-                               mcc: MessagesControllerComponents)
-  extends FrontendController(mcc) with BackLinkController with AuthActions {
-
-  implicit val appConfig: ApplicationConfig = config
+  implicit val appConfig: ApplicationConfig       = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
-  val controllerId: String = "HomeController"
+  val controllerId: String                        = "HomeController"
 
   def homePage(service: String, backLinkUrl: Option[RedirectUrl]): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       businessMatchService.matchBusinessWithUTR(isAnAgent = authContext.isAgent, service) match {
         case Some(futureJsValue) =>
-          futureJsValue flatMap {
-            jsValue =>
-              jsValue.validate[ReviewDetails] match {
-                case details: JsSuccess[ReviewDetails] =>
-                  val countryCode = details.get.businessAddress.country
-                  if(config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
-                    businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
-                    redirectWithBackLink(
-                      businessVerificationController.get.controllerId,
-                      controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
-                    )
-                  } else {
-                    redirectWithBackLink(reviewDetailsController.controllerId,
-                      controllers.routes.ReviewDetailsController.businessDetails(service),
-                      backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
-                    )
-                  }
-                case _: JsError =>
+          futureJsValue flatMap { jsValue =>
+            jsValue.validate[ReviewDetails] match {
+              case details: JsSuccess[ReviewDetails] =>
+                val countryCode = details.get.businessAddress.country
+                if (config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
+                  businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
                   redirectWithBackLink(
                     businessVerificationController.get.controllerId,
-                    controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
+                    controllers.routes.BusinessVerificationController.businessVerification(service),
+                    backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
                   )
-              }
+                } else {
+                  redirectWithBackLink(
+                    reviewDetailsController.controllerId,
+                    controllers.routes.ReviewDetailsController.businessDetails(service),
+                    backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
+                  )
+                }
+              case _: JsError =>
+                redirectWithBackLink(
+                  businessVerificationController.get.controllerId,
+                  controllers.routes.BusinessVerificationController.businessVerification(service),
+                  backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
+                )
+            }
           }
         case None =>
           redirectWithBackLink(
             businessVerificationController.get.controllerId,
-            controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
+            controllers.routes.BusinessVerificationController.businessVerification(service),
+            backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
           )
       }
     }

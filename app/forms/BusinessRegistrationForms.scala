@@ -24,43 +24,41 @@ import play.api.data.Forms._
 object BusinessRegistrationForms {
 
   val postcodeLength = 10
-  val length40 = 40
-  val length35 = 35
-  val length0 = 0
-  val length2 = 2
-  val length60 = 60
-  val length105 = 105
+  val length40       = 40
+  val length35       = 35
+  val length0        = 0
+  val length2        = 2
+  val length60       = 60
+  val length105      = 105
+
   val postcodeRegex: String =
     """(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|
       |(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9]
       |[abehmnprv-yABEHMNPRV-Y]))) {0,}[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}))$""".stripMargin
 
-  val NonUkPostCodeRegex = "^[a-zA-Z0-9]{1,10}+(?: [a-zA-Z0-9]{2,10})?$"
-  val countryUK = "GB"
+  val NonUkPostCodeRegex                    = "^[a-zA-Z0-9]{1,10}+(?: [a-zA-Z0-9]{2,10})?$"
+  val countryUK                             = "GB"
   private val postcodeFormatPattern: String = "[+.:_,;=(){}\\[\\]\\-\\^\\*]"
 
   val businessRegistrationForm: Form[BusinessRegistration] = Form(
     mapping(
-      "businessName" -> text.
-        verifying("bc.business-registration-error.businessName", _.trim.length > length0)
+      "businessName" -> text
+        .verifying("bc.business-registration-error.businessName", _.trim.length > length0)
         .verifying("bc.business-registration-error.businessName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105)),
       "businessAddress" -> mapping(
-        "line_1" -> text.
-          verifying("bc.business-registration-error.line_1", _.trim.length > length0)
+        "line_1" -> text
+          .verifying("bc.business-registration-error.line_1", _.trim.length > length0)
           .verifying("bc.business-registration-error.line_1.length", x => x.isEmpty || (x.nonEmpty && x.length <= length35)),
-        "line_2" -> text.
-          verifying("bc.business-registration-error.line_2", _.trim.length > length0)
+        "line_2" -> text
+          .verifying("bc.business-registration-error.line_2", _.trim.length > length0)
           .verifying("bc.business-registration-error.line_2.length", x => x.isEmpty || (x.nonEmpty && x.length <= length35)),
         "line_3" -> optional(text)
           .verifying("bc.business-registration-error.line_3.length", x => x.isEmpty || (x.nonEmpty && x.get.length <= length35)),
         "line_4" -> optional(text)
           .verifying("bc.business-registration-error.line_4.length", x => x.isEmpty || (x.nonEmpty && x.get.length <= length35)),
         "postcode" -> optional(text)
-          .verifying("bc.business-registration-error.postcode.length",
-            x => x.isEmpty || (x.nonEmpty && x.get.length <= postcodeLength)),
-        "country" -> text.
-          verifying("bc.business-registration-error.country", _.length > length0)
-
+          .verifying("bc.business-registration-error.postcode.length", x => x.isEmpty || (x.nonEmpty && x.get.length <= postcodeLength)),
+        "country" -> text.verifying("bc.business-registration-error.country", _.length > length0)
       )(Address.apply)(Address.unapply)
     )(BusinessRegistration.apply)(BusinessRegistration.unapply)
   )
@@ -79,7 +77,7 @@ object BusinessRegistrationForms {
   def checkFieldLengthIfPopulated(optionValue: Option[String], fieldLength: Int): Boolean = {
     optionValue match {
       case Some(value) => value.isEmpty || (value.nonEmpty && value.length <= fieldLength)
-      case None => true
+      case None        => true
     }
   }
 
@@ -164,12 +162,10 @@ object BusinessRegistrationForms {
       _.isEmpty
     }
     if (postCode.isEmpty) {
-      registrationData.withError(key = "businessAddress.postcode",
-        message = "bc.business-registration-error.postcode")
+      registrationData.withError(key = "businessAddress.postcode", message = "bc.business-registration-error.postcode")
     } else {
       if (!postCode.fold("")(x => sanitisePostcode(x)).matches(postcodeRegex)) {
-        registrationData.withError(key = "businessAddress.postcode",
-          message = "bc.business-registration-error.postcode.invalid")
+        registrationData.withError(key = "businessAddress.postcode", message = "bc.business-registration-error.postcode.invalid")
       } else {
         registrationData
       }
@@ -205,13 +201,11 @@ object BusinessRegistrationForms {
 
     val formWithTrimmedCountryPostcode = amendedForm(registrationData, postCode, trimmedCountry)
 
-    val form = if(postCode.isEmpty && validatePostCode) {
-      formWithTrimmedCountryPostcode.withError(key = "businessAddress.postcode",
-        message = "bc.business-registration-error.postcode")
-    } else if(!postCode.fold("")(x => x).matches(NonUkPostCodeRegex) && validatePostCode) {
-      formWithTrimmedCountryPostcode.withError(key = "businessAddress.postcode",
-        message = "bc.business-registration-error.postcode.invalid")
-    } else{
+    val form = if (postCode.isEmpty && validatePostCode) {
+      formWithTrimmedCountryPostcode.withError(key = "businessAddress.postcode", message = "bc.business-registration-error.postcode")
+    } else if (!postCode.fold("")(x => x).matches(NonUkPostCodeRegex) && validatePostCode) {
+      formWithTrimmedCountryPostcode.withError(key = "businessAddress.postcode", message = "bc.business-registration-error.postcode.invalid")
+    } else {
       formWithTrimmedCountryPostcode
     }
 
@@ -223,11 +217,12 @@ object BusinessRegistrationForms {
       }
     }
 
-    //the following code makes sure the errors are displayed in the same order as the fields appear on the page
-    if (trimmedCountry.isEmpty){
-      countryForm.copy(errors = form.errors.filterNot(e => e.key == "businessAddress.country"))
+    // the following code makes sure the errors are displayed in the same order as the fields appear on the page
+    if (trimmedCountry.isEmpty) {
+      countryForm
+        .copy(errors = form.errors.filterNot(e => e.key == "businessAddress.country"))
         .withError("businessAddress.country", "bc.business-registration-error.country")
-    } else{
+    } else {
       countryForm
     }
   }
@@ -235,12 +230,16 @@ object BusinessRegistrationForms {
   def amendedForm(form: Form[BusinessRegistration], postcode: Option[String], country: Option[String]): Form[BusinessRegistration] = {
 
     (postcode, country) match {
-      case(Some(pcode), Some(ctry)) => form.discardingErrors.bind(data = form.data.updated("businessAddress.country", ctry)
-        .updated("businessAddress.postcode", pcode))
-      case(Some(pcode), None) => form.discardingErrors
-        .bind(data = form.data.updated("businessAddress.postcode", pcode))
-      case(None, Some(ctry)) => form.discardingErrors
-        .bind(data = form.data.updated("businessAddress.country", ctry))
+      case (Some(pcode), Some(ctry)) =>
+        form.discardingErrors.bind(data = form.data
+          .updated("businessAddress.country", ctry)
+          .updated("businessAddress.postcode", pcode))
+      case (Some(pcode), None) =>
+        form.discardingErrors
+          .bind(data = form.data.updated("businessAddress.postcode", pcode))
+      case (None, Some(ctry)) =>
+        form.discardingErrors
+          .bind(data = form.data.updated("businessAddress.country", ctry))
       case _ => form
     }
 

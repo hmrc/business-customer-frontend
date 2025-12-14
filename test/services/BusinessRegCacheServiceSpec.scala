@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package connectors
+package services
 
+import connectors.ConnectorTest
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -30,12 +31,9 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegCacheConnectorSpec
-  extends PlaySpec
-    with GuiceOneAppPerSuite
-    with MockitoSugar {
+class BusinessRegCacheServiceSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
+  implicit val hc: HeaderCarrier    = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   case class FormData(name: String)
@@ -44,7 +42,7 @@ class BusinessRegCacheConnectorSpec
     implicit val formats: OFormat[FormData] = Json.format[FormData]
   }
 
-  val formId: String        = "form-id"
+  val formId: String         = "form-id"
   val formIdNotExist: String = "no-form-id"
 
   val formData: FormData = FormData("some-data")
@@ -52,8 +50,10 @@ class BusinessRegCacheConnectorSpec
   val mockSessionCacheRepo: SessionCacheRepository = mock[SessionCacheRepository]
 
   class Setup extends ConnectorTest {
-    val connector: BusinessRegCacheConnector =
-      new BusinessRegCacheConnector(mockSessionCacheRepo)
+
+    val connector: BusinessRegCacheService =
+      new BusinessRegCacheService(mockSessionCacheRepo)
+
   }
 
   "BusinessRegCacheConnector" must {
@@ -86,4 +86,5 @@ class BusinessRegCacheConnectorSpec
       }
     }
   }
+
 }

@@ -29,16 +29,16 @@ import scala.concurrent.ExecutionContext
 class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
-  val injectedViewInstanceError: global_error = inject[views.html.global_error]
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  implicit val appConfig: ApplicationConfig      = inject[ApplicationConfig]
+  val injectedViewInstanceError: global_error    = inject[views.html.global_error]
+  implicit val ec: ExecutionContext              = scala.concurrent.ExecutionContext.global
 
   "internalServerErrorTemplate" must {
 
     "retrieve the correct messages" in {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val errorHandler = new BCHandlerImpl(mcc.messagesApi,injectedViewInstanceError, appConfig)
-      errorHandler.internalServerErrorTemplate.map{result =>
+      val errorHandler                                          = new BCHandlerImpl(mcc.messagesApi, injectedViewInstanceError, appConfig)
+      errorHandler.internalServerErrorTemplate.map { result =>
         val document = Jsoup.parse(contentAsString(result))
 
         document.title() must be("Sorry, there is a problem with the service - GOV.UK")
@@ -51,8 +51,8 @@ class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSug
   "calling onClientError for a page not found" must {
     "retrieve the correct messages" in {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val errorHandler = new BCHandlerImpl(mcc.messagesApi,injectedViewInstanceError, appConfig)
-      errorHandler.notFoundTemplate.map{result =>
+      val errorHandler                                          = new BCHandlerImpl(mcc.messagesApi, injectedViewInstanceError, appConfig)
+      errorHandler.notFoundTemplate.map { result =>
         val document = Jsoup.parse(contentAsString(result))
 
         "render page in English" in {
@@ -61,5 +61,5 @@ class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSug
       }
     }
   }
-}
 
+}

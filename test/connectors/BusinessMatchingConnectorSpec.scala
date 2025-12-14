@@ -33,26 +33,27 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  val mockAudit: DefaultAuditConnector = app.injector.instanceOf[DefaultAuditConnector]
-  val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  val mockAudit: DefaultAuditConnector      = app.injector.instanceOf[DefaultAuditConnector]
+  val mockAppConfig: ApplicationConfig      = app.injector.instanceOf[ApplicationConfig]
   implicit val user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "userName")
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  implicit val ec: ExecutionContext         = scala.concurrent.ExecutionContext.global
 
   class Setup extends ConnectorTest {
-    val connector: BusinessMatchingConnector = new BusinessMatchingConnector (
+
+    val connector: BusinessMatchingConnector = new BusinessMatchingConnector(
       mockAuditable,
       mockHttpClient,
       mockAppConfig
     )
+
   }
 
   val userType = "sa"
-  val service = "ATED"
+  val service  = "ATED"
 
   "BusinessMatchingConnector" must {
 
-    val matchSuccessResponse = Json.parse(
-      """
+    val matchSuccessResponse = Json.parse("""
         |{
         |  "businessName":"ACME",
         |  "businessType":"Unincorporated body",
@@ -116,12 +117,12 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         |}
       """.stripMargin.replaceAll("[\r\n\t]", "")
 
-    val matchFailureResponse = Json.parse( """{"error": "Sorry. Business details not found."}""")
+    val matchFailureResponse = Json.parse("""{"error": "Sorry. Business details not found."}""")
 
-    "for a successful match, return business details"  in new Setup {
-      val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
+    "for a successful match, return business details" in new Setup {
+      val matchBusinessData          = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      val inputBody: JsValue = Json.toJson(matchBusinessData)
+      val inputBody: JsValue         = Json.toJson(matchBusinessData)
 
       when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, matchSuccessResponse.toString)))
 
@@ -130,11 +131,11 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       verify(mockHttpClient, times(1)).post(ArgumentMatchers.any())(ArgumentMatchers.any())
     }
 
-    "for a successful match with invalid JSON response, truncate contact details and return valid json"  in new Setup {
-      val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
+    "for a successful match with invalid JSON response, truncate contact details and return valid json" in new Setup {
+      val matchBusinessData          = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      val responseJson = HttpResponse(OK, matchSuccessResponseInvalidJson.toString)
-      val inputBody: JsValue = Json.toJson(matchBusinessData)
+      val responseJson               = HttpResponse(OK, matchSuccessResponseInvalidJson.toString)
+      val inputBody: JsValue         = Json.toJson(matchBusinessData)
 
       when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(responseJson))
 
@@ -143,21 +144,22 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       verify(mockHttpClient, times(1)).post(ArgumentMatchers.any())(ArgumentMatchers.any())
     }
 
-    "for unsuccessful match, return error message"  in new Setup {
-      val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
+    "for unsuccessful match, return error message" in new Setup {
+      val matchBusinessData          = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      val inputBody: JsValue = Json.toJson(matchBusinessData)
+      val inputBody: JsValue         = Json.toJson(matchBusinessData)
 
       when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, matchFailureResponse.toString)))
 
       val result = connector.lookup(matchBusinessData, userType, service)
       await(result) must be(matchFailureResponse)
-      verify(mockHttpClient, times(1)).post(ArgumentMatchers.any())(ArgumentMatchers.any())}
+      verify(mockHttpClient, times(1)).post(ArgumentMatchers.any())(ArgumentMatchers.any())
+    }
 
-    "throw service unavailable exception, if service is unavailable"  in new Setup {
-      val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
+    "throw service unavailable exception, if service is unavailable" in new Setup {
+      val matchBusinessData          = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      val inputBody: JsValue = Json.toJson(matchBusinessData)
+      val inputBody: JsValue         = Json.toJson(matchBusinessData)
 
       when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, "")))
 
@@ -167,10 +169,10 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       verify(mockHttpClient, times(1)).post(ArgumentMatchers.any())(ArgumentMatchers.any())
     }
 
-    "throw bad request exception, if bad request is passed"  in new Setup {
-      val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
+    "throw bad request exception, if bad request is passed" in new Setup {
+      val matchBusinessData          = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      val inputBody: JsValue = Json.toJson(matchBusinessData)
+      val inputBody: JsValue         = Json.toJson(matchBusinessData)
 
       when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
 
@@ -180,10 +182,10 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       verify(mockHttpClient, times(1)).post(ArgumentMatchers.any())(ArgumentMatchers.any())
     }
 
-    "throw internal server error, if Internal server error status is returned"  in new Setup {
-      val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
+    "throw internal server error, if Internal server error status is returned" in new Setup {
+      val matchBusinessData          = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      val inputBody: JsValue = Json.toJson(matchBusinessData)
+      val inputBody: JsValue         = Json.toJson(matchBusinessData)
 
       when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
@@ -193,10 +195,10 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       verify(mockHttpClient, times(1)).post(ArgumentMatchers.any())(ArgumentMatchers.any())
     }
 
-    "throw runtime exception, unknown status is returned"  in new Setup {
-      val matchBusinessData = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
+    "throw runtime exception, unknown status is returned" in new Setup {
+      val matchBusinessData          = MatchBusinessData("sessionId", "1111111111", false, false, None, None)
       implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      val inputBody: JsValue = Json.toJson(matchBusinessData)
+      val inputBody: JsValue         = Json.toJson(matchBusinessData)
 
       when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, "")))
 
@@ -206,4 +208,5 @@ class BusinessMatchingConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       verify(mockHttpClient, times(1)).post(ArgumentMatchers.any())(ArgumentMatchers.any())
     }
   }
+
 }

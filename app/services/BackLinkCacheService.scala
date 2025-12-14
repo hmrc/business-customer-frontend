@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors
+package services
 
 import models.BackLinkModel
 import repositories.SessionCacheRepository
@@ -24,7 +24,7 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class BackLinkCacheConnector @Inject()(sessionCache: SessionCacheRepository){
+class BackLinkCacheService @Inject() (sessionCache: SessionCacheRepository) {
   import sessionCache._
 
   val sourceId: String = "BC_Back_Link"

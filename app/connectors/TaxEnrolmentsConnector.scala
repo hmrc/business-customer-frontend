@@ -32,17 +32,19 @@ import utils.GovernmentGatewayConstants
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
-                                       implicit val config: ApplicationConfig,
-                                       val audit: Auditable,
-                                       val http: HttpClientV2) extends RawResponseReads with Logging {
+class TaxEnrolmentsConnector @Inject() (val metrics: MetricsService,
+                                        implicit val config: ApplicationConfig,
+                                        val audit: Auditable,
+                                        val http: HttpClientV2)
+    extends RawResponseReads
+    with Logging {
 
   val enrolmentUrl = s"${config.taxEnrolments}/tax-enrolments"
 
   def enrol(enrolRequest: NewEnrolRequest, groupId: String, arn: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val enrolmentKey = s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}~${GovernmentGatewayConstants.KnownFactsAgentRefNo}~$arn"
-    val postUrl = s"""$enrolmentUrl/groups/$groupId/enrolments/$enrolmentKey"""
-    val jsonData = Json.toJson(enrolRequest)
+    val postUrl      = s"""$enrolmentUrl/groups/$groupId/enrolments/$enrolmentKey"""
+    val jsonData     = Json.toJson(enrolRequest)
 
     val timerContext = metrics.startTimer(MetricsEnum.EMAC_AGENT_ENROL)
     http.post(url"${postUrl}").withBody(jsonData).execute map { response =>
@@ -61,32 +63,34 @@ class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
         metrics.incrementFailedCounter(MetricsEnum.EMAC_AGENT_ENROL)
         logger.warn(
           s"[TaxEnrolmentsConnector][enrol] - " +
-          s"emac url: $postUrl, " +
-          s"service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}, " +
-          s"verfiers sent: ${enrolRequest.verifiers}, " +
-          s"response: ${response.body}"
+            s"emac url: $postUrl, " +
+            s"service: ${GovernmentGatewayConstants.KnownFactsAgentServiceName}, " +
+            s"verfiers sent: ${enrolRequest.verifiers}, " +
+            s"response: ${response.body}"
         )
         response
     }
   }
 
-  private def auditEnrolCall(postUrl: String, input: NewEnrolRequest, response: HttpResponse)(implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
+  private def auditEnrolCall(postUrl: String, input: NewEnrolRequest, response: HttpResponse)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Unit = {
     val eventType = response.status match {
       case CREATED => EventTypes.Succeeded
-      case _ => EventTypes.Failed
+      case _       => EventTypes.Failed
     }
     audit.sendDataEvent(
       transactionName = "emacEnrolCallES08",
       detail = Map(
-        "txName" -> "emacAllocateEnrolmentToGroup",
-        "friendlyName" -> s"${input.friendlyName}",
-        "serviceName" -> s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}",
-        "postUrl" -> s"$postUrl",
-        "requestBody" -> s"${Json.prettyPrint(Json.toJson(input))}",
-        "verifiers" -> s"${input.verifiers}",
+        "txName"         -> "emacAllocateEnrolmentToGroup",
+        "friendlyName"   -> s"${input.friendlyName}",
+        "serviceName"    -> s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}",
+        "postUrl"        -> s"$postUrl",
+        "requestBody"    -> s"${Json.prettyPrint(Json.toJson(input))}",
+        "verifiers"      -> s"${input.verifiers}",
         "responseStatus" -> s"${response.status}",
-        "responseBody" -> s"${response.body}",
-        "status" -> s"$eventType"
+        "responseBody"   -> s"${response.body}",
+        "status"         -> s"$eventType"
       )
     )
   }

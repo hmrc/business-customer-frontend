@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package connectors
+package services
 
+import connectors.ConnectorTest
 import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -30,14 +31,14 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar {
+class DataCacheServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
   val mockSessionCacheRepo: SessionCacheRepository = mock[SessionCacheRepository]
 
   class Setup extends ConnectorTest {
-    val connector: DataCacheConnector = new DataCacheConnector(mockSessionCacheRepo)
+    val connector: DataCacheService = new DataCacheService(mockSessionCacheRepo)
   }
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -54,7 +55,7 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with M
             Address("line1", "line2", None, None, None, "country"),
             "sap123",
             "safe123",
-            isAGroup    = false,
+            isAGroup = false,
             directMatch = false,
             Some("agent123")
           )
@@ -81,7 +82,7 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with M
             Address("line1", "line2", None, None, None, "country"),
             "sap123",
             "safe123",
-            isAGroup    = false,
+            isAGroup = false,
             directMatch = false,
             Some("agent123")
           )
@@ -114,4 +115,5 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with M
       }
     }
   }
+
 }

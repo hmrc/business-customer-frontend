@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors
+package services
 
 import play.api.libs.json.Format
 import repositories.SessionCacheRepository
@@ -24,7 +24,7 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegCacheConnector @Inject()(sessionCache: SessionCacheRepository) {
+class BusinessRegCacheService @Inject() (sessionCache: SessionCacheRepository) {
 
   def fetchAndGetCachedDetails[T](formId: String)(implicit hc: HeaderCarrier, formats: Format[T]): Future[Option[T]] =
     sessionCache.getFromSession[T](DataKey(formId))

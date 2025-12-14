@@ -23,9 +23,6 @@ import play.api.test.Injecting
 
 class RedirectUtilsSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerTest with Injecting {
 
-  "asRelativeUrl" should {
-
-
-  }
+  "asRelativeUrl" should {}
 
 }

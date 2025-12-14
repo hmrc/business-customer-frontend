@@ -23,29 +23,24 @@ import play.api.test.FakeRequest
 
 object SessionBuilder {
 
-
   def updateRequestWithSession(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], userId: String): FakeRequest[AnyContentAsFormUrlEncoded] = {
     val sessionId = s"session-${UUID.randomUUID}"
-    fakeRequest.withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
+    fakeRequest
+      .withSession("sessionId" -> sessionId, "token" -> "RANDOMTOKEN", "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
   }
 
   def buildRequestWithSession(userId: String): FakeRequest[AnyContentAsEmpty.type] = {
     val sessionId = s"session-${UUID.randomUUID}"
-    FakeRequest().withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
+    FakeRequest()
+      .withSession("sessionId" -> sessionId, "token" -> "RANDOMTOKEN", "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
   }
 
   def buildRequestWithSessionNoUser(): FakeRequest[AnyContentAsEmpty.type] = {
     val sessionId = s"session-${UUID.randomUUID}"
-    FakeRequest().withSession(
-      "sessionId" -> sessionId)
+    FakeRequest()
+      .withSession("sessionId" -> sessionId)
       .withHeaders(Headers("Authorization" -> "value"))
   }
 

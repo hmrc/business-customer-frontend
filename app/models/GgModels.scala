@@ -42,7 +42,6 @@ object EnrolErrorResponse {
   implicit val formats: Format[EnrolErrorResponse] = Json.format[EnrolErrorResponse]
 }
 
-
 case class NewEnrolRequest(userId: String, friendlyName: String, `type`: String, verifiers: List[Verifier])
 
 object NewEnrolRequest {

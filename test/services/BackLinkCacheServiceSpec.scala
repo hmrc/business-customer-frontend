@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package connectors
+package services
 
+import connectors.ConnectorTest
 import models.BackLinkModel
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -30,19 +31,17 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BackLinkCacheConnectorSpec
-  extends PlaySpec
-    with GuiceOneAppPerSuite
-    with MockitoSugar {
+class BackLinkCacheServiceSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
 
   implicit val hc: HeaderCarrier =
     HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   val mockSessionCacheRepo: SessionCacheRepository = mock[SessionCacheRepository]
 
   class Setup extends ConnectorTest {
-    val connector: BackLinkCacheConnector = new BackLinkCacheConnector(mockSessionCacheRepo)
+    val connector: BackLinkCacheService = new BackLinkCacheService(mockSessionCacheRepo)
   }
 
   "BackLinkCacheConnector" must {
@@ -82,4 +81,5 @@ class BackLinkCacheConnectorSpec
       }
     }
   }
+
 }

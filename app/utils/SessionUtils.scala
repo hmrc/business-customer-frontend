@@ -24,16 +24,16 @@ import scala.util.Random
 object SessionUtils {
 
   def getUniqueAckNo: String = {
-    val length = 32
-    val nanoTime = System.nanoTime()
-    val restChars = length - nanoTime.toString.length
+    val length      = 32
+    val nanoTime    = System.nanoTime()
+    val restChars   = length - nanoTime.toString.length
     val randomChars = Random.alphanumeric.take(restChars).mkString
     randomChars + nanoTime
   }
 
   def findServiceInRequest(request: RequestHeader)(implicit appConfig: ApplicationConfig): String = {
     val requestParts = request.uri.split("/")
-    val serviceList = appConfig.serviceList
+    val serviceList  = appConfig.serviceList
 
     requestParts.find(part => serviceList.contains(part.toLowerCase)).getOrElse("unknownservice")
   }

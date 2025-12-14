@@ -17,7 +17,6 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.BackLinkController
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
@@ -25,46 +24,53 @@ import forms.BusinessRegistrationForms._
 import javax.inject.Inject
 import models.{BusinessRegistration, BusinessRegistrationDisplayDetails, StandardAuthRetrievals}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.{BackLinkCacheService, BusinessRegCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
 
 import scala.concurrent.ExecutionContext
 
-class BusinessRegController @Inject()(val authConnector: AuthConnector,
-                                      val backLinkCacheConnector: BackLinkCacheConnector,
-                                      config: ApplicationConfig,
-                                      template: views.html.nonUkReg.business_registration,
-                                      businessRegistrationCache: BusinessRegCacheConnector,
-                                      overseasCompanyRegController: OverseasCompanyRegController,
-                                      mcc: MessagesControllerComponents)
-  extends FrontendController(mcc) with AuthActions with BackLinkController {
+class BusinessRegController @Inject() (val authConnector: AuthConnector,
+                                       val backLinkCacheConnector: BackLinkCacheService,
+                                       config: ApplicationConfig,
+                                       template: views.html.nonUkReg.business_registration,
+                                       businessRegistrationCache: BusinessRegCacheService,
+                                       overseasCompanyRegController: OverseasCompanyRegController,
+                                       mcc: MessagesControllerComponents)
+    extends FrontendController(mcc)
+    with AuthActions
+    with BackLinkController {
 
-  implicit val appConfig: ApplicationConfig = config
+  implicit val appConfig: ApplicationConfig       = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
-  val controllerId: String = "BusinessRegController"
-
+  val controllerId: String                        = "BusinessRegController"
 
   def register(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       for {
-        backLink <- currentBackLink
+        backLink             <- currentBackLink
         businessRegistration <- businessRegistrationCache.fetchAndGetCachedDetails[BusinessRegistration](BusinessRegDetailsId)
       } yield {
         businessRegistration match {
           case Some(businessReg) =>
-            Ok(template(
-              businessRegistrationForm.fill(businessReg),
-              service,
-              displayDetails(businessType, service),
-              backLink,
-              authContext.isAgent
-            ))
+            Ok(
+              template(
+                businessRegistrationForm.fill(businessReg),
+                service,
+                displayDetails(businessType, service),
+                backLink,
+                authContext.isAgent
+              ))
           case None =>
-            Ok(template(
-              businessRegistrationForm, service, displayDetails(businessType, service),
-              backLink, authContext.isAgent
-            ))
+            Ok(
+              template(
+                businessRegistrationForm,
+                service,
+                displayDetails(businessType, service),
+                backLink,
+                authContext.isAgent
+              ))
         }
       }
     }
@@ -72,23 +78,23 @@ class BusinessRegController @Inject()(val authConnector: AuthConnector,
 
   def send(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest(), service, authContext.isAgent, appConfig).fold(
-        formWithErrors => {
-          currentBackLink.map(backLink =>
-            BadRequest(template(formWithErrors, service,
-              displayDetails(businessType, service), backLink, authContext.isAgent))
-          )
-        },
-        registrationData => {
-          businessRegistrationCache.cacheDetails[BusinessRegistration](BusinessRegDetailsId, registrationData).flatMap { _ =>
+      BusinessRegistrationForms
+        .validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest(), service, authContext.isAgent, appConfig)
+        .fold(
+          formWithErrors => {
+            currentBackLink.map(backLink =>
+              BadRequest(template(formWithErrors, service, displayDetails(businessType, service), backLink, authContext.isAgent)))
+          },
+          registrationData => {
+            businessRegistrationCache.cacheDetails[BusinessRegistration](BusinessRegDetailsId, registrationData).flatMap { _ =>
               redirectWithBackLink(
                 overseasCompanyRegController.controllerId,
                 controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, addClient = false),
                 Some(controllers.nonUKReg.routes.BusinessRegController.register(service, businessType).url)
               )
+            }
           }
-        }
-      )
+        )
     }
   }
 
@@ -111,4 +117,5 @@ class BusinessRegController @Inject()(val authConnector: AuthConnector,
       )
     }
   }
+
 }

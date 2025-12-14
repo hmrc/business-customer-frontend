@@ -22,7 +22,6 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.Lang
 import play.api.test.Injecting
 
-
 class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
 
   val bcUtils: BCUtils = inject[ApplicationConfig]
@@ -130,7 +129,7 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
           "NUK" -> "bc.business-verification.NUK",
           "LTD" -> "bc.business-verification.LTD",
           "OBP" -> "bc.business-verification.PRT",
-          "LP" -> "bc.business-verification.LP",
+          "LP"  -> "bc.business-verification.LP",
           "LLP" -> "bc.business-verification.LLP",
           "UIB" -> "bc.business-verification.UIB"
         )
@@ -144,7 +143,7 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
           "LLP" -> "bc.business-verification.LLP",
           "SOP" -> "bc.business-verification.SOP",
           "OBP" -> "bc.business-verification.PRT",
-          "LP" -> "bc.business-verification.LP",
+          "LP"  -> "bc.business-verification.LP",
           "NUK" -> "bc.business-verification.NUK"
         )
       }
@@ -156,7 +155,7 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
           "SOP" -> "bc.business-verification.SOP",
           "LTD" -> "bc.business-verification.LTD",
           "OBP" -> "bc.business-verification.PRT",
-          "LP" -> "bc.business-verification.LP",
+          "LP"  -> "bc.business-verification.LP",
           "LLP" -> "bc.business-verification.LLP",
           "UIB" -> "bc.business-verification.UIB"
         )

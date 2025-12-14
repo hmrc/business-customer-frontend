@@ -31,82 +31,94 @@ import utils.{OverseasCompanyUtils, RedirectUtils}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
-                                                   config: ApplicationConfig,
-                                                   template: views.html.nonUkReg.update_overseas_company_registration,
-                                                   businessRegistrationService: BusinessRegistrationService,
-                                                   mcc: MessagesControllerComponents)
-  extends FrontendController(mcc) with AuthActions with OverseasCompanyUtils {
+class UpdateOverseasCompanyRegController @Inject() (val authConnector: AuthConnector,
+                                                    config: ApplicationConfig,
+                                                    template: views.html.nonUkReg.update_overseas_company_registration,
+                                                    businessRegistrationService: BusinessRegistrationService,
+                                                    mcc: MessagesControllerComponents)
+    extends FrontendController(mcc)
+    with AuthActions
+    with OverseasCompanyUtils {
 
-  implicit val appConfig: ApplicationConfig = config
+  implicit val appConfig: ApplicationConfig       = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
   private def getBackLink(service: String, redirectUrl: Option[String]): Some[String] = {
     Some(redirectUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
   }
 
-  def viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] = None): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service){ implicit authContext =>
-      RedirectUtils.getRelativeOrBadRequestOpt(redirectUrl) { newUrl =>
-        val backLink = getBackLink(service, newUrl)
-        Ok(template(overseasCompanyForm,
-           service,
-           displayDetails(authContext.isAgent, addClient, service),
-          appConfig.getIsoCodeTupleList,
-            redirectUrl.map(redirectUrlGetRelativeOrDev(_).url),
-          backLink))
-
-        businessRegistrationService.getDetails().map {
-          case Some(detailsTuple) =>
-            Ok(template(overseasCompanyForm.fill(detailsTuple._3),
+  def viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] = None): Action[AnyContent] = Action.async {
+    implicit request =>
+      authorisedFor(service) { implicit authContext =>
+        RedirectUtils.getRelativeOrBadRequestOpt(redirectUrl) { newUrl =>
+          val backLink = getBackLink(service, newUrl)
+          Ok(
+            template(
+              overseasCompanyForm,
               service,
               displayDetails(authContext.isAgent, addClient, service),
               appConfig.getIsoCodeTupleList,
-              newUrl,
-              backLink))
-          case _ =>
-            logger.warn(s"[UpdateOverseasCompanyRegController][viewForUpdate] - No registration details found to edit")
-            throw new RuntimeException("No registration details found")
+              redirectUrl.map(redirectUrlGetRelativeOrDev(_).url),
+              backLink
+            ))
+
+          businessRegistrationService.getDetails().map {
+            case Some(detailsTuple) =>
+              Ok(
+                template(
+                  overseasCompanyForm.fill(detailsTuple._3),
+                  service,
+                  displayDetails(authContext.isAgent, addClient, service),
+                  appConfig.getIsoCodeTupleList,
+                  newUrl,
+                  backLink))
+            case _ =>
+              logger.warn(s"[UpdateOverseasCompanyRegController][viewForUpdate] - No registration details found to edit")
+              throw new RuntimeException("No registration details found")
+          }
         }
       }
-    }
   }
 
-
   def update(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] = None): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service){ implicit authContext =>
-      BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest()).fold(
-        formWithErrors => {
-          val backLink = getBackLink(service, redirectUrl.map(redirectUrlGetRelativeOrDev(_).url))
-          Future.successful(BadRequest(template(
-            formWithErrors,
-            service,
-            displayDetails(authContext.isAgent, addClient, service),
-            appConfig.getIsoCodeTupleList,
-            redirectUrl.map(redirectUrlGetRelativeOrDev(_).url),
-            backLink))
-          )
-        },
-        overseasCompany =>
-          RedirectUtils.getRelativeOrBadRequestOpt(redirectUrl) { newUrl =>
-            businessRegistrationService.getDetails().flatMap {
-              case Some(detailsTuple) =>
-                businessRegistrationService.updateRegisterBusiness(
-                  detailsTuple._2,
-                  overseasCompany,
-                  isGroup = false,
-                  isNonUKClientRegisteredByAgent = addClient,
-                  service,
-                  isBusinessDetailsEditable = true
-                ).map { _ =>
-                  Redirect(newUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
-                }
-              case _ =>
-                logger.warn(s"[UpdateOverseasCompanyRegController][update] - No registration details found to edit")
-                throw new RuntimeException("No registration details found")
+    authorisedFor(service) { implicit authContext =>
+      BusinessRegistrationForms
+        .validateNonUK(overseasCompanyForm.bindFromRequest())
+        .fold(
+          formWithErrors => {
+            val backLink = getBackLink(service, redirectUrl.map(redirectUrlGetRelativeOrDev(_).url))
+            Future.successful(BadRequest(template(
+              formWithErrors,
+              service,
+              displayDetails(authContext.isAgent, addClient, service),
+              appConfig.getIsoCodeTupleList,
+              redirectUrl.map(redirectUrlGetRelativeOrDev(_).url),
+              backLink
+            )))
+          },
+          overseasCompany =>
+            RedirectUtils.getRelativeOrBadRequestOpt(redirectUrl) { newUrl =>
+              businessRegistrationService.getDetails().flatMap {
+                case Some(detailsTuple) =>
+                  businessRegistrationService
+                    .updateRegisterBusiness(
+                      detailsTuple._2,
+                      overseasCompany,
+                      isGroup = false,
+                      isNonUKClientRegisteredByAgent = addClient,
+                      service,
+                      isBusinessDetailsEditable = true
+                    )
+                    .map { _ =>
+                      Redirect(newUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
+                    }
+                case _ =>
+                  logger.warn(s"[UpdateOverseasCompanyRegController][update] - No registration details found to edit")
+                  throw new RuntimeException("No registration details found")
+              }
             }
-          }
         )
     }
   }
+
 }

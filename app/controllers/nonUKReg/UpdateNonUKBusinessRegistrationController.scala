@@ -33,25 +33,27 @@ import utils.RedirectUtils.redirectUrlGetRelativeOrDev
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: AuthConnector,
-                                                          config: ApplicationConfig,
-                                                          template: views.html.nonUkReg.update_business_registration,
-                                                          businessRegistrationService: BusinessRegistrationService,
-                                                          mcc: MessagesControllerComponents) extends FrontendController(mcc) with AuthActions {
-  implicit val appConfig: ApplicationConfig = config
+class UpdateNonUKBusinessRegistrationController @Inject() (val authConnector: AuthConnector,
+                                                           config: ApplicationConfig,
+                                                           template: views.html.nonUkReg.update_business_registration,
+                                                           businessRegistrationService: BusinessRegistrationService,
+                                                           mcc: MessagesControllerComponents)
+    extends FrontendController(mcc)
+    with AuthActions {
+  implicit val appConfig: ApplicationConfig       = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
   private def getBackLink(service: String, redirectUrl: Option[RedirectUrl]): Some[String] = {
     redirectUrl match {
       case Some(_) => Some(redirectUrl.map(redirectUrlGetRelativeOrDev(_).url).get)
-      case None => Some(controllers.routes.ReviewDetailsController.businessDetails(service).url)
+      case None    => Some(controllers.routes.ReviewDetailsController.businessDetails(service).url)
     }
   }
 
-  private def displayDetails(service: String, isRegisterClient: Boolean)
-                            (implicit authContext: StandardAuthRetrievals): BusinessRegistrationDisplayDetails = {
+  private def displayDetails(service: String, isRegisterClient: Boolean)(implicit
+      authContext: StandardAuthRetrievals): BusinessRegistrationDisplayDetails = {
     (authContext.isAgent, isRegisterClient) match {
-      case (true, true)  =>
+      case (true, true) =>
         BusinessRegistrationDisplayDetails(
           "NUK",
           "bc.non-uk-reg.header",
@@ -71,7 +73,8 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
           "bc.business-registration.user.non-uk.header",
           "bc.business-registration.text.client",
           Some("bc.business-registration.lede.update-text"),
-          appConfig.getIsoCodeTupleList)
+          appConfig.getIsoCodeTupleList
+        )
     }
   }
 
@@ -80,14 +83,16 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
       businessRegistrationService.getDetails().map {
         case Some(detailsTuple) =>
           val backLink = getBackLink(service, None)
-          Ok(template(
-            businessRegistrationForm.fill(detailsTuple._2),
-            service,
-            displayDetails(service, isRegisterClient = false),
-            None,
-            isRegisterClient = false,
-            backLink,
-            authContext.isAgent))
+          Ok(
+            template(
+              businessRegistrationForm.fill(detailsTuple._2),
+              service,
+              displayDetails(service, isRegisterClient = false),
+              None,
+              isRegisterClient = false,
+              backLink,
+              authContext.isAgent
+            ))
         case _ =>
           logger.warn(s"[UpdateNonUKBusinessRegistrationController][editAgent] - No registration details found to edit")
           throw new RuntimeException("No registration details found")
@@ -108,7 +113,8 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
               newUrl,
               isRegisterClient = true,
               backLink,
-              authContext.isAgent))
+              authContext.isAgent
+            ))
           case _ =>
             logger.warn(s"[UpdateNonUKBusinessRegistrationController][edit] - No registration details found to edit")
             throw new RuntimeException("No registration details found")
@@ -119,42 +125,48 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
 
   def update(service: String, redirectUrl: Option[RedirectUrl], isRegisterClient: Boolean): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-        BusinessRegistrationForms.validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest(), service, authContext.isAgent, appConfig).fold(
+      BusinessRegistrationForms
+        .validateCountryNonUKAndPostcode(businessRegistrationForm.bindFromRequest(), service, authContext.isAgent, appConfig)
+        .fold(
           formWithErrors => {
             val backLink: Option[String] = getBackLink(service, redirectUrl)
-            Future.successful(BadRequest(template(formWithErrors,
+            Future.successful(BadRequest(template(
+              formWithErrors,
               service,
               displayDetails(service, isRegisterClient),
               redirectUrl.map(redirectUrlGetRelativeOrDev(_).url),
               isRegisterClient,
               backLink,
-              authContext.isAgent)))
+              authContext.isAgent
+            )))
           },
           registerData => {
             businessRegistrationService.getDetails().flatMap {
               case Some(detailsTuple) =>
-                businessRegistrationService.updateRegisterBusiness(
-                  registerData,
-                  detailsTuple._3,
-                  isGroup = false,
-                  isNonUKClientRegisteredByAgent = true,
-                  service,
-                  isBusinessDetailsEditable = true
-                ).map { _ =>
-                  redirectUrl match {
-                    case Some(url) => Redirect(redirectUrlGetRelativeOrDev(url).url)
-                    case _ => Redirect(controllers.routes.ReviewDetailsController.businessDetails(service))
+                businessRegistrationService
+                  .updateRegisterBusiness(
+                    registerData,
+                    detailsTuple._3,
+                    isGroup = false,
+                    isNonUKClientRegisteredByAgent = true,
+                    service,
+                    isBusinessDetailsEditable = true
+                  )
+                  .map { _ =>
+                    redirectUrl match {
+                      case Some(url) => Redirect(redirectUrlGetRelativeOrDev(url).url)
+                      case _         => Redirect(controllers.routes.ReviewDetailsController.businessDetails(service))
+                    }
                   }
-                }
               case _ =>
                 logger.warn(s"[UpdateNonUKBusinessRegistrationController][update] - No registration details found to edit")
                 throw new RuntimeException("No registration details found")
-            } recover {
-              case e: IllegalArgumentException =>
-                BadRequest("The redirect url is not correctly formatted")
+            } recover { case e: IllegalArgumentException =>
+              BadRequest("The redirect url is not correctly formatted")
             }
           }
         )
     }
   }
+
 }

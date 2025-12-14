@@ -26,20 +26,22 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 
 class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
-  val service = "ATED"
+  val service                          = "ATED"
   val injectedViewInstanceUnauthorised = inject[views.html.unauthorised]
-  val injectedViewInstanceLogout = inject[views.html.logout]
+  val injectedViewInstanceLogout       = inject[views.html.logout]
 
-  implicit val lang: Lang = Lang.defaultLang
+  implicit val lang: Lang                   = Lang.defaultLang
   implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   trait Setup {
+
     val controller = new ApplicationController(
       appConfig,
       injectedViewInstanceUnauthorised,
       injectedViewInstanceLogout,
       inject[MessagesControllerComponents]
     )
+
   }
 
   "ApplicationController" must {
@@ -52,11 +54,11 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       }
 
       "load the unauthorised page" in new Setup {
-        val messagesApi: MessagesApi = inject[MessagesApi]
-        implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
-        val result = controller.unauthorised().apply(FakeRequest())
-        val content = contentAsString(result)
-        val doc = Jsoup.parse(content)
+        val messagesApi: MessagesApi                  = inject[MessagesApi]
+        implicit val messages: play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+        val result                                    = controller.unauthorised().apply(FakeRequest())
+        val content                                   = contentAsString(result)
+        val doc                                       = Jsoup.parse(content)
         doc.title() must be(Messages("bc.unauthorised.title").concat(" - GOV.UK"))
       }
 
@@ -98,7 +100,7 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         status(result) must be(OK)
       }
     }
-    
+
     "Logout" must {
 
       "respond with a redirect" in new Setup {
@@ -171,4 +173,5 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       }
     }
   }
+
 }

@@ -20,7 +20,6 @@ import java.util.UUID
 
 import builders.SessionBuilder
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import models.NRLQuestion
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -32,37 +31,38 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
+import services.{BackLinkCacheService, BusinessRegCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html.nonUkReg.nrl_question
 
 import scala.concurrent.Future
 
-
 class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
-  val mockPaySAController: PaySAQuestionController = mock[PaySAQuestionController]
-  val mockBusRegController: BusinessRegController = mock[BusinessRegController]
-  val service = "amls"
-  val invalidService = "scooby-doo"
-  val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
-  val injectedViewInstance: nrl_question = inject[views.html.nonUkReg.nrl_question]
+  val mockAuthConnector: AuthConnector                       = mock[AuthConnector]
+  val mockBackLinkCache: BackLinkCacheService                = mock[BackLinkCacheService]
+  val mockPaySAController: PaySAQuestionController           = mock[PaySAQuestionController]
+  val mockBusRegController: BusinessRegController            = mock[BusinessRegController]
+  val service                                                = "amls"
+  val invalidService                                         = "scooby-doo"
+  val mockBusinessRegistrationCache: BusinessRegCacheService = mock[BusinessRegCacheService]
+  val injectedViewInstance: nrl_question                     = inject[views.html.nonUkReg.nrl_question]
 
-  val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  val appConfig: ApplicationConfig               = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
-  object TestNRLQuestionController extends NRLQuestionController(
-    mockAuthConnector,
-    mockBackLinkCache,
-    appConfig,
-    injectedViewInstance,
-    mockBusRegController,
-    mcc,
-    mockPaySAController,
-    mockBusinessRegistrationCache
-  ) {
+  object TestNRLQuestionController
+      extends NRLQuestionController(
+        mockAuthConnector,
+        mockBackLinkCache,
+        appConfig,
+        injectedViewInstance,
+        mockBusRegController,
+        mcc,
+        mockPaySAController,
+        mockBusinessRegistrationCache
+      ) {
     override val controllerId = "test"
   }
 
@@ -103,7 +103,8 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       }
 
       "redirect to register non-uk page, if user is an agent" in {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
         viewWithAuthorisedAgent(service) { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some(s"/business-customer/register/$service/NUK"))
@@ -149,64 +150,69 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
   def viewWithAuthorisedAgent(serviceName: String)(test: Future[Result] => Any): Any = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      .thenReturn(Future.successful(None))
 
-    val result = TestNRLQuestionController.view(serviceName).apply(FakeRequest().withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value")))
+    val result = TestNRLQuestionController
+      .view(serviceName)
+      .apply(
+        FakeRequest()
+          .withSession("sessionId" -> sessionId, "token" -> "RANDOMTOKEN", "userId" -> userId)
+          .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
-
 
   def viewWithAuthorisedClient(serviceName: String)(test: Future[Result] => Any): Any = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    val result = TestNRLQuestionController.view(serviceName).apply(FakeRequest().withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value")))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      .thenReturn(Future.successful(None))
+    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      .thenReturn(Future.successful(None))
+    val result = TestNRLQuestionController
+      .view(serviceName)
+      .apply(
+        FakeRequest()
+          .withSession("sessionId" -> sessionId, "token" -> "RANDOMTOKEN", "userId" -> userId)
+          .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
 
-
   def viewWithAuthorisedClientWithSavedData(serviceName: String)(test: Future[Result] => Any): Any = {
-    val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val sessionId    = s"session-${UUID.randomUUID}"
+    val userId       = s"user-${UUID.randomUUID}"
     val successModel = NRLQuestion(Some(false))
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[NRLQuestion](ArgumentMatchers.any())
-      (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(successModel)))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      .thenReturn(Future.successful(None))
+    when(mockBusinessRegistrationCache.fetchAndGetCachedDetails[NRLQuestion](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      .thenReturn(Future.successful(Some(successModel)))
 
-    val result = TestNRLQuestionController.view(serviceName).apply(FakeRequest().withSession(
-      "sessionId" -> sessionId,
-      "token" -> "RANDOMTOKEN",
-      "userId" -> userId)
-      .withHeaders(Headers("Authorization" -> "value")))
+    val result = TestNRLQuestionController
+      .view(serviceName)
+      .apply(
+        FakeRequest()
+          .withSession("sessionId" -> sessionId, "token" -> "RANDOMTOKEN", "userId" -> userId)
+          .withHeaders(Headers("Authorization" -> "value")))
 
     test(result)
   }
 
-
   def continueWithAuthorisedClient(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], serviceName: String)(test: Future[Result] => Any): Any = {
-    val userId   = s"user-${UUID.randomUUID}"
+    val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      .thenReturn(Future.successful(None))
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      .thenReturn(Future.successful(None))
 
     val result = TestNRLQuestionController.continue(serviceName).apply(SessionBuilder.updateRequestWithSession(fakeRequest, userId))
     test(result)

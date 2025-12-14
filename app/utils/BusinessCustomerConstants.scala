@@ -18,19 +18,19 @@ package utils
 
 object BusinessCustomerConstants {
 
-  val CorporateBody = "Corporate Body"
+  val CorporateBody      = "Corporate Body"
   val UnincorporatedBody = "Unincorporated Body"
-  val Llp = "LLP"
-  val Partnership = "Partnership"
-  val SoleTrader = "Sole Trader"
+  val Llp                = "LLP"
+  val Partnership        = "Partnership"
+  val SoleTrader         = "Sole Trader"
 
-  val IdentifierArn = "arn"
-  val IdentifierUtr = "utr"
-  val IdentifierSafeId = "safeid"
-  val BusinessRegDetailsId = "BC_NonUK_Business_Details"
-  val OverseasRegDetailsId = "Overseas_Business_Details"
-  val PaySaDetailsId = "Pay_Sa_Details"
-  val NrlFormId = "NRL_Details"
-  val UpdateNotRegisterId = "Update_No_Register"
+  val IdentifierArn            = "arn"
+  val IdentifierUtr            = "utr"
+  val IdentifierSafeId         = "safeid"
+  val BusinessRegDetailsId     = "BC_NonUK_Business_Details"
+  val OverseasRegDetailsId     = "Overseas_Business_Details"
+  val PaySaDetailsId           = "Pay_Sa_Details"
+  val NrlFormId                = "NRL_Details"
+  val UpdateNotRegisterId      = "Update_No_Register"
   val CacheRegistrationDetails = "Cache_Registration_Details_"
 }

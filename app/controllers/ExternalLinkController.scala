@@ -17,32 +17,36 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.BackLinkCacheConnector
 import controllers.auth.AuthActions
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
-class ExternalLinkController @Inject()(val authConnector: AuthConnector,
-                                       val backLinkCacheConnector: BackLinkCacheConnector,
-                                       config: ApplicationConfig,
-                                       mcc: MessagesControllerComponents)
-  extends FrontendController(mcc) with BackLinkController with AuthActions with I18nSupport {
+class ExternalLinkController @Inject() (val authConnector: AuthConnector,
+                                        val backLinkCacheConnector: BackLinkCacheService,
+                                        config: ApplicationConfig,
+                                        mcc: MessagesControllerComponents)
+    extends FrontendController(mcc)
+    with BackLinkController
+    with AuthActions
+    with I18nSupport {
 
-  implicit val appConfig: ApplicationConfig = config
+  implicit val appConfig: ApplicationConfig       = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
-  val controllerId: String = "ExternalLinkController"
+  val controllerId: String                        = "ExternalLinkController"
 
   def backLink(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(serviceName){ implicit authContext =>
+    authorisedFor(serviceName) { implicit authContext =>
       currentBackLink.map(_.map(Redirect(_)).getOrElse {
         logger.warn(s"No Back Link found. Service: $serviceName")
         NoContent
       })
     }
   }
+
 }

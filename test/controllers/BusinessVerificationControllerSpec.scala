@@ -18,7 +18,6 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import forms._
 import org.jsoup.Jsoup
@@ -31,7 +30,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService, BusinessRegCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html._
@@ -39,55 +38,70 @@ import views.html._
 import java.util.UUID
 import scala.concurrent.Future
 
-class BusinessVerificationControllerSpec
-    extends PlaySpec
-    with GuiceOneServerPerSuite
-    with MockitoSugar
-    with Injecting {
+class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockAuthConnector: AuthConnector             = mock[AuthConnector]
+
   val mockBusinessMatchingService: BusinessMatchingService =
     mock[BusinessMatchingService]
-  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
-  val mockBusinessRegCacheConnector: BusinessRegCacheConnector =
-    mock[BusinessRegCacheConnector]
-  val service = "ATED"
+
+  val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
+
+  val mockBusinessRegCacheConnector: BusinessRegCacheService =
+    mock[BusinessRegCacheService]
+
+  val service        = "ATED"
   val invalidService = "scooby-doo"
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
+
   implicit val mcc: MessagesControllerComponents =
     inject[MessagesControllerComponents]
+
   implicit val messages: Messages =
     mcc.messagesApi.preferred(Seq(Lang.defaultLang))
 
   val businessRegUKController: BusinessRegUKController =
     mock[BusinessRegUKController]
-  val busRegController: BusinessRegController = mock[BusinessRegController]
+
+  val busRegController: BusinessRegController      = mock[BusinessRegController]
   val nrlQuestionController: NRLQuestionController = mock[NRLQuestionController]
+
   val reviewDetailsController: ReviewDetailsController =
     mock[ReviewDetailsController]
+
   val homeController: HomeController = mock[HomeController]
+
   val injectedViewInstance: business_verification =
     inject[views.html.business_verification]
+
   val injectedViewInstanceSOP: business_lookup_SOP =
     inject[views.html.business_lookup_SOP]
+
   val injectedViewInstanceLTD: business_lookup_LTD =
     inject[views.html.business_lookup_LTD]
+
   val injectedViewInstanceUIB: business_lookup_UIB =
     inject[views.html.business_lookup_UIB]
+
   val injectedViewInstanceOBP: business_lookup_OBP =
     inject[views.html.business_lookup_OBP]
+
   val injectedViewInstanceLLP: business_lookup_LLP =
     inject[views.html.business_lookup_LLP]
+
   val injectedViewInstanceLP: business_lookup_LP =
     inject[views.html.business_lookup_LP]
+
   val injectedViewInstanceNRL: business_lookup_NRL =
     inject[views.html.business_lookup_NRL]
+
   val injectedViewInstanceDetailsNotFound: details_not_found =
     inject[views.html.details_not_found]
 
   class Setup {
+
     val controller: BusinessVerificationController =
       new BusinessVerificationController(
         appConfig,
@@ -113,6 +127,7 @@ class BusinessVerificationControllerSpec
       ) {
         override val controllerId = "test"
       }
+
   }
 
   "BusinessVerificationController" must {
@@ -130,9 +145,7 @@ class BusinessVerificationControllerSpec
               )
           )
             .thenReturn(Future.successful(None))
-          businessVerificationWithAuthorisedUser(controller)(result =>
-            status(result) must be(OK)
-          )
+          businessVerificationWithAuthorisedUser(controller)(result => status(result) must be(OK))
         }
 
         "respond with OK for cached data" in new Setup {
@@ -154,9 +167,7 @@ class BusinessVerificationControllerSpec
                 )
               )
             )
-          businessVerificationWithAuthorisedUser(controller)(result =>
-            status(result) must be(OK)
-          )
+          businessVerificationWithAuthorisedUser(controller)(result => status(result) must be(OK))
         }
 
         "respond with NotFound when invalid service is in uri" in new Setup {
@@ -219,8 +230,8 @@ class BusinessVerificationControllerSpec
 
         "redirect to 'haveYouRegisteredUrl' if service is 'awrs', and no backlink is found" in {
           val mockAppConfig = mock[ApplicationConfig]
-          val userId = s"user-${UUID.randomUUID}"
-          val service = "awrs"
+          val userId        = s"user-${UUID.randomUUID}"
+          val service       = "awrs"
 
           AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
           when(
@@ -233,13 +244,18 @@ class BusinessVerificationControllerSpec
           when(mockAppConfig.serviceList).thenReturn(List(service))
           when(mockAppConfig.haveYouRegisteredUrl).thenReturn("http://localhost:9913/alcohol-wholesale-scheme/have-you-registered")
           when(mockAppConfig.businessTypeMap(service, isAgent = false)).thenReturn(Seq(
-            "OBP" -> "bc.business-verification.PRT", "GROUP" -> "bc.business-verification.GROUP", "LTD" -> "bc.business-verification.LTD",
-            "LLP" -> "bc.business-verification.LLP", "LP" -> "bc.business-verification.LP",
-            "SOP" -> "bc.business-verification.SOP", "UIB" -> "bc.business-verification.UIB"
+            "OBP"   -> "bc.business-verification.PRT",
+            "GROUP" -> "bc.business-verification.GROUP",
+            "LTD"   -> "bc.business-verification.LTD",
+            "LLP"   -> "bc.business-verification.LLP",
+            "LP"    -> "bc.business-verification.LP",
+            "SOP"   -> "bc.business-verification.SOP",
+            "UIB"   -> "bc.business-verification.UIB"
           ))
-          when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any())).thenReturn(Future.successful(None))
+          when(
+            mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
           val businessVerificationController = new BusinessVerificationController(
             mockAppConfig,
@@ -329,10 +345,9 @@ class BusinessVerificationControllerSpec
     "continue" must {
 
       "selecting continue with no business type selected must display error message" in new Setup {
-        continueWithAuthorisedUserJson(controller, Map("businessType" -> "")) {
-          result =>
-            status(result) must be(BAD_REQUEST)
-            contentAsString(result) must include("Select your type of business")
+        continueWithAuthorisedUserJson(controller, Map("businessType" -> "")) { result =>
+          status(result) must be(BAD_REQUEST)
+          contentAsString(result) must include("Select your type of business")
         }
       }
 
@@ -450,7 +465,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "SOP",
-            "isSaAccount" -> "true",
+            "isSaAccount"  -> "true",
             "isOrgAccount" -> "false"
           )
         ) { result =>
@@ -466,7 +481,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "SOP",
-            "isSaAccount" -> "false",
+            "isSaAccount"  -> "false",
             "isOrgAccount" -> "true"
           )
         ) { result =>
@@ -482,7 +497,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "SOP",
-            "isSaAccount" -> "true",
+            "isSaAccount"  -> "true",
             "isOrgAccount" -> "true"
           )
         ) { result =>
@@ -843,7 +858,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "NRL",
-            "isSaAccount" -> "true",
+            "isSaAccount"  -> "true",
             "isOrgAccount" -> "false"
           )
         ) { result =>
@@ -859,7 +874,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "NRL",
-            "isSaAccount" -> "true",
+            "isSaAccount"  -> "true",
             "isOrgAccount" -> "true"
           )
         ) { result =>
@@ -962,7 +977,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "LTD",
-            "isSaAccount" -> "true",
+            "isSaAccount"  -> "true",
             "isOrgAccount" -> "false"
           )
         ) { result =>
@@ -978,7 +993,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "LTD",
-            "isSaAccount" -> "true",
+            "isSaAccount"  -> "true",
             "isOrgAccount" -> "true"
           )
         ) { result =>
@@ -990,8 +1005,9 @@ class BusinessVerificationControllerSpec
       }
 
       "add additional form fields to the screen for entry" in new Setup {
-        when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[LimitedCompanyMatch](ArgumentMatchers.any())
-          (ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(
+          mockBusinessRegCacheConnector
+            .fetchAndGetCachedDetails[LimitedCompanyMatch](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(LimitedCompanyMatch("TestBusinessName", "TestCOTAXUTR"))))
         businessLookupWithAuthorisedUser(controller, "LTD") { result =>
           status(result) must be(OK)
@@ -1098,7 +1114,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "UT",
-            "isSaAccount" -> "true",
+            "isSaAccount"  -> "true",
             "isOrgAccount" -> "false"
           )
         ) { result =>
@@ -1114,7 +1130,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "UT",
-            "isSaAccount" -> "true",
+            "isSaAccount"  -> "true",
             "isOrgAccount" -> "true"
           )
         ) { result =>
@@ -1583,7 +1599,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "ULTD",
-            "isSaAccount" -> "true",
+            "isSaAccount"  -> "true",
             "isOrgAccount" -> "false"
           )
         ) { result =>
@@ -1599,7 +1615,7 @@ class BusinessVerificationControllerSpec
           controller,
           Map(
             "businessType" -> "ULTD",
-            "isSaAccount" -> "true",
+            "isSaAccount"  -> "true",
             "isOrgAccount" -> "true"
           )
         ) { result =>
@@ -1712,8 +1728,8 @@ class BusinessVerificationControllerSpec
               FakeRequest()
                 .withSession(
                   "sessionId" -> "test",
-                  "token" -> "RANDOMTOKEN",
-                  "userId" -> "userId"
+                  "token"     -> "RANDOMTOKEN",
+                  "userId"    -> "userId"
                 )
                 .withHeaders(Headers("Authorization" -> "value"))
             )
@@ -1735,7 +1751,7 @@ class BusinessVerificationControllerSpec
       controller: BusinessVerificationController
   )(test: Future[Result] => Any, serviceName: String = service): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
@@ -1751,8 +1767,8 @@ class BusinessVerificationControllerSpec
         FakeRequest()
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
       )
@@ -1764,7 +1780,7 @@ class BusinessVerificationControllerSpec
       controller: BusinessVerificationController
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(
@@ -1780,8 +1796,8 @@ class BusinessVerificationControllerSpec
         FakeRequest()
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
       )
@@ -1795,7 +1811,7 @@ class BusinessVerificationControllerSpec
       serviceName: String = service
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
@@ -1811,8 +1827,8 @@ class BusinessVerificationControllerSpec
         FakeRequest()
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
       )
@@ -1824,7 +1840,7 @@ class BusinessVerificationControllerSpec
       controller: BusinessVerificationController
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
     when(
@@ -1840,8 +1856,8 @@ class BusinessVerificationControllerSpec
         FakeRequest()
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
       )
@@ -1855,13 +1871,13 @@ class BusinessVerificationControllerSpec
       service: String = service
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
       FakeRequest("POST", "/")
         .withSession(
           "sessionId" -> sessionId,
-          "token" -> "RANDOMTOKEN",
-          "userId" -> userId
+          "token"     -> "RANDOMTOKEN",
+          "userId"    -> userId
         )
         .withHeaders(Headers("Authorization" -> "value"))
         .withFormUrlEncodedBody(fields.toSeq: _*)
@@ -1886,7 +1902,7 @@ class BusinessVerificationControllerSpec
       service: String = service
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(
@@ -1902,8 +1918,8 @@ class BusinessVerificationControllerSpec
         fakeRequest
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
       )
@@ -1916,13 +1932,13 @@ class BusinessVerificationControllerSpec
       fields: Map[String, String]
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
       FakeRequest("POST", "/")
         .withSession(
           "sessionId" -> sessionId,
-          "token" -> "RANDOMTOKEN",
-          "userId" -> userId
+          "token"     -> "RANDOMTOKEN",
+          "userId"    -> userId
         )
         .withHeaders(Headers("Authorization" -> "value"))
         .withFormUrlEncodedBody(fields.toSeq: _*)
@@ -1939,13 +1955,13 @@ class BusinessVerificationControllerSpec
       fields: Map[String, String]
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
     def generateRequest: FakeRequest[AnyContentAsFormUrlEncoded] = {
       FakeRequest("POST", "/")
         .withSession(
           "sessionId" -> sessionId,
-          "token" -> "RANDOMTOKEN",
-          "userId" -> userId
+          "token"     -> "RANDOMTOKEN",
+          "userId"    -> userId
         )
         .withHeaders(Headers("Authorization" -> "value"))
         .withFormUrlEncodedBody(fields.toSeq: _*)
@@ -1970,7 +1986,7 @@ class BusinessVerificationControllerSpec
       fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded]
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
@@ -1986,8 +2002,8 @@ class BusinessVerificationControllerSpec
         fakeRequest
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
           .withMethod("POST")
@@ -2002,7 +2018,7 @@ class BusinessVerificationControllerSpec
       service: String = service
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(
@@ -2018,8 +2034,8 @@ class BusinessVerificationControllerSpec
         FakeRequest()
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
       )

@@ -16,21 +16,21 @@
 
 package controllers
 
-import connectors.BackLinkCacheConnector
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Call, Result}
+import services.BackLinkCacheService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait BackLinkController {
   val controllerId: String
-  val backLinkCacheConnector: BackLinkCacheConnector
+  val backLinkCacheConnector: BackLinkCacheService
 
   def setBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] =
     backLinkCacheConnector.saveBackLink(pageId, returnUrl)
 
-  def currentBackLink(implicit hc: HeaderCarrier, ec: ExecutionContext):Future[Option[String]] =
+  def currentBackLink(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] =
     backLinkCacheConnector.fetchAndGetBackLink(controllerId)
 
   def redirectToExternal(redirectCall: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
@@ -39,13 +39,15 @@ trait BackLinkController {
   def forwardBackLinkToNextPage(nextPageId: String, redirectCall: Call)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
     for {
       currentBackLink <- currentBackLink
-      _ <- setBackLink(nextPageId, currentBackLink)
-    } yield{
+      _               <- setBackLink(nextPageId, currentBackLink)
+    } yield {
       Redirect(redirectCall)
     }
   }
 
-  def redirectWithBackLink(nextPageId: String, redirectCall: Call, backCall: Option[String])
-                          (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
+  def redirectWithBackLink(nextPageId: String, redirectCall: Call, backCall: Option[String])(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[Result] =
     setBackLink(nextPageId, backCall) map (_ => Redirect(redirectCall))
+
 }

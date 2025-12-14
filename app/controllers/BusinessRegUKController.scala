@@ -17,74 +17,88 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
 import javax.inject.Inject
 import models.{BusinessRegistrationDisplayDetails, OverseasCompany}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.BusinessRegistrationService
+import services.{BackLinkCacheService, BusinessRegistrationService, DataCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
+class BusinessRegUKController @Inject() (val authConnector: AuthConnector,
+                                         val backLinkCacheConnector: BackLinkCacheService,
+                                         config: ApplicationConfig,
+                                         template: views.html.business_group_registration,
+                                         businessRegistrationService: BusinessRegistrationService,
+                                         reviewDetailsController: ReviewDetailsController,
+                                         mcc: MessagesControllerComponents,
+                                         val dataCacheConnector: DataCacheService)
+    extends FrontendController(mcc)
+    with BackLinkController
+    with AuthActions {
 
-class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
-                                        val backLinkCacheConnector: BackLinkCacheConnector,
-                                        config: ApplicationConfig,
-                                        template: views.html.business_group_registration,
-                                        businessRegistrationService: BusinessRegistrationService,
-                                        reviewDetailsController: ReviewDetailsController,
-                                        mcc: MessagesControllerComponents,
-                                        val dataCacheConnector: DataCacheConnector)
-  extends FrontendController(mcc) with BackLinkController with AuthActions {
-
-  implicit val appConfig: ApplicationConfig = config
+  implicit val appConfig: ApplicationConfig       = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
-  val controllerId: String = "BusinessRegUKController"
+  val controllerId: String                        = "BusinessRegUKController"
 
   def register(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
       for {
-        backLink <- currentBackLink
+        backLink                    <- currentBackLink
         businessRegistrationDetails <- dataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession
       } yield {
         val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
         businessRegistrationDetails match {
           case Some(businessRegistrationData) =>
-            Ok(template(businessRegistrationForm.copy(data = newMapping).fill(businessRegistrationData),
-              authContext.isAgent, service, displayDetails(businessType, service), backLink))
-          case None => Ok(template(businessRegistrationForm.copy(data = newMapping),
-            authContext.isAgent, service, displayDetails(businessType, service), backLink))
+            Ok(
+              template(
+                businessRegistrationForm.copy(data = newMapping).fill(businessRegistrationData),
+                authContext.isAgent,
+                service,
+                displayDetails(businessType, service),
+                backLink
+              ))
+          case None =>
+            Ok(
+              template(
+                businessRegistrationForm.copy(data = newMapping),
+                authContext.isAgent,
+                service,
+                displayDetails(businessType, service),
+                backLink))
         }
       }
     }
   }
 
   def send(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service){ implicit authContext =>
-      BusinessRegistrationForms.validateUK(businessRegistrationForm.bindFromRequest()).fold(
-        formWithErrors => currentBackLink map (backLink =>
-          BadRequest(template(formWithErrors, authContext.isAgent, service, displayDetails(businessType, service), backLink))
-        ),
-        registrationData => {
-          businessRegistrationService.registerBusiness(
-            registrationData,
-            OverseasCompany(),
-            isGroup(businessType),
-            isNonUKClientRegisteredByAgent = false,
-            service
-          ) flatMap { _ =>
-            redirectWithBackLink(
-              reviewDetailsController.controllerId,
-              controllers.routes.ReviewDetailsController.businessDetails(service),
-              Some(controllers.routes.BusinessRegUKController.register(service, businessType).url)
-            )
+    authorisedFor(service) { implicit authContext =>
+      BusinessRegistrationForms
+        .validateUK(businessRegistrationForm.bindFromRequest())
+        .fold(
+          formWithErrors =>
+            currentBackLink map (backLink =>
+              BadRequest(template(formWithErrors, authContext.isAgent, service, displayDetails(businessType, service), backLink))),
+          registrationData => {
+            businessRegistrationService.registerBusiness(
+              registrationData,
+              OverseasCompany(),
+              isGroup(businessType),
+              isNonUKClientRegisteredByAgent = false,
+              service
+            ) flatMap { _ =>
+              redirectWithBackLink(
+                reviewDetailsController.controllerId,
+                controllers.routes.ReviewDetailsController.businessDetails(service),
+                Some(controllers.routes.BusinessRegUKController.register(service, businessType).url)
+              )
+            }
           }
-        }
-      )
+        )
     }
   }
 
@@ -98,8 +112,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
         "bc.business-registration.group.subheader",
         None,
         appConfig.getIsoCodeTupleList)
-    }
-    else {
+    } else {
       BusinessRegistrationDisplayDetails(
         businessType,
         "bc.business-registration.user.new-business.header",
@@ -108,4 +121,5 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
         appConfig.getIsoCodeTupleList)
     }
   }
+
 }

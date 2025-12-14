@@ -38,20 +38,22 @@ class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerS
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
   class Setup {
+
     val authActionsHarness: AuthActions = new AuthActions {
       override implicit val appConfig: ApplicationConfig = mockAppConfig
 
       override def authConnector: AuthConnector = mockAuthConnector
     }
+
   }
 
   type RetType =
     Enrolments ~
-    Option[AffinityGroup] ~
-    Option[Credentials] ~
-    Option[String]
+      Option[AffinityGroup] ~
+      Option[Credentials] ~
+      Option[String]
 
-  def authRetrieval(affinityGroup : AffinityGroup = AffinityGroup.Organisation): RetType =
+  def authRetrieval(affinityGroup: AffinityGroup = AffinityGroup.Organisation): RetType =
     new ~(
       new ~(
         new ~(
@@ -63,18 +65,18 @@ class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerS
       Some("groupId")
     )
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  implicit val hc: HeaderCarrier                       = HeaderCarrier()
   implicit val fq: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = mock[Messages]
+  implicit val messages: Messages                      = mock[Messages]
 
   "authorisedFor" should {
     "authorise for a user" when {
       "the user has valid enrolments" in new Setup {
         when(mockAuthConnector.authorise[RetType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-            .thenReturn(Future.successful(authRetrieval()))
+          .thenReturn(Future.successful(authRetrieval()))
 
-        val authFor: Result = await(authActionsHarness.authorisedFor("ated") {
-          _ => Future.successful(Results.Ok)
+        val authFor: Result = await(authActionsHarness.authorisedFor("ated") { _ =>
+          Future.successful(Results.Ok)
         })
 
         authFor.header.status mustBe 200
@@ -84,10 +86,10 @@ class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerS
     "unauthorise for a user" when {
       "the user has the incorrect affinity group" in new Setup {
         when(mockAuthConnector.authorise[RetType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-            .thenReturn(Future.failed(UnsupportedAffinityGroup("test")))
+          .thenReturn(Future.failed(UnsupportedAffinityGroup("test")))
 
-        val authFor: Result = await(authActionsHarness.authorisedFor("ated") {
-          _ => Future.successful(Results.Ok)
+        val authFor: Result = await(authActionsHarness.authorisedFor("ated") { _ =>
+          Future.successful(Results.Ok)
         })
 
         authFor.header.status mustBe 303
@@ -95,10 +97,10 @@ class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerS
 
       "the user is not authorised" in new Setup {
         when(mockAuthConnector.authorise[RetType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-            .thenReturn(Future.failed(MissingBearerToken("test")))
+          .thenReturn(Future.failed(MissingBearerToken("test")))
 
-        val authFor: Result = await(authActionsHarness.authorisedFor("ated") {
-          _ => Future.successful(Results.Ok)
+        val authFor: Result = await(authActionsHarness.authorisedFor("ated") { _ =>
+          Future.successful(Results.Ok)
         })
 
         authFor.header.status mustBe 303

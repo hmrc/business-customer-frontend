@@ -28,12 +28,18 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{FakeRequest, Injecting}
 import views.html.nonUkReg.nrl_question
 
-class nrl_questionSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Injecting {
+class nrl_questionSpec
+    extends AnyFeatureSpec
+    with GuiceOneServerPerSuite
+    with MockitoSugar
+    with BeforeAndAfterEach
+    with GivenWhenThen
+    with Injecting {
 
-  val service = "ATED"
+  val service                            = "ATED"
   val injectedViewInstance: nrl_question = inject[views.html.nonUkReg.nrl_question]
 
-  implicit val lang: Lang = Lang.defaultLang
+  implicit val lang: Lang                   = Lang.defaultLang
   implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   Feature("The user can the nrl question") {
@@ -45,8 +51,8 @@ class nrl_questionSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with M
       Given("client has directly matched a business registration")
       When("The user views the page")
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      val messagesApi: MessagesApi                              = inject[MessagesApi]
+      implicit val messages: play.api.i18n.Messages             = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance(nrlQuestionForm, service, Some("backLinkUri"))
 
@@ -65,8 +71,11 @@ class nrl_questionSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with M
       assert(document.getElementById("submit").text() === "Continue")
 
       And("There is a link to the accessibility statement")
-      assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
-        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=%2F")
+      assert(
+        document
+          .select(".govuk-footer__inline-list-item:nth-child(2) > a")
+          .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=%2F")
     }
   }
+
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors
+package services
 
 import models.{BusinessRegistration, ReviewDetails}
 import repositories.SessionCacheRepository
@@ -24,23 +24,23 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataCacheConnector @Inject()(sessionCache: SessionCacheRepository){
+class DataCacheService @Inject() (sessionCache: SessionCacheRepository) {
 
   import sessionCache._
-  private val sourceId: String = "BC_Business_Details"
+  private val sourceId: String               = "BC_Business_Details"
   private val sourceIdForFormPayload: String = "BC_Business_Details_form_payload"
 
   def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
-   getFromSession[ReviewDetails](DataKey(sourceId))
+    getFromSession[ReviewDetails](DataKey(sourceId))
 
   def fetchAndGetBusinessRegistrationDetailsForSession(implicit hc: HeaderCarrier): Future[Option[BusinessRegistration]] =
-   getFromSession[BusinessRegistration](DataKey(sourceIdForFormPayload))
+    getFromSession[BusinessRegistration](DataKey(sourceIdForFormPayload))
 
   def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
     putSession[ReviewDetails](DataKey(sourceId), reviewDetails).map(Some(_))
 
-  def saveBusinessRegistrationDetails(businessRegistration: BusinessRegistration)
-                                     (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
+  def saveBusinessRegistrationDetails(
+      businessRegistration: BusinessRegistration)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
     putSession[BusinessRegistration](DataKey(sourceIdForFormPayload), businessRegistration).map(Some(_))
 
   def clearCache(implicit hc: HeaderCarrier): Future[Unit] = deleteFromSession
