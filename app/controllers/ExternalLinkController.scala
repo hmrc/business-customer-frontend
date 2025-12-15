@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 
 class ExternalLinkController @Inject() (val authConnector: AuthConnector,
-                                        val backLinkCacheConnector: BackLinkCacheService,
+                                        val backLinkCacheService: BackLinkCacheService,
                                         config: ApplicationConfig,
                                         mcc: MessagesControllerComponents)
     extends FrontendController(mcc)

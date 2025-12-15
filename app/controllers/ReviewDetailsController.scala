@@ -30,12 +30,12 @@ import utils.SessionUtils
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReviewDetailsController @Inject() (val authConnector: AuthConnector,
-                                         val backLinkCacheConnector: BackLinkCacheService,
+                                         val backLinkCacheService: BackLinkCacheService,
                                          config: ApplicationConfig,
                                          templateNonUkAgent: views.html.review_details_non_uk_agent,
                                          templateReviewDetails: views.html.review_details,
                                          templateError: views.html.global_error,
-                                         val dataCacheConnector: DataCacheService,
+                                         val dataCacheService: DataCacheService,
                                          agentRegistrationService: AgentRegistrationService,
                                          mcc: MessagesControllerComponents)
     extends FrontendController(mcc)
@@ -52,7 +52,7 @@ class ReviewDetailsController @Inject() (val authConnector: AuthConnector,
 
   def businessDetails(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(serviceName) { implicit authContext =>
-      dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
+      dataCacheService.fetchAndGetBusinessDetailsForSession flatMap {
         case Some(businessDetails) =>
           currentBackLink.map(backLink =>
             if (authContext.isAgent && businessDetails.isBusinessDetailsEditable) {

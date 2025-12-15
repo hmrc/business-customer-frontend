@@ -31,7 +31,7 @@ import utils.BusinessCustomerConstants.PaySaDetailsId
 import scala.concurrent.ExecutionContext
 
 class PaySAQuestionController @Inject() (val authConnector: AuthConnector,
-                                         val backLinkCacheConnector: BackLinkCacheService,
+                                         val backLinkCacheService: BackLinkCacheService,
                                          config: ApplicationConfig,
                                          template: views.html.nonUkReg.paySAQuestion,
                                          businessRegController: BusinessRegController,

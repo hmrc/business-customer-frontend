@@ -61,7 +61,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       ) {
     override val authConnector: AuthConnector                 = mockAuthConnector
     override val controllerId                                 = "test"
-    override val backLinkCacheConnector: BackLinkCacheService = mockBackLinkCache
+    override val backLinkCacheService: BackLinkCacheService = mockBackLinkCache
   }
 
   val serviceName: String = "ATED"

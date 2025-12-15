@@ -33,14 +33,14 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Success, Try}
 
 class AgentRegistrationService @Inject() (val taxEnrolmentsConnector: TaxEnrolmentsConnector,
-                                          val dataCacheConnector: DataCacheService,
+                                          val dataCacheService: DataCacheService,
                                           val audit: Auditable,
                                           implicit val config: ApplicationConfig,
                                           val businessCustomerConnector: NewBusinessCustomerConnector)
     extends Logging {
 
   def enrolAgent(serviceName: String)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
-    dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
+    dataCacheService.fetchAndGetBusinessDetailsForSession flatMap {
       case Some(businessDetails) => enrolAgent(serviceName, businessDetails)
       case _ =>
         logger.warn(s"[AgentRegistrationService][enrolAgent] - No Service details found in DataCache for")

@@ -27,7 +27,7 @@ import utils.SessionUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessMatchingService @Inject() (val businessMatchingConnector: BusinessMatchingConnector, val dataCacheConnector: DataCacheService) {
+class BusinessMatchingService @Inject() (val businessMatchingConnector: BusinessMatchingConnector, val dataCacheService: DataCacheService) {
 
   def matchBusinessWithUTR(isAnAgent: Boolean, service: String)(implicit
       authContext: StandardAuthRetrievals,
@@ -143,7 +143,7 @@ class BusinessMatchingService @Inject() (val businessMatchingConnector: Business
       utr = utr
     )
 
-    dataCacheConnector.saveReviewDetails(reviewDetails) map { _ =>
+    dataCacheService.saveReviewDetails(reviewDetails) map { _ =>
       Json.toJson(reviewDetails)
     }
   }
@@ -182,7 +182,7 @@ class BusinessMatchingService @Inject() (val businessMatchingConnector: Business
       utr = utr
     )
 
-    dataCacheConnector.saveReviewDetails(reviewDetails) map { _ =>
+    dataCacheService.saveReviewDetails(reviewDetails) map { _ =>
       Json.toJson(reviewDetails)
     }
   }
