@@ -157,7 +157,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "return Review Details view for a user, when user can't be directly found with login credentials" in {
         businessDetailsWithAuthorisedUser(nonDirectMatchReviewDetails) { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must include("Check this is the business you want to register")
+          document.select("h1").text must include("Is this the business you want to register")
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED/businessForm/LTD")
@@ -167,7 +167,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
       "return Review Details view for a user, when we directly found this user" in {
         businessDetailsWithAuthorisedUser(directMatchReviewDetails) { result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.select("h1").text must include("Check this is the business you want to register")
+          document.select("h1").text must include("Is this the business you want to register")
           document.getElementsByClass("govuk-caption-xl").text() must be("This section is: ATED registration")
           document.getElementsByClass("govuk-back-link").text() must be("Back")
           document.getElementsByClass("govuk-back-link").attr("href") must be("/business-customer/business-verification/ATED/businessForm/LTD")
