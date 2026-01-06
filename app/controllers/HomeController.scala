@@ -32,12 +32,12 @@ import javax.inject.{Inject, Provider}
 import scala.concurrent.ExecutionContext
 
 class HomeController @Inject() (val authConnector: AuthConnector,
-                                val backLinkCacheConnector: BackLinkCacheService,
+                                val backLinkCacheService: BackLinkCacheService,
                                 config: ApplicationConfig,
                                 businessMatchService: BusinessMatchingService,
                                 businessVerificationController: Provider[BusinessVerificationController],
                                 reviewDetailsController: ReviewDetailsController,
-                                businessRegCacheConnector: BusinessRegCacheService,
+                                businessRegCacheService: BusinessRegCacheService,
                                 mcc: MessagesControllerComponents)
     extends FrontendController(mcc)
     with BackLinkController
@@ -56,7 +56,7 @@ class HomeController @Inject() (val authConnector: AuthConnector,
               case details: JsSuccess[ReviewDetails] =>
                 val countryCode = details.get.businessAddress.country
                 if (config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
-                  businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
+                  businessRegCacheService.cacheDetails(UpdateNotRegisterId, true)
                   redirectWithBackLink(
                     businessVerificationController.get.controllerId,
                     controllers.routes.BusinessVerificationController.businessVerification(service),

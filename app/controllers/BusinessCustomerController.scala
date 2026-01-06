@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext
 
 class BusinessCustomerController @Inject() (val authConnector: AuthConnector,
                                             config: ApplicationConfig,
-                                            dataCacheConnector: DataCacheService,
+                                            dataCacheService: DataCacheService,
                                             mcc: MessagesControllerComponents)
     extends FrontendController(mcc)
     with AuthActions
@@ -44,7 +44,7 @@ class BusinessCustomerController @Inject() (val authConnector: AuthConnector,
 
   def clearCache(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      dataCacheConnector.clearCache
+      dataCacheService.clearCache
         .map { _ =>
           logger.info("session has been cleared")
           Ok
@@ -58,7 +58,7 @@ class BusinessCustomerController @Inject() (val authConnector: AuthConnector,
 
   def getReviewDetails(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      dataCacheConnector.fetchAndGetBusinessDetailsForSession.map {
+      dataCacheService.fetchAndGetBusinessDetailsForSession.map {
         case Some(businessDetails) =>
           Ok(Json.toJson(businessDetails))
         case _ =>

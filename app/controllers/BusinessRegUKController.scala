@@ -30,13 +30,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.ExecutionContext
 
 class BusinessRegUKController @Inject() (val authConnector: AuthConnector,
-                                         val backLinkCacheConnector: BackLinkCacheService,
+                                         val backLinkCacheService: BackLinkCacheService,
                                          config: ApplicationConfig,
                                          template: views.html.business_group_registration,
                                          businessRegistrationService: BusinessRegistrationService,
                                          reviewDetailsController: ReviewDetailsController,
                                          mcc: MessagesControllerComponents,
-                                         val dataCacheConnector: DataCacheService)
+                                         val dataCacheService: DataCacheService)
     extends FrontendController(mcc)
     with BackLinkController
     with AuthActions {
@@ -49,7 +49,7 @@ class BusinessRegUKController @Inject() (val authConnector: AuthConnector,
     authorisedFor(service) { implicit authContext =>
       for {
         backLink                    <- currentBackLink
-        businessRegistrationDetails <- dataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession
+        businessRegistrationDetails <- dataCacheService.fetchAndGetBusinessRegistrationDetailsForSession
       } yield {
         val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
         businessRegistrationDetails match {

@@ -25,7 +25,7 @@ import utils.SessionUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegistrationService @Inject() (val businessCustomerConnector: BusinessCustomerConnector, val dataCacheConnector: DataCacheService) {
+class BusinessRegistrationService @Inject() (val businessCustomerConnector: BusinessCustomerConnector, val dataCacheService: DataCacheService) {
 
   val nonUKBusinessType = "Non UK-based Company"
 
@@ -53,8 +53,8 @@ class BusinessRegistrationService @Inject() (val businessCustomerConnector: Busi
           overseasCompany,
           isBusinessDetailsEditable
         )
-        dataCacheConnector.saveBusinessRegistrationDetails(registerData)
-        dataCacheConnector.saveReviewDetails(reviewDetails)
+        dataCacheService.saveBusinessRegistrationDetails(registerData)
+        dataCacheService.saveReviewDetails(reviewDetails)
       }
     } yield {
       reviewDetailsCache.getOrElse(throw new InternalServerException("Registration failed"))
@@ -74,7 +74,7 @@ class BusinessRegistrationService @Inject() (val businessCustomerConnector: Busi
     val updateRegisterDetails = createUpdateBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
 
     for {
-      oldReviewDetailsLookup <- dataCacheConnector.fetchAndGetBusinessDetailsForSession
+      oldReviewDetailsLookup <- dataCacheService.fetchAndGetBusinessDetailsForSession
       oldReviewDetails <- oldReviewDetailsLookup match {
         case Some(reviewDetails) => Future.successful(reviewDetails)
         case _                   => throw new InternalServerException("Update registration failed")
@@ -90,7 +90,7 @@ class BusinessRegistrationService @Inject() (val businessCustomerConnector: Busi
           overseasCompany,
           isBusinessDetailsEditable
         )
-        dataCacheConnector.saveReviewDetails(updatedReviewDetails)
+        dataCacheService.saveReviewDetails(updatedReviewDetails)
       }
     } yield {
       reviewDetailsCache.getOrElse(throw new InternalServerException("Registration failed"))
@@ -115,7 +115,7 @@ class BusinessRegistrationService @Inject() (val businessCustomerConnector: Busi
           (busType, BusinessRegistration(details.businessName, details.businessAddress), overseasCompany)
         })
     }
-    dataCacheConnector.fetchAndGetBusinessDetailsForSession map createBusinessRegistration
+    dataCacheService.fetchAndGetBusinessDetailsForSession map createBusinessRegistration
   }
 
   private def createUpdateBusinessRegistrationRequest(registerData: BusinessRegistration,

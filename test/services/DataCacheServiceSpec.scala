@@ -17,7 +17,7 @@
 package services
 
 import connectors.ConnectorTest
-import models.{Address, ReviewDetails}
+import models.{Address, BusinessRegistration, ReviewDetails}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -111,6 +111,47 @@ class DataCacheServiceSpec extends GuiceTestApp with MockitoSugar {
 
         val result: Future[Unit] = connector.clearCache
         await(result) must be(())
+      }
+    }
+
+    "fetchAndGetBusinessRegistrationDetailsForSession" must {
+
+      "fetch saved BusinessRegistration from SessionCache" in new Setup {
+        val businessRegistration = BusinessRegistration(
+          "Test Business",
+          Address("line1", "line2", None, None, Some("AA1 1AA"), "GB")
+        )
+
+        when(
+          mockSessionCacheRepo
+            .getFromSession[BusinessRegistration](
+              DataKey(ArgumentMatchers.any())
+            )(any(), any())
+        ).thenReturn(Future.successful(Some(businessRegistration)))
+
+        val result: Future[Option[BusinessRegistration]] = connector.fetchAndGetBusinessRegistrationDetailsForSession
+        await(result) must be(Some(businessRegistration))
+      }
+    }
+
+    "saveBusinessRegistrationDetails" must {
+
+      "save the business registration details" in new Setup {
+        val businessRegistration = BusinessRegistration(
+          "Test Business",
+          Address("line1", "line2", None, None, Some("AA1 1AA"), "GB")
+        )
+
+        when(
+          mockSessionCacheRepo
+            .putSession[BusinessRegistration](
+              DataKey(ArgumentMatchers.any()),
+              ArgumentMatchers.eq(businessRegistration)
+            )(any(), any(), any())
+        ).thenReturn(Future.successful(businessRegistration))
+
+        val result: Future[Option[BusinessRegistration]] = connector.saveBusinessRegistrationDetails(businessRegistration)
+        await(result).get must be(businessRegistration)
       }
     }
   }

@@ -32,7 +32,7 @@ import utils.BusinessCustomerConstants.BusinessRegDetailsId
 import scala.concurrent.ExecutionContext
 
 class BusinessRegController @Inject() (val authConnector: AuthConnector,
-                                       val backLinkCacheConnector: BackLinkCacheService,
+                                       val backLinkCacheService: BackLinkCacheService,
                                        config: ApplicationConfig,
                                        template: views.html.nonUkReg.business_registration,
                                        businessRegistrationCache: BusinessRegCacheService,

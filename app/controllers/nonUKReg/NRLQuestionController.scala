@@ -31,7 +31,7 @@ import utils.BusinessCustomerConstants.NrlFormId
 import scala.concurrent.ExecutionContext
 
 class NRLQuestionController @Inject() (val authConnector: AuthConnector,
-                                       val backLinkCacheConnector: BackLinkCacheService,
+                                       val backLinkCacheService: BackLinkCacheService,
                                        config: ApplicationConfig,
                                        template: views.html.nonUkReg.nrl_question,
                                        businessRegController: BusinessRegController,

@@ -55,7 +55,7 @@ class BusinessRegUKControllerSpec extends GuiceTestApp {
       ) {
     override val authConnector: AuthConnector                 = mockAuthConnector
     override val controllerId                                 = "test"
-    override val backLinkCacheConnector: BackLinkCacheService = mockBackLinkCache
+    override val backLinkCacheService: BackLinkCacheService = mockBackLinkCache
   }
 
   val serviceName: String = "ATED"

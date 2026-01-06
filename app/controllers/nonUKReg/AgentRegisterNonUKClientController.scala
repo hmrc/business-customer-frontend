@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 class AgentRegisterNonUKClientController @Inject() (val authConnector: AuthConnector,
-                                                    val backLinkCacheConnector: BackLinkCacheService,
+                                                    val backLinkCacheService: BackLinkCacheService,
                                                     config: ApplicationConfig,
                                                     template: views.html.nonUkReg.nonuk_business_registration,
                                                     businessRegistrationCache: BusinessRegCacheService,

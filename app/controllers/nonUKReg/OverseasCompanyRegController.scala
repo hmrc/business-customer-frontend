@@ -35,7 +35,7 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class OverseasCompanyRegController @Inject() (val authConnector: AuthConnector,
-                                              val backLinkCacheConnector: BackLinkCacheService,
+                                              val backLinkCacheService: BackLinkCacheService,
                                               config: ApplicationConfig,
                                               template: views.html.nonUkReg.overseas_company_registration,
                                               businessRegistrationService: BusinessRegistrationService,
