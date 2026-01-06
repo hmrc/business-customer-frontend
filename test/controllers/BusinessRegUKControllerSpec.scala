@@ -88,9 +88,9 @@ class BusinessRegUKControllerSpec extends GuiceTestApp {
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Create AWRS group - GOV.UK")
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
-          document.select("h1").text() must include("Create AWRS group")
+            document.title() must be("Create AWRS group - Register as an alcohol wholesaler or producer - GOV.UK")
+            document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
+            document.select("h1").text() must include("Create AWRS group")
 
           document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
           document.getElementById("businessName-hint").text() must be("This is your registered company name")
@@ -112,16 +112,16 @@ class BusinessRegUKControllerSpec extends GuiceTestApp {
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Create AWRS group - GOV.UK")
-          document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
-          document.select("h1").text() must include("New business details")
-          document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
-          document.getElementById("businessName-hint").text() must be("This is your registered company name")
-          document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
-          document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
-          document.getElementsByAttributeValue("for", "businessAddress.line_3").text() must be("Address line 3 (Optional)")
-          document.getElementsByAttributeValue("for", "businessAddress.line_4").text() must be("Address line 4 (Optional)")
-          document.getElementById("submit").text() must be("Continue")
+            document.title() must be("Create AWRS group - Register as an alcohol wholesaler or producer - GOV.UK")
+            document.getElementsByClass("govuk-caption-xl").text() must be("This section is: AWRS registration")
+            document.select("h1").text() must include("New business details")
+            document.getElementsByAttributeValue("for", "businessName").text() must be("Group representative name")
+            document.getElementById("businessName-hint").text() must be("This is your registered company name")
+            document.getElementsByAttributeValue("for", "businessAddress.line_1").text() must be("Address line 1")
+            document.getElementsByAttributeValue("for", "businessAddress.line_2").text() must be("Address line 2")
+            document.getElementsByAttributeValue("for", "businessAddress.line_3").text() must be("Address line 3 (Optional)")
+            document.getElementsByAttributeValue("for", "businessAddress.line_4").text() must be("Address line 4 (Optional)")
+            document.getElementById("submit").text() must be("Continue")
         }
       }
     }

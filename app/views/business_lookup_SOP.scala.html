@@ -60,7 +60,7 @@
     }
 }
 
-@bcMain(title = titleBuilder(headingText, Some(soleTraderForm)), service = service, backlink=Some(backLinkHtml)) {
+@bcMain(title = titleBuilder(headingText, Some(soleTraderForm), Some(service)), service = service, backlink=Some(backLinkHtml)) {
 
     @if(soleTraderForm.errors.nonEmpty) {
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(soleTraderForm))

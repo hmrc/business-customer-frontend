@@ -61,7 +61,7 @@
     }
 }
 
-@bcMain(title = titleBuilder(headingText, Some(unincorporatedBodyForm)), service = service, backlink=Some(backLinkHtml)) {
+@bcMain(title = titleBuilder(headingText, Some(unincorporatedBodyForm), Some(service)), service = service, backlink=Some(backLinkHtml)) {
 
     @if(unincorporatedBodyForm.errors.nonEmpty) {
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(unincorporatedBodyForm))
