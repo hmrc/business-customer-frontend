@@ -20,18 +20,16 @@ import builders.AuthBuilder
 import connectors.BusinessMatchingConnector
 import models._
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
+class BusinessMatchingServiceSpec extends GuiceTestApp with BeforeAndAfterEach {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
   val utr                           = "1234567890"

@@ -16,20 +16,16 @@
 
 package controllers.nonUKReg
 
-import config.ApplicationConfig
 import controllers.ReviewDetailsController
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
+import org.scalatestplus.mockito.MockitoSugar
+import play.GuiceTestApp
 import play.api.mvc._
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Injecting}
 import services.{BackLinkCacheService, BusinessRegCacheService, BusinessRegistrationService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
@@ -38,11 +34,7 @@ import views.html.nonUkReg.overseas_company_registration
 import java.util.UUID
 import scala.concurrent.Future
 
-class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
-
-  override lazy val app: Application = new GuiceApplicationBuilder()
-    .configure("microservice.services.auth.host" -> "authprotected")
-    .build()
+class OverseasCompanyRegControllerSpec extends GuiceTestApp with MockitoSugar {
 
   val request: FakeRequest[AnyContentAsEmpty.type]                 = FakeRequest()
   val service                                                      = "ATED"
@@ -51,9 +43,6 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
   val mockBusinessRegistrationCache: BusinessRegCacheService       = mock[BusinessRegCacheService]
   val mockBackLinkCache: BackLinkCacheService                      = mock[BackLinkCacheService]
   val injectedViewInstance: overseas_company_registration          = inject[views.html.nonUkReg.overseas_company_registration]
-
-  val appConfig: ApplicationConfig               = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   val mockReviewDetailsController: ReviewDetailsController = mock[ReviewDetailsController]
 

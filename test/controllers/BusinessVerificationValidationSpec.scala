@@ -16,37 +16,23 @@
 
 package controllers
 
-import config.ApplicationConfig
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, MessagesControllerComponents, Result}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Injecting}
 import services.{BackLinkCacheService, BusinessMatchingService, BusinessRegCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import views.html._
 
 import java.util.UUID
-import views.html.{
-  business_lookup_LLP,
-  business_lookup_LP,
-  business_lookup_LTD,
-  business_lookup_NRL,
-  business_lookup_OBP,
-  business_lookup_SOP,
-  business_lookup_UIB,
-  business_verification,
-  details_not_found
-}
-
 import scala.concurrent.Future
 
-class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
+class BusinessVerificationValidationSpec extends GuiceTestApp {
 
   val request: FakeRequest[_] = FakeRequest()
 
@@ -103,11 +89,6 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
   val injectedViewInstanceDetailsNotFound: details_not_found =
     inject[views.html.details_not_found]
-
-  val appConfig: ApplicationConfig = inject[ApplicationConfig]
-
-  implicit val mcc: MessagesControllerComponents =
-    inject[MessagesControllerComponents]
 
   class Setup {
 

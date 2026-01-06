@@ -23,13 +23,11 @@ import forms._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc._
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Injecting}
 import services.{BackLinkCacheService, BusinessMatchingService, BusinessRegCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
@@ -38,7 +36,7 @@ import views.html._
 import java.util.UUID
 import scala.concurrent.Future
 
-class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
+class BusinessVerificationControllerSpec extends GuiceTestApp {
 
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val mockAuthConnector: AuthConnector             = mock[AuthConnector]
@@ -53,11 +51,6 @@ class BusinessVerificationControllerSpec extends PlaySpec with GuiceOneServerPer
 
   val service        = "ATED"
   val invalidService = "scooby-doo"
-
-  val appConfig: ApplicationConfig = inject[ApplicationConfig]
-
-  implicit val mcc: MessagesControllerComponents =
-    inject[MessagesControllerComponents]
 
   implicit val messages: Messages =
     mcc.messagesApi.preferred(Seq(Lang.defaultLang))

@@ -20,8 +20,7 @@ import builders.AuthBuilder
 import config.ApplicationConfig
 import models._
 import org.mockito.Mockito._
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http._
@@ -30,7 +29,7 @@ import uk.gov.hmrc.play.audit.DefaultAuditConnector
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
+class BusinessCustomerConnectorSpec extends GuiceTestApp {
 
   val service                                   = "ATED"
   implicit val authData: StandardAuthRetrievals = AuthBuilder.createSaUser()

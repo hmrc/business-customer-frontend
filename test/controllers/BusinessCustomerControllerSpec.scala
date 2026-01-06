@@ -17,17 +17,14 @@
 package controllers
 
 import builders.AuthBuilder
-import config.ApplicationConfig
 import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.mvc.{Headers, MessagesControllerComponents}
+import play.GuiceTestApp
+import play.api.mvc.Headers
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Injecting}
 import services.DataCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
@@ -35,7 +32,7 @@ import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
 import java.util.UUID
 import scala.concurrent.Future
 
-class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
+class BusinessCustomerControllerSpec extends GuiceTestApp with BeforeAndAfterEach {
 
   val request                = FakeRequest()
   val service                = "ATED"
@@ -46,9 +43,6 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
     reset(mockDataCacheConnector)
     reset(mockAuthConnector)
   }
-
-  val appConfig                                  = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestBusinessCustomerController
       extends BusinessCustomerController(

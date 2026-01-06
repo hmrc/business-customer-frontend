@@ -17,12 +17,10 @@
 package utils
 
 import config.{ApplicationConfig, BCUtils}
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.i18n.Lang
-import play.api.test.Injecting
 
-class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
+class BCUtilsSpec extends GuiceTestApp {
 
   val bcUtils: BCUtils = inject[ApplicationConfig]
 

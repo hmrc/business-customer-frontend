@@ -17,11 +17,9 @@
 package connectors
 
 import builders.AuthBuilder
-import config.ApplicationConfig
 import models._
 import org.mockito.Mockito._
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http._
@@ -29,9 +27,7 @@ import uk.gov.hmrc.http._
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
-
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
+class NewBusinessCustomerConnectorSpec extends GuiceTestApp {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 

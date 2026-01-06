@@ -16,30 +16,20 @@
 
 package acceptance.nonUkReg
 
-import config.ApplicationConfig
 import forms.BusinessRegistrationForms._
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceFeatureApp
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
-import play.api.test.{FakeRequest, Injecting}
+import play.api.test.FakeRequest
 import views.html.nonUkReg.paySAQuestion
 
-class paySAQuestionSpec
-    extends AnyFeatureSpec
-    with GuiceOneServerPerSuite
-    with MockitoSugar
-    with BeforeAndAfterEach
-    with GivenWhenThen
-    with Injecting {
+class paySAQuestionSpec extends GuiceFeatureApp with BeforeAndAfterEach with GivenWhenThen {
 
-  val service                               = "ATED"
-  val injectedViewInstance: paySAQuestion   = inject[views.html.nonUkReg.paySAQuestion]
-  implicit val lang: Lang                   = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  val service                             = "ATED"
+  val injectedViewInstance: paySAQuestion = inject[views.html.nonUkReg.paySAQuestion]
+  implicit val lang: Lang                 = Lang.defaultLang
 
   Feature("The user can the pay SA question") {
 

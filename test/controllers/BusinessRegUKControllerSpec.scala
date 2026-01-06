@@ -16,26 +16,22 @@
 
 package controllers
 
-import java.util.UUID
-
-import config.ApplicationConfig
 import models.{Address, BusinessRegistration, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.mvc._
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Injecting}
 import services.{BackLinkCacheService, BusinessRegistrationService, DataCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import views.html.business_group_registration
 
+import java.util.UUID
 import scala.concurrent.Future
 
-class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
+class BusinessRegUKControllerSpec extends GuiceTestApp {
 
   val request: FakeRequest[AnyContentAsEmpty.type]                 = FakeRequest()
   val service                                                      = "ATED"
@@ -43,10 +39,8 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
   val mockBackLinkCache: BackLinkCacheService                      = mock[BackLinkCacheService]
   val mockReviewDetailController: ReviewDetailsController          = mock[ReviewDetailsController]
-  val injectedViewInstance: business_group_registration            = inject[views.html.business_group_registration]
   val mockDataCacheConnector: DataCacheService                     = mock[DataCacheService]
-  val appConfig: ApplicationConfig                                 = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents                   = inject[MessagesControllerComponents]
+  lazy val injectedViewInstance: business_group_registration       = inject[views.html.business_group_registration]
 
   object TestBusinessRegController
       extends BusinessRegUKController(

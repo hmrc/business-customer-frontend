@@ -16,27 +16,17 @@
 
 package acceptance
 
-import config.ApplicationConfig
 import models.{Address, Identification, ReviewDetails}
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceFeatureApp
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
-import play.api.test.{FakeRequest, Injecting}
+import play.api.test.FakeRequest
 import views.html.review_details_non_uk_agent
 
-class ReviewDetailsNonUkAgentFeatureSpec
-    extends AnyFeatureSpec
-    with GuiceOneServerPerSuite
-    with MockitoSugar
-    with BeforeAndAfterEach
-    with GivenWhenThen
-    with Matchers
-    with Injecting {
+class ReviewDetailsNonUkAgentFeatureSpec extends GuiceFeatureApp with BeforeAndAfterEach with GivenWhenThen with Matchers {
 
   val address: Address         = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
   val addressOverseas: Address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), None, "CI")
@@ -64,7 +54,6 @@ class ReviewDetailsNonUkAgentFeatureSpec
   )
 
   implicit val lang: Lang                               = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig             = inject[ApplicationConfig]
   val injectedViewInstance: review_details_non_uk_agent = inject[views.html.review_details_non_uk_agent]
 
   Feature("The user can view the review details page for a non uk agent") {

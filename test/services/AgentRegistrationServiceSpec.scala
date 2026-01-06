@@ -18,26 +18,21 @@ package services
 
 import audit.Auditable
 import builders.AuthBuilder
-import config.ApplicationConfig
 import connectors._
 import models._
-import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.mvc.MessagesControllerComponents
+import play.GuiceTestApp
 import play.api.test.Helpers._
-import play.api.test.Injecting
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfter with Injecting {
+class AgentRegistrationServiceSpec extends GuiceTestApp with BeforeAndAfter {
 
   val mockTaxEnrolmentConnector        = mock[TaxEnrolmentsConnector]
   val mockDataCacheConnector           = mock[DataCacheService]
@@ -45,9 +40,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite 
   val mockAuthClientConnector          = mock[AuthConnector]
   val mockAuditable                    = mock[Auditable]
 
-  val appConfig                                  = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
-  implicit val ec: ExecutionContext              = mcc.executionContext
+  implicit val ec: ExecutionContext = mcc.executionContext
 
   object TestAgentRegistrationService
       extends AgentRegistrationService(

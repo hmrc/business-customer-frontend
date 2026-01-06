@@ -16,23 +16,19 @@
 
 package connectors
 
-import config.ApplicationConfig
 import models._
-import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import org.mockito.Mockito._
+import play.GuiceTestApp
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
-import play.api.test.Injecting
 import uk.gov.hmrc.http._
 import utils.GovernmentGatewayConstants
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
+class TaxEnrolmentsConnectorSpec extends GuiceTestApp {
 
   class Setup extends ConnectorTest {
 

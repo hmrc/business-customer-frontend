@@ -33,6 +33,8 @@ class SessionCacheRepository @Inject() (
     appConfig: ApplicationConfig
 ) extends CacheRepository {
 
+  println("starting")
+
   private val cacheRepo = new MongoCacheRepository[HeaderCarrier](
     mongoComponent = MongoComponent(appConfig.mongoUri),
     collectionName = "sessions",

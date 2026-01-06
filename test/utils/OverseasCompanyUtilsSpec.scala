@@ -16,10 +16,9 @@
 
 package utils
 
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 
-class OverseasCompanyUtilsSpec extends PlaySpec with GuiceOneServerPerSuite {
+class OverseasCompanyUtilsSpec extends GuiceTestApp {
 
   trait Setup {
     val utils: OverseasCompanyUtils = new OverseasCompanyUtils {}

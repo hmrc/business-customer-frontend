@@ -23,9 +23,13 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.Application
 import play.api.i18n.{Lang, MessagesApi}
-import play.api.mvc.AnyContentAsEmpty
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.{FakeRequest, Injecting}
+import repositories.SessionCacheRepository
 import views.html.nonUkReg.nrl_question
 
 class nrl_questionSpec
@@ -36,11 +40,23 @@ class nrl_questionSpec
     with GivenWhenThen
     with Injecting {
 
+  lazy implicit val appConfig: ApplicationConfig      = inject[ApplicationConfig]
+  implicit lazy val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+
+  private val sessionCacheRepositoryStub: SessionCacheRepository =
+    mock[SessionCacheRepository]
+
+  override lazy val app: Application =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[SessionCacheRepository].toInstance(sessionCacheRepositoryStub)
+      )
+      .build()
+
   val service                            = "ATED"
   val injectedViewInstance: nrl_question = inject[views.html.nonUkReg.nrl_question]
 
-  implicit val lang: Lang                   = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  implicit val lang: Lang = Lang.defaultLang
 
   Feature("The user can the nrl question") {
 

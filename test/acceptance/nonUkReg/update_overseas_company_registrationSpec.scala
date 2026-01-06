@@ -24,25 +24,19 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceFeatureApp
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{FakeRequest, Injecting}
 import views.html.nonUkReg.update_overseas_company_registration
 
-class update_overseas_company_registrationSpec
-    extends AnyFeatureSpec
-    with GuiceOneServerPerSuite
-    with MockitoSugar
-    with BeforeAndAfterEach
-    with GivenWhenThen
-    with Injecting {
+class update_overseas_company_registrationSpec extends GuiceFeatureApp with BeforeAndAfterEach with GivenWhenThen {
 
   val service                                                    = "ATED"
   val injectedViewInstance: update_overseas_company_registration = inject[views.html.nonUkReg.update_overseas_company_registration]
   val displayDetails: OverseasCompanyDisplayDetails = OverseasCompanyDisplayDetails("dynamicTitle", "dynamicHeader", "dynamicSubHeader", false)
 
-  implicit val lang: Lang                   = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  implicit val lang: Lang = Lang.defaultLang
 
   Feature("The user can view the overseas company registration question") {
 

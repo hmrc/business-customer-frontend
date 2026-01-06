@@ -16,42 +16,30 @@
 
 package controllers.nonUKReg
 
-import java.util.UUID
-import config.ApplicationConfig
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.GuiceTestApp
 import play.api.mvc._
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import views.html.nonUkReg.update_overseas_company_registration
 
+import java.util.UUID
 import scala.concurrent.Future
 
-class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
-
-  override lazy val app: Application = new GuiceApplicationBuilder()
-    .configure("microservice.services.auth.host" -> "authprotected")
-    .build()
+class UpdateOverseasCompanyRegControllerSpec extends GuiceTestApp with BeforeAndAfterEach {
 
   val request: FakeRequest[AnyContentAsEmpty.type]                 = FakeRequest()
   val service                                                      = "ATED"
   val mockAuthConnector: AuthConnector                             = mock[AuthConnector]
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
   val injectedViewInstance: update_overseas_company_registration   = inject[views.html.nonUkReg.update_overseas_company_registration]
-
-  implicit val appConfig: ApplicationConfig      = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestNonUKController
       extends UpdateOverseasCompanyRegController(

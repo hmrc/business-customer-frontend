@@ -21,9 +21,7 @@ import models.BackLinkModel
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.GuiceTestApp
 import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.mongo.cache.DataKey
@@ -31,7 +29,7 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BackLinkCacheServiceSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar {
+class BackLinkCacheServiceSpec extends GuiceTestApp {
 
   implicit val hc: HeaderCarrier =
     HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))

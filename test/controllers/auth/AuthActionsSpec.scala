@@ -19,12 +19,10 @@ package controllers.auth
 import config.ApplicationConfig
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result, Results}
-import play.api.test.{DefaultAwaitTimeout, FakeRequest, FutureAwaits, Injecting}
+import play.api.test.{DefaultAwaitTimeout, FakeRequest, FutureAwaits}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -32,7 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerSuite with FutureAwaits with DefaultAwaitTimeout with Injecting {
+class AuthActionsSpec extends GuiceTestApp with FutureAwaits with DefaultAwaitTimeout {
 
   val mockAppConfig: ApplicationConfig = inject[ApplicationConfig]
   val mockAuthConnector: AuthConnector = mock[AuthConnector]

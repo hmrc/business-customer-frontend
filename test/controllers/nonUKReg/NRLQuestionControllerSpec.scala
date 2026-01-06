@@ -16,29 +16,25 @@
 
 package controllers.nonUKReg
 
-import java.util.UUID
-
 import builders.SessionBuilder
-import config.ApplicationConfig
 import models.NRLQuestion
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, MessagesControllerComponents, Result}
+import play.GuiceTestApp
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Injecting}
 import services.{BackLinkCacheService, BusinessRegCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html.nonUkReg.nrl_question
 
+import java.util.UUID
 import scala.concurrent.Future
 
-class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
+class NRLQuestionControllerSpec extends GuiceTestApp with BeforeAndAfterEach {
 
   val mockAuthConnector: AuthConnector                       = mock[AuthConnector]
   val mockBackLinkCache: BackLinkCacheService                = mock[BackLinkCacheService]
@@ -48,9 +44,6 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val invalidService                                         = "scooby-doo"
   val mockBusinessRegistrationCache: BusinessRegCacheService = mock[BusinessRegCacheService]
   val injectedViewInstance: nrl_question                     = inject[views.html.nonUkReg.nrl_question]
-
-  val appConfig: ApplicationConfig               = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestNRLQuestionController
       extends NRLQuestionController(

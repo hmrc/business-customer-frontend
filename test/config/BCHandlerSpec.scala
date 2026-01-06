@@ -20,18 +20,18 @@ import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import views.html.global_error
+
 import scala.concurrent.ExecutionContext
 
-class BCHandlerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
+class BCHandlerSpec extends GuiceTestApp {
 
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
-  implicit val appConfig: ApplicationConfig      = inject[ApplicationConfig]
-  val injectedViewInstanceError: global_error    = inject[views.html.global_error]
-  implicit val ec: ExecutionContext              = scala.concurrent.ExecutionContext.global
+  val injectedViewInstanceError: global_error = inject[views.html.global_error]
+  implicit val ec: ExecutionContext           = scala.concurrent.ExecutionContext.global
 
   "internalServerErrorTemplate" must {
 

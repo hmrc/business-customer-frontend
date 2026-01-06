@@ -16,17 +16,14 @@
 
 package controllers
 
-import config.ApplicationConfig
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Headers, MessagesControllerComponents, Result}
+import play.api.mvc.{Headers, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.{AgentRegistrationService, BackLinkCacheService, DataCacheService}
@@ -37,7 +34,7 @@ import views.html.{global_error, review_details, review_details_non_uk_agent}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
+class ReviewDetailsControllerSpec extends GuiceTestApp with BeforeAndAfterEach with Injecting {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
@@ -49,9 +46,6 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val injectedViewInstanceNonUkAgent: review_details_non_uk_agent = inject[views.html.review_details_non_uk_agent]
   val injectedViewInstanceReviewDetails: review_details           = inject[views.html.review_details]
   val injectedViewInstanceError: global_error                     = inject[views.html.global_error]
-
-  implicit val appConfig: ApplicationConfig      = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   val address: Address =
     Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")

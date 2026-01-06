@@ -16,17 +16,12 @@
 
 package forms
 
-import config.ApplicationConfig
 import models.BusinessRegistration
 import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.data.Form
-import play.api.test.Injecting
 
-class BusinessRegistrationFormsSpec extends PlaySpec with Matchers with GuiceOneServerPerSuite with Injecting {
-
-  val appConfig: ApplicationConfig = inject[ApplicationConfig]
+class BusinessRegistrationFormsSpec extends GuiceTestApp with Matchers {
 
   val input: Map[String, String] = Map(
     "businessName"             -> "Business Name",

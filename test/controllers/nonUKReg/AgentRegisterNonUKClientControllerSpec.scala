@@ -22,12 +22,10 @@ import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.mvc._
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Injecting}
 import services.{BackLinkCacheService, BusinessRegCacheService}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
@@ -37,7 +35,7 @@ import views.html.nonUkReg.nonuk_business_registration
 import java.util.UUID
 import scala.concurrent.Future
 
-class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
+class AgentRegisterNonUKClientControllerSpec extends GuiceTestApp with BeforeAndAfterEach {
 
   val service                                           = "ATED"
   val invalidService                                    = "scooby-doo"
