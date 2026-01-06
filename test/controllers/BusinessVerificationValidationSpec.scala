@@ -16,92 +16,82 @@
 
 package controllers
 
-import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{
-  AnyContentAsFormUrlEncoded,
-  Headers,
-  MessagesControllerComponents,
-  Result
-}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Injecting}
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService, BusinessRegCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import views.html._
 
 import java.util.UUID
-import views.html.{
-  business_lookup_LLP,
-  business_lookup_LP,
-  business_lookup_LTD,
-  business_lookup_NRL,
-  business_lookup_OBP,
-  business_lookup_SOP,
-  business_lookup_UIB,
-  business_verification,
-  details_not_found
-}
-
 import scala.concurrent.Future
 
-class BusinessVerificationValidationSpec
-    extends PlaySpec
-    with GuiceOneServerPerSuite
-    with MockitoSugar
-    with Injecting {
+class BusinessVerificationValidationSpec extends GuiceTestApp {
 
   val request: FakeRequest[_] = FakeRequest()
+
   val mockBusinessMatchingService: BusinessMatchingService =
     mock[BusinessMatchingService]
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
-  val mockBusinessRegCacheConnector: BusinessRegCacheConnector =
-    mock[BusinessRegCacheConnector]
-  val service = "ATED"
-  val matchUtr: SaUtr = new SaUtrGenerator().nextSaUtr
+
+  val mockAuthConnector: AuthConnector        = mock[AuthConnector]
+  val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
+
+  val mockBusinessRegCacheConnector: BusinessRegCacheService =
+    mock[BusinessRegCacheService]
+
+  val service           = "ATED"
+  val matchUtr: SaUtr   = new SaUtrGenerator().nextSaUtr
   val noMatchUtr: SaUtr = new SaUtrGenerator().nextSaUtr
 
   val mockBusinessRegUKController: BusinessRegUKController =
     mock[BusinessRegUKController]
+
   val mockBusinessRegController: BusinessRegController =
     mock[BusinessRegController]
+
   val mockNrlQuestionConnector: NRLQuestionController =
     mock[NRLQuestionController]
+
   val mockReviewDetailsController: ReviewDetailsController =
     mock[ReviewDetailsController]
+
   val mockHomeController: HomeController = mock[HomeController]
+
   val injectedViewInstance: business_verification =
     inject[views.html.business_verification]
+
   val injectedViewInstanceSOP: business_lookup_SOP =
     inject[views.html.business_lookup_SOP]
+
   val injectedViewInstanceLTD: business_lookup_LTD =
     inject[views.html.business_lookup_LTD]
+
   val injectedViewInstanceUIB: business_lookup_UIB =
     inject[views.html.business_lookup_UIB]
+
   val injectedViewInstanceOBP: business_lookup_OBP =
     inject[views.html.business_lookup_OBP]
+
   val injectedViewInstanceLLP: business_lookup_LLP =
     inject[views.html.business_lookup_LLP]
+
   val injectedViewInstanceLP: business_lookup_LP =
     inject[views.html.business_lookup_LP]
+
   val injectedViewInstanceNRL: business_lookup_NRL =
     inject[views.html.business_lookup_NRL]
+
   val injectedViewInstanceDetailsNotFound: details_not_found =
     inject[views.html.details_not_found]
 
-  val appConfig: ApplicationConfig = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents =
-    inject[MessagesControllerComponents]
-
   class Setup {
+
     val controller: BusinessVerificationController =
       new BusinessVerificationController(
         appConfig,
@@ -127,6 +117,7 @@ class BusinessVerificationValidationSpec
       ) {
         override val controllerId = "test"
       }
+
   }
 
   val matchSuccessResponseUIB: JsValue = Json.parse("""
@@ -285,7 +276,7 @@ class BusinessVerificationValidationSpec
       controller: BusinessVerificationController
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
 
@@ -295,8 +286,8 @@ class BusinessVerificationValidationSpec
         FakeRequest()
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
       )
@@ -306,18 +297,18 @@ class BusinessVerificationValidationSpec
 
   "BusinessVerificationValidationController" must {
 
-    type InputRequest = FakeRequest[AnyContentAsFormUrlEncoded]
+    type InputRequest    = FakeRequest[AnyContentAsFormUrlEncoded]
     type MustTestMessage = String
-    type InTestMessage = String
-    type ErrorMessage = String
-    type BusinessType = String
+    type InTestMessage   = String
+    type ErrorMessage    = String
+    type BusinessType    = String
 
     def nrlUtrRequest(
         utr: String = matchUtr.utr,
         businessName: String = "ACME"
     ): FakeRequest[AnyContentAsFormUrlEncoded] =
       FakeRequest("POST", "/").withFormUrlEncodedBody(
-        "saUTR" -> s"$utr",
+        "saUTR"        -> s"$utr",
         "businessName" -> s"$businessName"
       )
     def ctUtrRequest(
@@ -325,7 +316,7 @@ class BusinessVerificationValidationSpec
         businessName: String = "ACME"
     ): FakeRequest[AnyContentAsFormUrlEncoded] =
       FakeRequest("POST", "/").withFormUrlEncodedBody(
-        "cotaxUTR" -> s"$ct",
+        "cotaxUTR"     -> s"$ct",
         "businessName" -> s"$businessName"
       )
     def psaUtrRequest(
@@ -333,7 +324,7 @@ class BusinessVerificationValidationSpec
         businessName: String = "ACME"
     ): FakeRequest[AnyContentAsFormUrlEncoded] =
       FakeRequest("POST", "/").withFormUrlEncodedBody(
-        "psaUTR" -> s"$psa",
+        "psaUTR"       -> s"$psa",
         "businessName" -> s"$businessName"
       )
     def saUtrRequest(
@@ -342,9 +333,9 @@ class BusinessVerificationValidationSpec
         lastName: String = "B"
     ): FakeRequest[AnyContentAsFormUrlEncoded] =
       FakeRequest("POST", "/").withFormUrlEncodedBody(
-        "saUTR" -> s"$sa",
+        "saUTR"     -> s"$sa",
         "firstName" -> s"$firstName",
-        "lastName" -> s"$lastName"
+        "lastName"  -> s"$lastName"
       )
 
     val formValidationInputDataSetOrg: Seq[
@@ -596,8 +587,7 @@ class BusinessVerificationValidationSpec
         )
       )
 
-    val formValidationInputDataSetInd
-        : Seq[(InTestMessage, BusinessType, InputRequest, ErrorMessage)] =
+    val formValidationInputDataSetInd: Seq[(InTestMessage, BusinessType, InputRequest, ErrorMessage)] =
       Seq(
         (
           "First name must not be empty",
@@ -697,7 +687,7 @@ class BusinessVerificationValidationSpec
           "OBP",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             "businessName" -> "Business Name",
-            "psaUTR" -> s"$matchUtr"
+            "psaUTR"       -> s"$matchUtr"
           ),
           controller
         ) { result =>
@@ -720,7 +710,7 @@ class BusinessVerificationValidationSpec
           FakeRequest("POST", "/")
             .withFormUrlEncodedBody(
               "businessName" -> "Business Name",
-              "psaUTR" -> s"$matchUtr"
+              "psaUTR"       -> s"$matchUtr"
             ),
           controller,
           "awrs"
@@ -735,11 +725,14 @@ class BusinessVerificationValidationSpec
       "for successful match, status should be 303 and user should be redirected to review details page for neither AWRS nor ATED journey" in new Setup {
         when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(None))
-        submitWithAuthorisedUserSuccessOrg("OBP", FakeRequest("POST", "/")
-          .withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"), controller, "amls") {
-          result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        submitWithAuthorisedUserSuccessOrg(
+          "OBP",
+          FakeRequest("POST", "/")
+            .withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"),
+          controller,
+          "amls") { result =>
+          status(result) must be(SEE_OTHER)
+          redirectLocation(result).get must include(s"/business-customer/review-details/amls")
         }
       }
 
@@ -748,7 +741,7 @@ class BusinessVerificationValidationSpec
           "OBP",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             "businessName" -> "Business Name",
-            "psaUTR" -> s"$noMatchUtr"
+            "psaUTR"       -> s"$noMatchUtr"
           ),
           controller
         ) { result =>
@@ -772,7 +765,7 @@ class BusinessVerificationValidationSpec
           "LLP",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             "businessName" -> "Business Name",
-            "psaUTR" -> s"$matchUtr"
+            "psaUTR"       -> s"$matchUtr"
           ),
           controller
         ) { result =>
@@ -794,7 +787,7 @@ class BusinessVerificationValidationSpec
           FakeRequest("POST", "/")
             .withFormUrlEncodedBody(
               "businessName" -> "Business Name",
-              "psaUTR" -> s"$matchUtr"
+              "psaUTR"       -> s"$matchUtr"
             ),
           controller,
           "awrs"
@@ -806,13 +799,16 @@ class BusinessVerificationValidationSpec
         }
       }
       "for successful match, status should be 303 and  user should be redirected to review details page for neither AWRS nor ATED journey" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        submitWithAuthorisedUserSuccessOrg("LLP", FakeRequest("POST", "/")
-          .withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"), controller, "amls") {
-          result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessOrg(
+          "LLP",
+          FakeRequest("POST", "/")
+            .withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"),
+          controller,
+          "amls") { result =>
+          status(result) must be(SEE_OTHER)
+          redirectLocation(result).get must include(s"/business-customer/review-details/amls")
         }
       }
       "for unsuccessful match, status should be Redirect and user should be on details not found page" in new Setup {
@@ -820,7 +816,7 @@ class BusinessVerificationValidationSpec
           "LLP",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             "businessName" -> "Business Name",
-            "psaUTR" -> s"$noMatchUtr"
+            "psaUTR"       -> s"$noMatchUtr"
           ),
           controller
         ) { result =>
@@ -844,7 +840,7 @@ class BusinessVerificationValidationSpec
           "LP",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             "businessName" -> "Business Name",
-            "psaUTR" -> s"$matchUtr"
+            "psaUTR"       -> s"$matchUtr"
           ),
           controller
         ) { result =>
@@ -866,7 +862,7 @@ class BusinessVerificationValidationSpec
           FakeRequest("POST", "/")
             .withFormUrlEncodedBody(
               "businessName" -> "Business Name",
-              "psaUTR" -> s"$matchUtr"
+              "psaUTR"       -> s"$matchUtr"
             ),
           controller,
           "awrs"
@@ -879,13 +875,16 @@ class BusinessVerificationValidationSpec
       }
 
       "for successful match, status should be 303 and  user should be redirected to review details page for neither ATED nor AWRS journey" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        submitWithAuthorisedUserSuccessOrg("LP", FakeRequest("POST", "/")
-          .withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"), controller, "amls") {
-          result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessOrg(
+          "LP",
+          FakeRequest("POST", "/")
+            .withFormUrlEncodedBody("businessName" -> "Business Name", "psaUTR" -> s"$matchUtr"),
+          controller,
+          "amls") { result =>
+          status(result) must be(SEE_OTHER)
+          redirectLocation(result).get must include(s"/business-customer/review-details/amls")
         }
       }
 
@@ -894,7 +893,7 @@ class BusinessVerificationValidationSpec
           "LP",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             "businessName" -> "Business Name",
-            "psaUTR" -> s"$noMatchUtr"
+            "psaUTR"       -> s"$noMatchUtr"
           ),
           controller
         ) { result =>
@@ -918,8 +917,8 @@ class BusinessVerificationValidationSpec
           "SOP",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             "firstName" -> "First Name",
-            "lastName" -> "Last Name",
-            "saUTR" -> s"$matchUtr"
+            "lastName"  -> "Last Name",
+            "saUTR"     -> s"$matchUtr"
           ),
           controller
         ) { result =>
@@ -941,8 +940,8 @@ class BusinessVerificationValidationSpec
           FakeRequest("POST", "/")
             .withFormUrlEncodedBody(
               "firstName" -> "First Name",
-              "lastName" -> "Last Name",
-              "saUTR" -> s"$matchUtr"
+              "lastName"  -> "Last Name",
+              "saUTR"     -> s"$matchUtr"
             ),
           controller,
           "awrs"
@@ -955,13 +954,16 @@ class BusinessVerificationValidationSpec
       }
 
       "for successful match, status should be 303 and  user should be redirected to review details page for neither AWRS nor ATED journey" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        submitWithAuthorisedUserSuccessIndividual("SOP", FakeRequest("POST", "/")
-          .withFormUrlEncodedBody("firstName" -> "First Name", "lastName" -> "Last Name", "saUTR" -> s"$matchUtr"), controller, "amls") {
-          result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessIndividual(
+          "SOP",
+          FakeRequest("POST", "/")
+            .withFormUrlEncodedBody("firstName" -> "First Name", "lastName" -> "Last Name", "saUTR" -> s"$matchUtr"),
+          controller,
+          "amls") { result =>
+          status(result) must be(SEE_OTHER)
+          redirectLocation(result).get must include(s"/business-customer/review-details/amls")
         }
       }
 
@@ -971,8 +973,8 @@ class BusinessVerificationValidationSpec
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             Map(
               "firstName" -> "First Name",
-              "lastName" -> "Last Name",
-              "saUTR" -> s"$noMatchUtr"
+              "lastName"  -> "Last Name",
+              "saUTR"     -> s"$noMatchUtr"
             ).toSeq: _*
           ),
           controller
@@ -997,7 +999,7 @@ class BusinessVerificationValidationSpec
           "NRL",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             "businessName" -> "Business Name",
-            "saUTR" -> s"$matchUtr"
+            "saUTR"        -> s"$matchUtr"
           ),
           controller
         ) { result =>
@@ -1018,7 +1020,7 @@ class BusinessVerificationValidationSpec
         submitWithAuthorisedUserSuccessOrgNRLNoCountry(
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             "businessName" -> "Business Name",
-            "saUTR" -> s"$matchUtr"
+            "saUTR"        -> s"$matchUtr"
           ),
           controller
         ) { result =>
@@ -1042,7 +1044,7 @@ class BusinessVerificationValidationSpec
           "NRL",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
             "businessName" -> "Business Name",
-            "saUTR" -> s"$noMatchUtr"
+            "saUTR"        -> s"$noMatchUtr"
           ),
           controller
         ) { result =>
@@ -1065,7 +1067,7 @@ class BusinessVerificationValidationSpec
         submitWithAuthorisedUserSuccessOrg(
           "UIB",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
-            "cotaxUTR" -> s"$matchUtr",
+            "cotaxUTR"     -> s"$matchUtr",
             "businessName" -> "Business Name"
           ),
           controller
@@ -1087,7 +1089,7 @@ class BusinessVerificationValidationSpec
           "UIB",
           FakeRequest("POST", "/")
             .withFormUrlEncodedBody(
-              "cotaxUTR" -> s"$matchUtr",
+              "cotaxUTR"     -> s"$matchUtr",
               "businessName" -> "Business Name"
             ),
           controller,
@@ -1100,20 +1102,23 @@ class BusinessVerificationValidationSpec
         }
       }
       "for successful match, status should be 303 and  user should be redirected to review details page for neither AWRS nor ATED journey" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        submitWithAuthorisedUserSuccessOrg("UIB", FakeRequest("POST", "/")
-          .withFormUrlEncodedBody("cotaxUTR" -> s"$matchUtr", "businessName" -> "Business Name"), controller, "amls") {
-          result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessOrg(
+          "UIB",
+          FakeRequest("POST", "/")
+            .withFormUrlEncodedBody("cotaxUTR" -> s"$matchUtr", "businessName" -> "Business Name"),
+          controller,
+          "amls") { result =>
+          status(result) must be(SEE_OTHER)
+          redirectLocation(result).get must include(s"/business-customer/review-details/amls")
         }
       }
       "for unsuccessful match, status should be Redirect and  user should be on same details not found page" in new Setup {
         submitWithAuthorisedUserFailure(
           "UIB",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
-            "cotaxUTR" -> s"$noMatchUtr",
+            "cotaxUTR"     -> s"$noMatchUtr",
             "businessName" -> "Business Name"
           ),
           controller
@@ -1137,7 +1142,7 @@ class BusinessVerificationValidationSpec
         submitWithAuthorisedUserSuccessOrg(
           "LTD",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
-            "cotaxUTR" -> s"$matchUtr",
+            "cotaxUTR"     -> s"$matchUtr",
             "businessName" -> "Business Name"
           ),
           controller
@@ -1159,7 +1164,7 @@ class BusinessVerificationValidationSpec
           "LTD",
           FakeRequest("POST", "/")
             .withFormUrlEncodedBody(
-              "cotaxUTR" -> s"$matchUtr",
+              "cotaxUTR"     -> s"$matchUtr",
               "businessName" -> "Business Name"
             ),
           controller,
@@ -1173,13 +1178,16 @@ class BusinessVerificationValidationSpec
       }
 
       "for successful match, status should be 303 and  user should be redirected to review details page for neither AWRS nor ATED journey" in new Setup {
-        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())
-        (ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
-        submitWithAuthorisedUserSuccessOrg("LTD", FakeRequest("POST", "/")
-          .withFormUrlEncodedBody("cotaxUTR" -> s"$matchUtr", "businessName" -> "Business Name"), controller, "amls") {
-          result =>
-            status(result) must be(SEE_OTHER)
-            redirectLocation(result).get must include(s"/business-customer/review-details/amls")
+        when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(None))
+        submitWithAuthorisedUserSuccessOrg(
+          "LTD",
+          FakeRequest("POST", "/")
+            .withFormUrlEncodedBody("cotaxUTR" -> s"$matchUtr", "businessName" -> "Business Name"),
+          controller,
+          "amls") { result =>
+          status(result) must be(SEE_OTHER)
+          redirectLocation(result).get must include(s"/business-customer/review-details/amls")
         }
       }
 
@@ -1187,7 +1195,7 @@ class BusinessVerificationValidationSpec
         submitWithAuthorisedUserFailure(
           "LTD",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
-            "cotaxUTR" -> s"$noMatchUtr",
+            "cotaxUTR"     -> s"$noMatchUtr",
             "businessName" -> "Business Name"
           ),
           controller
@@ -1205,7 +1213,7 @@ class BusinessVerificationValidationSpec
         submitWithAuthorisedUserSuccessOrg(
           "UT",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
-            "cotaxUTR" -> s"$matchUtr",
+            "cotaxUTR"     -> s"$matchUtr",
             "businessName" -> "Business Name"
           ),
           controller
@@ -1226,7 +1234,7 @@ class BusinessVerificationValidationSpec
         submitWithAuthorisedUserFailure(
           "UT",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
-            "cotaxUTR" -> s"$noMatchUtr",
+            "cotaxUTR"     -> s"$noMatchUtr",
             "businessName" -> "Business Name"
           ),
           controller
@@ -1244,7 +1252,7 @@ class BusinessVerificationValidationSpec
         submitWithAuthorisedUserSuccessOrg(
           "ULTD",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
-            "cotaxUTR" -> s"$matchUtr",
+            "cotaxUTR"     -> s"$matchUtr",
             "businessName" -> "Business Name"
           ),
           controller
@@ -1265,7 +1273,7 @@ class BusinessVerificationValidationSpec
         submitWithAuthorisedUserFailure(
           "ULTD",
           FakeRequest("POST", "/").withFormUrlEncodedBody(
-            "cotaxUTR" -> s"$noMatchUtr",
+            "cotaxUTR"     -> s"$noMatchUtr",
             "businessName" -> "Business Name"
           ),
           controller
@@ -1286,7 +1294,7 @@ class BusinessVerificationValidationSpec
       service: String = service
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
@@ -1318,8 +1326,8 @@ class BusinessVerificationValidationSpec
     val fullReq = fakeRequest
       .withSession(
         "sessionId" -> sessionId,
-        "token" -> "RANDOMTOKEN",
-        "userId" -> userId
+        "token"     -> "RANDOMTOKEN",
+        "userId"    -> userId
       )
       .withHeaders(Headers("Authorization" -> "value"))
 
@@ -1333,7 +1341,7 @@ class BusinessVerificationValidationSpec
       controller: BusinessVerificationController
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
@@ -1376,8 +1384,8 @@ class BusinessVerificationValidationSpec
     val fullReq = fakeRequest
       .withSession(
         "sessionId" -> sessionId,
-        "token" -> "RANDOMTOKEN",
-        "userId" -> userId
+        "token"     -> "RANDOMTOKEN",
+        "userId"    -> userId
       )
       .withHeaders(Headers("Authorization" -> "value"))
 
@@ -1393,7 +1401,7 @@ class BusinessVerificationValidationSpec
       service: String = service
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
@@ -1419,8 +1427,8 @@ class BusinessVerificationValidationSpec
         fakeRequest
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
       )
@@ -1434,7 +1442,7 @@ class BusinessVerificationValidationSpec
       controller: BusinessVerificationController
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
@@ -1460,8 +1468,8 @@ class BusinessVerificationValidationSpec
         fakeRequest
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
       )
@@ -1475,7 +1483,7 @@ class BusinessVerificationValidationSpec
       controller: BusinessVerificationController
   )(test: Future[Result] => Any): Unit = {
     val sessionId = s"session-${UUID.randomUUID}"
-    val userId = s"user-${UUID.randomUUID}"
+    val userId    = s"user-${UUID.randomUUID}"
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
@@ -1500,8 +1508,8 @@ class BusinessVerificationValidationSpec
         fakeRequest
           .withSession(
             "sessionId" -> sessionId,
-            "token" -> "RANDOMTOKEN",
-            "userId" -> userId
+            "token"     -> "RANDOMTOKEN",
+            "userId"    -> userId
           )
           .withHeaders(Headers("Authorization" -> "value"))
       )

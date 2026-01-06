@@ -20,8 +20,7 @@ import builders.AuthBuilder
 import config.ApplicationConfig
 import models._
 import org.mockito.Mockito._
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceTestApp
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http._
@@ -30,37 +29,38 @@ import uk.gov.hmrc.play.audit.DefaultAuditConnector
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite  {
+class BusinessCustomerConnectorSpec extends GuiceTestApp {
 
-  val service = "ATED"
+  val service                                   = "ATED"
   implicit val authData: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val hc: HeaderCarrier    = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+  val mockAppConfig: ApplicationConfig          = app.injector.instanceOf[ApplicationConfig]
   val mockAuditConnector: DefaultAuditConnector = app.injector.instanceOf[DefaultAuditConnector]
 
   class Setup extends ConnectorTest {
+
     val connector = new BusinessCustomerConnector(
       mockHttpClient,
       mockAuditable,
       mockAppConfig
     )
+
   }
 
   "BusinessCustomerConnector" must {
-    val businessOrgData = EtmpOrganisation(organisationName = "testName")
-    val etmpIdentification = EtmpIdentification(idNumber = "id1", issuingInstitution = "HRMC", issuingCountryCode = "UK")
-    val businessAddress = EtmpAddress("line1", "line2", None, None, Some("AA1 1AA"), "GB")
+    val businessOrgData      = EtmpOrganisation(organisationName = "testName")
+    val etmpIdentification   = EtmpIdentification(idNumber = "id1", issuingInstitution = "HRMC", issuingCountryCode = "UK")
+    val businessAddress      = EtmpAddress("line1", "line2", None, None, Some("AA1 1AA"), "GB")
     val nonUkBusinessAddress = EtmpAddress("line1", "line2", None, None, None, "FR")
-
 
     "addKnownFacts" must {
       "for successful knownFacts, return Response as HttpResponse" in new Setup {
         val knownFacts: KnownFactsForService = KnownFactsForService(List(KnownFact("type", "value")))
-        val successResponse: JsValue = Json.toJson(knownFacts)
-        val inputBody: JsValue = Json.toJson(KnownFactsForService(List(KnownFact("type", "value"))))
+        val successResponse: JsValue         = Json.toJson(knownFacts)
+        val inputBody: JsValue               = Json.toJson(KnownFactsForService(List(KnownFact("type", "value"))))
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
@@ -71,8 +71,8 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
       "for knownfacts Internal Server error, allow this through" in new Setup {
         val knownFacts: KnownFactsForService = KnownFactsForService(List(KnownFact("type", "value")))
-        val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
-        val inputBody: JsValue = Json.toJson(Json.toJson(KnownFactsForService(List(KnownFact("type", "value")))))
+        val matchFailureResponse: JsValue    = Json.parse("""{"error": "Sorry. Business details not found."}""")
+        val inputBody: JsValue               = Json.toJson(Json.toJson(KnownFactsForService(List(KnownFact("type", "value")))))
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, matchFailureResponse.toString)))
 
@@ -104,10 +104,13 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       )
 
       "for successful save, return Response as Json" in new Setup {
-        val businessResponseData: BusinessRegistrationResponse = BusinessRegistrationResponse(processingDate = "2015-01-01", sapNumber = "SAP123123", safeId = "SAFE123123",
+        val businessResponseData: BusinessRegistrationResponse = BusinessRegistrationResponse(
+          processingDate = "2015-01-01",
+          sapNumber = "SAP123123",
+          safeId = "SAFE123123",
           agentReferenceNumber = Some("AREF123123"))
         val successResponse: JsValue = Json.toJson(businessResponseData)
-        val inputBody: JsValue = Json.toJson(businessRequestData)
+        val inputBody: JsValue       = Json.toJson(businessRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
@@ -116,10 +119,13 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       }
 
       "for successful save with non-uk address, return Response as Json" in new Setup {
-        val businessResponseData: BusinessRegistrationResponse = BusinessRegistrationResponse(processingDate = "2015-01-01", sapNumber = "SAP123123", safeId = "SAFE123123",
+        val businessResponseData: BusinessRegistrationResponse = BusinessRegistrationResponse(
+          processingDate = "2015-01-01",
+          sapNumber = "SAP123123",
+          safeId = "SAFE123123",
           agentReferenceNumber = Some("AREF123123"))
         val successResponse: JsValue = Json.toJson(businessResponseData)
-        val inputBody: JsValue = Json.toJson(businessRequestDataNonUK)
+        val inputBody: JsValue       = Json.toJson(businessRequestDataNonUK)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
@@ -128,25 +134,29 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       }
 
       "for successful registration of NON-UK based client by an agent, return Response as Json" in new Setup {
-        val businessResponseData: BusinessRegistrationResponse = BusinessRegistrationResponse(processingDate = "2015-01-01", sapNumber = "SAP123123", safeId = "SAFE123123",
+        val businessResponseData: BusinessRegistrationResponse = BusinessRegistrationResponse(
+          processingDate = "2015-01-01",
+          sapNumber = "SAP123123",
+          safeId = "SAFE123123",
           agentReferenceNumber = Some("AREF123123"))
         val successResponse: JsValue = Json.toJson(businessResponseData)
-        val inputBody: JsValue = Json.toJson(businessRequestDataNonUK)
+        val inputBody: JsValue       = Json.toJson(businessRequestDataNonUK)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
 
-        val result: Future[BusinessRegistrationResponse] = connector.register(businessRequestDataNonUK, service, isNonUKClientRegisteredByAgent = true)
+        val result: Future[BusinessRegistrationResponse] =
+          connector.register(businessRequestDataNonUK, service, isNonUKClientRegisteredByAgent = true)
         await(result) must be(businessResponseData)
       }
 
       "for Service Unavailable, throw an exception" in new Setup {
-        val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
-        val inputBody: JsValue = Json.toJson(businessRequestData)
+        val matchFailureResponse: JsValue = Json.parse("""{"error": "Sorry. Business details not found."}""")
+        val inputBody: JsValue            = Json.toJson(businessRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
 
         val result: Future[BusinessRegistrationResponse] = connector.register(businessRequestData, service)
-        val thrown: ServiceUnavailableException = the[ServiceUnavailableException] thrownBy await(result)
+        val thrown: ServiceUnavailableException          = the[ServiceUnavailableException] thrownBy await(result)
         thrown.getMessage must include("Service unavailable")
       }
 
@@ -160,18 +170,18 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
 
         val result: Future[BusinessRegistrationResponse] = connector.register(businessRequestData, service)
-        val thrown: InternalServerException = the[InternalServerException] thrownBy await(result)
+        val thrown: InternalServerException              = the[InternalServerException] thrownBy await(result)
         thrown.getMessage must include("not found")
       }
 
       "for Unknown Error, throw an exception" in new Setup {
-        val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
-        val inputBody: JsValue = Json.toJson(businessRequestData)
+        val matchFailureResponse: JsValue = Json.parse("""{"error": "Sorry. Business details not found."}""")
+        val inputBody: JsValue            = Json.toJson(businessRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
 
         val result: Future[BusinessRegistrationResponse] = connector.register(businessRequestData, service)
-        val thrown: InternalServerException = the[InternalServerException] thrownBy await(result)
+        val thrown: InternalServerException              = the[InternalServerException] thrownBy await(result)
         thrown.getMessage must include("Unknown Status 999")
       }
     }
@@ -201,12 +211,12 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
         contactDetails = EtmpContactDetails()
       )
 
-      val safeId = "SAFE123123"
+      val safeId          = "SAFE123123"
       val successResponse = HttpResponse(OK, """{"processingDate": "2014-12-17T09:30:47Z"}""")
 
       "for successful save, return Response as Json" in new Setup {
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        val inputBody: JsValue = Json.toJson(updateRequestData)
+        val inputBody: JsValue         = Json.toJson(updateRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(successResponse))
 
@@ -217,7 +227,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       "for successful save with non-uk address, return Response as Json" in new Setup {
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        val inputBody: JsValue = Json.toJson(updateRequestDataNonUk)
+        val inputBody: JsValue         = Json.toJson(updateRequestDataNonUk)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(successResponse))
 
@@ -228,7 +238,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       "for successful registration of NON-UK based client by an agent, return Response as Json" in new Setup {
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        val inputBody: JsValue = Json.toJson(updateRequestDataNonUk)
+        val inputBody: JsValue         = Json.toJson(updateRequestDataNonUk)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(successResponse))
 
@@ -237,42 +247,43 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       }
 
       "for Service Unavailable, throw an exception" in new Setup {
-        val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
+        val matchFailureResponse: JsValue = Json.parse("""{"error": "Sorry. Business details not found."}""")
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        val inputBody: JsValue = Json.toJson(updateRequestData)
+        val inputBody: JsValue         = Json.toJson(updateRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
 
-        val result: Future[HttpResponse] = connector.updateRegistrationDetails(safeId, updateRequestData)
+        val result: Future[HttpResponse]        = connector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown: ServiceUnavailableException = the[ServiceUnavailableException] thrownBy await(result)
         thrown.getMessage must include("Service Unavailable")
       }
 
       "for Not Found, throw an exception" in new Setup {
-        val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
+        val matchFailureResponse: JsValue = Json.parse("""{"error": "Sorry. Business details not found."}""")
 
         implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        val inputBody: JsValue = Json.toJson(updateRequestData)
+        val inputBody: JsValue         = Json.toJson(updateRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
 
-        val result: Future[HttpResponse] = connector.updateRegistrationDetails(safeId, updateRequestData)
+        val result: Future[HttpResponse]    = connector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown: InternalServerException = the[InternalServerException] thrownBy await(result)
         thrown.getMessage must include("Not Found")
       }
 
       "for Unknown Error, throw an exception" in new Setup {
-        val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-        val inputBody: JsValue = Json.toJson(updateRequestData)
+        val matchFailureResponse: JsValue = Json.parse("""{"error": "Sorry. Business details not found."}""")
+        implicit val hc: HeaderCarrier    = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        val inputBody: JsValue            = Json.toJson(updateRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))
 
-        val result: Future[HttpResponse] = connector.updateRegistrationDetails(safeId, updateRequestData)
+        val result: Future[HttpResponse]    = connector.updateRegistrationDetails(safeId, updateRequestData)
         val thrown: InternalServerException = the[InternalServerException] thrownBy await(result)
         thrown.getMessage must include("Unknown Status 999")
       }
     }
   }
+
 }

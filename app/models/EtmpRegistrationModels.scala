@@ -36,10 +36,7 @@ object EtmpOrganisation {
   implicit val formats: Format[EtmpOrganisation] = Json.format[EtmpOrganisation]
 }
 
-case class EtmpIndividual(firstName: String,
-                          middleName: Option[String] = None,
-                          lastName: String,
-                          dateOfBirth: LocalDate)
+case class EtmpIndividual(firstName: String, middleName: Option[String] = None, lastName: String, dateOfBirth: LocalDate)
 
 object EtmpIndividual {
   implicit val formats: Format[EtmpIndividual] = Json.format[EtmpIndividual]
@@ -72,16 +69,11 @@ object BusinessRegistrationRequest {
   implicit val formats: Format[BusinessRegistrationRequest] = Json.format[BusinessRegistrationRequest]
 }
 
-
-case class BusinessRegistrationResponse(processingDate: String,
-                                        sapNumber: String,
-                                        safeId: String,
-                                        agentReferenceNumber: Option[String])
+case class BusinessRegistrationResponse(processingDate: String, sapNumber: String, safeId: String, agentReferenceNumber: Option[String])
 
 object BusinessRegistrationResponse {
   implicit val formats: Format[BusinessRegistrationResponse] = Json.format[BusinessRegistrationResponse]
 }
-
 
 case class UpdateRegistrationDetailsRequest(acknowledgementReference: String,
                                             isAnIndividual: Boolean,
@@ -91,8 +83,7 @@ case class UpdateRegistrationDetailsRequest(acknowledgementReference: String,
                                             contactDetails: EtmpContactDetails,
                                             isAnAgent: Boolean,
                                             isAGroup: Boolean,
-                                            identification: Option[EtmpIdentification] = None) {
-}
+                                            identification: Option[EtmpIdentification] = None) {}
 
 object UpdateRegistrationDetailsRequest {
   implicit val formats: Format[UpdateRegistrationDetailsRequest] = Json.format[UpdateRegistrationDetailsRequest]

@@ -29,7 +29,6 @@ import utils.ValidateUri
 
 import scala.concurrent.{ExecutionContext, Future}
 
-
 trait AuthActions extends AuthorisedFunctions with Logging {
 
   implicit val appConfig: ApplicationConfig
@@ -38,9 +37,10 @@ trait AuthActions extends AuthorisedFunctions with Logging {
   def continueURL(serviceName: String): String = appConfig.continueURL(serviceName)
 
   lazy val origin: String = appConfig.appName
+
   def loginParams(serviceName: String): Map[String, Seq[String]] = Map(
     "continue" -> Seq(continueURL(serviceName)),
-    "origin" -> Seq(origin)
+    "origin"   -> Seq(origin)
   )
 
   private def isValidUrl(serviceName: String): Boolean = {
@@ -48,7 +48,7 @@ trait AuthActions extends AuthorisedFunctions with Logging {
   }
 
   private def recoverAuthorisedCalls(serviceName: String): PartialFunction[Throwable, Result] = {
-    case e: NoActiveSession        =>
+    case e: NoActiveSession =>
       logger.warn(s"[recoverAuthorisedCalls] NoActiveSession: $e")
       Redirect(loginURL, loginParams(serviceName))
     case e: AuthorisationException =>
@@ -56,16 +56,17 @@ trait AuthActions extends AuthorisedFunctions with Logging {
       Redirect(controllers.routes.ApplicationController.unauthorised)
   }
 
-  def authorisedFor(serviceName: String)(body: StandardAuthRetrievals => Future[Result])
-                   (implicit req: Request[AnyContent], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+  def authorisedFor(serviceName: String)(
+      body: StandardAuthRetrievals => Future[Result])(implicit req: Request[AnyContent], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     if (!isValidUrl(serviceName)) {
       logger.error(s"[authorisedFor] Given invalid service name of $serviceName")
       throw new NotFoundException("Service name not found")
     } else {
       authorised((AffinityGroup.Organisation or AffinityGroup.Agent or Enrolment("IR-SA")) and ConfidenceLevel.L50)
-        .retrieve(allEnrolments and affinityGroup and credentials and groupIdentifier) {
-          case Enrolments(enrolments) ~ affGroup ~ creds ~ groupId => body(StandardAuthRetrievals(enrolments, affGroup, creds, groupId))
+        .retrieve(allEnrolments and affinityGroup and credentials and groupIdentifier) { case Enrolments(enrolments) ~ affGroup ~ creds ~ groupId =>
+          body(StandardAuthRetrievals(enrolments, affGroup, creds, groupId))
         } recover recoverAuthorisedCalls(serviceName)
     }
   }
+
 }

@@ -24,24 +24,19 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.GuiceFeatureApp
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{FakeRequest, Injecting}
 import views.html.nonUkReg.update_overseas_company_registration
 
-class update_overseas_company_registrationSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar
-  with BeforeAndAfterEach with GivenWhenThen with Injecting {
+class update_overseas_company_registrationSpec extends GuiceFeatureApp with BeforeAndAfterEach with GivenWhenThen {
 
-  val service = "ATED"
+  val service                                                    = "ATED"
   val injectedViewInstance: update_overseas_company_registration = inject[views.html.nonUkReg.update_overseas_company_registration]
-  val displayDetails: OverseasCompanyDisplayDetails = OverseasCompanyDisplayDetails(
-    "dynamicTitle",
-    "dynamicHeader",
-    "dynamicSubHeader",
-    false)
+  val displayDetails: OverseasCompanyDisplayDetails = OverseasCompanyDisplayDetails("dynamicTitle", "dynamicHeader", "dynamicSubHeader", false)
 
   implicit val lang: Lang = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   Feature("The user can view the overseas company registration question") {
 
@@ -52,8 +47,8 @@ class update_overseas_company_registrationSpec extends AnyFeatureSpec with Guice
       Given("the client has a non uk company and the arrive at the overseas company registration")
       When("The user views the page")
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      val messagesApi: MessagesApi                              = inject[MessagesApi]
+      implicit val messages: play.api.i18n.Messages             = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance(overseasCompanyForm, service, displayDetails, List(("UK", "UK")), None, Some("http://backLinkUrl"))
 
@@ -73,14 +68,17 @@ class update_overseas_company_registrationSpec extends AnyFeatureSpec with Guice
       assert(document.select(".govuk-radios__item").text() === "Yes No")
 
       Then("The company registration number fields should exist")
-      assert(document.getElementsByAttributeValue("for","businessUniqueId").text() === "Overseas company registration number")
-      assert(document.getElementsByAttributeValue("for","issuingCountry").text() === "Country that issued the number")
-      assert(document.getElementsByAttributeValue("for","issuingInstitution").text() === "Institution that issued the number")
+      assert(document.getElementsByAttributeValue("for", "businessUniqueId").text() === "Overseas company registration number")
+      assert(document.getElementsByAttributeValue("for", "issuingCountry").text() === "Country that issued the number")
+      assert(document.getElementsByAttributeValue("for", "issuingInstitution").text() === "Institution that issued the number")
       assert(document.select("#issuingInstitution-hint").text() === "For example, an overseas tax department")
 
       And("There is a link to the accessibility statement")
-      assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
-        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=%2F")
+      assert(
+        document
+          .select(".govuk-footer__inline-list-item:nth-child(2) > a")
+          .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=%2F")
     }
   }
+
 }

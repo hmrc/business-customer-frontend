@@ -16,10 +16,10 @@
 
 package services
 
-import connectors.{BusinessMatchingConnector, DataCacheConnector}
+import connectors.BusinessMatchingConnector
 
 import javax.inject.Inject
-import models.{Individual, _}
+import models._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.BusinessCustomerConstants.{CorporateBody, Partnership, SoleTrader}
@@ -27,45 +27,66 @@ import utils.SessionUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessMatchingConnector,
-                                        val dataCacheConnector: DataCacheConnector) {
+class BusinessMatchingService @Inject() (val businessMatchingConnector: BusinessMatchingConnector, val dataCacheService: DataCacheService) {
 
-  def matchBusinessWithUTR(isAnAgent: Boolean, service: String)
-                          (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Option[Future[JsValue]] = {
+  def matchBusinessWithUTR(isAnAgent: Boolean, service: String)(implicit
+      authContext: StandardAuthRetrievals,
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Option[Future[JsValue]] = {
     getUserUtrAndType map { userUtrAndType =>
       val (userUTR, userType) = userUtrAndType
-      val trimmedUtr = userUTR.replaceAll(" ", "")
-      val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
-        utr = trimmedUtr, isAnAgent = isAnAgent, individual = None, organisation = None)
+      val trimmedUtr          = userUTR.replaceAll(" ", "")
+      val searchData = MatchBusinessData(
+        acknowledgementReference = SessionUtils.getUniqueAckNo,
+        utr = trimmedUtr,
+        isAnAgent = isAnAgent,
+        individual = None,
+        organisation = None)
       businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
         (service.toLowerCase, userType) match {
-          case (_, "org") => validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), Some(CorporateBody))
+          case (_, "org")     => validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), Some(CorporateBody))
           case ("ated", "sa") => validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), Some(Partnership))
-          case _ => validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), None)
+          case _              => validateAndCache(dataReturned = dataReturned, directMatch = true, utr = Some(trimmedUtr), None)
         }
       }
     }
   }
 
-  def matchBusinessWithIndividualName(isAnAgent: Boolean, individual: Individual, saUTR: String, service: String)
-                                     (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+  def matchBusinessWithIndividualName(isAnAgent: Boolean, individual: Individual, saUTR: String, service: String)(implicit
+      authContext: StandardAuthRetrievals,
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[JsValue] = {
 
     val trimmedUtr = saUTR.replaceAll(" ", "")
-    val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
-      utr = trimmedUtr, requiresNameMatch = true, isAnAgent = isAnAgent, individual = Some(individual), organisation = None)
+    val searchData = MatchBusinessData(
+      acknowledgementReference = SessionUtils.getUniqueAckNo,
+      utr = trimmedUtr,
+      requiresNameMatch = true,
+      isAnAgent = isAnAgent,
+      individual = Some(individual),
+      organisation = None
+    )
     val userType = "sa"
     businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
       validateAndCache(dataReturned = dataReturned, directMatch = false, utr = Some(trimmedUtr), None)
     }
   }
 
-  def matchBusinessWithOrganisationName(isAnAgent: Boolean, organisation: Organisation, utr: String, service: String)
-                                       (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+  def matchBusinessWithOrganisationName(isAnAgent: Boolean, organisation: Organisation, utr: String, service: String)(implicit
+      authContext: StandardAuthRetrievals,
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[JsValue] = {
     val trimmedUtr = utr.replaceAll(" ", "")
-    val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
-      utr = trimmedUtr, requiresNameMatch = true, isAnAgent = isAnAgent, individual = None, organisation = Some(organisation))
+    val searchData = MatchBusinessData(
+      acknowledgementReference = SessionUtils.getUniqueAckNo,
+      utr = trimmedUtr,
+      requiresNameMatch = true,
+      isAnAgent = isAnAgent,
+      individual = None,
+      organisation = Some(organisation)
+    )
     val userType = "org"
-    val orgType = organisation.organisationType
+    val orgType  = organisation.organisationType
     businessMatchingConnector.lookup(searchData, userType, service) flatMap { dataReturned =>
       validateAndCache(dataReturned = dataReturned, directMatch = false, Some(trimmedUtr), Some(orgType))
     }
@@ -75,12 +96,13 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     (authContext.saUtr, authContext.ctUtr) match {
       case (Some(sa), None) => Some(sa -> "sa")
       case (None, Some(ct)) => Some(ct -> "org")
-      case _ => None
+      case _                => None
     }
   }
 
-  private def validateAndCache(dataReturned: JsValue, directMatch: Boolean, utr: Option[String],
-                               orgType : Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+  private def validateAndCache(dataReturned: JsValue, directMatch: Boolean, utr: Option[String], orgType: Option[String])(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[JsValue] = {
     val isFailureResponse = dataReturned.validate[MatchFailureResponse].isSuccess
     if (isFailureResponse) Future.successful(dataReturned)
     else {
@@ -90,24 +112,30 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
     }
   }
 
-  private def cacheIndividual(dataReturned: JsValue,
-                              directMatch: Boolean,
-                              utr: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
-    val businessType = SoleTrader
-    val individual = (dataReturned \ "individual").as[Individual]
+  private def cacheIndividual(dataReturned: JsValue, directMatch: Boolean, utr: Option[String])(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[JsValue] = {
+    val businessType    = SoleTrader
+    val individual      = (dataReturned \ "individual").as[Individual]
     val addressReturned = getAddress(dataReturned)
 
-    val address = Address(line_1 = addressReturned.addressLine1, line_2 = addressReturned.addressLine2,
-      line_3 = addressReturned.addressLine3, line_4 = addressReturned.addressLine4,
-      postcode = addressReturned.postalCode, country = addressReturned.countryCode)
+    val address = Address(
+      line_1 = addressReturned.addressLine1,
+      line_2 = addressReturned.addressLine2,
+      line_3 = addressReturned.addressLine3,
+      line_4 = addressReturned.addressLine4,
+      postcode = addressReturned.postalCode,
+      country = addressReturned.countryCode
+    )
 
-    val reviewDetails = ReviewDetails(businessName = s"${individual.firstName} ${individual.lastName}",
+    val reviewDetails = ReviewDetails(
+      businessName = s"${individual.firstName} ${individual.lastName}",
       businessType = Some(businessType),
       businessAddress = address,
       sapNumber = getSapNumber(dataReturned),
       safeId = getSafeId(dataReturned),
       agentReferenceNumber = getAgentRefNum(dataReturned),
-      //default value from model due to AWRS
+      // default value from model due to AWRS
       //      isAGroup = false,
       directMatch = directMatch,
       firstName = Some(individual.firstName),
@@ -115,27 +143,33 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
       utr = utr
     )
 
-    dataCacheConnector.saveReviewDetails(reviewDetails) map { _ =>
+    dataCacheService.saveReviewDetails(reviewDetails) map { _ =>
       Json.toJson(reviewDetails)
     }
   }
 
-  private[services] def cacheOrg(dataReturned: JsValue, directMatch: Boolean, utr: Option[String],
-                       orgType : Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+  private[services] def cacheOrg(dataReturned: JsValue, directMatch: Boolean, utr: Option[String], orgType: Option[String])(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[JsValue] = {
     val organisation = (dataReturned \ "organisation").as[OrganisationResponse]
     val businessType = {
-      if(organisation.organisationType.isDefined){
+      if (organisation.organisationType.isDefined) {
         organisation.organisationType
-      }else{
+      } else {
         orgType
       }
     }
-    val businessName = organisation.organisationName
-    val isAGroup = organisation.isAGroup
+    val businessName    = organisation.organisationName
+    val isAGroup        = organisation.isAGroup
     val addressReturned = getAddress(dataReturned)
-    val address = Address(line_1 = addressReturned.addressLine1, line_2 = addressReturned.addressLine2,
-      line_3 = addressReturned.addressLine3, line_4 = addressReturned.addressLine4,
-      postcode = addressReturned.postalCode, country = addressReturned.countryCode)
+    val address = Address(
+      line_1 = addressReturned.addressLine1,
+      line_2 = addressReturned.addressLine2,
+      line_3 = addressReturned.addressLine3,
+      line_4 = addressReturned.addressLine4,
+      postcode = addressReturned.postalCode,
+      country = addressReturned.countryCode
+    )
     val reviewDetails = ReviewDetails(
       businessName = businessName,
       businessType = businessType,
@@ -148,7 +182,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
       utr = utr
     )
 
-    dataCacheConnector.saveReviewDetails(reviewDetails) map { _ =>
+    dataCacheService.saveReviewDetails(reviewDetails) map { _ =>
       Json.toJson(reviewDetails)
     }
   }

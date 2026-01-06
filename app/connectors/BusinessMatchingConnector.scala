@@ -31,22 +31,24 @@ import uk.gov.hmrc.play.audit.model.EventTypes
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class BusinessMatchingConnector @Inject()(val audit: Auditable,
-                                          val http: HttpClientV2,
-                                          val conf: ApplicationConfig) extends RawResponseReads with Logging {
+class BusinessMatchingConnector @Inject() (val audit: Auditable, val http: HttpClientV2, val conf: ApplicationConfig)
+    extends RawResponseReads
+    with Logging {
 
-  val baseUri = "business-matching"
+  val baseUri   = "business-matching"
   val lookupUri = "business-lookup"
 
-  def lookup(lookupData: MatchBusinessData, userType: String, service: String)
-            (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+  def lookup(lookupData: MatchBusinessData, userType: String, service: String)(implicit
+      authContext: StandardAuthRetrievals,
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[JsValue] = {
     val authLink = authContext.authLink
-    val url = s"""${conf.businessMatching}/$authLink/$baseUri/$lookupUri/${lookupData.utr}/$userType"""
+    val url      = s"""${conf.businessMatching}/$authLink/$baseUri/$lookupUri/${lookupData.utr}/$userType"""
     http.post(url"${url}").withBody(Json.toJson(lookupData)).execute map { response =>
       auditMatchCall(lookupData, userType, response, service)
       response.status match {
         case OK | NOT_FOUND =>
-          Try{
+          Try {
             Json.parse(response.body)
           } match {
             case Success(s) => s
@@ -69,37 +71,38 @@ class BusinessMatchingConnector @Inject()(val audit: Auditable,
   }
 
   private def truncateContactDetails(responseJson: String): JsValue = {
-    val replacedX1 = responseJson.replaceAll("[\r\n\t]", "")
+    val replacedX1            = responseJson.replaceAll("[\r\n\t]", "")
     val removedContactDetails = replacedX1.substring(0, replacedX1.indexOf("contactDetails"))
-    val correctedJsonString = removedContactDetails.substring(0, removedContactDetails.lastIndexOf(","))
-    val validJson = correctedJsonString + "}"
+    val correctedJsonString   = removedContactDetails.substring(0, removedContactDetails.lastIndexOf(","))
+    val validJson             = correctedJsonString + "}"
     Json.parse(validJson)
   }
 
-  private def auditMatchCall(input: MatchBusinessData, userType: String, response: HttpResponse, service: String)
-                            (implicit hc: HeaderCarrier, ec: ExecutionContext): Any = {
+  private def auditMatchCall(input: MatchBusinessData, userType: String, response: HttpResponse, service: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Any = {
     val eventType = response.status match {
       case OK | NOT_FOUND => EventTypes.Succeeded
-      case _ => EventTypes.Failed
+      case _              => EventTypes.Failed
     }
     audit.sendDataEvent(
       transactionName = "etmpMatchCall",
       detail = Map(
-        "txName" -> "etmpMatchCall",
-        "userType" -> s"$userType",
-        "service" -> s"$service",
-        "utr" -> input.utr,
+        "txName"            -> "etmpMatchCall",
+        "userType"          -> s"$userType",
+        "service"           -> s"$service",
+        "utr"               -> input.utr,
         "requiresNameMatch" -> s"${input.requiresNameMatch}",
-        "isAnAgent" -> s"${input.isAnAgent}",
-        "individual" -> s"${input.individual}",
-        "organisation" -> s"${input.organisation}",
-        "responseStatus" -> s"${response.status}",
-        "responseBody" -> s"${response.body}",
-        "status" ->  s"$eventType"
+        "isAnAgent"         -> s"${input.isAnAgent}",
+        "individual"        -> s"${input.individual}",
+        "organisation"      -> s"${input.organisation}",
+        "responseStatus"    -> s"${response.status}",
+        "responseBody"      -> s"${response.body}",
+        "status"            -> s"$eventType"
       )
     )
 
-    def getAddressPiece(piece: Option[JsValue]):String = piece.map(_.toString).getOrElse("")
+    def getAddressPiece(piece: Option[JsValue]): String = piece.map(_.toString).getOrElse("")
 
     if (eventType == EventTypes.Succeeded) {
       val data = Try {
@@ -112,15 +115,16 @@ class BusinessMatchingConnector @Inject()(val audit: Auditable,
         audit.sendDataEvent(
           transactionName = "postcodeAddressSubmitted",
           detail = Map(
-            "submittedLine1" -> (data \\ "addressLine1").head.as[String],
-            "submittedLine2" -> (data \\ "addressLine2").head.as[String],
-            "submittedLine3" -> getAddressPiece((data \\ "addressLine3").headOption),
-            "submittedLine4" -> getAddressPiece((data \\ "addressLine4").headOption),
+            "submittedLine1"    -> (data \\ "addressLine1").head.as[String],
+            "submittedLine2"    -> (data \\ "addressLine2").head.as[String],
+            "submittedLine3"    -> getAddressPiece((data \\ "addressLine3").headOption),
+            "submittedLine4"    -> getAddressPiece((data \\ "addressLine4").headOption),
             "submittedPostcode" -> getAddressPiece((data \\ "postalCode").headOption),
-            "submittedCountry" -> (data \\ "countryCode").head.as[String]
+            "submittedCountry"  -> (data \\ "countryCode").head.as[String]
           )
         )
       }
     }
   }
+
 }

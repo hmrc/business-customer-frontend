@@ -28,7 +28,7 @@ import scala.concurrent.Future
 object AuthBuilder {
 
   val saUtr = new SaUtrGenerator().nextSaUtr
-  val nino = new Generator().nextNino
+  val nino  = new Generator().nextNino
 
   type RetrievalType = Enrolments ~
     Option[AffinityGroup] ~
@@ -100,7 +100,7 @@ object AuthBuilder {
     )
   }
 
-  def mockAuthorisedUser(userId:String, mockAuthConnector: AuthConnector): Unit = {
+  def mockAuthorisedUser(userId: String, mockAuthConnector: AuthConnector): Unit = {
     val authData: StandardAuthRetrievals = StandardAuthRetrievals(
       Set(),
       Some(AffinityGroup.Organisation),
@@ -112,7 +112,7 @@ object AuthBuilder {
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
-  def mockAuthorisedSaUser(userId:String, mockAuthConnector: AuthConnector): Unit = {
+  def mockAuthorisedSaUser(userId: String, mockAuthConnector: AuthConnector): Unit = {
     val authData: StandardAuthRetrievals = StandardAuthRetrievals(
       Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated")),
       Some(AffinityGroup.Individual),
@@ -124,7 +124,7 @@ object AuthBuilder {
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
-  def mockAuthorisedSaOrgUser(userId:String, mockAuthConnector: AuthConnector): Unit = {
+  def mockAuthorisedSaOrgUser(userId: String, mockAuthConnector: AuthConnector): Unit = {
     val authData: StandardAuthRetrievals = StandardAuthRetrievals(
       Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated")),
       Some(AffinityGroup.Organisation),
@@ -136,14 +136,14 @@ object AuthBuilder {
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
-  def mockAuthorisedAgent(userId:String, mockAuthConnector: AuthConnector): Unit = {
+  def mockAuthorisedAgent(userId: String, mockAuthConnector: AuthConnector): Unit = {
     val authData: StandardAuthRetrievals = createAgentAuthority(agentRefNo = Some("JARN1234567"))
 
     when(mockAuthConnector.authorise[RetrievalType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
-  def mockUnAuthorisedUser(userId:String, mockAuthConnector: AuthConnector): Unit = {
+  def mockUnAuthorisedUser(userId: String, mockAuthConnector: AuthConnector): Unit = {
     when(mockAuthConnector.authorise[RetrievalType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.failed(InsufficientEnrolments("message")))
   }

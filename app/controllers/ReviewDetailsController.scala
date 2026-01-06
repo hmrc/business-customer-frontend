@@ -17,71 +17,73 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import controllers.auth.AuthActions
 import javax.inject.Inject
 import play.api.Logging
 import play.api.i18n.{Messages, MessagesProvider}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.AgentRegistrationService
+import services.{AgentRegistrationService, BackLinkCacheService, DataCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
-                                        val backLinkCacheConnector: BackLinkCacheConnector,
-                                        config: ApplicationConfig,
-                                        templateNonUkAgent: views.html.review_details_non_uk_agent,
-                                        templateReviewDetails: views.html.review_details,
-                                        templateError: views.html.global_error,
-                                        val dataCacheConnector: DataCacheConnector,
-                                        agentRegistrationService: AgentRegistrationService,
-                                        mcc: MessagesControllerComponents)
-  extends FrontendController(mcc) with BackLinkController with AuthActions with Logging {
+class ReviewDetailsController @Inject() (val authConnector: AuthConnector,
+                                         val backLinkCacheService: BackLinkCacheService,
+                                         config: ApplicationConfig,
+                                         templateNonUkAgent: views.html.review_details_non_uk_agent,
+                                         templateReviewDetails: views.html.review_details,
+                                         templateError: views.html.global_error,
+                                         val dataCacheService: DataCacheService,
+                                         agentRegistrationService: AgentRegistrationService,
+                                         mcc: MessagesControllerComponents)
+    extends FrontendController(mcc)
+    with BackLinkController
+    with AuthActions
+    with Logging {
 
-  implicit val appConfig: ApplicationConfig = config
+  implicit val appConfig: ApplicationConfig       = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
-  val controllerId: String = "ReviewDetailsController"
+  val controllerId: String       = "ReviewDetailsController"
   private val DuplicateUserError = "duplicate user error"
   private val WrongRoleUserError = "wrong role user error"
 
-
-
   def businessDetails(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(serviceName) { implicit authContext =>
-      dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
+      dataCacheService.fetchAndGetBusinessDetailsForSession flatMap {
         case Some(businessDetails) =>
           currentBackLink.map(backLink =>
             if (authContext.isAgent && businessDetails.isBusinessDetailsEditable) {
               Ok(templateNonUkAgent(serviceName, businessDetails, backLink))
             } else {
               Ok(templateReviewDetails(serviceName, authContext.isAgent, businessDetails, backLink))
-            }
-          )
+            })
         case _ =>
           val service = SessionUtils.findServiceInRequest(request)
 
           logger.warn(s"[ReviewDetailsController][businessDetails] - No Service details found in DataCache for $serviceName")
-          Future.successful(Ok(templateError(
-            Messages("global.error.InternalServerError500.title"),
-            Messages("global.error.InternalServerError500.heading"),
-            Messages("global.error.InternalServerError500.message"),
-            service
-          )))
+          Future.successful(
+            Ok(templateError(
+              Messages("global.error.InternalServerError500.title"),
+              Messages("global.error.InternalServerError500.heading"),
+              Messages("global.error.InternalServerError500.message"),
+              service
+            )))
       }
     }
   }
 
   private def formatErrorMessage(str: String)(implicit messagesProvider: MessagesProvider): (String, String, String) = (str: @unchecked) match {
     case DuplicateUserError =>
-      (Messages("bc.business-registration-error.duplicate.identifier.header"),
+      (
+        Messages("bc.business-registration-error.duplicate.identifier.header"),
         Messages("bc.business-registration-error.duplicate.identifier.title"),
         Messages("bc.business-registration-error.duplicate.identifier.message"))
     case WrongRoleUserError =>
-      (Messages("bc.business-registration-error.wrong.role.header"),
+      (
+        Messages("bc.business-registration-error.wrong.role.header"),
         Messages("bc.business-registration-error.wrong.role.title"),
         Messages("bc.business-registration-error.wrong.role.message"))
   }
@@ -110,12 +112,15 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
           }
         }
       } else {
-        val url: String = appConfig.conf.getConfString(s"${serviceName.toLowerCase}.serviceRedirectUrl", {
-          logger.warn(s"[ReviewDetailsController][continue] - No Service config found for = $serviceName")
-          throw new RuntimeException(Messages("bc.business-review.error.no-service", serviceName, serviceName.toLowerCase))
-        })
+        val url: String = appConfig.conf.getConfString(
+          s"${serviceName.toLowerCase}.serviceRedirectUrl", {
+            logger.warn(s"[ReviewDetailsController][continue] - No Service config found for = $serviceName")
+            throw new RuntimeException(Messages("bc.business-review.error.no-service", serviceName, serviceName.toLowerCase))
+          }
+        )
         redirectToExternal(url, Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url))
       }
     }
   }
+
 }
