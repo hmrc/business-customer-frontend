@@ -40,7 +40,7 @@
     }
 }
 
-@bcMain(title = titleBuilder(messages("bc.nonuk.paySA.title"), Some(paySAQuestionForm)), service = service,
+@bcMain(title = titleBuilder(messages("bc.nonuk.paySA.title"), Some(paySAQuestionForm), Some(service)), service = service,
   backlink=Some(backLinkHtml)) {
 
     @if(paySAQuestionForm.errors.nonEmpty) {
