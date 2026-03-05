@@ -25,4 +25,5 @@ object ReferrerUtils {
   def getReferrer()(implicit request: RequestHeader, appConfig: ApplicationConfig): String = {
     URLEncoder.encode(s"${appConfig.platformHost}${request.path}", "UTF-8")
   }
+
 }

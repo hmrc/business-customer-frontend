@@ -27,9 +27,9 @@ import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import utils.SessionUtils
 import scala.concurrent.{ExecutionContext, Future}
 
-class BCHandlerImpl @Inject()(val messagesApi: MessagesApi,
-                              val templateError: views.html.global_error,
-                              config: ApplicationConfig)(implicit val ec: ExecutionContext) extends BCHandler {
+class BCHandlerImpl @Inject() (val messagesApi: MessagesApi, val templateError: views.html.global_error, config: ApplicationConfig)(implicit
+    val ec: ExecutionContext)
+    extends BCHandler {
   lazy val appConfig: ApplicationConfig = config
 }
 
@@ -44,21 +44,25 @@ trait BCHandler extends FrontendErrorHandler with I18nSupport {
   }
 
   override def internalServerErrorTemplate(implicit request: RequestHeader): Future[Html] = {
-    Future.successful(templateError(Messages("bc.generic.error.title"),
-      Messages("bc.generic.error.header"),
-      Messages("bc.generic.error.message"),
-      SessionUtils.findServiceInRequest(request),
-      URLEncoder.encode(request.uri, "UTF8")))
+    Future.successful(
+      templateError(
+        Messages("bc.generic.error.title"),
+        Messages("bc.generic.error.header"),
+        Messages("bc.generic.error.message"),
+        SessionUtils.findServiceInRequest(request),
+        URLEncoder.encode(request.uri, "UTF8")
+      ))
   }
 
   override def notFoundTemplate(implicit request: RequestHeader): Future[Html] = {
-    Future.successful(templateError(
-      Messages("bc.notFound.error.title"),
-      Messages("bc.notFound.error.header"),
-      Messages("bc.notFound.error.message"),
-      SessionUtils.findServiceInRequest(request),
-      URLEncoder.encode(request.uri, "UTF8"))
-    )
+    Future.successful(
+      templateError(
+        Messages("bc.notFound.error.title"),
+        Messages("bc.notFound.error.header"),
+        Messages("bc.notFound.error.message"),
+        SessionUtils.findServiceInRequest(request),
+        URLEncoder.encode(request.uri, "UTF8")
+      ))
   }
 
   override def resolveError(rh: RequestHeader, ex: Throwable): Future[Result] = {
@@ -68,4 +72,5 @@ trait BCHandler extends FrontendErrorHandler with I18nSupport {
       case _ => super.resolveError(rh, ex)
     }
   }
+
 }

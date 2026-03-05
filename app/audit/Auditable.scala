@@ -23,16 +23,14 @@ import uk.gov.hmrc.play.audit.model.{Audit, DataEvent}
 import uk.gov.hmrc.play.audit.DefaultAuditConnector
 import scala.concurrent.ExecutionContext
 
-class Auditable @Inject()(@Named("appName") val appName: String,
-                          val auditConnector: DefaultAuditConnector) {
+class Auditable @Inject() (@Named("appName") val appName: String, val auditConnector: DefaultAuditConnector) {
 
   def audit: Audit = new Audit(appName, auditConnector)
 
   def sendDataEvent(transactionName: String,
                     path: String = "N/A",
                     tags: Map[String, String] = Map.empty[String, String],
-                    detail: Map[String, String])(implicit hc: HeaderCarrier,
-                    ec: ExecutionContext): Unit =
+                    detail: Map[String, String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Unit =
     audit.sendDataEvent(
       DataEvent(
         appName,
