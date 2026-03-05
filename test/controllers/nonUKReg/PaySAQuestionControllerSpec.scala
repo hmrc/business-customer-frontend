@@ -83,7 +83,7 @@ class PaySAQuestionControllerSpec extends GuiceTestApp with BeforeAndAfterEach {
         viewWithAuthorisedClient(service) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
-          document.title must be("Do you pay tax in the UK through Self Assessment? - GOV.UK")
+          document.title must be("Do you pay tax in the UK through Self Assessment? - Anti Money Laundering Supervision - GOV.UK")
           document.select(".govuk-radios__item").text() must include("Yes")
           document.select(".govuk-radios__item").text() must include("No")
           document.getElementById("submit").text() must be("Continue")
@@ -93,7 +93,7 @@ class PaySAQuestionControllerSpec extends GuiceTestApp with BeforeAndAfterEach {
         viewWithAuthorisedClientWistSavedData(service) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
-          document.title must be("Do you pay tax in the UK through Self Assessment? - GOV.UK")
+          document.title must be("Do you pay tax in the UK through Self Assessment? - Anti Money Laundering Supervision - GOV.UK")
           document.select(".govuk-radios__item").text() must include("Yes")
           document.select(".govuk-radios__item").text() must include("No")
           document.getElementById("paySA-2").outerHtml() must include("checked")

@@ -64,7 +64,7 @@
     }
 }
 
-@bcMain(title = titleBuilder(messages(displayDetails.businessRegHeader), Some(businessRegistrationForm)),
+@bcMain(title = titleBuilder(messages(displayDetails.businessRegHeader), Some(businessRegistrationForm), Some(service)),
   service = service, pageScripts = Some(pageScripts), backlink=Some(backLinkHtml)) {
 
     @if(businessRegistrationForm.errors.nonEmpty) {

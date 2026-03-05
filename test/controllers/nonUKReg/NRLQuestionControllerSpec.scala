@@ -80,7 +80,7 @@ class NRLQuestionControllerSpec extends GuiceTestApp with BeforeAndAfterEach {
         viewWithAuthorisedClient(service) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
-          document.title must be("Are you a non-resident landlord? - GOV.UK")
+          document.title must be("Are you a non-resident landlord? - Anti Money Laundering Supervision - GOV.UK")
         }
       }
 
@@ -88,7 +88,7 @@ class NRLQuestionControllerSpec extends GuiceTestApp with BeforeAndAfterEach {
         viewWithAuthorisedClientWithSavedData(service) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
-          document.title must be("Are you a non-resident landlord? - GOV.UK")
+          document.title must be("Are you a non-resident landlord? - Anti Money Laundering Supervision - GOV.UK")
           document.select(".govuk-radios__item").text() must include("Yes")
           document.select(".govuk-radios__item").text() must include("No")
           document.getElementById("paysSA-2").outerHtml() must include("checked")

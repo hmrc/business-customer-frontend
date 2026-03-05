@@ -94,7 +94,7 @@ class UpdateOverseasCompanyRegControllerSpec extends GuiceTestApp with BeforeAnd
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number? - GOV.UK")
+          document.title() must be("Do you have an overseas company registration number? - Register for ATED - GOV.UK")
         }
       }
 
@@ -116,7 +116,7 @@ class UpdateOverseasCompanyRegControllerSpec extends GuiceTestApp with BeforeAnd
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number? - GOV.UK")
+          document.title() must be("Do you have an overseas company registration number? - Register for ATED - GOV.UK")
 
         }
       }

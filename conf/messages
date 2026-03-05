@@ -8,6 +8,7 @@ bc.screen-reader.section = This section is:
 bc.screen-reader.name = this is for:
 
 bc.ated.serviceName = Register for ATED
+bc.ATED.serviceName = Register for ATED
 bc.awrs.serviceName = Register as an alcohol wholesaler or producer
 bc.amls.serviceName = Anti Money Laundering Supervision
 bc.fhdds.serviceName = Apply for the Fulfilment House Due Diligence Scheme

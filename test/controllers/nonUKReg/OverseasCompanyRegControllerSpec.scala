@@ -81,7 +81,7 @@ class OverseasCompanyRegControllerSpec extends GuiceTestApp with MockitoSugar {
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number? - GOV.UK")
+          document.title() must be("Do you have an overseas company registration number? - Register for ATED - GOV.UK")
         }
       }
 
@@ -96,7 +96,7 @@ class OverseasCompanyRegControllerSpec extends GuiceTestApp with MockitoSugar {
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Does your client have an overseas company registration number? - GOV.UK")
+          document.title() must be("Does your client have an overseas company registration number? - Register for ATED - GOV.UK")
         }
       }
 
