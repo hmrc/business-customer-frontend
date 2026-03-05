@@ -31,65 +31,77 @@ import utils.GovernmentGatewayConstants
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessCustomerConnector @Inject()(val http: HttpClientV2,
-                                          val audit: Auditable,
-                                          implicit val config: ApplicationConfig) extends RawResponseReads with Logging {
+class BusinessCustomerConnector @Inject() (val http: HttpClientV2, val audit: Auditable, implicit val config: ApplicationConfig)
+    extends RawResponseReads
+    with Logging {
 
-  val baseUri = "business-customer"
-  val registerUri = "register"
-  val knownFactsUri = "known-facts"
+  val baseUri                      = "business-customer"
+  val registerUri                  = "register"
+  val knownFactsUri                = "known-facts"
   val updateRegistrationDetailsURI = "update"
 
-  def addKnownFacts(knownFacts: KnownFactsForService)(implicit authContext: StandardAuthRetrievals,
-                                                      hc: HeaderCarrier,
-                                                      ec: ExecutionContext): Future[HttpResponse] = {
+  def addKnownFacts(knownFacts: KnownFactsForService)(implicit
+      authContext: StandardAuthRetrievals,
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[HttpResponse] = {
     val authLink = authContext.authLink
-    val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/${GovernmentGatewayConstants.KnownFactsAgentServiceName}/$knownFactsUri"""
+    val postUrl  = s"""${config.businessCustomer}/$authLink/$baseUri/${GovernmentGatewayConstants.KnownFactsAgentServiceName}/$knownFactsUri"""
     val jsonData = Json.toJson(knownFacts)
     http.post(url"${postUrl}").withBody(jsonData).execute
   }
 
-  def auditRegisterCall(input: BusinessRegistrationRequest, response: HttpResponse, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
-                       (implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
+  def auditRegisterCall(input: BusinessRegistrationRequest, response: HttpResponse, service: String, isNonUKClientRegisteredByAgent: Boolean = false)(
+      implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Unit = {
     val eventType = response.status match {
       case OK => EventTypes.Succeeded
-      case _ => EventTypes.Failed
+      case _  => EventTypes.Failed
     }
 
     val transactionName = input.address.countryCode.toUpperCase match {
       case "GB" => "etmpRegisterUKCall"
-      case _ => if (isNonUKClientRegisteredByAgent) "etmpClientRegisteredByAgent" else "etmpRegisterNonUKCall"
+      case _    => if (isNonUKClientRegisteredByAgent) "etmpClientRegisteredByAgent" else "etmpRegisterNonUKCall"
     }
 
     audit.sendDataEvent(
       transactionName = transactionName,
       detail = Map(
-        "txName" -> transactionName,
-        "service" -> s"$service", "address" -> s"${input.address}",
-        "contactDetails" -> s"${input.contactDetails}", "identification" -> s"${input.identification}",
-        "isAGroup" -> s"${input.isAGroup}", "isAnAgent" -> s"${input.isAnAgent}",
-        "organisation" -> s"${input.organisation}", "responseStatus" -> s"${response.status}",
-        "responseBody" -> s"${response.body}", "status" ->  s"$eventType"
+        "txName"         -> transactionName,
+        "service"        -> s"$service",
+        "address"        -> s"${input.address}",
+        "contactDetails" -> s"${input.contactDetails}",
+        "identification" -> s"${input.identification}",
+        "isAGroup"       -> s"${input.isAGroup}",
+        "isAnAgent"      -> s"${input.isAnAgent}",
+        "organisation"   -> s"${input.organisation}",
+        "responseStatus" -> s"${response.status}",
+        "responseBody"   -> s"${response.body}",
+        "status"         -> s"$eventType"
       )
     )
 
-    def getAddressPiece(piece: Option[String]):String = piece.getOrElse("")
+    def getAddressPiece(piece: Option[String]): String = piece.getOrElse("")
 
     audit.sendDataEvent(
       transactionName = if (input.address.postalCode.isDefined) "manualAddressSubmitted" else "internationalAddressSubmitted",
       detail = Map(
-        "submittedLine1" -> input.address.addressLine1, "submittedLine2" -> input.address.addressLine2,
-        "submittedLine3" -> getAddressPiece(input.address.addressLine3), "submittedLine4" -> getAddressPiece(input.address.addressLine4),
-        "submittedPostcode" -> getAddressPiece(input.address.postalCode), "submittedCountry" -> input.address.countryCode
+        "submittedLine1"    -> input.address.addressLine1,
+        "submittedLine2"    -> input.address.addressLine2,
+        "submittedLine3"    -> getAddressPiece(input.address.addressLine3),
+        "submittedLine4"    -> getAddressPiece(input.address.addressLine4),
+        "submittedPostcode" -> getAddressPiece(input.address.postalCode),
+        "submittedCountry"  -> input.address.countryCode
       )
     )
   }
 
-
-  def register(registerData: BusinessRegistrationRequest, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
-              (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[BusinessRegistrationResponse] = {
+  def register(registerData: BusinessRegistrationRequest, service: String, isNonUKClientRegisteredByAgent: Boolean = false)(implicit
+      authContext: StandardAuthRetrievals,
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[BusinessRegistrationResponse] = {
     val authLink = authContext.authLink
-    val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$registerUri"""
+    val postUrl  = s"""${config.businessCustomer}/$authLink/$baseUri/$registerUri"""
     val jsonData = Json.toJson(registerData)
     http.post(url"${postUrl}").withBody(jsonData).execute map { response =>
       auditRegisterCall(registerData, response, service, isNonUKClientRegisteredByAgent)
@@ -108,10 +120,12 @@ class BusinessCustomerConnector @Inject()(val http: HttpClientV2,
     }
   }
 
-  def updateRegistrationDetails(safeId: String, updateRegistrationDetails: UpdateRegistrationDetailsRequest)
-                               (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  def updateRegistrationDetails(safeId: String, updateRegistrationDetails: UpdateRegistrationDetailsRequest)(implicit
+      authContext: StandardAuthRetrievals,
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[HttpResponse] = {
     val authLink = authContext.authLink
-    val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$updateRegistrationDetailsURI/$safeId"""
+    val postUrl  = s"""${config.businessCustomer}/$authLink/$baseUri/$updateRegistrationDetailsURI/$safeId"""
     val jsonData = Json.toJson(updateRegistrationDetails)
     http.post(url"${postUrl}").withBody(jsonData).execute map { response =>
       response.status match {

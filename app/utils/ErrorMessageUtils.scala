@@ -23,12 +23,12 @@ import scala.xml.XML
 
 object ErrorMessageUtils {
 
-  val uniqueAgentErrorNum = "9001"
+  val uniqueAgentErrorNum   = "9001"
   val multipleAgentErrorNum = "10004"
 
   def matchErrorResponse(resp: HttpResponse): Boolean = {
-     val msgToXml = XML.withSAXParser(secureSAXParser).loadString((resp.json \ "message").as[String])
-       (msgToXml \\ "ErrorNumber").text == uniqueAgentErrorNum || (msgToXml \\ "ErrorNumber").text == multipleAgentErrorNum
+    val msgToXml = XML.withSAXParser(secureSAXParser).loadString((resp.json \ "message").as[String])
+    (msgToXml \\ "ErrorNumber").text == uniqueAgentErrorNum || (msgToXml \\ "ErrorNumber").text == multipleAgentErrorNum
   }
 
   def secureSAXParser: SAXParser = {

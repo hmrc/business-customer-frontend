@@ -21,23 +21,22 @@ import com.codahale.metrics.{Counter, MetricRegistry, Timer}
 import javax.inject.Inject
 import metrics.MetricsEnum.MetricsEnum
 
-
-class MetricsService @Inject()(val metrics: MetricRegistry) {
+class MetricsService @Inject() (val metrics: MetricRegistry) {
 
   val registry: MetricRegistry = metrics
 
   val timers: Map[MetricsEnum, Timer] = Map(
-    MetricsEnum.GG_AGENT_ENROL -> registry.timer("gg-enrol-agent-ated-response-timer"),
+    MetricsEnum.GG_AGENT_ENROL   -> registry.timer("gg-enrol-agent-ated-response-timer"),
     MetricsEnum.EMAC_AGENT_ENROL -> registry.timer("emac-enrol-agent-ated-response-timer")
   )
 
   val successCounters: Map[MetricsEnum, Counter] = Map(
-    MetricsEnum.GG_AGENT_ENROL -> registry.counter("gg-enrol-agent-ated-success-counter"),
+    MetricsEnum.GG_AGENT_ENROL   -> registry.counter("gg-enrol-agent-ated-success-counter"),
     MetricsEnum.EMAC_AGENT_ENROL -> registry.counter("emac-enrol-agent-ated-success-counter")
   )
 
   val failedCounters: Map[MetricsEnum, Counter] = Map(
-    MetricsEnum.GG_AGENT_ENROL -> registry.counter("gg-enrol-agent-ated-failed-counter"),
+    MetricsEnum.GG_AGENT_ENROL   -> registry.counter("gg-enrol-agent-ated-failed-counter"),
     MetricsEnum.EMAC_AGENT_ENROL -> registry.counter("emac-enrol-agent-ated-failed-counter")
   )
 

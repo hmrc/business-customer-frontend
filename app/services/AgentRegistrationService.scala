@@ -18,7 +18,7 @@ package services
 
 import audit.Auditable
 import config.ApplicationConfig
-import connectors.{DataCacheConnector, NewBusinessCustomerConnector, TaxEnrolmentsConnector}
+import connectors.{NewBusinessCustomerConnector, TaxEnrolmentsConnector}
 
 import javax.inject.Inject
 import models._
@@ -32,14 +32,15 @@ import utils.GovernmentGatewayConstants
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Success, Try}
 
-class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmentsConnector,
-                                         val dataCacheConnector: DataCacheConnector,
-                                         val audit: Auditable,
-                                         implicit val config: ApplicationConfig,
-                                         val businessCustomerConnector: NewBusinessCustomerConnector) extends Logging {
+class AgentRegistrationService @Inject() (val taxEnrolmentsConnector: TaxEnrolmentsConnector,
+                                          val dataCacheService: DataCacheService,
+                                          val audit: Auditable,
+                                          implicit val config: ApplicationConfig,
+                                          val businessCustomerConnector: NewBusinessCustomerConnector)
+    extends Logging {
 
   def enrolAgent(serviceName: String)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
-    dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
+    dataCacheService.fetchAndGetBusinessDetailsForSession flatMap {
       case Some(businessDetails) => enrolAgent(serviceName, businessDetails)
       case _ =>
         logger.warn(s"[AgentRegistrationService][enrolAgent] - No Service details found in DataCache for")
@@ -51,17 +52,19 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
     getServiceAgentEnrolmentType(serviceName).isDefined
   }
 
-  private def enrolAgent(serviceName: String, businessDetails: ReviewDetails)
-                        (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  private def enrolAgent(serviceName: String, businessDetails: ReviewDetails)(implicit
+      authContext: StandardAuthRetrievals,
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[HttpResponse] = {
 
     def failedEnrolment = throw new RuntimeException("Failed to enrol -  no details found for the agent (not a valid GG user)")
 
-    val arn = getArn(businessDetails)
-    val knownFacts = createEnrolmentVerifiers(businessDetails, arn)
+    val arn                 = getArn(businessDetails)
+    val knownFacts          = createEnrolmentVerifiers(businessDetails, arn)
     val (ggCredId, groupId) = authContext.credId.getOrElse(failedEnrolment) -> authContext.groupId.getOrElse(failedEnrolment)
 
     for {
-      _ <- businessCustomerConnector.addKnownFacts(knownFacts, arn)
+      _             <- businessCustomerConnector.addKnownFacts(knownFacts, arn)
       enrolResponse <- taxEnrolmentsConnector.enrol(createEnrolRequest(serviceName, knownFacts, ggCredId), groupId, arn)
     } yield {
       auditEnrolAgent(businessDetails, enrolResponse, createEnrolRequest(serviceName, knownFacts, ggCredId))
@@ -70,25 +73,27 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
   }
 
   private def getServiceAgentEnrolmentType(serviceName: String): Option[String] = {
-    Try{
+    Try {
       config.conf.getString(s"microservice.services.${serviceName.toLowerCase}.agentEnrolmentService")
     } match {
       case Success(s) => Some(s)
-      case _ => None
+      case _          => None
     }
   }
 
-  private def createEnrolRequest(serviceName: String, knownFacts: Verifiers, ggCredId: String)
-                                (implicit authContext: StandardAuthRetrievals): NewEnrolRequest = {
+  private def createEnrolRequest(serviceName: String, knownFacts: Verifiers, ggCredId: String)(implicit
+      authContext: StandardAuthRetrievals): NewEnrolRequest = {
     getServiceAgentEnrolmentType(serviceName) match {
       case Some(_) =>
-        NewEnrolRequest(userId = ggCredId,
+        NewEnrolRequest(
+          userId = ggCredId,
           friendlyName = GovernmentGatewayConstants.FriendlyName,
           `type` = GovernmentGatewayConstants.enrolmentType,
           verifiers = knownFacts.verifiers)
       case _ =>
         logger.warn(s"[AgentRegistrationService][createEnrolRequest] - No Agent Enrolment name found in config found = $serviceName")
-        throw new RuntimeException(s"Agent enrolment service name does not exist for : $serviceName." +
+        throw new RuntimeException(
+          s"Agent enrolment service name does not exist for : $serviceName." +
             s" This should be in the conf file against 'services.${serviceName.toLowerCase}.agentEnrolmentService'")
     }
   }
@@ -96,8 +101,10 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
   private def createEnrolmentVerifiers(businessDetails: ReviewDetails, arn: String)(implicit authContext: StandardAuthRetrievals): Verifiers = {
     val verifiers = businessDetails.utr match {
       case Some(utr) =>
-        val ukPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsUKPostCode,
-          businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered UK Postcode found for the agent!")))
+        val ukPostCodeVerifier = Verifier(
+          GovernmentGatewayConstants.KnownFactsUKPostCode,
+          businessDetails.businessAddress.postcode.getOrElse(throw new RuntimeException("No Registered UK Postcode found for the agent!"))
+        )
         businessDetails.businessType match {
           case Some(SoleTrader) =>
             ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsUniqueTaxRef, utr))
@@ -105,25 +112,25 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
             ukPostCodeVerifier :: List(Verifier(GovernmentGatewayConstants.KnownFactsCompanyTaxRef, utr))
         }
       case _ => List(Verifier(GovernmentGatewayConstants.KnownFactsAgentRef, arn))
-      //NOTE: Non-UK agents DO NOT have UTRs and we don't capture any Postcode/Intl Postcode
+      // NOTE: Non-UK agents DO NOT have UTRs and we don't capture any Postcode/Intl Postcode
     }
     Verifiers(verifiers)
   }
 
-  private def auditEnrolAgent(businessDetails: ReviewDetails,
-                              enrolResponse: HttpResponse,
-                              enrolReq: NewEnrolRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
+  private def auditEnrolAgent(businessDetails: ReviewDetails, enrolResponse: HttpResponse, enrolReq: NewEnrolRequest)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Unit = {
     val status = enrolResponse.status match {
       case CREATED => EventTypes.Succeeded
-      case _ => EventTypes.Failed
+      case _       => EventTypes.Failed
     }
     audit.sendDataEvent(
       "enrolAgent",
       detail = Map(
-        "txName" -> "enrolAgent",
+        "txName"               -> "enrolAgent",
         "agentReferenceNumber" -> businessDetails.agentReferenceNumber.getOrElse(""),
-        "service" -> GovernmentGatewayConstants.KnownFactsAgentServiceName,
-        "status" -> status
+        "service"              -> GovernmentGatewayConstants.KnownFactsAgentServiceName,
+        "status"               -> status
       )
     )
   }
@@ -133,4 +140,5 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
       throw new RuntimeException("[AgentRegistrationService][createEnrolmentVerifiers] - No unique authorisation number found")
     }
   }
+
 }
