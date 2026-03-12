@@ -45,7 +45,7 @@ lazy val microservice: Project = Project(appName, file("."))
     defaultSettings(),
     scoverageSettings,
     scalacOptions += "-Ywarn-unused:-explicits,-implicits",
-    scalaVersion := "2.13.17",
+    scalaVersion := "2.13.18",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
     retrieveManaged                                      := true,

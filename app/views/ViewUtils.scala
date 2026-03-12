@@ -28,8 +28,9 @@ object ViewUtils {
       else ""
 
     form match {
-      case Some(f) if f.hasErrors || f.hasGlobalErrors =>s"${messages("bc.error.title.prefix")} $title ${serviceName} - GOV.UK"
-      case _ => title + s"${serviceName} - GOV.UK"
+      case Some(f) if f.hasErrors || f.hasGlobalErrors => s"${messages("bc.error.title.prefix")} $title ${serviceName} - GOV.UK"
+      case _                                           => title + s"${serviceName} - GOV.UK"
     }
   }
+
 }

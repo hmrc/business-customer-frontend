@@ -29,13 +29,13 @@ import scala.concurrent.ExecutionContext
 
 class AuditableSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar {
 
-  implicit val hc: HeaderCarrier        = HeaderCarrier()
-  implicit val ec: ExecutionContext     = scala.concurrent.ExecutionContext.global
-  val appName                           = "business-customer-frontend"
+  implicit val hc: HeaderCarrier    = HeaderCarrier()
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  val appName                       = "business-customer-frontend"
 
   class Setup {
     val mockAuditConnector: DefaultAuditConnector = mock[DefaultAuditConnector]
-    val auditable: Auditable = new Auditable(appName, mockAuditConnector)
+    val auditable: Auditable                      = new Auditable(appName, mockAuditConnector)
   }
 
   "Auditable" must {
@@ -73,4 +73,5 @@ class AuditableSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSug
       verify(mockAuditConnector, times(1)).sendEvent(any[DataEvent])(any[HeaderCarrier], any[ExecutionContext])
     }
   }
+
 }
