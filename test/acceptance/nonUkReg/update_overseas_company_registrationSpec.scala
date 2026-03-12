@@ -16,18 +16,14 @@
 
 package acceptance.nonUkReg
 
-import config.ApplicationConfig
 import forms.BusinessRegistrationForms._
 import models.OverseasCompanyDisplayDetails
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.GuiceFeatureApp
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
-import play.api.test.{FakeRequest, Injecting}
+import play.api.test.FakeRequest
 import views.html.nonUkReg.update_overseas_company_registration
 
 class update_overseas_company_registrationSpec extends GuiceFeatureApp with BeforeAndAfterEach with GivenWhenThen {

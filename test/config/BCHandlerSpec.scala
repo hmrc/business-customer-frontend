@@ -17,13 +17,10 @@
 package config
 
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.GuiceTestApp
-import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Injecting}
 import views.html.global_error
 
 import scala.concurrent.ExecutionContext
