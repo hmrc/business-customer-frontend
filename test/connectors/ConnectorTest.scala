@@ -32,7 +32,6 @@ package connectors
  * limitations under the License.
  */
 
-
 import audit.Auditable
 import com.codahale.metrics.Timer
 import metrics.MetricsService
@@ -52,9 +51,9 @@ import scala.concurrent.ExecutionContext
 
 trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSugar {
   val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
-  val mockMetrics =  mock[MetricsService]
-  val mockContext: Timer.Context = mock[Timer.Context]
-  val mockAuditable = mock[Auditable]
+  val mockMetrics                  = mock[MetricsService]
+  val mockContext: Timer.Context   = mock[Timer.Context]
+  val mockAuditable                = mock[Auditable]
 
   def executePostNoBody[A] = {
     val requestBuilder: RequestBuilder = mock[RequestBuilder]
@@ -94,4 +93,3 @@ trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSu
   }
 
 }
-

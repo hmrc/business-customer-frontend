@@ -20,23 +20,22 @@ import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Organisation => Org}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment}
 
-
 case class StandardAuthRetrievals(enrolments: Set[Enrolment],
                                   affinityGroup: Option[AffinityGroup],
                                   credentials: Option[Credentials],
-                                  groupId: Option[String]){
+                                  groupId: Option[String]) {
   val saIdentifier = "IR-SA"
   val ctIdentifier = "IR-CT"
 
   def isAgent: Boolean = affinityGroup contains Agent
-  def isOrg: Boolean = (affinityGroup contains Org) || ctUtr.isDefined
-  def isSa: Boolean = enrolments.toSeq exists (_.key == saIdentifier)
+  def isOrg: Boolean   = (affinityGroup contains Org) || ctUtr.isDefined
+  def isSa: Boolean    = enrolments.toSeq exists (_.key == saIdentifier)
 
   def saUtr: Option[String] = getUtr(saIdentifier)
   def ctUtr: Option[String] = getUtr(ctIdentifier)
 
   private def getUtr(identifier: String): Option[String] = {
-    enrolments.find(_.key == identifier).flatMap(_.identifiers.collectFirst{ case i if i.key == "UTR" => i.value })
+    enrolments.find(_.key == identifier).flatMap(_.identifiers.collectFirst { case i if i.key == "UTR" => i.value })
   }
 
   def credId: Option[String] = credentials.map(_.providerId)
@@ -44,9 +43,10 @@ case class StandardAuthRetrievals(enrolments: Set[Enrolment],
   def authLink: String = {
     (affinityGroup, enrolments.find(_.key == "IR-SA")) match {
       case (Some(AffinityGroup.Organisation), _) => "org/UNUSED"
-      case (Some(AffinityGroup.Agent), _) => "agent/UNUSED"
-      case (_, Some(enrolment)) => s"sa/${enrolment.identifiers.find(_.key == "UTR").get.value}"
-      case _ => throw new RuntimeException("User does not have the correct authorisation")
+      case (Some(AffinityGroup.Agent), _)        => "agent/UNUSED"
+      case (_, Some(enrolment))                  => s"sa/${enrolment.identifiers.find(_.key == "UTR").get.value}"
+      case _                                     => throw new RuntimeException("User does not have the correct authorisation")
     }
   }
+
 }

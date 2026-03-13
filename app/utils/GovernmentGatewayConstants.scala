@@ -20,17 +20,17 @@ object GovernmentGatewayConstants {
 
   val PortalIdentifier = "Default"
 
-  val FriendlyName = "Agent Enrolment"
+  val FriendlyName  = "Agent Enrolment"
   val enrolmentType = "principal"
 
   val KnownFactsAgentServiceName = "HMRC-AGENT-AGENT"
-  val KnownFactsAgentRefNo = "AgentRefNumber"
+  val KnownFactsAgentRefNo       = "AgentRefNumber"
 
   val KnownFactsCompanyTaxRef = "CTUTR"
-  val KnownFactsUniqueTaxRef = "SAUTR"
-  val KnownFactsUKPostCode = "Postcode"
+  val KnownFactsUniqueTaxRef  = "SAUTR"
+  val KnownFactsUKPostCode    = "Postcode"
   val KnownFactsNonUKPostCode = "NonUKPostalCode"
-  val KnownFactsAgentRef = "AgentRefNumber1"
+  val KnownFactsAgentRef      = "AgentRefNumber1"
 
   val KnownFactsSafeId = "SAFEID"
 }

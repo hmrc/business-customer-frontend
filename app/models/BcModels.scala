@@ -18,31 +18,23 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class Individual(firstName: String,
-                      lastName: String,
-                      dateOfBirth: Option[String])
+case class Individual(firstName: String, lastName: String, dateOfBirth: Option[String])
 
 object Individual {
   implicit val formats: Format[Individual] = Json.format[Individual]
 }
 
-
-case class Organisation(organisationName: String,
-                        organisationType: String)
+case class Organisation(organisationName: String, organisationType: String)
 
 object Organisation {
   implicit val formats: Format[Organisation] = Json.format[Organisation]
 }
 
-
-case class OrganisationResponse(organisationName: String,
-                                isAGroup: Option[Boolean],
-                                organisationType: Option[String])
+case class OrganisationResponse(organisationName: String, isAGroup: Option[Boolean], organisationType: Option[String])
 
 object OrganisationResponse {
   implicit val formats: Format[OrganisationResponse] = Json.format[OrganisationResponse]
 }
-
 
 case class MatchBusinessData(acknowledgementReference: String,
                              utr: String,
@@ -55,20 +47,17 @@ object MatchBusinessData {
   implicit val formats: Format[MatchBusinessData] = Json.format[MatchBusinessData]
 }
 
-
 case class MatchFailureResponse(reason: String)
 
 object MatchFailureResponse {
   implicit val formats: Format[MatchFailureResponse] = Json.format[MatchFailureResponse]
 }
 
-
 case class NRLQuestion(paysSA: Option[Boolean] = None)
 
 object NRLQuestion {
   implicit val formats: Format[NRLQuestion] = Json.format[NRLQuestion]
 }
-
 
 case class PaySAQuestion(paySA: Option[Boolean] = None)
 

@@ -31,7 +31,6 @@ trait BCUtils {
 
   lazy val resourceStream: PropertyResourceBundle =
     (environment.resourceAsStream("country-code.properties") flatMap { stream =>
-
       val inputStreamReader: InputStreamReader = new InputStreamReader(stream, "UTF-8")
       val optBundle: Option[PropertyResourceBundle] = Try(new PropertyResourceBundle(inputStreamReader)) match {
         case Success(bundle) => Some(bundle)
@@ -43,59 +42,83 @@ trait BCUtils {
 
   def validateUTR(utr: String): Boolean = {
     utr.trim.length == ten && utr.trim.forall(_.isDigit) && {
-      val actualUtr = utr.trim.toList
-      val checkDigit = actualUtr.head.asDigit
-      val restOfUtr = actualUtr.tail
-      val weights = List(six, seven, eight, nine, ten, five, four, three, two)
+      val actualUtr   = utr.trim.toList
+      val checkDigit  = actualUtr.head.asDigit
+      val restOfUtr   = actualUtr.tail
+      val weights     = List(six, seven, eight, nine, ten, five, four, three, two)
       val weightedUtr = for ((w1, u1) <- weights zip restOfUtr) yield w1 * u1.asDigit
-      val total = weightedUtr.sum
-      val remainder = total % eleven
+      val total       = weightedUtr.sum
+      val remainder   = total % eleven
       isValidUtr(remainder, checkDigit)
     }
   }
 
   private def isValidUtr(remainder: Int, checkDigit: Int): Boolean = {
     val mapOfRemainders = Map(
-      zero -> two, one -> one, two -> nine, three -> eight, four -> seven, five -> six,
-      six -> five, seven -> four, eight -> three, nine -> two, ten -> one)
+      zero  -> two,
+      one   -> one,
+      two   -> nine,
+      three -> eight,
+      four  -> seven,
+      five  -> six,
+      six   -> five,
+      seven -> four,
+      eight -> three,
+      nine  -> two,
+      ten   -> one)
     mapOfRemainders.get(remainder).contains(checkDigit)
   }
 
   def getIsoCodeTupleList: List[(String, String)] = {
-    CollectionConverters.IterableHasAsScala(Collections.list(resourceStream.getKeys)).asScala
-      .toList.map(key => (key, resourceStream.getString(key))).sortBy{case (_,v) => v}
+    CollectionConverters
+      .IterableHasAsScala(Collections.list(resourceStream.getKeys))
+      .asScala
+      .toList
+      .map(key => (key, resourceStream.getString(key)))
+      .sortBy { case (_, v) => v }
   }
 
   def getNavTitle(serviceName: String): Option[String] = {
     serviceName.toLowerCase match {
-      case "ated" => Some("bc.ated.serviceName")
-      case "awrs" => Some("bc.awrs.serviceName")
-      case "amls" => Some("bc.amls.serviceName")
+      case "ated"  => Some("bc.ated.serviceName")
+      case "awrs"  => Some("bc.awrs.serviceName")
+      case "amls"  => Some("bc.amls.serviceName")
       case "fhdds" => Some("bc.fhdds.serviceName")
-      case _ => None
+      case _       => None
     }
   }
 
   def businessTypeMap(service: String, isAgent: Boolean): Seq[(String, String)] = {
     val fixedBusinessTypes = Seq(
-      "SOP" -> "bc.business-verification.SOP", "LTD" -> "bc.business-verification.LTD",
-      "OBP" -> "bc.business-verification.PRT", "LP" -> "bc.business-verification.LP",
-      "LLP" -> "bc.business-verification.LLP", "UIB" -> "bc.business-verification.UIB"
+      "SOP" -> "bc.business-verification.SOP",
+      "LTD" -> "bc.business-verification.LTD",
+      "OBP" -> "bc.business-verification.PRT",
+      "LP"  -> "bc.business-verification.LP",
+      "LLP" -> "bc.business-verification.LLP",
+      "UIB" -> "bc.business-verification.UIB"
     )
     val isAtedAgentBusinessTypes = Seq(
-      "LTD" -> "bc.business-verification.LTD", "LLP" -> "bc.business-verification.LLP",
-      "SOP" -> "bc.business-verification.SOP", "OBP" -> "bc.business-verification.PRT",
-      "UIB" -> "bc.business-verification.UIB", "LP" -> "bc.business-verification.LP",
-      "ULTD" -> "bc.business-verification.ULTD", "NUK" -> "bc.business-verification.NUK"
+      "LTD"  -> "bc.business-verification.LTD",
+      "LLP"  -> "bc.business-verification.LLP",
+      "SOP"  -> "bc.business-verification.SOP",
+      "OBP"  -> "bc.business-verification.PRT",
+      "UIB"  -> "bc.business-verification.UIB",
+      "LP"   -> "bc.business-verification.LP",
+      "ULTD" -> "bc.business-verification.ULTD",
+      "NUK"  -> "bc.business-verification.NUK"
     )
     val atedExtraBusinessTypes = Seq(
-      "UT" -> "bc.business-verification.UT", "ULTD" -> "bc.business-verification.ULTD",
-      "NUK" -> "bc.business-verification.agent.NUK"
+      "UT"   -> "bc.business-verification.UT",
+      "ULTD" -> "bc.business-verification.ULTD",
+      "NUK"  -> "bc.business-verification.agent.NUK"
     )
-    val isCGTBusinessTypes = Seq (
-      "NUK" -> "bc.business-verification.NUK", "LTD" -> "bc.business-verification.LTD",
-      "OBP" -> "bc.business-verification.PRT", "LP" -> "bc.business-verification.LP",
-      "LLP" -> "bc.business-verification.LLP", "UIB" -> "bc.business-verification.UIB"
+    val isCGTBusinessTypes = Seq(
+      "NUK" -> "bc.business-verification.NUK",
+      "LTD" -> "bc.business-verification.LTD",
+      "OBP" -> "bc.business-verification.PRT",
+      "LP"  -> "bc.business-verification.LP",
+      "LLP" -> "bc.business-verification.LLP",
+      "UIB" -> "bc.business-verification.UIB"
     )
     val isCGTAgentTypes = Set("LTD", "LLP", "SOP", "OBP", "LP", "NUK")
 
@@ -108,20 +131,28 @@ trait BCUtils {
     }
 
     service.toLowerCase match {
-      case "awrs" => Seq(
-        "OBP" -> "bc.business-verification.PRT", "GROUP" -> "bc.business-verification.GROUP", "LTD" -> "bc.business-verification.LTD",
-        "LLP" -> "bc.business-verification.LLP", "LP" -> "bc.business-verification.LP",
-        "SOP" -> "bc.business-verification.SOP", "UIB" -> "bc.business-verification.UIB"
-      )
-      case "amls" => Seq(
-        "LTD" -> "bc.business-verification.LTD", "SOP" -> "bc.business-verification.amls.SOP",
-        "OBP" -> "bc.business-verification.amls.PRT", "LLP" -> "bc.business-verification.amls.LP.LLP",
-        "UIB" -> "bc.business-verification.amls.UIB"
-      )
-      case "ated" => handleAted
-      case "capital-gains-tax" => isCGTBusinessTypes
-      case "capital-gains-tax-agents" => isAtedAgentBusinessTypes.filter{case (code, _) => isCGTAgentTypes(code)}
-      case _ => fixedBusinessTypes
+      case "awrs" =>
+        Seq(
+          "OBP"   -> "bc.business-verification.PRT",
+          "GROUP" -> "bc.business-verification.GROUP",
+          "LTD"   -> "bc.business-verification.LTD",
+          "LLP"   -> "bc.business-verification.LLP",
+          "LP"    -> "bc.business-verification.LP",
+          "SOP"   -> "bc.business-verification.SOP",
+          "UIB"   -> "bc.business-verification.UIB"
+        )
+      case "amls" =>
+        Seq(
+          "LTD" -> "bc.business-verification.LTD",
+          "SOP" -> "bc.business-verification.amls.SOP",
+          "OBP" -> "bc.business-verification.amls.PRT",
+          "LLP" -> "bc.business-verification.amls.LP.LLP",
+          "UIB" -> "bc.business-verification.amls.UIB"
+        )
+      case "ated"                     => handleAted
+      case "capital-gains-tax"        => isCGTBusinessTypes
+      case "capital-gains-tax-agents" => isAtedAgentBusinessTypes.filter { case (code, _) => isCGTAgentTypes(code) }
+      case _                          => fixedBusinessTypes
     }
   }
 
@@ -137,7 +168,7 @@ trait BCUtils {
         resourceStream.getString(isoCode.toUpperCase())
       } match {
         case Success(s) => Some(s)
-        case _ => None
+        case _          => None
       }
       country.map(selectedCountry => trimCountry(selectedCountry))
     }
@@ -146,10 +177,11 @@ trait BCUtils {
   }
 
   def validateGroupId(str: String): String = {
-    if(str.trim.length != 36) {
-      if(str.contains("testGroupId-")){
+    if (str.trim.length != 36) {
+      if (str.contains("testGroupId-")) {
         str.replace("testGroupId-", "")
       } else throw new RuntimeException("Invalid groupId from auth")
     } else str.trim
   }
+
 }
