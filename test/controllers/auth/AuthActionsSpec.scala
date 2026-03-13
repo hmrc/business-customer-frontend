@@ -79,6 +79,17 @@ class AuthActionsSpec extends GuiceTestApp with FutureAwaits with DefaultAwaitTi
 
         authFor.header.status mustBe 200
       }
+
+      "the service name has surrounding whitespace" in new Setup {
+        when(mockAuthConnector.authorise[RetType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          .thenReturn(Future.successful(authRetrieval()))
+
+        val authFor: Result = await(authActionsHarness.authorisedFor("  ated  ") { _ =>
+          Future.successful(Results.Ok)
+        })
+
+        authFor.header.status mustBe 200
+      }
     }
 
     "unauthorise for a user" when {

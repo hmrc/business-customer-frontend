@@ -58,14 +58,17 @@ trait AuthActions extends AuthorisedFunctions with Logging {
 
   def authorisedFor(serviceName: String)(
       body: StandardAuthRetrievals => Future[Result])(implicit req: Request[AnyContent], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
-    if (!isValidUrl(serviceName)) {
-      logger.error(s"[authorisedFor] Given invalid service name of $serviceName")
+
+    val trimmedServiceName = serviceName.trim
+
+    if (!isValidUrl(trimmedServiceName)) {
+      logger.error(s"[authorisedFor] Given invalid service name of $trimmedServiceName")
       throw new NotFoundException("Service name not found")
     } else {
       authorised((AffinityGroup.Organisation or AffinityGroup.Agent or Enrolment("IR-SA")) and ConfidenceLevel.L50)
         .retrieve(allEnrolments and affinityGroup and credentials and groupIdentifier) { case Enrolments(enrolments) ~ affGroup ~ creds ~ groupId =>
           body(StandardAuthRetrievals(enrolments, affGroup, creds, groupId))
-        } recover recoverAuthorisedCalls(serviceName)
+        } recover recoverAuthorisedCalls(trimmedServiceName)
     }
   }
 
