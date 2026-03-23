@@ -17,45 +17,52 @@
 package controllers
 
 import builders.AuthBuilder
+import config.ApplicationConfig
+import connectors.DataCacheConnector
 import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers
+import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import play.GuiceTestApp
-import play.api.mvc.Headers
-import play.api.test.FakeRequest
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.mvc.{Headers, MessagesControllerComponents}
 import play.api.test.Helpers._
-import services.DataCacheService
+import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
 
 import java.util.UUID
 import scala.concurrent.Future
 
-class BusinessCustomerControllerSpec extends GuiceTestApp with BeforeAndAfterEach {
+class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
-  val request                = FakeRequest()
-  val service                = "ATED"
-  val mockAuthConnector      = mock[AuthConnector]
-  val mockDataCacheConnector = mock[DataCacheService]
+  val request = FakeRequest()
+  val service = "ATED"
+  val mockAuthConnector = mock[AuthConnector]
+  val mockDataCacheConnector = mock[DataCacheConnector]
 
   override def beforeEach() = {
     reset(mockDataCacheConnector)
     reset(mockAuthConnector)
   }
 
-  object TestBusinessCustomerController
-      extends BusinessCustomerController(
-        mockAuthConnector,
-        appConfig,
-        mockDataCacheConnector,
-        mcc
-      )
+  val appConfig = inject[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+
+  object TestBusinessCustomerController extends BusinessCustomerController(
+    mockAuthConnector,
+    appConfig,
+    mockDataCacheConnector,
+    mcc
+  )
 
   private def fakeRequestWithSession(userId: String) = {
     val sessionId = s"session-${UUID.randomUUID}"
-    FakeRequest()
-      .withSession("sessionId" -> sessionId, "token" -> "RANDOMTOKEN", "userId" -> userId)
+    FakeRequest().withSession(
+      "sessionId" -> sessionId,
+      "token" -> "RANDOMTOKEN",
+      "userId" -> userId)
       .withHeaders(Headers("Authorization" -> "value"))
   }
 
@@ -75,7 +82,7 @@ class BusinessCustomerControllerSpec extends GuiceTestApp with BeforeAndAfterEac
       "clearCache successfully" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(OK, ""))
+        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(OK, ""))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(OK)
       }
@@ -83,8 +90,7 @@ class BusinessCustomerControllerSpec extends GuiceTestApp with BeforeAndAfterEac
       "clearCache gives error" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any())) thenReturn (Future.failed(
-          new InternalServerException("Something went wrong.")))
+        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn(Future.failed(new InternalServerException("Something went wrong.")))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(INTERNAL_SERVER_ERROR)
       }
@@ -124,8 +130,7 @@ class BusinessCustomerControllerSpec extends GuiceTestApp with BeforeAndAfterEac
           false
         )
 
-        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future
-          .successful(Some(reviewDetails))
+        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(Some(reviewDetails))
         val result = TestBusinessCustomerController.getReviewDetails(service).apply(fakeRequestWithSession(userId))
         status(result) must be(OK)
       }
@@ -133,12 +138,10 @@ class BusinessCustomerControllerSpec extends GuiceTestApp with BeforeAndAfterEac
       "getReviewDetails cannot find details" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future
-          .successful(None)
+        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(None)
         val result = TestBusinessCustomerController.getReviewDetails(service).apply(fakeRequestWithSession(userId))
         status(result) must be(NOT_FOUND)
       }
     }
   }
-
 }

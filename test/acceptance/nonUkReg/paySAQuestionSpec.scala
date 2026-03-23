@@ -16,20 +16,24 @@
 
 package acceptance.nonUkReg
 
+import config.ApplicationConfig
 import forms.BusinessRegistrationForms._
 import org.jsoup.Jsoup
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
-import play.GuiceFeatureApp
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Injecting}
 import views.html.nonUkReg.paySAQuestion
 
-class paySAQuestionSpec extends GuiceFeatureApp with BeforeAndAfterEach with GivenWhenThen {
+class paySAQuestionSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with GivenWhenThen with Injecting {
 
-  val service                             = "ATED"
+  val service = "ATED"
   val injectedViewInstance: paySAQuestion = inject[views.html.nonUkReg.paySAQuestion]
-  implicit val lang: Lang                 = Lang.defaultLang
+  implicit val lang: Lang = Lang.defaultLang
+  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   Feature("The user can the pay SA question") {
 
@@ -40,8 +44,8 @@ class paySAQuestionSpec extends GuiceFeatureApp with BeforeAndAfterEach with Giv
       Given("client has directly matched a business registration")
       When("The user views the page")
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val messagesApi: MessagesApi                              = inject[MessagesApi]
-      implicit val messages: play.api.i18n.Messages             = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      val messagesApi: MessagesApi = inject[MessagesApi]
+      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance(paySAQuestionForm, service, Some("backLinkUri"))
 
@@ -60,11 +64,8 @@ class paySAQuestionSpec extends GuiceFeatureApp with BeforeAndAfterEach with Giv
       assert(document.getElementById("submit").text() === "Continue")
 
       And("There is a link to the accessibility statement")
-      assert(
-        document
-          .select(".govuk-footer__inline-list-item:nth-child(2) > a")
-          .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=%2F")
+      assert(document.select(".govuk-footer__inline-list-item:nth-child(2) > a")
+        .attr("href") === "http://localhost:12346/accessibility-statement/ated-subscription?referrerUrl=%2F")
     }
   }
-
 }

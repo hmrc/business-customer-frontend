@@ -30,7 +30,6 @@ class SessionUtilsSpec extends PlaySpec with MockitoSugar {
       SessionUtils.getUniqueAckNo.length must be(32)
     }
   }
-
   implicit val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
 
   "findServiceInRequest" should {

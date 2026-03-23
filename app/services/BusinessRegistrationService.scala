@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.BusinessCustomerConnector
+import connectors.{BusinessCustomerConnector, DataCacheConnector}
 
 import javax.inject.Inject
 import models._
@@ -25,104 +25,95 @@ import utils.SessionUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegistrationService @Inject() (val businessCustomerConnector: BusinessCustomerConnector, val dataCacheService: DataCacheService) {
+
+class BusinessRegistrationService @Inject()(val businessCustomerConnector: BusinessCustomerConnector,
+                                            val dataCacheConnector: DataCacheConnector){
 
   val nonUKBusinessType = "Non UK-based Company"
-
   def registerBusiness(registerData: BusinessRegistration,
                        overseasCompany: OverseasCompany,
                        isGroup: Boolean,
                        isNonUKClientRegisteredByAgent: Boolean = false,
                        service: String,
-                       isBusinessDetailsEditable: Boolean = false)(implicit
-      authContext: StandardAuthRetrievals,
-      hc: HeaderCarrier,
-      ec: ExecutionContext): Future[ReviewDetails] = {
+                       isBusinessDetailsEditable: Boolean = false)
+                      (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[ReviewDetails] = {
 
     val businessRegisterDetails = createBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
 
     for {
       registerResponse <- businessCustomerConnector.register(businessRegisterDetails, service, isNonUKClientRegisteredByAgent)
       reviewDetailsCache <- {
-        val reviewDetails = createReviewDetails(
-          registerResponse.sapNumber,
-          registerResponse.safeId,
-          registerResponse.agentReferenceNumber,
-          isGroup,
-          registerData,
-          overseasCompany,
-          isBusinessDetailsEditable
-        )
-        dataCacheService.saveBusinessRegistrationDetails(registerData)
-        dataCacheService.saveReviewDetails(reviewDetails)
+        val reviewDetails = createReviewDetails(registerResponse.sapNumber,
+          registerResponse.safeId, registerResponse.agentReferenceNumber, isGroup, registerData, overseasCompany, isBusinessDetailsEditable)
+        dataCacheConnector.saveBusinessRegistrationDetails(registerData)
+        dataCacheConnector.saveReviewDetails(reviewDetails)
       }
     } yield {
       reviewDetailsCache.getOrElse(throw new InternalServerException("Registration failed"))
     }
   }
+
 
   def updateRegisterBusiness(registerData: BusinessRegistration,
                              overseasCompany: OverseasCompany,
                              isGroup: Boolean,
                              isNonUKClientRegisteredByAgent: Boolean = false,
                              service: String,
-                             isBusinessDetailsEditable: Boolean = false)(implicit
-      authContext: StandardAuthRetrievals,
-      hc: HeaderCarrier,
-      ec: ExecutionContext): Future[ReviewDetails] = {
+                             isBusinessDetailsEditable: Boolean = false)
+                            (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[ReviewDetails] = {
 
     val updateRegisterDetails = createUpdateBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
 
     for {
-      oldReviewDetailsLookup <- dataCacheService.fetchAndGetBusinessDetailsForSession
-      oldReviewDetails <- oldReviewDetailsLookup match {
+      oldReviewDetailsLookup <- dataCacheConnector.fetchAndGetBusinessDetailsForSession
+      oldReviewDetails       <- oldReviewDetailsLookup match {
         case Some(reviewDetails) => Future.successful(reviewDetails)
-        case _                   => throw new InternalServerException("Update registration failed")
-      }
+        case _ => throw new InternalServerException("Update registration failed")}
       _ <- businessCustomerConnector.updateRegistrationDetails(oldReviewDetails.safeId, updateRegisterDetails)
       reviewDetailsCache <- {
-        val updatedReviewDetails = createReviewDetails(
-          oldReviewDetails.sapNumber,
+        val updatedReviewDetails = createReviewDetails(oldReviewDetails.sapNumber,
           oldReviewDetails.safeId,
           oldReviewDetails.agentReferenceNumber,
           isGroup,
           registerData,
           overseasCompany,
-          isBusinessDetailsEditable
-        )
-        dataCacheService.saveReviewDetails(updatedReviewDetails)
+          isBusinessDetailsEditable)
+        dataCacheConnector.saveReviewDetails(updatedReviewDetails)
       }
     } yield {
       reviewDetailsCache.getOrElse(throw new InternalServerException("Registration failed"))
     }
   }
 
-  def getDetails()(implicit
-      authContext: StandardAuthRetrievals,
-      hc: HeaderCarrier,
-      ec: ExecutionContext): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
 
-    def createBusinessRegistration(reviewDetailsOpt: Option[ReviewDetails]): Option[(String, BusinessRegistration, OverseasCompany)] = {
-      reviewDetailsOpt.flatMap(details =>
-        details.businessType.map { busType =>
-          val overseasCompany = OverseasCompany(
-            Some(details.identification.isDefined),
+  def getDetails()(implicit authContext: StandardAuthRetrievals,
+                   hc: HeaderCarrier,
+                   ec: ExecutionContext): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
+
+    def createBusinessRegistration(reviewDetailsOpt: Option[ReviewDetails]) : Option[(String, BusinessRegistration, OverseasCompany)] = {
+      reviewDetailsOpt.flatMap( details =>
+        details.businessType.map{ busType =>
+
+          val overseasCompany = OverseasCompany(Some(details.identification.isDefined),
             details.identification.map(_.idNumber),
             details.identification.map(_.issuingInstitution),
-            details.identification.map(_.issuingCountryCode)
-          )
+            details.identification.map(_.issuingCountryCode))
 
           (busType, BusinessRegistration(details.businessName, details.businessAddress), overseasCompany)
-        })
+        }
+      )
     }
-    dataCacheService.fetchAndGetBusinessDetailsForSession map createBusinessRegistration
+    dataCacheConnector.fetchAndGetBusinessDetailsForSession map createBusinessRegistration
   }
+
+
+
 
   private def createUpdateBusinessRegistrationRequest(registerData: BusinessRegistration,
                                                       overseasCompany: OverseasCompany,
                                                       isGroup: Boolean,
-                                                      isNonUKClientRegisteredByAgent: Boolean)(implicit
-      authContext: StandardAuthRetrievals): UpdateRegistrationDetailsRequest = {
+                                                      isNonUKClientRegisteredByAgent: Boolean)
+                                                     (implicit authContext: StandardAuthRetrievals): UpdateRegistrationDetailsRequest = {
 
     UpdateRegistrationDetailsRequest(
       acknowledgementReference = SessionUtils.getUniqueAckNo,
@@ -140,8 +131,8 @@ class BusinessRegistrationService @Inject() (val businessCustomerConnector: Busi
   private def createBusinessRegistrationRequest(registerData: BusinessRegistration,
                                                 overseasCompany: OverseasCompany,
                                                 isGroup: Boolean,
-                                                isNonUKClientRegisteredByAgent: Boolean)(implicit
-      authContext: StandardAuthRetrievals): BusinessRegistrationRequest = {
+                                                isNonUKClientRegisteredByAgent: Boolean)
+                                               (implicit authContext: StandardAuthRetrievals): BusinessRegistrationRequest = {
 
     BusinessRegistrationRequest(
       acknowledgementReference = SessionUtils.getUniqueAckNo,
@@ -154,20 +145,23 @@ class BusinessRegistrationService @Inject() (val businessCustomerConnector: Busi
     )
   }
 
-  private def createReviewDetails(sapNumber: String,
-                                  safeId: String,
+
+  private def createReviewDetails(sapNumber: String, safeId: String,
                                   agentReferenceNumber: Option[String],
                                   isGroup: Boolean,
                                   registerData: BusinessRegistration,
                                   overseasCompany: OverseasCompany,
                                   isBusinessDetailsEditable: Boolean): ReviewDetails = {
 
-    val identification = overseasCompany.businessUniqueId.map(busUniqueId =>
-      Identification(busUniqueId, overseasCompany.issuingInstitution.getOrElse(""), overseasCompany.issuingCountry.getOrElse("")))
+    val identification = overseasCompany.businessUniqueId.map( busUniqueId =>
+      Identification(busUniqueId,
+        overseasCompany.issuingInstitution.getOrElse(""),
+        overseasCompany.issuingCountry.getOrElse("")
+      )
+    )
 
     val updatedAddress = registerData.businessAddress
-    ReviewDetails(
-      businessName = registerData.businessName,
+    ReviewDetails(businessName = registerData.businessName,
       businessType = Some(nonUKBusinessType),
       businessAddress = updatedAddress.copy(postcode = updatedAddress.postcode.map(_.toUpperCase)),
       sapNumber = sapNumber,
@@ -179,15 +173,14 @@ class BusinessRegistrationService @Inject() (val businessCustomerConnector: Busi
     )
   }
 
+
   private def getEtmpBusinessAddress(businessAddress: Address) = {
-    EtmpAddress(
-      addressLine1 = businessAddress.line_1,
+    EtmpAddress(addressLine1 = businessAddress.line_1,
       addressLine2 = businessAddress.line_2,
       addressLine3 = businessAddress.line_3,
       addressLine4 = businessAddress.line_4,
       postalCode = businessAddress.postcode.map(_.toUpperCase),
-      countryCode = businessAddress.country
-    )
+      countryCode = businessAddress.country)
   }
 
   private def getEtmpIdentification(overseasCompany: OverseasCompany, businessAddress: Address): Option[EtmpIdentification] = {
@@ -201,5 +194,4 @@ class BusinessRegistrationService @Inject() (val businessCustomerConnector: Busi
       )
     } else None
   }
-
 }

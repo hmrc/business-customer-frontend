@@ -46,5 +46,4 @@ class Wiring extends Module {
     bind[HomeController].toSelf,
     bind[ReviewDetailsController].toSelf
   )
-
 }
