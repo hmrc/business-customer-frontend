@@ -24,6 +24,7 @@ object Identification {
   implicit val formats: Format[Identification] = Json.format[Identification]
 }
 
+
 case class ReviewDetails(businessName: String,
                          businessType: Option[String],
                          businessAddress: Address,
