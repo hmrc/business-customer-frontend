@@ -54,3 +54,5 @@ GET         /clear-cache/:service                                               
 GET         /fetch-review-details/:service                                      controllers.BusinessCustomerController.getReviewDetails(service: String)
 
 GET         /back-link/:service                                                 controllers.ExternalLinkController.backLink(service: String)
+
+GET         /external-data/:service                                             controllers.ExternalCacheRequestController.fetchCachedBusinessReviewDetails(service: String)
