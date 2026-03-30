@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package repositories
+package utils
 
-import play.api.libs.json.{Reads, Writes}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.mongo.cache.DataKey
-import scala.concurrent.{ExecutionContext, Future}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatestplus.play.guice.GuiceOneAppPerTest
+import play.api.test.Injecting
 
-trait CacheRepository {
+class RedirectUtilsSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerTest with Injecting {
 
-  def putSession[T: Writes](
-      dataKey: DataKey[T],
-      data: T
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[T]
+  "asRelativeUrl" should {
 
-  def getFromSession[T: Reads](dataKey: DataKey[T])(implicit hc: HeaderCarrier): Future[Option[T]]
 
-  def deleteFromSession(implicit hc: HeaderCarrier): Future[Unit]
+  }
 
 }

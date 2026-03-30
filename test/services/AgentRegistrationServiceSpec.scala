@@ -18,38 +18,45 @@ package services
 
 import audit.Auditable
 import builders.AuthBuilder
+import config.ApplicationConfig
 import connectors._
 import models._
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers
+import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-import play.GuiceTestApp
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
+import play.api.test.Injecting
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AgentRegistrationServiceSpec extends GuiceTestApp with BeforeAndAfter {
+class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfter with Injecting {
 
-  val mockTaxEnrolmentConnector        = mock[TaxEnrolmentsConnector]
-  val mockDataCacheConnector           = mock[DataCacheService]
+
+  val mockTaxEnrolmentConnector = mock[TaxEnrolmentsConnector]
+  val mockDataCacheConnector = mock[DataCacheConnector]
   val mockNewBusinessCustomerConnector = mock[NewBusinessCustomerConnector]
-  val mockAuthClientConnector          = mock[AuthConnector]
-  val mockAuditable                    = mock[Auditable]
+  val mockAuthClientConnector = mock[AuthConnector]
+  val mockAuditable = mock[Auditable]
 
+  val appConfig = inject[ApplicationConfig]
+  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
   implicit val ec: ExecutionContext = mcc.executionContext
 
-  object TestAgentRegistrationService
-      extends AgentRegistrationService(
-        mockTaxEnrolmentConnector,
-        mockDataCacheConnector,
-        mockAuditable,
-        appConfig,
-        mockNewBusinessCustomerConnector
-      )
+  object TestAgentRegistrationService extends AgentRegistrationService(
+    mockTaxEnrolmentConnector,
+    mockDataCacheConnector,
+    mockAuditable,
+    appConfig,
+    mockNewBusinessCustomerConnector
+  )
 
   "AgentRegistrationService" must {
 
@@ -63,9 +70,7 @@ class AgentRegistrationServiceSpec extends GuiceTestApp with BeforeAndAfter {
     }
 
     "enrolAgent throw exception if we have no agent ref no" in {
-      val returnedReviewDetails = new ReviewDetails(
-        businessName = "Bus Name",
-        businessType = None,
+      val returnedReviewDetails = new ReviewDetails(businessName = "Bus Name", businessType = None,
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
@@ -76,8 +81,7 @@ class AgentRegistrationServiceSpec extends GuiceTestApp with BeforeAndAfter {
       implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(returnedReviewDetails)))
+      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
 
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       val thrown = the[RuntimeException] thrownBy await(result)
@@ -85,93 +89,60 @@ class AgentRegistrationServiceSpec extends GuiceTestApp with BeforeAndAfter {
     }
 
     "for sole traders, enrolAgent return the status OK if it worked" in {
-      val returnedReviewDetails = ReviewDetails(
-        businessName = "Bus Name",
-        businessType = Some("Sole Trader"),
+      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = Some("Sole Trader"),
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
         utr = Some("1111111111"),
-        agentReferenceNumber = Some("agent123")
-      )
+        agentReferenceNumber = Some("agent123"))
 
       implicit val user = AuthBuilder.createSaUser()
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any()))
-        .thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
-      when(
-        mockNewBusinessCustomerConnector
-          .addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, "")))
-      when(
-        mockTaxEnrolmentConnector.enrol(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(
-          ArgumentMatchers.any(),
-          ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(CREATED, "")))
+      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockNewBusinessCustomerConnector.addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK,  "")))
+      when(mockTaxEnrolmentConnector.enrol(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(CREATED, "")))
 
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       await(result).status must be(CREATED)
     }
 
     "for agents other than sole traders, enrolAgent return the status OK if it worked" in {
-      val returnedReviewDetails = ReviewDetails(
-        businessName = "Bus Name",
-        businessType = Some("Corporate Body"),
+      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = Some("Corporate Body"),
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
         utr = Some("1111111111"),
-        agentReferenceNumber = Some("agent123")
-      )
+        agentReferenceNumber = Some("agent123"))
 
       implicit val user = AuthBuilder.createAgentAuthContext("userid", "username")
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any()))
-        .thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
-      when(
-        mockNewBusinessCustomerConnector
-          .addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, "")))
-      when(
-        mockTaxEnrolmentConnector.enrol(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(
-          ArgumentMatchers.any(),
-          ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(CREATED, "")))
+      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockNewBusinessCustomerConnector.addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "")))
+      when(mockTaxEnrolmentConnector.enrol(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(CREATED, "")))
 
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       await(result).status must be(CREATED)
     }
 
     "enrolAgent throws an exception if NO postcode is found for UK Agents" in {
-      val returnedReviewDetails = ReviewDetails(
-        businessName = "Bus Name",
-        businessType = Some("Corporate Body"),
+      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = Some("Corporate Body"),
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), None, "country"),
         sapNumber = "sap123",
         safeId = "safe123",
         utr = Some("1111111111"),
-        agentReferenceNumber = Some("agent123")
-      )
+        agentReferenceNumber = Some("agent123"))
 
       implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any()))
-        .thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
-      when(
-        mockNewBusinessCustomerConnector
-          .addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, "")))
-      when(
-        mockTaxEnrolmentConnector.enrol(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(
-          ArgumentMatchers.any(),
-          ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(CREATED, "")))
+      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockNewBusinessCustomerConnector.addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "")))
+      when(mockTaxEnrolmentConnector.enrol(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(CREATED, "")))
 
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       val thrown = the[RuntimeException] thrownBy await(result)
@@ -179,30 +150,19 @@ class AgentRegistrationServiceSpec extends GuiceTestApp with BeforeAndAfter {
     }
 
     "enrolAgent throws an exception if no groupId is found" in {
-      val returnedReviewDetails = ReviewDetails(
-        businessName = "Bus Name",
-        businessType = None,
+      val returnedReviewDetails = ReviewDetails(businessName = "Bus Name", businessType = None,
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
-        agentReferenceNumber = Some("agent123")
-      )
+        agentReferenceNumber = Some("agent123"))
 
       implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any()))
-        .thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), None)))
-      when(
-        mockNewBusinessCustomerConnector
-          .addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, "")))
-      when(
-        mockTaxEnrolmentConnector.enrol(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(
-          ArgumentMatchers.any(),
-          ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(CREATED, "")))
+      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), None)))
+      when(mockNewBusinessCustomerConnector.addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "")))
+      when(mockTaxEnrolmentConnector.enrol(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(CREATED, "")))
 
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       val thrown = the[RuntimeException] thrownBy await(result)
@@ -210,9 +170,7 @@ class AgentRegistrationServiceSpec extends GuiceTestApp with BeforeAndAfter {
     }
 
     "enrolAgent return the status anything if it does not work" in {
-      val returnedReviewDetails = new ReviewDetails(
-        businessName = "Bus Name",
-        businessType = None,
+      val returnedReviewDetails = new ReviewDetails(businessName = "Bus Name", businessType = None,
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
@@ -223,18 +181,10 @@ class AgentRegistrationServiceSpec extends GuiceTestApp with BeforeAndAfter {
       implicit val user = AuthBuilder.createAgentAuthContext("userid", "username")
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any()))
-        .thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
-      when(
-        mockNewBusinessCustomerConnector
-          .addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, "")))
-      when(
-        mockTaxEnrolmentConnector.enrol(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(
-          ArgumentMatchers.any(),
-          ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, "")))
+      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockNewBusinessCustomerConnector.addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "")))
+      when(mockTaxEnrolmentConnector.enrol(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_GATEWAY, "")))
 
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       await(result).status must be(BAD_GATEWAY)
@@ -243,25 +193,18 @@ class AgentRegistrationServiceSpec extends GuiceTestApp with BeforeAndAfter {
     "enrolAgent throw an exception if we have no details" in {
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      implicit val user              = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
+      implicit val user = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
 
-      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(None))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any()))
-        .thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
-      when(
-        mockNewBusinessCustomerConnector
-          .addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, "")))
+      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockNewBusinessCustomerConnector.addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "")))
       val result = TestAgentRegistrationService.enrolAgent("ATED")
       val thrown = the[RuntimeException] thrownBy await(result)
       thrown.getMessage must include("We could not find your details. Check and try again.")
     }
 
     "enrolAgent throw an exception if we have no service config" in {
-      val returnedReviewDetails = new ReviewDetails(
-        businessName = "Bus Name",
-        businessType = None,
+      val returnedReviewDetails = new ReviewDetails(businessName = "Bus Name", businessType = None,
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country"),
         sapNumber = "sap123",
         safeId = "safe123",
@@ -270,20 +213,14 @@ class AgentRegistrationServiceSpec extends GuiceTestApp with BeforeAndAfter {
         agentReferenceNumber = Some("agent123"))
 
       implicit val hc: HeaderCarrier = HeaderCarrier()
-      implicit val user              = AuthBuilder.createAgentAuthContext("userid", "username")
+      implicit val user = AuthBuilder.createAgentAuthContext("userid", "username")
 
-      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(returnedReviewDetails)))
-      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any()))
-        .thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
-      when(
-        mockNewBusinessCustomerConnector
-          .addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, "")))
+      when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(returnedReviewDetails)))
+      when(mockAuthClientConnector.authorise[Any](any(), any())(any(), any())).thenReturn(Future.successful(new ~(Credentials("ggcredId", "ggCredType"), Some("42424200-0000-0000-0000-000000000000"))))
+      when(mockNewBusinessCustomerConnector.addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "")))
       val result = TestAgentRegistrationService.enrolAgent("INVALID_SERVICE_NAME")
       val thrown = the[RuntimeException] thrownBy await(result)
       thrown.getMessage must startWith("Agent enrolment service name does not exist for")
     }
   }
-
 }
