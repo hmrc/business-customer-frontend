@@ -17,10 +17,10 @@
 package controllers
 
 import config.ApplicationConfig
+import connectors.DataCacheConnector
 import controllers.auth.AuthActions
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.DataCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -29,28 +29,37 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class ExternalCacheRequestController @Inject() (config: ApplicationConfig,
-                                                mcc: MessagesControllerComponents,
-                                                val authConnector: AuthConnector,
-                                                val dataCacheService: DataCacheService)
-    extends FrontendController(mcc)
+class ExternalCacheRequestController @Inject() (
+    config: ApplicationConfig,
+    mcc: MessagesControllerComponents,
+    val authConnector: AuthConnector,
+    val dataCacheConnector: DataCacheConnector
+) extends FrontendController(mcc)
     with AuthActions {
 
-  implicit val appConfig: ApplicationConfig       = config
+  implicit val appConfig: ApplicationConfig = config
   implicit val executionContext: ExecutionContext = mcc.executionContext
 
   def fetchCachedBusinessReviewDetails(service: String): Action[AnyContent] = {
 
     Action.async { implicit request =>
-      implicit val transformedHeaderCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+      implicit val transformedHeaderCarrier: HeaderCarrier =
+        HeaderCarrierConverter.fromRequest(request)
 
       authorisedFor(service) { implicit authContext =>
-        dataCacheService.fetchAndGetBusinessDetailsForSession(transformedHeaderCarrier, executionContext).map {
-          case Some(reviewDetails) => Ok(Json.toJson(reviewDetails))
-          case _ =>
-            logger.warn(s"could not retrieve business details for external calling $service")
-            NotFound
-        }
+        dataCacheConnector
+          .fetchAndGetBusinessDetailsForSession(
+            transformedHeaderCarrier,
+            executionContext
+          )
+          .map {
+            case Some(reviewDetails) => Ok(Json.toJson(reviewDetails))
+            case _ =>
+              logger.warn(
+                s"could not retrieve business details for external calling $service"
+              )
+              NotFound
+          }
       }(hc = transformedHeaderCarrier, req = request, ec = executionContext)
     }
   }

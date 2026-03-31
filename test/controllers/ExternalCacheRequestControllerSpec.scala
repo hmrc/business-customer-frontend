@@ -18,27 +18,36 @@ package controllers
 
 import builders.{AuthBuilder, SessionBuilder}
 import config.ApplicationConfig
+import connectors.DataCacheConnector
 import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
-import play.GuiceTestApp
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.Helpers._
-import services.DataCacheService
+import play.api.test.Injecting
 import uk.gov.hmrc.auth.core.AuthConnector
 
 import java.util.UUID
 import scala.concurrent.Future
 
-class ExternalCacheRequestControllerSpec extends GuiceTestApp with BeforeAndAfterEach {
+class ExternalCacheRequestControllerSpec
+    extends PlaySpec
+    with GuiceOneServerPerSuite
+    with MockitoSugar
+    with Injecting
+    with BeforeAndAfterEach {
 
   val service = "awrs"
-
-  val mockConfig: ApplicationConfig          = appConfig
-  val mockAuthConnector: AuthConnector       = mock[AuthConnector]
-  val mockDataCacheService: DataCacheService = mock[DataCacheService]
+  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  val mockDataCacheConnector: DataCacheConnector = mock[DataCacheConnector]
+  lazy val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  lazy val mcc: MessagesControllerComponents =
+    inject[MessagesControllerComponents]
 
   val testReviewBusinessDetails =
     ReviewDetails(
@@ -59,15 +68,15 @@ class ExternalCacheRequestControllerSpec extends GuiceTestApp with BeforeAndAfte
 
   object TestExternalCacheRequestController
       extends ExternalCacheRequestController(
-        mockConfig,
+        appConfig,
         mcc,
         mockAuthConnector,
-        mockDataCacheService
+        mockDataCacheConnector
       )
 
   override def beforeEach(): Unit = {
     reset(mockAuthConnector)
-    reset(mockDataCacheService)
+    reset(mockDataCacheConnector)
   }
 
   "ExternalCacheRequestController" must {
@@ -79,7 +88,7 @@ class ExternalCacheRequestControllerSpec extends GuiceTestApp with BeforeAndAfte
           status(result) mustBe OK
           contentAsJson(result) mustBe Json.toJson(testReviewBusinessDetails)
 
-          verify(mockDataCacheService, times(1))
+          verify(mockDataCacheConnector, times(1))
             .fetchAndGetBusinessDetailsForSession(any(), any())
         }
       }
@@ -88,7 +97,7 @@ class ExternalCacheRequestControllerSpec extends GuiceTestApp with BeforeAndAfte
         getWithAuthorisedUser(None) { result =>
           status(result) mustBe NOT_FOUND
 
-          verify(mockDataCacheService, times(1))
+          verify(mockDataCacheConnector, times(1))
             .fetchAndGetBusinessDetailsForSession(any(), any())
         }
       }
@@ -101,7 +110,9 @@ class ExternalCacheRequestControllerSpec extends GuiceTestApp with BeforeAndAfte
 
       "redirect unauthorised users to the unauthorised page" in {
         getWithUnAuthorisedUser { result =>
-          redirectLocation(result).value must include("/business-customer/unauthorised")
+          redirectLocation(result).value must include(
+            "/business-customer/unauthorised"
+          )
         }
       }
     }
@@ -117,7 +128,7 @@ class ExternalCacheRequestControllerSpec extends GuiceTestApp with BeforeAndAfte
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     when(
-      mockDataCacheService.fetchAndGetBusinessDetailsForSession(any(), any())
+      mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(any(), any())
     ).thenReturn(Future.successful(reviewDetails))
 
     val result =
