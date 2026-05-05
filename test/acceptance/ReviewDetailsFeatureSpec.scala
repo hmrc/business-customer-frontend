@@ -61,7 +61,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
       assert(document.getElementById("submit").text() === "Confirm")
 
       Then("The title should match - Confirm your business details")
-      assert(document.select("h1").text contains "Check this is the business you want to register")
+      assert(document.select("h1").text contains "Is this the business you want to register")
 
       assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: ATED registration")
       assert(document.getElementById("business-name").text === "ACME")
@@ -97,7 +97,7 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
       assert(document.getElementById("submit").text() === "Confirm")
 
       Then("The title should match - Confirm your business details")
-      assert(document.select("h1").text contains "Check this is the business you want to register")
+      assert(document.select("h1").text contains "Is this the business you want to register")
 
       assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: ATED registration")
       assert(document.getElementById("business-name").text === "ACME")
@@ -123,14 +123,14 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
       assert(document.getElementById("submit").text() === "Confirm")
 
       Then("The title should match - Confirm your business details ")
-      assert(document.select("h1").text contains "Check this is the business you want to register")
+      assert(document.select("h1").text contains "Is this the business you want to register")
 
       assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is: ATED registration")
       assert(document.getElementById("business-name").text === "ACME")
       assert(document.getElementById("business-address").text ===
         "line 1 line 2 line 3 line 4 AA1 1AA United Kingdom of Great Britain and Northern Ireland (the)")
       assert(document.select(".govuk-details__summary-text").text === "Not the right address?")
-      assert(document.getElementById("wrong-account-text").text === "You will need to update your information outside of this service.")
+      assert(document.getElementById("wrong-account-text").text === "You will need to update your information outside this service.")
       assert(document.getElementById("wrong-account-text-item-1").text()
         .startsWith("If you are registered with Companies House, you must tell Companies House about changes to your details.") === true)
       assert(document.getElementById("wrong-account-text-item-2").text()
