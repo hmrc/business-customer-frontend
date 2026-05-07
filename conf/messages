@@ -14,7 +14,6 @@ bc.amls.serviceName = Anti Money Laundering Supervision
 bc.fhdds.serviceName = Apply for the Fulfilment House Due Diligence Scheme
 service.homePageUrl = /business-customer
 
-business-review.user.title = Is this the business you want to register?
 business-review.agent.title = Confirm your agency’s details
 business-review.user.header = Is this the business you want to register?
 business-review.agent.header = Confirm your agency’s details
