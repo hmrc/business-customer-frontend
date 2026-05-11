@@ -274,6 +274,16 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
             }
           }
 
+          "return to error page for bad request" in {
+            when(mockAgentRegistrationService.isAgentEnrolmentAllowed(ArgumentMatchers.eq(service))).thenReturn(true)
+            continueWithBadRequestEACD("ATED") {
+              result =>
+                status(result) must be(OK)
+                val document = Jsoup.parse(contentAsString(result))
+                document.title() must be("Somebody has already registered from your agency - GOV.UK")
+            }
+          }
+
           "return to error page for wrong role users" in {
             when(mockAgentRegistrationService.isAgentEnrolmentAllowed(ArgumentMatchers.eq(service))).thenReturn(true)
             continueWithWrongRoleUserEmac("ATED") {
@@ -345,6 +355,16 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   }
 
   private def continueWithDuplicategentEmac(service: String)(test: Future[Result] => Any): Unit = {
+    val userId = s"user-${UUID.randomUUID}"
+    builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
+    when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+    when(mockAgentRegistrationService.enrolAgent(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      .thenReturn(Future.successful(HttpResponse(CONFLICT, "")))
+    val result = testReviewDetailsController(nonDirectMatchReviewDetails).continue(service).apply(fakeRequestWithSession(userId))
+    test(result)
+  }
+
+  private def continueWithBadRequestEACD(service: String)(test: Future[Result] => Any): Unit = {
     val userId = s"user-${UUID.randomUUID}"
     builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
