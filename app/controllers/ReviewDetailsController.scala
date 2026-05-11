@@ -46,6 +46,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
 
   val controllerId: String = "ReviewDetailsController"
   private val DuplicateUserError = "duplicate user error"
+  private val BadRequestError = "bad request error"
   private val WrongRoleUserError = "wrong role user error"
 
 
@@ -76,7 +77,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
   }
 
   private def formatErrorMessage(str: String)(implicit messagesProvider: MessagesProvider): (String, String, String) = (str: @unchecked) match {
-    case DuplicateUserError =>
+    case DuplicateUserError | BadRequestError =>
       (Messages("bc.business-registration-error.duplicate.identifier.header"),
         Messages("bc.business-registration-error.duplicate.identifier.title"),
         Messages("bc.business-registration-error.duplicate.identifier.message"))
@@ -96,13 +97,17 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
                 appConfig.agentConfirmationPath(serviceName),
                 Some(controllers.routes.ReviewDetailsController.businessDetails(serviceName).url)
               )
-            case BAD_REQUEST | CONFLICT =>
+            case BAD_REQUEST =>
+              val (header, title, lede) = formatErrorMessage(BadRequestError)
+              logger.warn(s"[ReviewDetailsController][continue] - 400 response received from tax-enrolments with body of: ${response.body} ")
+              Future.successful(Ok(templateError(header, title, lede, serviceName)))
+            case CONFLICT =>
               val (header, title, lede) = formatErrorMessage(DuplicateUserError)
-              logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EMAC")
+              logger.warn(s"[ReviewDetailsController][continue] - agency has already enrolled in EACD")
               Future.successful(Ok(templateError(header, title, lede, serviceName)))
             case FORBIDDEN =>
               val (header, title, lede) = formatErrorMessage(WrongRoleUserError)
-              logger.warn(s"[ReviewDetailsController][continue] - wrong role for agent enrolling in EMAC")
+              logger.warn(s"[ReviewDetailsController][continue] - wrong role for agent enrolling in EACD")
               Future.successful(Ok(templateError(header, title, lede, serviceName)))
             case _ =>
               logger.warn(s"[ReviewDetailsController][continue] - allocation failed")
