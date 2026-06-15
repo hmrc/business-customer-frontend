@@ -42,6 +42,7 @@
 }
 
 @headingSecondaryText = @{
+
     isAgent match {
         case true => messages("bc.business-verification.agent.text", service.toUpperCase)
         case false => messages("bc.business-verification.client.text", service.toUpperCase)
@@ -70,6 +71,17 @@
             <input type="hidden" name="isSaAccount" value="@{isSaAccount}">
             <input type="hidden" name="isOrgAccount" value="@{isOrgAccount}">
 
+            <header>
+                <h1 class="govuk-heading-xl">
+                    <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@headingSecondaryText</span>
+                    @headingText
+                </h1>
+            </header>
+
+            <p class="govuk-body">@messages("bc.business-verification-lede")</p>
+
+            <h2 class="govuk-heading-m"><strong>@messages("bc.business-verification.user.subheader")</strong></h2>
+
             @govukRadios(
                 Radios(
                     fieldset = Some(Fieldset(
@@ -86,10 +98,7 @@
                     }
 
                 ).withFormField(businessTypeForm("businessType"))
-                .withHeadingAndSectionCaption(
-                    heading = HtmlContent(headingText),
-                    sectionCaption = HtmlContent(headingSecondaryText)
-                ))
+                )
 
         </div>
 
