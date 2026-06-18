@@ -9,6 +9,13 @@ POST        /business-verification/:service/continue                            
 POST        /business-verification/:service/submit/:businessType                controllers.BusinessVerificationController.submit(service: String, businessType: String)
 GET         /business-verification/:service/detailsNotFound/:businessType       controllers.BusinessVerificationController.detailsNotFound(service: String, businessType: String)
 
+GET         /business-verification/:service/business-form-utr/:businessType/:companyName              controllers.CorporationTaxUtrController.onPageLoad(service: String, businessType: String, companyName: String)
+POST        /business-verification/:service/business-form-utr/ltd                                     controllers.CorporationTaxUtrController.submit(service: String, companyName: String)
+GET         /business-verification/:service/partnership-form-utr/:businessType/:partnershipName       controllers.PartnershipTaxUtrController.onPageLoad(service: String, businessType: String, partnershipName: String)
+POST        /business-verification/:service/partnership-form-utr/:businessType                        controllers.PartnershipTaxUtrController.submit(service: String, businessType: String, companyName: String)
+GET         /business-verification/:service/sole-trader-form-utr/:firstName/:lastName                  controllers.SoleTraderTaxUtrController.onPageLoad(service: String, firstName: String, lastName: String)
+POST        /business-verification/:service/sole-trader-form-utr/                                      controllers.SoleTraderTaxUtrController.submit(service: String, businessType: String, companyName: String)
+
 GET         /review-details/:service                                            controllers.ReviewDetailsController.businessDetails(service: String)
 GET         /review-details-continue/:service                                   controllers.ReviewDetailsController.continue(service: String)
 

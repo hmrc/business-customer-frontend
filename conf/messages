@@ -92,8 +92,25 @@ bc.business-verification.partnerNameField = What is your partnership name?
 bc.business-verification.partnerNameHint = This is the name that you registered with HMRC
 bc.business-verification.registered-name.hint = This is the registered name on your incorporation certificate.
 
+bc.business-verification.utr.lengthHint = Your UTR can be 10 or 13 digits long.
+bc.business-verification.utr.helpLinkText = Get more help to find your UTR (opens in new tab)
+bc.business-verification.utr.helpLink = https://www.gov.uk/find-utr-number
+
+bc.business-verification.coUTR.header = Your Corporation Tax Unique Taxpayer Reference (UTR)
+bc.business-verification.coUTR.subheading = What is your Corporation Tax UTR?
+bc.business-verification.coUTR.hint = It will be on tax returns and other letters about Corporation Tax. It might be called ‘reference’, ‘UTR’ or ‘official use’.
+
+bc.business-verification.partnershipUTR.header = Your Partnership Tax Unique Taxpayer Reference (UTR)
+bc.business-verification.partnershipUTR.subheading = What is your Partnership Tax UTR?
+bc.business-verification.partnershipUTR.hint = You can find it in your Business Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
+
+bc.business-verification.soleTraderUTR.header = Your Self Assessment Unique Taxpayer Reference (UTR)
+bc.business-verification.soleTraderUTR.subheading = What is your Self Assessment UTR?
+bc.business-verification.soleTraderUTR.hint = You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’
+
 bc.business-verification.utr.corporationUTR = UTRs are 10 digits long, for example, ‘1234567890’. Some UTRs may appear as 13 digits, for example, ‘1234567890123’. If so, enter only the last 10 digits.
 bc.business-verification.utr.corporationUTRLink = Find your UTR number (opens in new tab)
+bc.business-verification.utr.corporationUTRLink2 = Ask for a copy of your Corporation Tax UTR (opens in new tab)
 
 bc.business-verification.utr.selfAssessmentUTR = Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’.
 bc.business-verification.utr.selfAssessmentUTRLink = How to find your UTR (opens in new tab)
