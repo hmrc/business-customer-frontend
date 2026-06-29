@@ -185,11 +185,14 @@ class BusinessVerificationControllerSpec
           businessVerificationWithAuthorisedUser(controller) { result =>
             val document = Jsoup.parse(contentAsString(result))
 
-            document.title() must be("What is your business type? - Register for ATED - GOV.UK")
+            document.title() must be("Your business - Register for ATED - GOV.UK")
             document.getElementsByClass("govuk-caption-xl").text() must be(
-              "This section is ATED registration"
+              "This section is: ATED registration"
             )
             document.getElementsByTag("h1").text() must include(
+              "Your business"
+            )
+            document.getElementsByTag("h2").text() must include(
               "What is your business type?"
             )
             document.select(".govuk-radios__item").text() must include(
@@ -286,7 +289,7 @@ class BusinessVerificationControllerSpec
               "What is the business type for your agency? - Register for ATED - GOV.UK"
             )
             document.getElementsByClass("govuk-caption-xl").text() must be(
-              "This section is ATED agency set up"
+              "This section is: ATED agency set up"
             )
             document.getElementsByTag("h1").text() must include(
               "What is the business type for your agency?"
