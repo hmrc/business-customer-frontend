@@ -91,12 +91,11 @@
                 ).withFormField(unincorporatedBodyForm("businessName"))
             )
 
-            <h2 class="govuk-heading-s">@Messages("bc.business-verification.coUTRField")</h2>
             @govukInput(
                 Input(
                     label = Label(
                         content = Text(Messages("bc.business-verification.coUTRField")),
-                        classes = "govuk-visually-hidden"
+                        classes = "govuk-label--s"
                     ),
                      hint = Some(Hint(
                         content = HtmlContent(
