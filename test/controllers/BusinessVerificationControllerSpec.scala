@@ -530,15 +530,15 @@ class BusinessVerificationControllerSpec
             "/business-customer/business-verification/AWRS"
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(4)")
+            .select("#saUTR-hint > p")
             .text() must include(
             "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(5) > a")
+            .select("#saUTR-hint > p > a")
             .text() must be("How to find your UTR (opens in new tab)")
           document
-            .select("#main-content > div > div > form > p:nth-child(5) > a")
+            .select("#saUTR-hint > p > a")
             .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
@@ -573,15 +573,15 @@ class BusinessVerificationControllerSpec
             "/business-customer/business-verification/ATED"
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(4)")
+            .select("#saUTR-hint > p")
             .text() must include(
             "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(5) > a")
+            .select("#saUTR-hint > p > a")
             .text() must be("How to find your UTR (opens in new tab)")
           document
-            .select("#main-content > div > div > form > p:nth-child(5) > a")
+            .select("#saUTR-hint > p > a")
             .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
@@ -1340,15 +1340,15 @@ class BusinessVerificationControllerSpec
             "/business-customer/business-verification/ATED"
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(3)")
+            .select("#psaUTR-hint > p")
             .text() must include(
             "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .text() must be("How to find your UTR (opens in new tab)")
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
@@ -1381,15 +1381,15 @@ class BusinessVerificationControllerSpec
             "/business-customer/business-verification/ATED"
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(3)")
+            .select("#psaUTR-hint > p")
             .text() must include(
             "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .text() must be("How to find your UTR (opens in new tab)")
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
@@ -1438,15 +1438,15 @@ class BusinessVerificationControllerSpec
             "/business-customer/business-verification/ATED"
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(3)")
+            .select("#psaUTR-hint > p")
             .text() must include(
             "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .text() must be("How to find your UTR (opens in new tab)")
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
@@ -1478,15 +1478,15 @@ class BusinessVerificationControllerSpec
             "/business-customer/business-verification/ATED"
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(3)")
+            .select("#psaUTR-hint > p")
             .text() must include(
             "Your UTR can be 10 or 13 digits long. You can find it in your Personal Tax Account, the HMRC app or on tax returns and other documents from HMRC. It might be called ‘reference’, ‘UTR’ or ‘official use’."
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .text() must be("How to find your UTR (opens in new tab)")
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
@@ -1533,13 +1533,13 @@ class BusinessVerificationControllerSpec
             "/business-customer/business-verification/ATED"
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(4)")
+            .select("#psaUTR-hint > p")
             .text() must include("How to find your UTR (opens in new tab)")
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .text() must be("How to find your UTR (opens in new tab)")
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
@@ -1571,13 +1571,13 @@ class BusinessVerificationControllerSpec
             "/business-customer/business-verification/ATED"
           )
           document
-            .select("#main-content > div > div > form > p:nth-child(4)")
+            .select("#psaUTR-hint p")
             .text() must include("How to find your UTR (opens in new tab)")
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .text() must be("How to find your UTR (opens in new tab)")
           document
-            .select("#main-content > div > div > form > p:nth-child(4) > a")
+            .select("#psaUTR-hint > p > a")
             .attr("href") must be("https://www.gov.uk/find-utr-number")
         }
       }
