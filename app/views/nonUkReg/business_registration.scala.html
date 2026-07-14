@@ -136,22 +136,25 @@
                 ).withFormField(businessRegistrationForm("businessAddress.line_4"))
             ),
 
-            if(!isAgent) {
-                govukInput(
-                    Input(
-                        label = Label(
-                            content = Text(Messages("bc.non-uk-reg.postcode"))
-                        ),
-                        classes = "govuk-input--width-10",
-                        attributes = Map("maxLength" -> "10"),
-                        autocomplete = Some("postal-code")
-                    ).withFormField(businessRegistrationForm("businessAddress.postcode"))
-                )
-
-                govukDetails(Details(
-                        summary = Text(messages("bc.non-uk-reg.postcode.help.question")),
-                        content = HtmlContent(messages("bc.non-uk-reg.postcode.help.answer"))
-                ))
+      if(!isAgent) {
+          HtmlFormat.fill(Seq(
+              govukInput(
+                  Input(
+                      label = Label(
+                          content = Text(Messages("bc.non-uk-reg.postcode"))
+                      ),
+                      classes = "govuk-input--width-10",
+                      attributes = Map("maxLength" -> "10"),
+                      autocomplete = Some("postal-code")
+                  ).withFormField(businessRegistrationForm("businessAddress.postcode"))
+              ),
+              govukDetails(
+                  Details(
+                      summary = Text(messages("bc.non-uk-reg.postcode.help.question")),
+                      content = HtmlContent(messages("bc.non-uk-reg.postcode.help.answer"))
+                  )
+              )
+          ))
             } else HtmlFormat.empty,
 
             govukSelect(
