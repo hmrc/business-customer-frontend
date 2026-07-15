@@ -75,9 +75,7 @@
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(businessRegistrationForm))
     }
 
-  @displayDetails.businessRegLede.map { businessRegLede =>
-    <p class="govuk-body" id="business-registration-lede">@Html(messages(businessRegLede))</p>
-  }
+
 
   @formHelper(action = controllers.nonUKReg.routes.BusinessRegController.send(service, messages(displayDetails.businessType))) {
 
@@ -94,6 +92,15 @@
             isPageHeading = true
         )),
         html = HtmlFormat.fill(Seq(
+
+            displayDetails.businessRegLede.map { businessRegLede =>
+                Html(
+                    s"""<div id="business-registration-lede" class="govuk-hint govuk-!-margin-bottom-6">
+               |${messages(businessRegLede)}
+               |</div>""".stripMargin
+                )
+            }.getOrElse(Html("")),
+
             govukInput(
                 Input(
                     label = Label(
