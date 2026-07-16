@@ -76,13 +76,33 @@ object BusinessRegistrationForms {
 
   val overseasCompanyRegForm: Form[OverseasCompany] = Form(
     mapping(
-      "hasBusinessUniqueId" -> optional(boolean),
       "businessUniqueId" -> optional(text)
         .verifying("bc.business-registration-error.businessUniqueId.length", x => x.isEmpty || (x.nonEmpty && x.get.length <= length60)),
       "issuingInstitution" -> optional(text)
         .verifying("bc.business-registration-error.issuingInstitution.length", x => x.isEmpty || (x.nonEmpty && x.get.length <= length40)),
       "issuingCountry" -> optional(text)
-    )(OverseasCompany.apply)(OverseasCompany.unapply)
+    )(
+      (
+        businessUniqueId,
+        issuingInstitution,
+        issuingCountry
+      ) =>
+        OverseasCompany(
+          hasBusinessUniqueId = Some(true),
+          businessUniqueId = businessUniqueId,
+          issuingInstitution = issuingInstitution,
+          issuingCountry = issuingCountry
+        )
+    )(
+      overseasCompany =>
+        Some(
+          (
+            overseasCompany.businessUniqueId,
+            overseasCompany.issuingInstitution,
+            overseasCompany.issuingCountry
+          )
+        )
+    )
   )
 
   def checkFieldLengthIfPopulated(optionValue: Option[String], fieldLength: Int): Boolean = {

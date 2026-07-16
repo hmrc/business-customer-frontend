@@ -89,6 +89,24 @@
             </dd>
         </div>
 
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key" id="has-business-unique-id-title">
+                @messages("bc.non-uk-reg.hasBusinessUniqueId")
+            </dt>
+            <dd class="govuk-summary-list__value" id="has-business-unique-id-value">
+                @if(businessDetails.identification.isDefined) {
+                    @messages("bc.non-uk-reg.hasBusinessUniqueId.yes")
+                } else {
+                    @messages("bc.non-uk-reg.hasBusinessUniqueId.no")
+                }
+            </dd>
+            <dd class="govuk-summary-list__actions">
+                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.viewForUpdate(service, false)'>@messages("bc.change")
+                    <span class="govuk-visually-hidden">@messages("bc.non-uk-reg.hasBusinessUniqueId")</span>
+                </a>
+            </dd>
+        </div>
+
         @businessDetails.identification.map { identification =>
 
         <div class="govuk-summary-list__row">
@@ -99,6 +117,7 @@
                 @identification.idNumber
             </dd>
             <dd class="govuk-summary-list__actions">
+                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegDetailsController.viewForUpdate(service, false)'>@messages("bc.change")
                     <span class="govuk-visually-hidden">@messages("bc.non-uk-reg.businessUniqueId")</span>
                 </a>
             </dd>
@@ -112,6 +131,7 @@
                 @appConfig.getSelectedCountry(identification.issuingCountryCode)
             </dd>
             <dd class="govuk-summary-list__actions">
+                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegDetailsController.viewForUpdate(service, false)'>@messages("bc.change")
                     <span class="govuk-visually-hidden">@messages("bc.non-uk-reg.issuingCountry")</span>
                 </a>
             </dd>
@@ -125,26 +145,13 @@
                 @identification.issuingInstitution
             </dd>
             <dd class="govuk-summary-list__actions">
+                <a href='@controllers.nonUKReg.routes.UpdateOverseasCompanyRegDetailsController.viewForUpdate(service, false)'>@messages("bc.change")
                     <span class="govuk-visually-hidden">@messages("bc.non-uk-reg.issuingInstitution")</span>
                 </a>
             </dd>
         </div>
-
-        }.getOrElse {
-
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-                @messages("business-review.overseas-tax-reference")
-            </dt>
-            <dd class="govuk-summary-list__value">
-                @messages("business-review.overseas-tax-reference.not-provided")
-            </dd>
-            <dd class="govuk-summary-list__actions">
-                    <span class="govuk-visually-hidden">@messages("business-review.overseas-tax-reference")</span>
-                </a>
-            </dd>
-        </div>
         }
+
     </dl>
 
       @formHelper(action = controllers.routes.ReviewDetailsController.continue(service)) {

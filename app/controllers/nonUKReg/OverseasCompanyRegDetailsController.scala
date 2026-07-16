@@ -58,11 +58,11 @@ class OverseasCompanyRegDetailsController @Inject()(val authConnector: AuthConne
         } yield {
           overseasId match {
             case Some(oversea) => {
-              Ok(template(overseasCompanyForm.fill(oversea), service,
+              Ok(template(overseasCompanyRegForm.fill(oversea), service,
                 displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, newUrl, backLink))
             }
             case None => {
-              Ok(template(overseasCompanyForm, service,
+              Ok(template(overseasCompanyRegForm, service,
                 displayDetails(authContext.isAgent, addClient, service), appConfig.getIsoCodeTupleList, newUrl, backLink))
             }
           }
