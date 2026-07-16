@@ -1,0 +1,108 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config._
+@import views.html.helpers._
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+@import views.html.helper.form
+@import views.ViewUtils.titleBuilder
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@this(bcMain: bcMain,
+      formHelper: FormWithCSRF,
+      govukInput: GovukInput,
+      govukDetails : GovukDetails,
+      govukBackLink : GovukBackLink,
+      govukErrorSummary: GovukErrorSummary,
+      govukButton : GovukButton
+)
+
+@(limitedPartnershipUtrForm: Form[forms.LimitedPartnershipUtr],
+    isAgent: Boolean,
+    service: String,
+    businessType: String,
+    partnershipName: String,
+    backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+
+@implicitFormInstance = @{ Some(limitedPartnershipUtrForm) }
+
+@headingText = @{isAgent match {
+                            case true => messages("bc.business-verification-selected-agent-header")
+                            case false => messages("bc.business-verification.partnershipUTR.header")
+                }}
+
+@headingSecondaryText = @{isAgent match {
+                            case true => messages("bc.business-verification.agent.text", service.toUpperCase)
+                            case false => messages("bc.business-verification.client.text", service.toUpperCase)
+                        }}
+
+@backLinkHtml = {
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(
+            href = backLink.get,
+            content = Text("Back")
+        ))
+    }
+}
+
+@bcMain(title = titleBuilder(headingText, Some(limitedPartnershipUtrForm), Some(service)), service = service, backlink=Some(backLinkHtml)) {
+
+    @if(limitedPartnershipUtrForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(limitedPartnershipUtrForm))
+    }
+
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@headingSecondaryText</span>
+            @headingText
+        </h1>
+    </header>
+
+    @if(isAgent){
+        @bcCheckAgency()
+    }
+
+    <p class="govuk-body" id="business-type-paragraph">@messages("bc.business-verification.partnershipUTR.hint")</p>
+
+
+    <p class="govuk-body"><a class="govuk-link" rel="noreferrer noopener" target="_blank" href="@messages("bc.business-verification.utr.helpLink")">@messages("bc.business-verification.utr.helpLinkText")</a></p>
+
+
+    @formHelper(action = controllers.routes.PartnershipTaxUtrController.submit(service, businessType, partnershipName)) {
+
+    @govukInput(
+        Input(
+            label = Label(
+                content = Text(Messages("bc.business-verification.partnershipUTR.subheading")),
+                classes = "govuk-label--m"
+            ),
+            hint = Some(Hint(
+                content = HtmlContent(s"""<p class="govuk-body govuk-hint">${Messages("bc.business-verification.utr.lengthHint")}</p>""")
+            )),
+            attributes = Map("inputmode" -> "numeric","pattern" -> "[0-9]*")).withFormField(limitedPartnershipUtrForm("psaUTR")
+        )
+    )
+
+    @govukButton(
+        Button(
+            content = Text(messages("bc.business-registration.submit")),
+            inputType = Some("submit"),
+            attributes = Map("id" -> "submit")
+        ))
+    }
+
+}
