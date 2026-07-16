@@ -16,23 +16,18 @@
 
 @import config.ApplicationConfig
 @import views.html.helpers._
-@import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
-@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.html.helper.form
 @import views.ViewUtils.titleBuilder
 @import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-@import views.html.helper.CSPNonce
 
 @this(bcMain: bcMain,
-    formHelper: FormWithCSRF,
-    govukInput: GovukInput,
-    govukSelect: GovukSelect,
-    govukRadios: GovukRadios,
-    govukBackLink : GovukBackLink,
-    govukErrorSummary: GovukErrorSummary,
-    govukButton : GovukButton)
+formHelper: FormWithCSRF,
+govukRadios: GovukRadios,
+govukBackLink : GovukBackLink,
+govukErrorSummary: GovukErrorSummary,
+govukButton : GovukButton)
 
 @(overseasCompanyForm: Form[models.OverseasCompany],
     service: String,
@@ -55,36 +50,36 @@
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(overseasCompanyForm))
     }
 
-  @formHelper(action = controllers.nonUKReg.routes.OverseasCompanyRegController.submit(service, displayDetails.addClient, redirectUrl.map(RedirectUrl(_)))) {
+    @formHelper(action = controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.update(service, displayDetails.addClient, redirectUrl.map(RedirectUrl(_)))) {
 
-    @govukRadios(
-        Radios(
-            fieldset = Some(Fieldset(
-                legend = Some(Legend(
-                    classes = "govuk-visually-hidden",
-                    content = Text(Messages(displayDetails.header))
-                ))
-            )),
-            items = Seq(
-                RadioItem(
-                    content = Text(Messages("bc.radio.yes.label")),
-                    value = Some("true"),
-                ),
-                RadioItem(
-                    content = Text(Messages("bc.radio.no.label")),
-                    value = Some("false")
+        @govukRadios(
+            Radios(
+                fieldset = Some(Fieldset(
+                    legend = Some(Legend(
+                        classes = "govuk-visually-hidden",
+                        content = Text(Messages(displayDetails.header))
+                    ))
+                )),
+                items = Seq(
+                    RadioItem(
+                        content = Text(Messages("bc.radio.yes.label")),
+                        value = Some("true"),
+                    ),
+                    RadioItem(
+                        content = Text(Messages("bc.radio.no.label")),
+                        value = Some("false")
+                    )
                 )
-            )
-        ).withFormField(overseasCompanyForm("hasBusinessUniqueId"))
-        .withHeadingAndSectionCaption(
-            heading = HtmlContent(messages(displayDetails.header)),
-            sectionCaption = HtmlContent(messages(displayDetails.subHeader, service.toUpperCase))
-        ))
+            ).withFormField(overseasCompanyForm("hasBusinessUniqueId"))
+            .withHeadingAndSectionCaption(
+                heading = HtmlContent(messages(displayDetails.header)),
+                sectionCaption = HtmlContent(messages(displayDetails.subHeader, service.toUpperCase))
+            ))
 
-        @govukButton(Button(
-            content = Text(messages("bc.continue")),
-            inputType = Some("submit"),
-            attributes = Map("id" -> "submit")
-        ))
-  }
+            @govukButton(Button(
+                content = Text(messages("bc.continue")),
+                inputType = Some("submit"),
+                attributes = Map("id" -> "submit")
+            ))
+    }
 }
