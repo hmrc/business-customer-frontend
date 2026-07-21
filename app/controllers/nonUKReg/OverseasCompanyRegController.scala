@@ -86,7 +86,7 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
                 redirectWithBackLink(overseasCompanyRegDetailsController.controllerId,
                   controllers.nonUKReg.routes.OverseasCompanyRegDetailsController.view(service, addClient, redirectUrl),
                   Some(controllers.nonUKReg.routes.OverseasCompanyRegController.view(service, addClient, redirectUrl).url))
-              case Some(false) =>
+              case Some(false) | None=>
                 for {
                   _ <- cachedBusinessReg match {
                     case Some(businessReg) if updateOrRegister.getOrElse(false) =>

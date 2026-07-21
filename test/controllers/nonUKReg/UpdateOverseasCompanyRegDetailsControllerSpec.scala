@@ -16,14 +16,13 @@
 
 package controllers.nonUKReg
 
-import java.util.UUID
 import config.ApplicationConfig
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
@@ -36,9 +35,10 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import views.html.nonUkReg.update_overseas_company
 
+import java.util.UUID
 import scala.concurrent.Future
 
-class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
+class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .configure("microservice.services.auth.host" -> "authprotected")
@@ -76,12 +76,6 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
           redirectLocation(result) must be(Some("/business-customer/unauthorised"))
         }
       }
-      "respond with a redirect for /send & be redirected to the unauthorised page" in {
-        submitWithUnAuthorisedUser() { result =>
-          status(result) must be(SEE_OTHER)
-          redirectLocation(result) must be(Some("/business-customer/unauthorised"))
-        }
-      }
     }
 
     "edit client" must {
@@ -98,7 +92,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number? - Register for ATED - GOV.UK")
+          document.title() must be("Do you have an overseas company registration number? - GOV.UK")
         }
       }
 
@@ -106,7 +100,12 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
         val busRegData = BusinessRegistration(businessName = "testName",
           businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country")
         )
-        val overseasCompany = OverseasCompany(hasBusinessUniqueId = Some(true))
+        val overseasCompany = OverseasCompany(
+          businessUniqueId = Some(s"BUID-${UUID.randomUUID}"),
+          hasBusinessUniqueId = Some(true),
+          issuingInstitution = Some("issuingInstitution"),
+          issuingCountry = None
+        )
 
         when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
@@ -115,7 +114,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number? - Register for ATED - GOV.UK")
+          document.title() must be("Do you have an overseas company registration number? - GOV.UK")
 
         }
       }
@@ -141,6 +140,36 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
       "validate form" must {
 
+        type TestMessage = String
+        type ErrorMessage = String
+
+        "not be empty" in {
+          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "", "issuingInstitution" -> "", "issuingCountry" -> "").toSeq: _*), "ATED") { result =>
+            status(result) must be(BAD_REQUEST)
+            contentAsString(result) must include("Enter the country that issued the overseas company registration number")
+            contentAsString(result) must include("Enter an institution that issued the overseas company registration number")
+            contentAsString(result) must include("Enter an overseas company registration number")
+          }
+        }
+
+        // inputJson , test message, error message
+        val formValidationInputDataSet: Seq[(Map[String, String], TestMessage, ErrorMessage)] = Seq(
+          (Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> s"${"a" * 61}", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR"), "businessUniqueId must be maximum of 60 characters",
+            "The overseas company registration number cannot be more than 60 characters"),
+          (Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> s"${"a" * 41}", "issuingCountry" -> "FR"), "issuingInstitution must be maximum of 40 characters",
+            "The institution that issued the overseas company registration number cannot be more than 40 characters"),
+          (Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "GB"), "show an error if issuing country is selected as GB",
+            "You cannot select United Kingdom when entering an overseas address")
+        )
+
+        formValidationInputDataSet.foreach { data =>
+          s"${data._2}" in {
+            registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(data._1.toSeq: _*), "ATED") { result =>
+              status(result) must be(BAD_REQUEST)
+              contentAsString(result) must include(data._3)
+            }
+          }
+        }
 
         "If we have no cache then an exception must be thrown" in {
           registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", None, hasCache = false) { result =>

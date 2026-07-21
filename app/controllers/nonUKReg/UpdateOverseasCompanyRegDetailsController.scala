@@ -19,7 +19,7 @@ package controllers.nonUKReg
 import config.ApplicationConfig
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
-import forms.BusinessRegistrationForms.{overseasCompanyForm, overseasCompanyRegForm}
+import forms.BusinessRegistrationForms.overseasCompanyRegForm
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -58,7 +58,7 @@ def viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[Redir
               newUrl,
               backLink))
           case _ =>
-            logger.warn(s"[UpdateOverseasCompanyRegController][viewForUpdate] - No registration details found to edit")
+            logger.warn(s"[UpdateOverseasCompanyRegDetailsController][viewForUpdate] - No registration details found to edit")
             throw new RuntimeException("No registration details found")
         }
       }
@@ -94,8 +94,8 @@ def viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[Redir
                   Redirect(newUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
                 }
               case _ =>
-                logger.warn(s"[UpdateOverseasCompanyRegController][update] - No registration details found to edit")
-                throw new RuntimeException("No registration details found")
+                logger.warn(s"[UpdateOverseasCompanyRegDetailsController][update] - No registration details found to edit")
+                Future.failed(new RuntimeException("No registration details found"))
             }
           }
       )
