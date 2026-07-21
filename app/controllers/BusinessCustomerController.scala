@@ -45,7 +45,7 @@ class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
         Ok
       }.recover {
         case t: Throwable =>
-          logger.error(s"session has not been cleared for $service. Status: 500, Error: ${t.getMessage}")
+          logger.warn(s"session has not been cleared for $service. Status: 500, Error: ${t.getMessage}")
           InternalServerError
       }
     }
