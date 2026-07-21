@@ -65,6 +65,7 @@ heading: String,
 @registeredMessageKey = @{
     service match {
         case "AMLS" => messages("bc.business-utr.paragraph.registered", "anti-money laundering supervision")
+        case "FHDDS" => messages("bc.business-utr.paragraph.registered", "Fulfilment House Due Diligence Scheme")
         case _  => messages("bc.business-utr.paragraph.registered", service)
     }
 }
