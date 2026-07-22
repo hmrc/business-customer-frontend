@@ -31,9 +31,9 @@
     govukErrorSummary: GovukErrorSummary,
     govukButton: GovukButton)
 
-@(overseasCompanyForm: Form[models.OverseasCompany],
+@(overseasCompanyRegForm: Form[models.OverseasCompany],
     service: String,
-    displayDetails: OverseasCompanyDisplayDetails,
+    displayDetails: OverseasCompanyRegDisplayDetails,
     countryList: List[(String, String)],
     redirectUrl: Option[String],
     backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
@@ -60,11 +60,11 @@
     }
 }
 
-@bcMain(title = titleBuilder(messages(displayDetails.title), Some(overseasCompanyForm), Some(service)), service = service,
+@bcMain(title = titleBuilder(messages(displayDetails.title), Some(overseasCompanyRegForm), Some(service)), service = service,
     pageScripts = Some(pageScripts), backlink=Some(backLinkHtml)) {
 
-    @if(overseasCompanyForm.errors.nonEmpty) {
-        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(overseasCompanyForm))
+    @if(overseasCompanyRegForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(overseasCompanyRegForm))
     }
 
     <header>
@@ -81,7 +81,7 @@
                 label = Label(
                     content = Text(Messages("bc.non-uk-reg.businessUniqueId"))
                 )
-            ).withFormField(overseasCompanyForm("businessUniqueId"))
+            ).withFormField(overseasCompanyRegForm("businessUniqueId"))
         )
 
         @govukSelect(
@@ -95,7 +95,7 @@
                         text = country
                     )
                 }
-            ).withFormField(overseasCompanyForm("issuingCountry"))
+            ).withFormField(overseasCompanyRegForm("issuingCountry"))
         )
 
         @govukInput(
@@ -106,7 +106,7 @@
                 hint = Some(Hint(
                     content = Text(Messages("bc.non-uk-reg.issuingInstitution.hint"))
                 ))
-            ).withFormField(overseasCompanyForm("issuingInstitution"))
+            ).withFormField(overseasCompanyRegForm("issuingInstitution"))
         )
 
         @govukButton(Button(

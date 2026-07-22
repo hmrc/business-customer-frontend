@@ -26,7 +26,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.RedirectUtils.redirectUrlGetRelativeOrDev
-import utils.{OverseasCompanyUtils, RedirectUtils}
+import utils.{OverseasCompanyRegUtils, RedirectUtils}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,7 +36,7 @@ class UpdateOverseasCompanyRegDetailsController @Inject()(val authConnector: Aut
                                                           template: views.html.nonUkReg.update_overseas_company_registration,
                                                           businessRegistrationService: BusinessRegistrationService,
                                                           mcc: MessagesControllerComponents
-                                                         ) extends FrontendController(mcc) with AuthActions with OverseasCompanyUtils {
+                                                         ) extends FrontendController(mcc) with AuthActions with OverseasCompanyRegUtils {
 
   implicit val appConfig: ApplicationConfig = config
   implicit val executionContext: ExecutionContext = mcc.executionContext

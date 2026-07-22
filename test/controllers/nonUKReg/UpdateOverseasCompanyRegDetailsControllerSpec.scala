@@ -33,7 +33,7 @@ import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import views.html.nonUkReg.update_overseas_company
+import views.html.nonUkReg.update_overseas_company_registration
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -48,12 +48,14 @@ class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceO
   val service = "ATED"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
-  val injectedViewInstance: update_overseas_company = inject[views.html.nonUkReg.update_overseas_company]
+
+  val injectedViewInstance: update_overseas_company_registration =
+    inject[views.html.nonUkReg.update_overseas_company_registration]
 
   implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
-  object TestNonUKController extends UpdateOverseasCompanyRegController(
+  object TestNonUKController extends UpdateOverseasCompanyRegDetailsController (
     mockAuthConnector,
     appConfig,
     injectedViewInstance,
@@ -67,7 +69,7 @@ class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceO
 
   val serviceName: String = "ATED"
 
-  "UpdateOverseasCompanyRegController" must {
+  "UpdateOverseasCompanyRegDetailsController" must {
 
     "unauthorised users" must {
       "respond with a redirect for /register & be redirected to the unauthorised page" in {
@@ -84,7 +86,12 @@ class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceO
         val busRegData = BusinessRegistration(businessName = "testName",
           businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country")
         )
-        val overseasCompany = OverseasCompany(hasBusinessUniqueId = Some(true))
+        val overseasCompany = OverseasCompany(
+          hasBusinessUniqueId = Some(true),
+          businessUniqueId = Some("123456"),
+          issuingInstitution = Some("Companies House France"),
+          issuingCountry = Some("FR")
+        )
         when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
@@ -92,7 +99,7 @@ class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceO
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number? - GOV.UK")
+          document.title() must be("Enter your overseas company registration details - Register for ATED - GOV.UK")
         }
       }
 
@@ -114,8 +121,7 @@ class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceO
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number? - GOV.UK")
-
+          document.title() must be("Enter your client’s overseas company registration details - Register for ATED - GOV.UK")
         }
       }
 
@@ -144,7 +150,7 @@ class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceO
         type ErrorMessage = String
 
         "not be empty" in {
-          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "", "issuingInstitution" -> "", "issuingCountry" -> "").toSeq: _*), "ATED") { result =>
+          updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(Map( "businessUniqueId" -> "", "issuingInstitution" -> "", "issuingCountry" -> "").toSeq: _*), "ATED") { result =>
             status(result) must be(BAD_REQUEST)
             contentAsString(result) must include("Enter the country that issued the overseas company registration number")
             contentAsString(result) must include("Enter an institution that issued the overseas company registration number")
@@ -154,7 +160,7 @@ class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceO
 
         // inputJson , test message, error message
         val formValidationInputDataSet: Seq[(Map[String, String], TestMessage, ErrorMessage)] = Seq(
-          (Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> s"${"a" * 61}", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR"), "businessUniqueId must be maximum of 60 characters",
+          (Map( "businessUniqueId" -> s"${"a" * 61}", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR"), "businessUniqueId must be maximum of 60 characters",
             "The overseas company registration number cannot be more than 60 characters"),
           (Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> s"${"a" * 41}", "issuingCountry" -> "FR"), "issuingInstitution must be maximum of 40 characters",
             "The institution that issued the overseas company registration number cannot be more than 40 characters"),
@@ -164,36 +170,36 @@ class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceO
 
         formValidationInputDataSet.foreach { data =>
           s"${data._2}" in {
-            registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(data._1.toSeq: _*), "ATED") { result =>
+            updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(data._1.toSeq: _*), "ATED") { result =>
               status(result) must be(BAD_REQUEST)
               contentAsString(result) must include(data._3)
             }
           }
         }
 
-        "If we have no cache then an exception must be thrown" in {
-          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", None, hasCache = false) { result =>
+        "If no registration details are found then an exception must be thrown" in {
+          updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", None, hasCache = false) { result =>
             val thrown = the[RuntimeException] thrownBy await(result)
             thrown.getMessage must be("No registration details found")
           }
         }
 
         "If registration details entered are valid, continue button must redirect to the next page" in {
-          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED") { result =>
+          updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED") { result =>
             status(result) must be(SEE_OTHER)
             redirectLocation(result) must be(Some("/business-customer/review-details/ATED"))
           }
         }
 
         "If registration details entered are valid, continue button must redirect to redirectUrl when present" in {
-          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some("/api/anywhere")) { result =>
+          updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some("/ated-subscription/review-business-details")) { result =>
             status(result) must be(SEE_OTHER)
-            redirectLocation(result) must be(Some("/api/anywhere"))
+            redirectLocation(result) must be(Some("/ated-subscription/review-business-details"))
           }
         }
 
         "redirect url is invalid format" in {
-          registerWithAuthorisedUserSuccess(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some("http://website.com")) { result =>
+          updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some("http://website.com")) { result =>
             status(result) must be(BAD_REQUEST)
           }
         }
@@ -221,7 +227,7 @@ class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceO
 
       builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
-      val result = TestNonUKController.viewForUpdate(serviceName, addClient = false, redirectUrl.map(RedirectUrl(_))).apply(FakeRequest().withSession(
+      val result = TestNonUKController.viewForUpdate(serviceName, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(FakeRequest().withSession(
           "sessionId" -> sessionId,
           "token" -> "RANDOMTOKEN",
           "userId" -> userId)
@@ -271,7 +277,7 @@ class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceO
       test(result)
     }
 
-    def registerWithAuthorisedUserSuccess(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], service: String = service, redirectUrl: Option[String] = None, hasCache: Boolean = true)(test: Future[Result] => Any): Unit = {
+    def updateWithAuthorisedUser(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], service: String = service, redirectUrl: Option[String] = None, hasCache: Boolean = true)(test: Future[Result] => Any): Unit = {
       val sessionId = s"session-${UUID.randomUUID}"
       val userId = s"user-${UUID.randomUUID}"
 
