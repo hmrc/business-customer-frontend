@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
                                                    config: ApplicationConfig,
-                                                   template: views.html.nonUkReg.update_overseas_company_registration,
+                                                   template: views.html.nonUkReg.update_overseas_company,
                                                    businessRegistrationService: BusinessRegistrationService,
                                                    mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with AuthActions with OverseasCompanyUtils {
@@ -49,19 +49,12 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
     authorisedFor(service){ implicit authContext =>
       RedirectUtils.getRelativeOrBadRequestOpt(redirectUrl) { newUrl =>
         val backLink = getBackLink(service, newUrl)
-        Ok(template(overseasCompanyForm,
-           service,
-           displayDetails(authContext.isAgent, addClient, service),
-          appConfig.getIsoCodeTupleList,
-            redirectUrl.map(redirectUrlGetRelativeOrDev(_).url),
-          backLink))
-
         businessRegistrationService.getDetails().map {
           case Some(detailsTuple) =>
-            Ok(template(overseasCompanyForm.fill(detailsTuple._3),
+            Ok(template(
+              overseasCompanyForm.fill(detailsTuple._3),
               service,
               displayDetails(authContext.isAgent, addClient, service),
-              appConfig.getIsoCodeTupleList,
               newUrl,
               backLink))
           case _ =>
@@ -72,40 +65,45 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
     }
   }
 
-
   def update(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] = None): Action[AnyContent] = Action.async { implicit request =>
-    authorisedFor(service){ implicit authContext =>
-      BusinessRegistrationForms.validateNonUK(overseasCompanyForm.bindFromRequest()).fold(
+    authorisedFor(service) { implicit authContext =>
+      BusinessRegistrationForms.overseasCompanyForm.bindFromRequest().fold(
         formWithErrors => {
-          val backLink = getBackLink(service, redirectUrl.map(redirectUrlGetRelativeOrDev(_).url))
-          Future.successful(BadRequest(template(
-            formWithErrors,
-            service,
-            displayDetails(authContext.isAgent, addClient, service),
-            appConfig.getIsoCodeTupleList,
-            redirectUrl.map(redirectUrlGetRelativeOrDev(_).url),
-            backLink))
-          )
-        },
+            val backLink = getBackLink(service, redirectUrl.map(redirectUrlGetRelativeOrDev(_).url))
+          Future.successful(BadRequest(template(formWithErrors, service, displayDetails(authContext.isAgent, addClient, service), redirectUrl.map(redirectUrlGetRelativeOrDev(_).url), backLink)))
+          },
         overseasCompany =>
-          RedirectUtils.getRelativeOrBadRequestOpt(redirectUrl) { newUrl =>
-            businessRegistrationService.getDetails().flatMap {
-              case Some(detailsTuple) =>
-                businessRegistrationService.updateRegisterBusiness(
-                  detailsTuple._2,
-                  overseasCompany,
-                  isGroup = false,
-                  isNonUKClientRegisteredByAgent = addClient,
-                  service,
-                  isBusinessDetailsEditable = true
-                ).map { _ =>
-                  Redirect(newUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
+            overseasCompany.hasBusinessUniqueId match {
+              case Some(true) =>
+                Future.successful(Redirect(controllers.nonUKReg.routes.UpdateOverseasCompanyRegDetailsController
+                      .viewForUpdate(service, addClient, redirectUrl)))
+
+              case Some(false) =>
+                RedirectUtils.getRelativeOrBadRequestOpt(redirectUrl) {
+                  newUrl => businessRegistrationService.getDetails().flatMap {
+                    case Some(detailsTuple) =>
+                          businessRegistrationService.updateRegisterBusiness(
+                              detailsTuple._2,
+                              overseasCompany,
+                              isGroup = false,
+                              isNonUKClientRegisteredByAgent = addClient,
+                              service,
+                              isBusinessDetailsEditable = true
+                            )
+                            .map { _ =>
+                              Redirect(newUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
+                            }
+
+                        case None => logger.warn("[UpdateOverseasCompanyRegController][update] No registration details found to edit")
+                          Future.failed(new RuntimeException("No registration details found"))
+                  }
                 }
-              case _ =>
-                logger.warn(s"[UpdateOverseasCompanyRegController][update] - No registration details found to edit")
-                throw new RuntimeException("No registration details found")
+
+              case None =>
+                Future.failed(
+                  new IllegalStateException("hasBusinessUniqueId missing after successful form binding")
+                )
             }
-          }
         )
     }
   }

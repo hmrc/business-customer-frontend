@@ -1,4 +1,20 @@
 /*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +34,7 @@ package acceptance.nonUkReg
 
 import config.ApplicationConfig
 import forms.BusinessRegistrationForms._
-import models.OverseasCompanyDisplayDetails
+import models.OverseasCompanyRegDisplayDetails
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
@@ -34,7 +50,7 @@ class update_overseas_company_registrationSpec extends AnyFeatureSpec with Guice
 
   val service = "ATED"
   val injectedViewInstance: update_overseas_company_registration = inject[views.html.nonUkReg.update_overseas_company_registration]
-  val displayDetails: OverseasCompanyDisplayDetails = OverseasCompanyDisplayDetails(
+  val displayDetails: OverseasCompanyRegDisplayDetails = OverseasCompanyRegDisplayDetails(
     "dynamicTitle",
     "dynamicHeader",
     "dynamicSubHeader",
@@ -55,7 +71,7 @@ class update_overseas_company_registrationSpec extends AnyFeatureSpec with Guice
       val messagesApi: MessagesApi = inject[MessagesApi]
       implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
-      val html = injectedViewInstance(overseasCompanyForm, service, displayDetails, List(("UK", "UK")), None, Some("http://backLinkUrl"))
+      val html = injectedViewInstance(overseasCompanyRegForm, service, displayDetails, List(("UK", "UK")), None, Some("http://backLinkUrl"))
 
       val document = Jsoup.parse(html.toString())
 
@@ -63,14 +79,11 @@ class update_overseas_company_registrationSpec extends AnyFeatureSpec with Guice
       assert(document.select("h1").text contains displayDetails.header)
 
       Then("The subheader should be - dynamicSubHeader")
-      assert(document.getElementsByClass("govuk-caption-xl").text() === "This section is " + displayDetails.subHeader)
+      assert(document.getElementsByClass("govuk-caption-xl").text() === displayDetails.subHeader)
 
       Then("We should have a back link")
       assert(document.getElementsByClass("govuk-back-link").text() === "Back")
       assert(document.getElementsByClass("govuk-back-link").attr("href") === "http://backLinkUrl")
-
-      Then("The options should be Yes and No")
-      assert(document.select(".govuk-radios__item").text() === "Yes No")
 
       Then("The company registration number fields should exist")
       assert(document.getElementsByAttributeValue("for","businessUniqueId").text() === "Overseas company registration number")

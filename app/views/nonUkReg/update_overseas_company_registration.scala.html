@@ -1,5 +1,5 @@
 @*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,88 +18,37 @@
 @import views.html.helpers._
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
-@import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
 @import uk.gov.hmrc.govukfrontend.views.html.components._
-@import views.html.helper.form
 @import views.ViewUtils.titleBuilder
-@import views.html.helper.CSPNonce
 @import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+@import views.html.helper.CSPNonce
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
     govukInput: GovukInput,
     govukSelect: GovukSelect,
-    govukRadios: GovukRadios,
-    govukBackLink : GovukBackLink,
+    govukBackLink: GovukBackLink,
     govukErrorSummary: GovukErrorSummary,
-    govukButton : GovukButton)
+    govukButton: GovukButton)
 
-@(overseasCompanyForm: Form[models.OverseasCompany],
-  service: String,
-  displayDetails: OverseasCompanyDisplayDetails,
-  countryList: List[(String, String)],
-  redirectUrl: Option[String],
-  backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@(overseasCompanyRegForm: Form[models.OverseasCompany],
+    service: String,
+    displayDetails: OverseasCompanyRegDisplayDetails,
+    countryList: List[(String, String)],
+    redirectUrl: Option[String],
+    backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @pageScripts = {
-    <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
-    <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
+
     <script @CSPNonce.attr type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/location-autocomplete.min.js")'></script>
 
     <script @CSPNonce.attr>
-         $(document).ready(function() {
-
-           openregisterLocationPicker({
-               defaultValue: '',
-               selectElement: document.getElementById('issuingCountry'),
-               url: '@controllers.routes.Assets.versioned("location-autocomplete-graph.json")'
-           })
-
-            // Where .multiple-choice uses the data-target attribute
-            // to toggle hidden content
-            var showHideContent = new GOVUK.ShowHideContent()
-            showHideContent.init()
-
-            //Clear out form when switching back to no
-            clearInputValues()
-         });
+        openregisterLocationPicker({
+            defaultValue: '',
+            selectElement: document.getElementById('issuingCountry'),
+            url: '@controllers.routes.Assets.versioned("location-autocomplete-graph.json")'
+        })
     </script>
-}
-
-@conditionalHtml = {
-
-    @govukInput(
-        Input(
-            label = Label(
-                content = Text(Messages("bc.non-uk-reg.businessUniqueId"))
-            )
-        ).withFormField(overseasCompanyForm("businessUniqueId"))
-    )
-
-    @govukSelect(
-        Select(
-            label = Label(
-                content = Text(messages("bc.non-uk-reg.issuingCountry"))
-            ),
-            items = Seq(SelectItem(Some(""), "Select a country")) ++ countryList.map {
-                case (code, country) => SelectItem(
-                value = Some(code),
-                text = country
-             )
-            }
-        ).withFormField(overseasCompanyForm("issuingCountry"))
-    )
-
-    @govukInput(
-        Input(
-            label = Label(
-                content = Text(Messages("bc.non-uk-reg.issuingInstitution"))
-            ),
-            hint = Some(Hint(
-                content = Text(Messages("bc.non-uk-reg.issuingInstitution.hint"))
-            ))
-        ).withFormField(overseasCompanyForm("issuingInstitution"))
-    )
 }
 
 @backLinkHtml = {
@@ -111,39 +60,54 @@
     }
 }
 
-@bcMain(title = titleBuilder(messages(displayDetails.title), Some(overseasCompanyForm), Some(service)), service = service,
-  pageScripts = Some(pageScripts), backlink=Some(backLinkHtml)) {
+@bcMain(title = titleBuilder(messages(displayDetails.title), Some(overseasCompanyRegForm), Some(service)), service = service,
+    pageScripts = Some(pageScripts), backlink=Some(backLinkHtml)) {
 
-    @if(overseasCompanyForm.errors.nonEmpty) {
-        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(overseasCompanyForm))
+    @if(overseasCompanyRegForm.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummary().withFormErrorsAsText(overseasCompanyRegForm))
     }
 
-    @formHelper(action = controllers.nonUKReg.routes.UpdateOverseasCompanyRegController.update(service, displayDetails.addClient, redirectUrl.map(RedirectUrl(_)))) {
+    <header>
+        <h1 class="govuk-heading-xl">
+            <span class="govuk-caption-xl hmrc-caption-xl">@messages(displayDetails.subHeader, service.toUpperCase)</span>
+            @messages(displayDetails.header)
+        </h1>
+    </header>
 
-        @govukRadios(
-        Radios(
-            fieldset = Some(Fieldset(
-                legend = Some(Legend(
-                    classes = "govuk-visually-hidden",
-                    content = Text(Messages(displayDetails.header))
-                ))
-            )),
-            items = Seq(
-                RadioItem(
-                    content = Text(Messages("bc.radio.yes.label")),
-                    value = Some("true"),
-                    conditionalHtml = Some(conditionalHtml)
-                ),
-                RadioItem(
-                    content = Text(Messages("bc.radio.no.label")),
-                    value = Some("false")
+    @formHelper(action = controllers.nonUKReg.routes.UpdateOverseasCompanyRegDetailsController.update(service, displayDetails.addClient, redirectUrl.map(RedirectUrl(_)))) {
+
+        @govukInput(
+            Input(
+                label = Label(
+                    content = Text(Messages("bc.non-uk-reg.businessUniqueId"))
                 )
-            )
-        ).withFormField(overseasCompanyForm("hasBusinessUniqueId"))
-         .withHeadingAndSectionCaption(
-            heading = HtmlContent(messages(displayDetails.header)),
-            sectionCaption = HtmlContent(messages(displayDetails.subHeader, service.toUpperCase))
-         ))
+            ).withFormField(overseasCompanyRegForm("businessUniqueId"))
+        )
+
+        @govukSelect(
+            Select(
+                label = Label(
+                    content = Text(messages("bc.non-uk-reg.issuingCountry"))
+                ),
+                items = Seq(SelectItem(Some(""), "Select a country")) ++ countryList.map {
+                    case (code, country) => SelectItem(
+                        value = Some(code),
+                        text = country
+                    )
+                }
+            ).withFormField(overseasCompanyRegForm("issuingCountry"))
+        )
+
+        @govukInput(
+            Input(
+                label = Label(
+                    content = Text(Messages("bc.non-uk-reg.issuingInstitution"))
+                ),
+                hint = Some(Hint(
+                    content = Text(Messages("bc.non-uk-reg.issuingInstitution.hint"))
+                ))
+            ).withFormField(overseasCompanyRegForm("issuingInstitution"))
+        )
 
         @govukButton(Button(
             content = Text(messages("bc.continue")),

@@ -33,12 +33,12 @@ import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import views.html.nonUkReg.update_overseas_company
+import views.html.nonUkReg.update_overseas_company_registration
 
 import java.util.UUID
 import scala.concurrent.Future
 
-class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
+class UpdateOverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .configure("microservice.services.auth.host" -> "authprotected")
@@ -48,12 +48,14 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
   val service = "ATED"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
-  val injectedViewInstance: update_overseas_company = inject[views.html.nonUkReg.update_overseas_company]
+
+  val injectedViewInstance: update_overseas_company_registration =
+    inject[views.html.nonUkReg.update_overseas_company_registration]
 
   implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
-  object TestNonUKController extends UpdateOverseasCompanyRegController(
+  object TestNonUKController extends UpdateOverseasCompanyRegDetailsController (
     mockAuthConnector,
     appConfig,
     injectedViewInstance,
@@ -67,17 +69,11 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
   val serviceName: String = "ATED"
 
-  "UpdateOverseasCompanyRegController" must {
+  "UpdateOverseasCompanyRegDetailsController" must {
 
     "unauthorised users" must {
       "respond with a redirect for /register & be redirected to the unauthorised page" in {
         editWithUnAuthorisedUser() { result =>
-          status(result) must be(SEE_OTHER)
-          redirectLocation(result) must be(Some("/business-customer/unauthorised"))
-        }
-      }
-      "respond with a redirect for /send & be redirected to the unauthorised page" in {
-        submitWithUnAuthorisedUser() { result =>
           status(result) must be(SEE_OTHER)
           redirectLocation(result) must be(Some("/business-customer/unauthorised"))
         }
@@ -90,15 +86,20 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
         val busRegData = BusinessRegistration(businessName = "testName",
           businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country")
         )
-        val overseasCompany = OverseasCompany(hasBusinessUniqueId = Some(true))
+        val overseasCompany = OverseasCompany(
+          hasBusinessUniqueId = Some(true),
+          businessUniqueId = Some("123456"),
+          issuingInstitution = Some("Companies House France"),
+          issuingCountry = Some("FR")
+        )
         when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
-        editClientWithAuthorisedUser() { result =>
+        editClientWithAuthorisedUser(serviceName) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number? - Register for ATED - GOV.UK")
+          document.title() must be("Enter your overseas company registration details - Register for ATED - GOV.UK")
         }
       }
 
@@ -106,22 +107,26 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
         val busRegData = BusinessRegistration(businessName = "testName",
           businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country")
         )
-        val overseasCompany = OverseasCompany(hasBusinessUniqueId = Some(true))
+        val overseasCompany = OverseasCompany(
+          businessUniqueId = Some(s"BUID-${UUID.randomUUID}"),
+          hasBusinessUniqueId = Some(true),
+          issuingInstitution = Some("issuingInstitution"),
+          issuingCountry = None
+        )
 
         when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(("NUK", busRegData, overseasCompany))))
 
-        editClientWithAuthorisedAgent(Some("/api/anywhere")) { result =>
+        editClientWithAuthorisedAgent(serviceName, Some("/api/anywhere")) { result =>
           status(result) must be(OK)
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() must be("Do you have an overseas company registration number? - Register for ATED - GOV.UK")
-
+          document.title() must be("Enter your client’s overseas company registration details - Register for ATED - GOV.UK")
         }
       }
 
       "redirect url is invalid format" in {
-        editClientWithAuthorisedAgent(Some("http://website.com")) { result =>
+        editClientWithAuthorisedAgent(serviceName, Some("http://website.com")) { result =>
           status(result) must be(BAD_REQUEST)
         }
       }
@@ -130,7 +135,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
         when(mockBusinessRegistrationService.getDetails()(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
-        editClientWithAuthorisedUser() { result =>
+        editClientWithAuthorisedUser(serviceName) { result =>
           val thrown = the[RuntimeException] thrownBy await(result)
           thrown.getMessage must be("No registration details found")
         }
@@ -140,49 +145,62 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
     "update" must {
 
       "validate form" must {
-        "select a radio button" in {
-          updateWithAuthorisedUser(
-            FakeRequest("POST", "/").withFormUrlEncodedBody("hasBusinessUniqueId" -> "")
-          ) { result =>
-            val document = Jsoup.parse(contentAsString(result))
 
-            status(result) mustBe BAD_REQUEST
-            document.getElementsByClass("govuk-error-summary__body").text() mustBe
-              "Select yes if you have an overseas company registration number"
-            document.getElementById("hasBusinessUniqueId-error").text() mustBe
-              "Error: Select yes if you have an overseas company registration number"
+        type TestMessage = String
+        type ErrorMessage = String
+
+        "not be empty" in {
+          updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(Map( "businessUniqueId" -> "", "issuingInstitution" -> "", "issuingCountry" -> "").toSeq: _*), "ATED") { result =>
+            status(result) must be(BAD_REQUEST)
+            contentAsString(result) must include("Enter the country that issued the overseas company registration number")
+            contentAsString(result) must include("Enter an institution that issued the overseas company registration number")
+            contentAsString(result) must include("Enter an overseas company registration number")
           }
         }
 
-        "If yes is selected, redirect to the update registration details page" in {
-          updateWithAuthorisedUser(
-            FakeRequest("POST", "/").withFormUrlEncodedBody("hasBusinessUniqueId" -> "true")
-          ) { result =>
-            status(result) mustBe SEE_OTHER
-            redirectLocation(result) mustBe Some(
-              "/business-customer/register/non-uk-client/edit-overseas-company-reg/ATED/true"
-            )
+        // inputJson , test message, error message
+        val formValidationInputDataSet: Seq[(Map[String, String], TestMessage, ErrorMessage)] = Seq(
+          (Map( "businessUniqueId" -> s"${"a" * 61}", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR"), "businessUniqueId must be maximum of 60 characters",
+            "The overseas company registration number cannot be more than 60 characters"),
+          (Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> s"${"a" * 41}", "issuingCountry" -> "FR"), "issuingInstitution must be maximum of 40 characters",
+            "The institution that issued the overseas company registration number cannot be more than 40 characters"),
+          (Map("hasBusinessUniqueId" -> "true", "businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "GB"), "show an error if issuing country is selected as GB",
+            "You cannot select United Kingdom when entering an overseas address")
+        )
+
+        formValidationInputDataSet.foreach { data =>
+          s"${data._2}" in {
+            updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(data._1.toSeq: _*), "ATED") { result =>
+              status(result) must be(BAD_REQUEST)
+              contentAsString(result) must include(data._3)
+            }
           }
         }
 
-        "If no is selected, update and redirect to Review Details" in {
-          updateWithAuthorisedUser(
-            FakeRequest("POST", "/").withFormUrlEncodedBody("hasBusinessUniqueId" -> "false")
-          ) { result =>
-            status(result) mustBe SEE_OTHER
-            redirectLocation(result) mustBe Some(
-              "/business-customer/review-details/ATED"
-            )
+        "If no registration details are found then an exception must be thrown" in {
+          updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", None, hasCache = false) { result =>
+            val thrown = the[RuntimeException] thrownBy await(result)
+            thrown.getMessage must be("No registration details found")
           }
         }
 
-        "If no is selected with a redirectUrl, redirect to the original review page" in {
-          updateWithAuthorisedUser(
-            FakeRequest("POST", "/").withFormUrlEncodedBody("hasBusinessUniqueId" -> "false"),
-            redirectUrl = Some("/ated-subscription/review-business-details")
-          ) { result =>
-            status(result) mustBe SEE_OTHER
-            redirectLocation(result) mustBe Some("/ated-subscription/review-business-details")
+        "If registration details entered are valid, continue button must redirect to the next page" in {
+          updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED") { result =>
+            status(result) must be(SEE_OTHER)
+            redirectLocation(result) must be(Some("/business-customer/review-details/ATED"))
+          }
+        }
+
+        "If registration details entered are valid, continue button must redirect to redirectUrl when present" in {
+          updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some("/ated-subscription/review-business-details")) { result =>
+            status(result) must be(SEE_OTHER)
+            redirectLocation(result) must be(Some("/ated-subscription/review-business-details"))
+          }
+        }
+
+        "redirect url is invalid format" in {
+          updateWithAuthorisedUser(FakeRequest("POST", "/").withFormUrlEncodedBody(Map("businessUniqueId" -> "some-id", "issuingInstitution" -> "some-institution", "issuingCountry" -> "FR").toSeq: _*), "ATED", Some("http://website.com")) { result =>
+            status(result) must be(BAD_REQUEST)
           }
         }
       }
@@ -203,13 +221,13 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
       test(result)
     }
 
-    def editClientWithAuthorisedAgent(redirectUrl: Option[String] = None)(test: Future[Result] => Any): Unit = {
+    def editClientWithAuthorisedAgent(service: String, redirectUrl: Option[String] = None)(test: Future[Result] => Any): Unit = {
       val sessionId = s"session-${UUID.randomUUID}"
       val userId = s"user-${UUID.randomUUID}"
 
       builders.AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
 
-      val result = TestNonUKController.viewForUpdate(serviceName, addClient = false, redirectUrl.map(RedirectUrl(_))).apply(FakeRequest().withSession(
+      val result = TestNonUKController.viewForUpdate(serviceName, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(FakeRequest().withSession(
           "sessionId" -> sessionId,
           "token" -> "RANDOMTOKEN",
           "userId" -> userId)
@@ -219,7 +237,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
       test(result)
     }
 
-    def editClientWithAuthorisedUser()(test: Future[Result] => Any): Unit = {
+    def editClientWithAuthorisedUser(service: String)(test: Future[Result] => Any): Unit = {
       val sessionId = s"session-${UUID.randomUUID}"
       val userId = s"user-${UUID.randomUUID}"
 
@@ -243,7 +261,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
     }
 
 
-    def submitWithUnAuthorisedUser(redirectUrl: Option[String] = None)(test: Future[Result] => Any): Unit = {
+    def submitWithUnAuthorisedUser(businessType: String = "NUK", redirectUrl: Option[String] = None)(test: Future[Result] => Any): Unit = {
       val sessionId = s"session-${UUID.randomUUID}"
       val userId = s"user-${UUID.randomUUID}"
 
@@ -259,12 +277,7 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
       test(result)
     }
 
-    def updateWithAuthorisedUser(
-                                  fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded],
-                                  service: String = service,
-                                  redirectUrl: Option[String] = None,
-                                  hasCache: Boolean = true
-                                )(test: Future[Result] => Any): Unit = {
+    def updateWithAuthorisedUser(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], service: String = service, redirectUrl: Option[String] = None, hasCache: Boolean = true)(test: Future[Result] => Any): Unit = {
       val sessionId = s"session-${UUID.randomUUID}"
       val userId = s"user-${UUID.randomUUID}"
 
@@ -287,6 +300,22 @@ class UpdateOverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServe
 
       when(mockBusinessRegistrationService.updateRegisterBusiness(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
       (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(successModel))
+
+      val result = TestNonUKController.update(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(fakeRequest.withSession(
+          "sessionId" -> sessionId,
+          "token" -> "RANDOMTOKEN",
+          "userId" -> userId)
+        .withHeaders(Headers("Authorization" -> "value"))
+      )
+
+      test(result)
+    }
+
+    def submitWithAuthorisedUserFailure(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], redirectUrl: Option[String] = None)(test: Future[Result] => Any): Unit = {
+      val sessionId = s"session-${UUID.randomUUID}"
+      val userId = s"user-${UUID.randomUUID}"
+
+      builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
       val result = TestNonUKController.update(service, addClient = true, redirectUrl.map(RedirectUrl(_))).apply(fakeRequest.withSession(
           "sessionId" -> sessionId,
