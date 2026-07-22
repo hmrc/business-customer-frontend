@@ -118,5 +118,4 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
       )
     }
   }
-
 }

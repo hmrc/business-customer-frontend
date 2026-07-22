@@ -76,13 +76,6 @@ object BusinessRegistrationForms {
     )(OverseasCompany.apply)(OverseasCompany.unapply)
   )
 
-  def checkFieldLengthIfPopulated(optionValue: Option[String], fieldLength: Int): Boolean = {
-    optionValue match {
-      case Some(value) => value.isEmpty || (value.nonEmpty && value.length <= fieldLength)
-      case None => true
-    }
-  }
-
   def validateNonUK(registrationData: Form[OverseasCompany]): Form[OverseasCompany] = {
     validateNonUkIdentifiers(registrationData)
   }
