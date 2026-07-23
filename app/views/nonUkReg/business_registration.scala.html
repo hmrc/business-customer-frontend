@@ -163,7 +163,7 @@
                         "data-default-value" -> "",
                         "data-module" -> "hmrc-accessible-autocomplete"
                     ),
-                    items = Seq(SelectItem(Some(""), "select a country")) ++ displayDetails.listOfIsoCode.map {
+                    items = Seq(SelectItem(Some(""), "Select a country")) ++ displayDetails.listOfIsoCode.map {
                         case (code, country) => SelectItem(
                             value = Some(code),
                             text = country
