@@ -40,18 +40,6 @@
   backLink: Option[String],
   isAgent: Boolean)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@pageScripts = {
-
-    <script @CSPNonce.attr type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/location-autocomplete.min.js")'></script>
-    <script @CSPNonce.attr type="text/javascript">
-      openregisterLocationPicker({
-        defaultValue: '',
-        selectElement: document.getElementById('businessAddress.country'),
-        url: '@controllers.routes.Assets.versioned("location-autocomplete-graph.json")'
-      })
-    </script>
-}
-
 @submitButtonText = @{
   isAgent match {
     case true => messages("bc.business-verification.submit")
@@ -69,7 +57,7 @@
 }
 
 @bcMain(title = titleBuilder(messages(displayDetails.businessRegHeader), Some(businessRegistrationForm), Some(service)),
-  service = service, pageScripts = Some(pageScripts), backlink=Some(backLinkHtml)) {
+  service = service, backlink=Some(backLinkHtml)) {
 
     @if(businessRegistrationForm.errors.nonEmpty) {
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(businessRegistrationForm))
@@ -169,7 +157,13 @@
                     label = Label(
                         content = Text(messages("bc.business-registration.country"))
                     ),
-                    items = Seq(SelectItem(Some(""), "Select a country")) ++ displayDetails.listOfIsoCode.map {
+                    attributes = Map(
+                        "data-show-all-values" -> "false",
+                        "data-auto-select" -> "false",
+                        "data-default-value" -> "",
+                        "data-module" -> "hmrc-accessible-autocomplete"
+                    ),
+                    items = Seq(SelectItem(Some(""), "select a country")) ++ displayDetails.listOfIsoCode.map {
                         case (code, country) => SelectItem(
                             value = Some(code),
                             text = country
