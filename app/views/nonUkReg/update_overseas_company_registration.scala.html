@@ -44,16 +44,11 @@
 @pageScripts = {
     <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascript/overseas-company-registration.js")'></script>
     <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascript/show-hide-content.js")'></script>
-    <script @CSPNonce.attr type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/location-autocomplete.min.js")'></script>
 
     <script @CSPNonce.attr>
          $(document).ready(function() {
 
-           openregisterLocationPicker({
-               defaultValue: '',
-               selectElement: document.getElementById('issuingCountry'),
-               url: '@controllers.routes.Assets.versioned("location-autocomplete-graph.json")'
-           })
+
 
             // Where .multiple-choice uses the data-target attribute
             // to toggle hidden content
@@ -80,6 +75,12 @@
         Select(
             label = Label(
                 content = Text(messages("bc.non-uk-reg.issuingCountry"))
+            ),
+            attributes = Map(
+                "data-show-all-values" -> "false",
+                "data-default-value" -> "",
+                "data-auto-select" -> "true",
+                "data-module" -> "hmrc-accessible-autocomplete"
             ),
             items = Seq(SelectItem(Some(""), "Select a country")) ++ countryList.map {
                 case (code, country) => SelectItem(

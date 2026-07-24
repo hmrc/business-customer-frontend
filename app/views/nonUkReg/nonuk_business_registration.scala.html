@@ -33,17 +33,6 @@
 
 @(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@pageScripts = {
-
-    <script @CSPNonce.attr type="text/javascript" src='@controllers.routes.Assets.versioned("javascript/location-autocomplete.min.js")'></script>
-    <script @CSPNonce.attr type="text/javascript">
-      openregisterLocationPicker({
-        defaultValue: '',
-        selectElement: document.getElementById('businessAddress.country'),
-        url: '@controllers.routes.Assets.versioned("location-autocomplete-graph.json")'
-      })
-    </script>
-}
 
 @backLinkHtml = {
     @if(backLink.isDefined) {
@@ -55,7 +44,7 @@
 }
 
 @bcMain(title = titleBuilder(messages(displayDetails.businessRegHeader), Some(businessRegistrationForm), Some(service)),
-  service = service, pageScripts = Some(pageScripts), backlink=Some(backLinkHtml)) {
+  service = service, backlink=Some(backLinkHtml)) {
 
     @if(businessRegistrationForm.errors.nonEmpty) {
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(businessRegistrationForm))
@@ -125,8 +114,16 @@
 
       @govukSelect(
               Select(
+                  id = "businessAddress.country",
+                  name = "businessAddress.country",
                   label = Label(
                       content = Text(messages("bc.business-registration.country"))
+                  ),
+                  attributes = Map(
+                      "data-show-all-values" -> "false",
+                      "data-auto-select" -> "true",
+                      "data-default-value" -> "",
+                      "data-module" -> "hmrc-accessible-autocomplete"
                   ),
                   items = Seq(SelectItem(Some(""), "Select a country")) ++ displayDetails.listOfIsoCode.map {
                       case (code, country) => SelectItem(

@@ -152,6 +152,7 @@
           ))
             } else HtmlFormat.empty,
 
+
             govukSelect(
                 Select(
                     id = "businessAddress.country",
@@ -161,7 +162,7 @@
                     ),
                     attributes = Map(
                         "data-show-all-values" -> "false",
-                        "data-auto-select" -> "false",
+                        "data-auto-select" -> "true",
                         "data-default-value" -> "",
                         "data-module" -> "hmrc-accessible-autocomplete"
                     ),
