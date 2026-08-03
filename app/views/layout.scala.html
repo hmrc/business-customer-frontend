@@ -19,11 +19,16 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
 @import views.html.helper.CSPNonce
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteCss
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteJavascript
+@import play.twirl.api.HtmlFormat
 
 @this(
     hmrcStandardPage: HmrcStandardPage,
     hmrcTimeoutDialogHelper: HmrcTimeoutDialogHelper,
-    problemLinkHelper: HmrcReportTechnicalIssueHelper
+    problemLinkHelper: HmrcReportTechnicalIssueHelper,
+    autocompleteCss: HmrcAccessibleAutocompleteCss,
+    autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
 )
 
 @(beforeContent: Option[Html] = None,
@@ -46,6 +51,12 @@
     <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("jquery/jquery-ui.min.js")'></script>
     <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("jquery/jquery-ui-1.12.1.min.js")'></script>
     @scripts
+
+    <script @CSPNonce.attr>
+            if (window.HMRCFrontend) {
+                window.HMRCFrontend.initAll()
+            }
+    </script>
 }
 
 @signOutUrl = @{
@@ -63,9 +74,16 @@
             accessibilityStatementUrl = Some(appConfig.accessibilityStatementFrontendUrl(service, getReferrer()))
         ),
         templateOverrides = TemplateOverrides(
-            additionalScriptsBlock = Some(allScripts),
+            additionalHeadBlock = Some(HtmlFormat.fill(Seq(
+                hmrcTimeoutDialogHelper(signOutUrl = timeOutUrl),
+                autocompleteCss()
+            ))),
+
+            additionalScriptsBlock = Some(HtmlFormat.fill(Seq(
+                allScripts,
+                autocompleteJavascript()
+            ))),
             beforeContentBlock = Some(beforeContentBlock),
-            additionalHeadBlock = Some(hmrcTimeoutDialogHelper(signOutUrl = timeOutUrl))
         ),
         serviceName = appConfig.getNavTitle(service).map(s => messages(s)),
         pageTitle = pageTitle
