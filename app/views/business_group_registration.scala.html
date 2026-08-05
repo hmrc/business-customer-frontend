@@ -18,6 +18,7 @@
 @import views.html.helpers._
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukFieldset
 @import views.html.helper.form
 @import views.ViewUtils.titleBuilder
 
@@ -26,6 +27,7 @@
     govukInput: GovukInput,
     govukBackLink : GovukBackLink,
     govukErrorSummary: GovukErrorSummary,
+    govukFieldset: GovukFieldset,
     govukButton : GovukButton)
 
 @(businessRegistrationForm: Form[models.BusinessRegistration], isAgent: Boolean, service: String, displayDetails: models.BusinessRegistrationDisplayDetails,
@@ -69,6 +71,89 @@
     </header>
 
   @formHelper(action = controllers.routes.BusinessRegUKController.send(service, messages(displayDetails.businessType))) {
+      @govukFieldset(Fieldset(
+          legend = Some(Legend(
+              content = HtmlContent(Html(s"""
+                  |<span class="govuk-caption-xl hmrc-caption-xl">
+                  |  <span class="govuk-visually-hidden">${messages("bc.screen-reader.section")}</span>
+                  |    ${messages(displayDetails.businessRegSubHeader, service)}
+                  |</span>
+                  |${messages(displayDetails.businessRegHeader)}
+                  """.stripMargin
+              )),
+              classes = "govuk-fieldset__legend--xl",
+              isPageHeading = true
+          )),
+          html = HtmlFormat.fill(Seq(
+                  displayDetails.businessRegLede.map { businessRegLede =>
+                      Html(
+                          s"""<div id="business-registration-form" class="govuk-hint govuk-!-margin-bottom-6">
+                              |${messages(businessRegLede)}
+                              |</div>""".stripMargin
+                      )
+                  }.getOrElse(Html("")),
+         govukInput(
+             Input(
+                 label = Label(
+                     content = Text(Messages("bc.business-registration.group.businessName"))
+                 ),
+                  hint = Some(Hint(
+                  content = Text(Messages("bc.business-registration.group.businessName.hintText"))
+           )),
+           attributes = Map("maxLength" -> "140"),
+                 autocomplete = Some("organization")
+             ).withFormField(businessRegistrationForm("businessName"))
+         ),
+         govukInput(
+             Input(
+                 label = Label(
+                     content = Text(Messages("bc.business-registration.line_1"))
+                 ),
+                 attributes = Map("maxLength" -> "35"),
+                 autocomplete = Some("address-line1")
+             ).withFormField(businessRegistrationForm("businessAddress.line_1"))
+         ),
+         govukInput(
+             Input(
+                 label = Label(
+                     content = Text(Messages("bc.business-registration.line_2"))
+                 ),
+                 attributes = Map("maxLength" -> "35"),
+                 autocomplete = Some("address-line2")
+             ).withFormField(businessRegistrationForm("businessAddress.line_2"))
+         ),
+         govukInput(
+             Input(
+                 label = Label(
+                     content = Text(Messages("bc.business-registration.group.line_3"))
+                 ),
+                 attributes = Map("maxLength" -> "35"),
+                 autocomplete = Some("address-line3")
+             ).withFormField(businessRegistrationForm("businessAddress.line_3"))
+         ),
+         govukInput(
+             Input(
+                 label = Label(
+                     content = Text(Messages("bc.business-registration.group.line_4"))
+                 ),
+                 attributes = Map("maxLength" -> "35"),
+                  autocomplete = Some("address-level2")
+             ).withFormField(businessRegistrationForm("businessAddress.line_4"))
+          ),
+          @govukInput(
+                Input(
+                    label = Label(
+                        content = Text(Messages("bc.business-registration.postcode"))
+                    ),
+                    classes = "govuk-input--width-10",
+                    attributes = Map("maxLength" -> "10"),
+                    autocomplete = Some("postal-code")
+                ).withFormField(businessRegistrationForm("businessAddress.postcode"))
+            )
+         ))
+  }
+//////////////////
+{
 
       <div id="business-registration-form">
 
