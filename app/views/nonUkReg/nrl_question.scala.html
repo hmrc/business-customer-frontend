@@ -44,38 +44,44 @@
         @govukErrorSummary(ErrorSummary().withFormErrorsAsText(nrlQuestionForm))
     }
 
-    <header>
-        <h1 class="govuk-heading-xl">
-            <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@messages("bc.nrl.subheader", service.toUpperCase)</span>
-            @messages("bc.nrl.header")
-        </h1>
-    </header>
+
+    <h2 class="govuk-caption-l hmrc-caption-l">
+        <span class="govuk-caption-xl hmrc-caption-xl"><span class="govuk-visually-hidden">@messages("bc.screen-reader.section") </span>@messages("bc.nrl.subheader", service.toUpperCase)</span>
+    </h2>
 
     @formHelper(action = controllers.nonUKReg.routes.NRLQuestionController.continue(service)) {
 
-    <p class="govuk-body">@Messages("bc.nrl-answer")</p>
-
-    @govukRadios(
-        Radios(
-            fieldset = Some(Fieldset(
-                legend = Some(Legend(
-                    classes = "govuk-visually-hidden",
-                    content = Text(messages("bc.nrl.header"))
-                ))
-            )),
-            items = Seq(
-                RadioItem(
-                    content = Text(Messages("bc.radio.yes.label")),
-                    value = Some("true")
+        @govukRadios(
+            Radios(
+                fieldset = Some(
+                    Fieldset(
+                        legend = Some(
+                            Legend(
+                                content = Text(messages("bc.nrl.header")),
+                                isPageHeading = true,
+                                classes = "govuk-fieldset__legend--xl"
+                            )
+                        )
+                    )
                 ),
-                RadioItem(
-                    content = Text(Messages("bc.radio.no.label")),
-                    value = Some("false")
-                )
-            ),
-            classes = "govuk-radios--inline"
-        ).withFormField(nrlQuestionForm("paysSA"))
-    )
+                hint = Some(
+                    Hint(
+                        content = Text(messages("bc.nrl-answer"))
+                    )
+                ),
+                items = Seq(
+                    RadioItem(
+                        content = Text(Messages("bc.radio.yes.label")),
+                        value = Some("true")
+                    ),
+                    RadioItem(
+                        content = Text(Messages("bc.radio.no.label")),
+                        value = Some("false")
+                    )
+                ),
+                classes = "govuk-radios--inline"
+            ).withFormField(nrlQuestionForm("paysSA"))
+        )
 
     @govukButton(Button(
         content = Text(messages("bc.continue")),
