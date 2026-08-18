@@ -56,9 +56,9 @@ class BusinessUtrController @Inject() (
 
   def onPageLoad(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
+      val backlink = Some(routes.BusinessNameController.onPageLoad(service, businessType).url)
       if (selfAssessment.contains(businessType)) {
         for {
-          backlink <- currentBackLink
           cachedUtr <- businessRegCacheConnector
             .fetchAndGetCachedDetails[Utr](s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType")
         } yield {
@@ -80,7 +80,6 @@ class BusinessUtrController @Inject() (
           val utrForm: Form[Utr] =
             if (partnerships.contains(businessType)) psaUtr else cotaxUtr
           for {
-            backlink <- currentBackLink
             cachedUtr <- businessRegCacheConnector
               .fetchAndGetCachedDetails[Utr](s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType")
           } yield {
@@ -169,10 +168,7 @@ class BusinessUtrController @Inject() (
               case Some(_)                                               =>
                 redirectWithBackLink(reviewDetailsController.controllerId, controllers.routes.ReviewDetailsController.businessDetails(service), setBackLink)
               case None =>
-                redirectWithBackLink(
-                  businessVerificationController.controllerId,
-                  controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType),
-                  setBackLink)
+                Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
             }
           }
         }
@@ -244,10 +240,7 @@ class BusinessUtrController @Inject() (
                   setBackLink
                 )
               case None =>
-                redirectWithBackLink(
-                  businessVerificationController.controllerId,
-                  controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType),
-                  setBackLink)
+                Future.successful(Redirect(controllers.routes.BusinessVerificationController.detailsNotFound(service, businessType)))
             }
           }
       }

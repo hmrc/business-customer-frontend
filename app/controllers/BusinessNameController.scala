@@ -50,10 +50,11 @@ class BusinessNameController @Inject() (
 
   def onPageLoad(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
+      val backlink = if (businessType.equalsIgnoreCase("NRL")) getNrlBackLink(service)
+      else Some(routes.BusinessVerificationController.businessVerification(service).url)
       if (businessType == "SOP") {
         val questionKey = "bc.business-verification.SoleNameField"
         for {
-          backlink <- currentBackLink
           form <-businessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
           } yield form match  {
             case Some(cached) =>
@@ -82,7 +83,6 @@ class BusinessNameController @Inject() (
       } else {
         val header = s"bc.business-verification.${getBusinessType(businessType)}NameField"
         for {
-          backlink <- currentBackLink
           form <- businessRegCacheConnector
           .fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
           } yield form match {
@@ -97,6 +97,8 @@ class BusinessNameController @Inject() (
 
   def submit(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
+      val backlink = if (businessType.equalsIgnoreCase("NRL")) getNrlBackLink(service)
+      else Some(routes.BusinessVerificationController.businessVerification(service).url)
       val setBackLink = Some(routes.BusinessNameController.onPageLoad(service, businessType).url)
       if (businessType == "SOP") {
         val questionKey = "bc.business-verification.SoleNameField"
@@ -104,8 +106,7 @@ class BusinessNameController @Inject() (
           .bindFromRequest()
           .fold(
             formWithErrors => Future.successful(
-              BadRequest(genericBusinessName(formWithErrors, questionKey, authContext.isAgent, service, businessType, Some(
-                routes.BusinessVerificationController.businessVerification(service).url)))),
+              BadRequest(genericBusinessName(formWithErrors, questionKey, authContext.isAgent, service, businessType, backlink))),
             nameData => {
               val cacheAction = businessRegCacheConnector.cacheDetails(
                 s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType",
@@ -124,8 +125,7 @@ class BusinessNameController @Inject() (
         businessName(businessType)
           .bindFromRequest()
           .fold(
-            formWithErrors => Future.successful(BadRequest(genericBusinessName(formWithErrors, header, authContext.isAgent, service, businessType, Some(
-              routes.BusinessVerificationController.businessVerification(service).url)))),
+            formWithErrors => Future.successful(BadRequest(genericBusinessName(formWithErrors, header, authContext.isAgent, service, businessType, backlink))),
             businessNameData => {
               val cacheAction =
                 businessRegCacheConnector.cacheDetails(s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType", businessNameData)
@@ -141,4 +141,6 @@ class BusinessNameController @Inject() (
     }
   }
   private def getBusinessType(businessType: String): String = if (partnerships.contains(businessType)) "partnership" else "business"
+  private def getNrlBackLink(service: String) = Some(controllers.nonUKReg.routes.PaySAQuestionController.view(service).url)
+
 }
