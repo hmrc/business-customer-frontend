@@ -76,7 +76,7 @@ class BusinessUtrController @Inject() (
           )
         }
       } else {
-          val heading = s"bc.business-verification.${getBusinessType(businessType)}UTR"
+          val heading = s"bc.business-verification.${getBusinessTypePrefix(businessType)}UTR"
           val utrForm: Form[Utr] =
             if (partnerships.contains(businessType)) psaUtr else cotaxUtr
           for {
@@ -137,7 +137,7 @@ class BusinessUtrController @Inject() (
     service: String,
     setBackLink: Option[String]
   )(implicit request: Request[AnyContent], authContext: StandardAuthRetrievals): Future[Result] = {
-    val heading = s"bc.business-verification.${getBusinessType(businessType)}UTR"
+    val heading = s"bc.business-verification.${getBusinessTypePrefix(businessType)}UTR"
     utrForm
       .bindFromRequest()
       .fold(
@@ -156,7 +156,8 @@ class BusinessUtrController @Inject() (
           ),
         utrFormData => {
           businessRegCacheConnector.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
-          val organisation = Organisation(businessName, CorporateBody)
+          val organisationType = getOrganisationType(businessType)
+          val organisation = Organisation(businessName, organisationType)
           businessMatchingService
             .matchBusinessWithOrganisationName(
               isAnAgent = authContext.isAgent, organisation = organisation, utr = utrFormData.utr, service = service
@@ -246,6 +247,16 @@ class BusinessUtrController @Inject() (
       }
     )
   }
-  private def getBusinessType(businessType: String): String = if (partnerships.contains(businessType)) "psa" else "co"
+  private def getBusinessTypePrefix(businessType: String): String = if (partnerships.contains(businessType)) "psa" else "co"
 
+  private val getOrganisationType:Map[String, String] = Map(
+    "UIB" -> UnincorporatedBody,
+    "LLP" -> Llp,
+    "LP" -> Partnership,
+    "OBP" -> Partnership,
+    "LTD" -> CorporateBody,
+    "ULTD" -> CorporateBody,
+    "UT" -> CorporateBody,
+    "NRL" -> CorporateBody
+  )
 }
