@@ -17,7 +17,7 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import controllers.BackLinkController
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
@@ -25,6 +25,7 @@ import forms.BusinessRegistrationForms._
 import models.{BusinessRegistration, BusinessRegistrationDisplayDetails}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
@@ -37,7 +38,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnector,
-                                                   val backLinkCacheConnector: BackLinkCacheConnector,
+                                                   val backLinkCacheService: BackLinkCacheService,
                                                    config: ApplicationConfig,
                                                    template: views.html.nonUkReg.nonuk_business_registration,
                                                    businessRegistrationCache: BusinessRegCacheConnector,

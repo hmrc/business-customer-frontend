@@ -19,7 +19,7 @@ package controllers
 import java.util.UUID
 import builders.{AuthBuilder, SessionBuilder}
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 
 import javax.inject.Provider
 import models.{Address, ReviewDetails}
@@ -33,7 +33,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
@@ -48,7 +48,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
 
   val mockAuthConnector = mock[AuthConnector]
   val mockBusinessMatchingService = mock[BusinessMatchingService]
-  val mockBackLinkCache = mock[BackLinkCacheConnector]
+  val mockBackLinkCache = mock[BackLinkCacheService]
   val mockBusinessVerificationControllerProv = mock[Provider[BusinessVerificationController]]
   val mockBusinessVerificationController = mock[BusinessVerificationController]
   val mockReviewDetailsController = mock[ReviewDetailsController]

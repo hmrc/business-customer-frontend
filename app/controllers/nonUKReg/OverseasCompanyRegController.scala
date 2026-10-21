@@ -17,14 +17,14 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import controllers.{BackLinkController, ReviewDetailsController}
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
 import models.{BusinessRegistration, OverseasCompany}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.BusinessRegistrationService
+import services.{BackLinkCacheService, BusinessRegistrationService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -37,7 +37,7 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
-                                             val backLinkCacheConnector: BackLinkCacheConnector,
+                                             val backLinkCacheService: BackLinkCacheService,
                                              config: ApplicationConfig,
                                              template: views.html.nonUkReg.overseas_company,
                                              businessRegistrationService: BusinessRegistrationService,

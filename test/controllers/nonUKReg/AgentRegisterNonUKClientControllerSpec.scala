@@ -17,7 +17,7 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import models.{Address, BusinessRegistration}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -29,6 +29,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
+import services.BackLinkCacheService
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
@@ -47,7 +48,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
   implicit val hc: HeaderCarrier = HeaderCarrier()
   private val mockAuthConnector: DefaultAuthConnector = mock[DefaultAuthConnector]
   private val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
-  private val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  private val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   private val mockOverseasController: OverseasCompanyRegController = mock[OverseasCompanyRegController]
   private val mockMCC: MessagesControllerComponents = inject[MessagesControllerComponents]
   private val mockAppConfig: ApplicationConfig = inject[ApplicationConfig]

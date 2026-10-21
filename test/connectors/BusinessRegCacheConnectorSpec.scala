@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,23 @@
 
 package connectors
 
-import config.ApplicationConfig
-import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.{JsValue, Json, OFormat}
-import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.http.cache.client.CacheMap
+import play.api.libs.json.{Json, OFormat}
+import play.api.test.Helpers._
+import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
+class BusinessRegCacheConnectorSpec extends PlaySpec with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   case class FormData(name: String)
 
@@ -39,39 +41,35 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   }
 
   val formId = "form-id"
-  val formIdNotExist = "no-form-id"
+  val formData: FormData = FormData("some-data")
 
-  val formData = FormData("some-data")
-
-  val formDataJson = Json.toJson(formData)
-
-  val cacheMap = CacheMap(id = formId, Map("date" -> formDataJson))
-
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-
-  class Setup extends ConnectorTest {
-    val connector: BusinessRegCacheConnector = new BusinessRegCacheConnector(mockHttpClient, appConfig)
+  class Setup {
+    val mockSessionCacheRepository: SessionCacheRepository = mock[SessionCacheRepository]
+    val connector: BusinessRegCacheConnector = new BusinessRegCacheConnector(mockSessionCacheRepository)
   }
-
-
-  implicit val ec: ExecutionContext = mcc.executionContext
 
   "BusinessRegCacheConnector" must {
 
-    "fetchAndGetBusinessDetailsForSession" must {
+    "fetchAndGetCachedDetails" must {
+      "return the cached form data for the form id" in new Setup {
+        when(mockSessionCacheRepository.getFromSession[FormData](DataKey[FormData](eqTo(formId)))(any(), any()))
+          .thenReturn(Future.successful(Some(formData)))
 
-      "return Some formId of the cached form does exist for defined data type" in new Setup  {
-          when(executeGet[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
+        await(connector.fetchAndGetCachedDetails[FormData](formId)) must be(Some(formData))
+      }
 
-          await(connector.fetchAndGetCachedDetails[FormData](formIdNotExist)) must be(Some(formData))
+      "return None when nothing is cached for the form id" in new Setup {
+        when(mockSessionCacheRepository.getFromSession[FormData](DataKey[FormData](eqTo(formId)))(any(), any()))
+          .thenReturn(Future.successful(None))
+
+        await(connector.fetchAndGetCachedDetails[FormData](formId)) must be(None)
       }
     }
 
-    "save form data" when {
-      "valid form data with a valid form id is passed" in new Setup {
-        val inputBody: JsValue = Json.toJson(formData)
-        when(executePut[CacheMap](inputBody)).thenReturn(Future.successful(CacheMap("test", Map(formIdNotExist -> Json.toJson(formData)))))
+    "cacheDetails" must {
+      "save the form data under the form id" in new Setup {
+        when(mockSessionCacheRepository.putSession[FormData](DataKey[FormData](eqTo(formId)), eqTo(formData))(any(), any()))
+          .thenReturn(Future.successful(formData))
 
         await(connector.cacheDetails[FormData](formId, formData)) must be(formData)
       }

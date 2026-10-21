@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import forms.BusinessVerificationForms._
@@ -25,7 +25,7 @@ import forms._
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Format.GenericFormat
 import play.api.mvc._
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants._
@@ -39,7 +39,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                                                template: views.html.business_verification,
                                                templateDetailsNotFound: views.html.details_not_found,
                                                businessRegCacheConnector: BusinessRegCacheConnector,
-                                               val backLinkCacheConnector: BackLinkCacheConnector,
+                                               val backLinkCacheService: BackLinkCacheService,
                                                val businessMatchingService: BusinessMatchingService,
                                                val businessRegUKController: BusinessRegUKController,
                                                val businessRegController: BusinessRegController,

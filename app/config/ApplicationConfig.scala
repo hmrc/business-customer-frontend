@@ -20,6 +20,7 @@ import javax.inject.{Inject, Named, Singleton}
 import play.api.{Configuration, Environment, Logging}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import scala.concurrent.duration.Duration
 import scala.util.Try
 
 @Singleton
@@ -43,11 +44,7 @@ class ApplicationConfig @Inject()(val conf: ServicesConfig,
   lazy val loginURL = s"$basGatewayHost/bas-gateway/sign-in"
   lazy val signOut = s"$basGatewayHost/bas-gateway/sign-out-without-state"
 
-  lazy val baseUri: String = conf.baseUrl("cachable.session-cache")
-  lazy val defaultSource: String = appName
-  lazy val domain: String = conf.getConfString(
-    "cachable.session-cache.domain", throw new Exception(s"Could not find config 'cachable.session-cache.domain'")
-  )
+  lazy val mongoSessionTtl: Duration = conf.getDuration("mongodb.session.expireAfter")
 
   def accessibilityStatementFrontendUrl(service: String, referrerUrl: String): String = {
     val statement = service.toUpperCase() match {

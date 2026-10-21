@@ -16,31 +16,19 @@
 
 package connectors
 
-import config.ApplicationConfig
+import play.api.libs.json.Format
+import repositories.SessionCacheRepository
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import javax.inject.Inject
-import play.api.libs.json.Format
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.http.client.HttpClientV2
-
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegCacheConnector @Inject()(val http: HttpClientV2,
-                                          config: ApplicationConfig) extends SessionCache {
-
-  val baseUri: String = config.baseUri
-  val defaultSource: String = config.defaultSource
-  val domain: String = config.domain
-
-  val sourceId: String = "BC_NonUK_Business_Details"
+class BusinessRegCacheConnector @Inject()(sessionCacheRepository: SessionCacheRepository) {
 
   def fetchAndGetCachedDetails[T](formId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[Option[T]] =
-    fetchAndGetEntry[T](key = formId)
+    sessionCacheRepository.getFromSession[T](DataKey[T](formId))
 
-  def cacheDetails[T](formId: String, formData: T)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[T] = {
-    cache[T](formId, formData).map(_ => formData)
-  }
-
-  def httpClientV2: HttpClientV2 = http
+  def cacheDetails[T](formId: String, formData: T)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[T] =
+    sessionCacheRepository.putSession[T](DataKey[T](formId), formData)
 }

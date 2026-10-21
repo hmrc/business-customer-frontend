@@ -18,7 +18,7 @@ package controllers.nonUKReg
 
 import java.util.UUID
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import models.{Address, BusinessRegistration}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -30,6 +30,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html.nonUkReg.business_registration
@@ -43,7 +44,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val invalidService = "scooby-doo"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
-  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   val mockOverseasCompanyRegController: OverseasCompanyRegController = mock[OverseasCompanyRegController]
   val injectedViewInstance: business_registration = inject[views.html.nonUkReg.business_registration]
 
