@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,90 +16,77 @@
 
 package connectors
 
-import config.ApplicationConfig
 import models.{Address, BusinessRegistration, ReviewDetails}
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito.{verify, when}
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
+import repositories.SessionCacheRepository
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
+class DataCacheConnectorSpec extends PlaySpec with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-
-
-  val appConfig = app.injector.instanceOf[ApplicationConfig]
-
-
-  class Setup extends ConnectorTest {
-    val connector: DataCacheConnector = new DataCacheConnector(mockHttpClient, appConfig)
-  }
-
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+
+  val reviewDetails: ReviewDetails =
+    ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
+  val registrationDetails: BusinessRegistration = BusinessRegistration("ACME", Address("line1", "line2", None, None, None, "country"))
+
+  class Setup {
+    val mockSessionCacheRepository: SessionCacheRepository = mock[SessionCacheRepository]
+    val connector: DataCacheConnector = new DataCacheConnector(mockSessionCacheRepository)
+  }
 
   "DataCacheConnector" must {
 
     "fetchAndGetBusinessDetailsForSession" must {
-      "fetch saved BusinessDetails from SessionCache" in new Setup {
-        val reviewDetails: ReviewDetails =
-          ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
-        when(executeGet[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
+      "fetch saved BusinessDetails from the session cache" in new Setup {
+        when(mockSessionCacheRepository.getFromSession[ReviewDetails](DataKey[ReviewDetails](eqTo("BC_Business_Details")))(any(), any()))
+          .thenReturn(Future.successful(Some(reviewDetails)))
 
-        val result: Future[Option[ReviewDetails]] = connector.fetchAndGetBusinessDetailsForSession
-          await(result) must be(Some(reviewDetails))
+        await(connector.fetchAndGetBusinessDetailsForSession) must be(Some(reviewDetails))
       }
     }
 
     "fetchAndGetBusinessRegistrationDetailsForSession" must {
-      "fetch saved RegistrationDetails from SessionCache" in new Setup {
-        val registrationDetails: BusinessRegistration =
-          BusinessRegistration("ACME", Address("line1", "line2", None, None, None, "country"))
-        when(executeGet[CacheMap]).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details_form_payload" -> Json.toJson(registrationDetails)))))
+      "fetch saved RegistrationDetails from the session cache" in new Setup {
+        when(mockSessionCacheRepository.getFromSession[BusinessRegistration](DataKey[BusinessRegistration](eqTo("BC_Business_Details_form_payload")))(any(), any()))
+          .thenReturn(Future.successful(Some(registrationDetails)))
 
-        val result: Future[Option[BusinessRegistration]] = connector.fetchAndGetBusinessRegistrationDetailsForSession
-          await(result) must be(Some(registrationDetails))
+        await(connector.fetchAndGetBusinessRegistrationDetailsForSession) must be(Some(registrationDetails))
       }
     }
 
-    "saveAndReturnBusinessDetails" must {
-
+    "saveReviewDetails" must {
       "save the fetched business details" in new Setup {
-        val reviewDetails: ReviewDetails = ReviewDetails("ACME", Some("UIB"), Address("line1", "line2", None, None, None, "country"), "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
-        val inputBody: JsValue = Json.toJson(reviewDetails)
+        when(mockSessionCacheRepository.putSession[ReviewDetails](DataKey[ReviewDetails](eqTo("BC_Business_Details")), eqTo(reviewDetails))(any(), any()))
+          .thenReturn(Future.successful(reviewDetails))
 
-        when(executePut[CacheMap](inputBody)).thenReturn(Future.successful(CacheMap("test", Map("BC_Business_Details" -> Json.toJson(reviewDetails)))))
-
-        val result: Future[Option[ReviewDetails]] = connector.saveReviewDetails(reviewDetails)
-        await(result).get must be(reviewDetails)
+        await(connector.saveReviewDetails(reviewDetails)) must be(Some(reviewDetails))
       }
-
     }
+
     "saveBusinessRegistrationDetails" must {
-
       "save the business registration details" in new Setup {
-        val reviewDetails: BusinessRegistration = BusinessRegistration("ACME", Address("line1", "line2", None, None, None, "country"))
-        val inputBody: JsValue = Json.toJson(reviewDetails)
+        when(mockSessionCacheRepository.putSession[BusinessRegistration](DataKey[BusinessRegistration](eqTo("BC_Business_Details_form_payload")), eqTo(registrationDetails))(any(), any()))
+          .thenReturn(Future.successful(registrationDetails))
 
-        when(executePut[CacheMap](inputBody)).thenReturn(
-          Future.successful(CacheMap("test", Map("BC_Business_Details_form_payload" -> Json.toJson(reviewDetails)))))
-
-        val result: Future[Option[BusinessRegistration]] = connector.saveBusinessRegistrationDetails(reviewDetails)
-        await(result).get must be(reviewDetails)
+        await(connector.saveBusinessRegistrationDetails(registrationDetails)) must be(Some(registrationDetails))
       }
     }
 
     "clearCache" must {
-      "clear the cache for the session" in new Setup{
-        when(executeDelete[HttpResponse]).thenReturn(Future.successful(HttpResponse(OK, "")))
+      "clear the cache for the session" in new Setup {
+        when(mockSessionCacheRepository.deleteFromSession(any())).thenReturn(Future.successful(()))
 
-        val result: Future[Unit] = connector.clearCache
-        await(result) must be(())
+        await(connector.clearCache) must be(())
+        verify(mockSessionCacheRepository).deleteFromSession(any())
       }
     }
   }

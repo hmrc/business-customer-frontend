@@ -16,22 +16,22 @@
 
 package controllers
 
-import connectors.BackLinkCacheConnector
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Call, Result}
+import services.BackLinkCacheService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait BackLinkController {
   val controllerId: String
-  val backLinkCacheConnector: BackLinkCacheConnector
+  val backLinkCacheService: BackLinkCacheService
 
   def setBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] =
-    backLinkCacheConnector.saveBackLink(pageId, returnUrl)
+    backLinkCacheService.saveBackLink(pageId, returnUrl)
 
   def currentBackLink(implicit hc: HeaderCarrier, ec: ExecutionContext):Future[Option[String]] =
-    backLinkCacheConnector.fetchAndGetBackLink(controllerId)
+    backLinkCacheService.fetchAndGetBackLink(controllerId)
 
   def redirectToExternal(redirectCall: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
     setBackLink("ExternalLinkController", returnUrl) map (_ => Redirect(redirectCall))

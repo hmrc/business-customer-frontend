@@ -17,7 +17,7 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import controllers.BackLinkController
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
@@ -25,6 +25,7 @@ import forms.BusinessRegistrationForms._
 import javax.inject.Inject
 import models.{BusinessRegistration, BusinessRegistrationDisplayDetails, StandardAuthRetrievals}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
@@ -32,7 +33,7 @@ import utils.BusinessCustomerConstants.BusinessRegDetailsId
 import scala.concurrent.ExecutionContext
 
 class BusinessRegController @Inject()(val authConnector: AuthConnector,
-                                      val backLinkCacheConnector: BackLinkCacheConnector,
+                                      val backLinkCacheService: BackLinkCacheService,
                                       config: ApplicationConfig,
                                       template: views.html.nonUkReg.business_registration,
                                       businessRegistrationCache: BusinessRegCacheConnector,

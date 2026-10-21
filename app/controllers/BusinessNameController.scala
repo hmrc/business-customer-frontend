@@ -16,13 +16,14 @@
 
 package controllers
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import forms.BusinessVerificationForms.{businessName, partnerships, soleTraderNameForm}
 import forms.{BusinessName, SoleTraderName}
 import jakarta.inject.Singleton
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.CacheBusinessNameDataRegistrationDetails
@@ -32,13 +33,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class BusinessNameController @Inject() (
-  val config: ApplicationConfig,
-  val authConnector: AuthConnector,
-  genericBusinessName: views.html.generic_business_name,
-  businessRegCacheConnector: BusinessRegCacheConnector,
-  val backLinkCacheConnector: BackLinkCacheConnector,
-  businessUtrController: BusinessUtrController,
-  val mcc: MessagesControllerComponents
+                                         val config: ApplicationConfig,
+                                         val authConnector: AuthConnector,
+                                         genericBusinessName: views.html.generic_business_name,
+                                         businessRegCacheConnector: BusinessRegCacheConnector,
+                                         val backLinkCacheService: BackLinkCacheService,
+                                         businessUtrController: BusinessUtrController,
+                                         val mcc: MessagesControllerComponents
 ) extends FrontendController(mcc)
   with AuthActions
   with BackLinkController

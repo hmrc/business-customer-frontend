@@ -20,7 +20,7 @@ import java.util.UUID
 
 import builders.SessionBuilder
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import models.NRLQuestion
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -32,6 +32,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html.nonUkReg.nrl_question
@@ -42,7 +43,7 @@ import scala.concurrent.Future
 class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   val mockPaySAController: PaySAQuestionController = mock[PaySAQuestionController]
   val mockBusRegController: BusinessRegController = mock[BusinessRegController]
   val service = "amls"

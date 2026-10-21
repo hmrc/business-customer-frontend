@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import forms.BusinessVerificationForms._
 import forms._
@@ -26,7 +26,7 @@ import models.{Individual, Organisation, ReviewDetails, StandardAuthRetrievals}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants._
@@ -36,15 +36,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class BusinessUtrController @Inject() (
-  val config: ApplicationConfig,
-  val authConnector: AuthConnector,
-  genericBusinessUtr: views.html.generic_business_utr,
-  businessRegCacheConnector: BusinessRegCacheConnector,
-  val backLinkCacheConnector: BackLinkCacheConnector,
-  val businessMatchingService: BusinessMatchingService,
-  val reviewDetailsController: ReviewDetailsController,
-  val businessVerificationController: BusinessVerificationController,
-  val mcc: MessagesControllerComponents
+                                        val config: ApplicationConfig,
+                                        val authConnector: AuthConnector,
+                                        genericBusinessUtr: views.html.generic_business_utr,
+                                        businessRegCacheConnector: BusinessRegCacheConnector,
+                                        val backLinkCacheService: BackLinkCacheService,
+                                        val businessMatchingService: BusinessMatchingService,
+                                        val reviewDetailsController: ReviewDetailsController,
+                                        val businessVerificationController: BusinessVerificationController,
+                                        val mcc: MessagesControllerComponents
 ) extends FrontendController(mcc)
   with AuthActions
   with BackLinkController
