@@ -20,7 +20,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.cache.CacheIdType
 
 object SessionCacheId extends CacheIdType[HeaderCarrier] {
-  // A shared fallback key would let session-less requests read and write each other's data
   override def run: HeaderCarrier => String = hc =>
     hc.sessionId.map(_.value).getOrElse(throw new IllegalStateException("[SessionCacheId] No sessionId found in HeaderCarrier"))
 }
