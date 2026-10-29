@@ -16,16 +16,13 @@
 
 package repositories
 
-import com.typesafe.config.ConfigFactory
 import config.ApplicationConfig
-import crypto.{CryptoProvider, MongoCrypto}
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
-import play.api.Configuration
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.mongo.CurrentTimestampSupport
@@ -41,11 +38,7 @@ class SessionCacheRepositorySpec extends PlaySpec with MongoSupport with Mockito
   implicit val appConfig: ApplicationConfig = mock[ApplicationConfig]
   when(appConfig.mongoSessionTtl).thenReturn(15.minutes)
 
-  private val mongoCrypto = new MongoCrypto(new CryptoProvider(
-    Configuration(ConfigFactory.parseString("""json.encryption.key = "gvBoGdgzqG1AarzF1LY0zQ=="""")))
-  )
-
-  private val repository = new SessionCacheRepository(mongoComponent, new CurrentTimestampSupport, mongoCrypto)
+  private val repository = new SessionCacheRepository(mongoComponent, new CurrentTimestampSupport)
 
   private val sessionId = "session-12345"
   private val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(sessionId)))
@@ -63,15 +56,13 @@ class SessionCacheRepositorySpec extends PlaySpec with MongoSupport with Mockito
   }
 
   "SessionCacheRepository" must {
-    "store data encrypted" in {
+    "store data under the session id and key" in {
       await(repository.putSession(dataKey, data)(implicitly, hc))
 
-      val stored = rawStoredValue
-      stored mustBe a[JsString]
-      stored.toString must not include "ACME Trading Ltd"
+      rawStoredValue mustBe data
     }
 
-    "read stored data back decrypted" in {
+    "read stored data back" in {
       await(repository.putSession(dataKey, data)(implicitly, hc))
 
       await(repository.getFromSession(dataKey)(implicitly, hc)) mustBe Some(data)

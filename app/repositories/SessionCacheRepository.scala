@@ -17,8 +17,7 @@
 package repositories
 
 import config.ApplicationConfig
-import crypto.MongoCrypto
-import play.api.libs.json.{JsValue, Reads, Writes}
+import play.api.libs.json.{Reads, Writes}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.cache.{DataKey, MongoCacheRepository}
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
@@ -29,8 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SessionCacheRepository @Inject()(
     mongoComponent: MongoComponent,
-    timestampSupport: TimestampSupport,
-    mongoCrypto: MongoCrypto
+    timestampSupport: TimestampSupport
 )(implicit
     ec: ExecutionContext,
     appConfig: ApplicationConfig
@@ -48,12 +46,10 @@ class SessionCacheRepository @Inject()(
       dataKey: DataKey[T],
       data: T
   )(implicit hc: HeaderCarrier): Future[T] =
-    cacheRepo
-      .put[JsValue](hc)(DataKey[JsValue](dataKey.unwrap), mongoCrypto.encrypt(data))
-      .map(_ => data)
+    cacheRepo.put[T](hc)(dataKey, data).map(_ => data)
 
   def getFromSession[T: Reads](dataKey: DataKey[T])(implicit hc: HeaderCarrier): Future[Option[T]] =
-    cacheRepo.get[JsValue](hc)(DataKey[JsValue](dataKey.unwrap)).map(_.map(mongoCrypto.decrypt(_).as[T]))
+    cacheRepo.get[T](hc)(dataKey)
 
   def deleteFromSession(implicit hc: HeaderCarrier): Future[Unit] =
     cacheRepo.deleteEntity(hc)
