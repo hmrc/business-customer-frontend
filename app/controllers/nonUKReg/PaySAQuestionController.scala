@@ -17,13 +17,14 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import controllers.{BackLinkController, BusinessVerificationController}
 import forms.BusinessRegistrationForms._
 import javax.inject.{Inject, Provider}
 import models.PaySAQuestion
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.PaySaDetailsId
@@ -31,7 +32,7 @@ import utils.BusinessCustomerConstants.PaySaDetailsId
 import scala.concurrent.ExecutionContext
 
 class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
-                                        val backLinkCacheConnector: BackLinkCacheConnector,
+                                        val backLinkCacheService: BackLinkCacheService,
                                         config: ApplicationConfig,
                                         template: views.html.nonUkReg.paySAQuestion,
                                         businessRegController: BusinessRegController,

@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import forms._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -31,6 +31,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html._
@@ -42,7 +43,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
 
   val request: FakeRequest[AnyContentAsEmpty.type]             = FakeRequest()
   val mockAuthConnector: AuthConnector                         = mock[AuthConnector]
-  val mockBackLinkCache: BackLinkCacheConnector                = mock[BackLinkCacheConnector]
+  val mockBackLinkCache: BackLinkCacheService                = mock[BackLinkCacheService]
   val mockBusinessRegCacheConnector: BusinessRegCacheConnector =
     mock[BusinessRegCacheConnector]
 

@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, DataCacheConnector}
+import connectors.{DataCacheConnector}
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -31,7 +31,8 @@ import play.api.mvc.{Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import play.api.i18n.{Lang, Messages, MessagesApi}
-import services.AgentRegistrationService
+import repositories.SessionCacheRepository
+import services.{AgentRegistrationService, BackLinkCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, NotFoundException}
@@ -50,7 +51,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockAgentRegistrationService: AgentRegistrationService = mock[AgentRegistrationService]
-  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   val mockHttpClient: HttpClientV2 = inject[HttpClientV2]
   val injectedViewInstanceNonUkAgent: review_details_non_uk_agent = inject[views.html.review_details_non_uk_agent]
   val injectedViewInstanceReviewDetails: review_details = inject[views.html.review_details]
@@ -69,10 +70,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val invalidBadGatewayResponse: JsValue = Json.parse( """{"statusCode":502,"message":"<?xml version=\"1.0\" encoding=\"utf-8\"?><soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:wsa=\"http://schemas.xmlsoap.org/ws/2004/03/addressing\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"><soap:Header><wsa:Action>http://schemas.xmlsoap.org/ws/2004/03/addressing/fault</wsa:Action><wsa:MessageID>uuid:199814d0-9758-49d1-a2c0-d24300f67e2c</wsa:MessageID><wsa:RelatesTo>uuid:d1894fa0-b97d-4707-a814-e0c5ea79a01a</wsa:RelatesTo><wsa:To>http://schemas.xmlsoap.org/ws/2004/03/addressing/role/anonymous</wsa:To><wsse:Security><wsu:Timestamp wsu:Id=\"Timestamp-0fdb513d-1da4-4804-80b5-d04530653fac\"><wsu:Created>2017-03-22T14:23:00Z</wsu:Created><wsu:Expires>2017-03-22T14:28:00Z</wsu:Expires></wsu:Timestamp></wsse:Security></soap:Header><soap:Body><soap:Fault><faultcode>soap:Client</faultcode><faultstring>Business Rule Error</faultstring><faultactor>http://www.gateway.gov.uk/soap/2007/02/portal</faultactor><detail><GatewayDetails xmlns=\"urn:GSO-System-Services:external:SoapException\"><ErrorNumber>1111</ErrorNumber><Message>The service HMRC-AGENT-AGENT requires unique identifiers</Message><RequestID>0753B23CA0C14D23A4BBFC129795C42E</RequestID></GatewayDetails></detail></soap:Fault></soap:Body></soap:Envelope>"}	""")
 
   def testReviewDetailsController(reviewDetails: ReviewDetails): ReviewDetailsController = {
-    val mockDataCacheConnector: DataCacheConnector = new DataCacheConnector(
-      mockHttpClient,
-      appConfig
-    ) {
+    val mockDataCacheConnector: DataCacheConnector = new DataCacheConnector(mock[SessionCacheRepository]) {
       override val sourceId: String = "Test"
 
       var reads: Int = 0
@@ -98,10 +96,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   }
 
   def testReviewDetailsControllerNotFound: ReviewDetailsController = {
-    val mockDataCacheConnector: DataCacheConnector = new DataCacheConnector(
-      mockHttpClient,
-      appConfig
-    ) {
+    val mockDataCacheConnector: DataCacheConnector = new DataCacheConnector(mock[SessionCacheRepository]) {
       override val sourceId: String = "Test"
 
       var reads: Int = 0

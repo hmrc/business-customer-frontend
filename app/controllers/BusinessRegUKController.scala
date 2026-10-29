@@ -17,14 +17,14 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, DataCacheConnector}
+import connectors.{DataCacheConnector}
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
 import javax.inject.Inject
 import models.{BusinessRegistrationDisplayDetails, OverseasCompany}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.BusinessRegistrationService
+import services.{BackLinkCacheService, BusinessRegistrationService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext
 
 
 class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
-                                        val backLinkCacheConnector: BackLinkCacheConnector,
+                                        val backLinkCacheService: BackLinkCacheService,
                                         config: ApplicationConfig,
                                         template: views.html.business_group_registration,
                                         businessRegistrationService: BusinessRegistrationService,

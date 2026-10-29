@@ -17,12 +17,12 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.{BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import models.ReviewDetails
 import play.api.libs.json.{JsError, JsSuccess}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext
 
 
 class HomeController @Inject()(val authConnector: AuthConnector,
-                               val backLinkCacheConnector: BackLinkCacheConnector,
+                               val backLinkCacheService: BackLinkCacheService,
                                config: ApplicationConfig,
                                businessMatchService: BusinessMatchingService,
                                businessVerificationController: Provider[BusinessVerificationController],

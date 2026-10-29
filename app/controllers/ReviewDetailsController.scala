@@ -17,13 +17,13 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, DataCacheConnector}
+import connectors.{DataCacheConnector}
 import controllers.auth.AuthActions
 import javax.inject.Inject
 import play.api.Logging
 import play.api.i18n.{Messages, MessagesProvider}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.AgentRegistrationService
+import services.{AgentRegistrationService, BackLinkCacheService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionUtils
@@ -31,7 +31,7 @@ import utils.SessionUtils
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
-                                        val backLinkCacheConnector: BackLinkCacheConnector,
+                                        val backLinkCacheService: BackLinkCacheService,
                                         config: ApplicationConfig,
                                         templateNonUkAgent: views.html.review_details_non_uk_agent,
                                         templateReviewDetails: views.html.review_details,

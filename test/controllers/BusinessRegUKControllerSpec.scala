@@ -19,7 +19,7 @@ package controllers
 import java.util.UUID
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, DataCacheConnector}
+import connectors.{DataCacheConnector}
 import models.{Address, BusinessRegistration, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -30,7 +30,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
-import services.BusinessRegistrationService
+import services.{BackLinkCacheService, BusinessRegistrationService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import views.html.business_group_registration
 
@@ -42,7 +42,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val service = "ATED"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
-  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   val mockReviewDetailController: ReviewDetailsController = mock[ReviewDetailsController]
   val injectedViewInstance: business_group_registration = inject[views.html.business_group_registration]
   val mockDataCacheConnector: DataCacheConnector = mock[DataCacheConnector]
@@ -61,7 +61,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   ) {
     override val authConnector: AuthConnector = mockAuthConnector
     override val controllerId = "test"
-    override val backLinkCacheConnector: BackLinkCacheConnector = mockBackLinkCache
+    override val backLinkCacheService: BackLinkCacheService = mockBackLinkCache
   }
 
   val serviceName: String = "ATED"
