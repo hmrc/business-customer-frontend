@@ -29,7 +29,7 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataCacheConnectorSpec extends PlaySpec with MockitoSugar {
+class BusinessDetailsCacheServiceSpec extends PlaySpec with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -40,7 +40,7 @@ class DataCacheConnectorSpec extends PlaySpec with MockitoSugar {
 
   class Setup {
     val mockSessionCacheRepository: SessionCacheRepository = mock[SessionCacheRepository]
-    val connector: DataCacheConnector = new DataCacheConnector(mockSessionCacheRepository)
+    val connector: BusinessDetailsCacheService = new BusinessDetailsCacheService(mockSessionCacheRepository)
   }
 
   "DataCacheConnector" must {

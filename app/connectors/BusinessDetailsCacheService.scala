@@ -20,27 +20,25 @@ import models.{BusinessRegistration, ReviewDetails}
 import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.cache.DataKey
+import utils.BusinessCustomerConstants.{BusinessDetailsFormPayloadId, BusinessDetailsSourceId}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataCacheConnector @Inject()(sessionCacheRepository: SessionCacheRepository) {
-
-  val sourceId: String = "BC_Business_Details"
-  private val sourceIdForFormPayload: String = "BC_Business_Details_form_payload"
+class BusinessDetailsCacheService @Inject()(sessionCacheRepository: SessionCacheRepository) {
 
   def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
-    sessionCacheRepository.getFromSession[ReviewDetails](DataKey(sourceId))
+    sessionCacheRepository.getFromSession[ReviewDetails](DataKey(BusinessDetailsSourceId))
 
   def fetchAndGetBusinessRegistrationDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
-    sessionCacheRepository.getFromSession[BusinessRegistration](DataKey(sourceIdForFormPayload))
+    sessionCacheRepository.getFromSession[BusinessRegistration](DataKey(BusinessDetailsFormPayloadId))
 
   def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
-    sessionCacheRepository.putSession[ReviewDetails](DataKey(sourceId), reviewDetails).map(Some(_))
+    sessionCacheRepository.putSession[ReviewDetails](DataKey(BusinessDetailsSourceId), reviewDetails).map(Some(_))
 
   def saveBusinessRegistrationDetails(businessRegistration: BusinessRegistration)
                                      (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
-    sessionCacheRepository.putSession[BusinessRegistration](DataKey(sourceIdForFormPayload), businessRegistration).map(Some(_))
+    sessionCacheRepository.putSession[BusinessRegistration](DataKey(BusinessDetailsFormPayloadId), businessRegistration).map(Some(_))
 
   def clearCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     sessionCacheRepository.deleteFromSession

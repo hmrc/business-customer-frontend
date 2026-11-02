@@ -20,15 +20,14 @@ import models.BackLinkModel
 import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.cache.DataKey
+import utils.BusinessCustomerConstants.BacklinkId
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class BackLinkCacheService @Inject()(sessionCacheRepository: SessionCacheRepository) {
 
-  val sourceId: String = "BC_Back_Link"
-
-  private def getKey(pageId: String): DataKey[BackLinkModel] = DataKey[BackLinkModel](s"$sourceId:$pageId")
+  private def getKey(pageId: String): DataKey[BackLinkModel] = DataKey[BackLinkModel](s"$BacklinkId:$pageId")
 
   def fetchAndGetBackLink(pageId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
     sessionCacheRepository.getFromSession[BackLinkModel](getKey(pageId)).map(_.flatMap(_.backLink))

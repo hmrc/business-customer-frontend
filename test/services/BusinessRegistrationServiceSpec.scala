@@ -17,7 +17,7 @@
 package services
 
 import builders.AuthBuilder
-import connectors.{BusinessCustomerConnector, DataCacheConnector}
+import connectors.{BusinessCustomerConnector, BusinessDetailsCacheService}
 import models._
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -36,7 +36,7 @@ import scala.concurrent.Future
 class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
   implicit val user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
-  val mockDataCacheConnector = mock[DataCacheConnector]
+  val mockDataCacheConnector = mock[BusinessDetailsCacheService]
   val service = "ATED"
 
   val mockBusinessCustomerConnector = mock[BusinessCustomerConnector]

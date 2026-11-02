@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.DataCacheConnector
+import connectors.BusinessDetailsCacheService
 import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -40,7 +40,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
   val request = FakeRequest()
   val service = "ATED"
   val mockAuthConnector = mock[AuthConnector]
-  val mockDataCacheConnector = mock[DataCacheConnector]
+  val mockDataCacheConnector = mock[BusinessDetailsCacheService]
 
   override def beforeEach() = {
     reset(mockDataCacheConnector)

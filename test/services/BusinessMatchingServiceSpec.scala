@@ -17,7 +17,7 @@
 package services
 
 import builders.AuthBuilder
-import connectors.{BusinessMatchingConnector, DataCacheConnector}
+import connectors.{BusinessMatchingConnector, BusinessDetailsCacheService}
 import models._
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -164,7 +164,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
   val service = "ated"
 
   val mockBusinessMatchingConnector = mock[BusinessMatchingConnector]
-  val mockDataCacheConnector = mock[DataCacheConnector]
+  val mockDataCacheConnector = mock[BusinessDetailsCacheService]
 
   object TestBusinessMatchingService extends BusinessMatchingService(
     mockBusinessMatchingConnector,

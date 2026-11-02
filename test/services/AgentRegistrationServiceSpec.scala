@@ -41,7 +41,7 @@ class AgentRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite 
 
 
   val mockTaxEnrolmentConnector = mock[TaxEnrolmentsConnector]
-  val mockDataCacheConnector = mock[DataCacheConnector]
+  val mockDataCacheConnector = mock[BusinessDetailsCacheService]
   val mockNewBusinessCustomerConnector = mock[NewBusinessCustomerConnector]
   val mockAuthClientConnector = mock[AuthConnector]
   val mockAuditable = mock[Auditable]

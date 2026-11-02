@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.DataCacheConnector
+import connectors.BusinessDetailsCacheService
 import controllers.auth.AuthActions
 
 import javax.inject.Inject
@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext
 
 class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
                                            config: ApplicationConfig,
-                                           dataCacheConnector: DataCacheConnector,
+                                           businessDetailsCacheService: BusinessDetailsCacheService,
                                            mcc: MessagesControllerComponents) extends FrontendController(mcc) with AuthActions with I18nSupport with Logging {
 
   implicit val appConfig: ApplicationConfig = config
@@ -40,7 +40,7 @@ class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
 
   def clearCache(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      dataCacheConnector.clearCache.map { _ =>
+      businessDetailsCacheService.clearCache.map { _ =>
         logger.info("session has been cleared")
         Ok
       }.recover {
@@ -53,7 +53,7 @@ class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
 
   def getReviewDetails(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
-      dataCacheConnector.fetchAndGetBusinessDetailsForSession.map {
+      businessDetailsCacheService.fetchAndGetBusinessDetailsForSession.map {
         case Some(businessDetails) =>
           Ok(Json.toJson(businessDetails))
         case _ =>

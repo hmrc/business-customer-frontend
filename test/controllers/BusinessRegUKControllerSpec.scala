@@ -19,7 +19,7 @@ package controllers
 import java.util.UUID
 
 import config.ApplicationConfig
-import connectors.{DataCacheConnector}
+import connectors.{BusinessDetailsCacheService}
 import models.{Address, BusinessRegistration, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -45,7 +45,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   val mockReviewDetailController: ReviewDetailsController = mock[ReviewDetailsController]
   val injectedViewInstance: business_group_registration = inject[views.html.business_group_registration]
-  val mockDataCacheConnector: DataCacheConnector = mock[DataCacheConnector]
+  val mockBusinessDetailsCacheService: BusinessDetailsCacheService = mock[BusinessDetailsCacheService]
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
@@ -57,7 +57,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     mockBusinessRegistrationService,
     mockReviewDetailController,
     mcc,
-    mockDataCacheConnector
+    mockBusinessDetailsCacheService
   ) {
     override val authConnector: AuthConnector = mockAuthConnector
     override val controllerId = "test"
@@ -87,7 +87,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
     "Authorised Users" must {
 
       "return business registration view for a user for Group" in {
-        when(mockDataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn
+        when(mockBusinessDetailsCacheService.fetchAndGetBusinessRegistrationDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn
           Future.successful(Some(BusinessRegistration("", Address("", "", Some(""), Some(""), Some(""), ""))))
 
         registerWithAuthorisedUser("awrs", "GROUP") {
@@ -113,7 +113,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       "return business registration view for a user for New Business" in {
 
-        when(mockDataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn
+        when(mockBusinessDetailsCacheService.fetchAndGetBusinessRegistrationDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn
           Future.successful(None)
         registerWithAuthorisedUser("awrs", "NEW") {
           result =>
