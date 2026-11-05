@@ -17,7 +17,7 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.BackLinkController
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
@@ -41,7 +41,7 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
                                                    val backLinkCacheService: BackLinkCacheService,
                                                    config: ApplicationConfig,
                                                    template: views.html.nonUkReg.nonuk_business_registration,
-                                                   businessRegistrationCache: BusinessRegCacheConnector,
+                                                   businessRegistrationCache: BusinessRegCacheService,
                                                    overseasCompanyRegController: OverseasCompanyRegController,
                                                    mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with AuthActions with BackLinkController {

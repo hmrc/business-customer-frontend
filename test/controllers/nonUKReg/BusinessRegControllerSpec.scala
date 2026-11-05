@@ -18,7 +18,7 @@ package controllers.nonUKReg
 
 import java.util.UUID
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import models.{Address, BusinessRegistration}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -43,7 +43,7 @@ class BusinessRegControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val serviceName = "ATED"
   val invalidService = "scooby-doo"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  val mockBusinessRegistrationCache: BusinessRegCacheService = mock[BusinessRegCacheService]
   val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   val mockOverseasCompanyRegController: OverseasCompanyRegController = mock[OverseasCompanyRegController]
   val injectedViewInstance: business_registration = inject[views.html.nonUkReg.business_registration]

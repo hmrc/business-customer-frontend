@@ -17,7 +17,7 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.auth.AuthActions
 import controllers.{BackLinkController, BusinessVerificationController}
 import forms.BusinessRegistrationForms._
@@ -38,7 +38,7 @@ class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
                                         businessRegController: BusinessRegController,
                                         mcc: MessagesControllerComponents,
                                         businessVerificationController: Provider[BusinessVerificationController],
-                                        businessRegistrationCache: BusinessRegCacheConnector)
+                                        businessRegistrationCache: BusinessRegCacheService)
   extends FrontendController(mcc) with AuthActions with BackLinkController {
 
   implicit val appConfig: ApplicationConfig = config

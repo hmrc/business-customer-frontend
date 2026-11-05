@@ -17,7 +17,7 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import models.{Address, BusinessRegistration}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -47,7 +47,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   private val mockAuthConnector: DefaultAuthConnector = mock[DefaultAuthConnector]
-  private val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  private val mockBusinessRegistrationCache: BusinessRegCacheService = mock[BusinessRegCacheService]
   private val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   private val mockOverseasController: OverseasCompanyRegController = mock[OverseasCompanyRegController]
   private val mockMCC: MessagesControllerComponents = inject[MessagesControllerComponents]

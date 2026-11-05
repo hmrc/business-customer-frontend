@@ -24,7 +24,7 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegCacheConnector @Inject()(sessionCacheRepository: SessionCacheRepository) {
+class BusinessRegCacheService @Inject()(sessionCacheRepository: SessionCacheRepository) {
 
   def fetchAndGetCachedDetails[T](formId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[Option[T]] =
     sessionCacheRepository.getFromSession[T](DataKey[T](formId))

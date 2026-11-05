@@ -16,7 +16,7 @@
 
 package controllers
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.auth.AuthActions
 import forms.BusinessVerificationForms.{businessName, partnerships, soleTraderNameForm}
 import forms.{BusinessName, SoleTraderName}
@@ -36,7 +36,7 @@ class BusinessNameController @Inject() (
                                          val config: ApplicationConfig,
                                          val authConnector: AuthConnector,
                                          genericBusinessName: views.html.generic_business_name,
-                                         businessRegCacheConnector: BusinessRegCacheConnector,
+                                         businessRegCacheService: BusinessRegCacheService,
                                          val backLinkCacheService: BackLinkCacheService,
                                          businessUtrController: BusinessUtrController,
                                          val mcc: MessagesControllerComponents
@@ -56,7 +56,7 @@ class BusinessNameController @Inject() (
       if (businessType == "SOP") {
         val questionKey = "bc.business-verification.SoleNameField"
         for {
-          form <-businessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
+          form <-businessRegCacheService.fetchAndGetCachedDetails[SoleTraderName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
           } yield form match  {
             case Some(cached) =>
               Ok(
@@ -84,7 +84,7 @@ class BusinessNameController @Inject() (
       } else {
         val header = s"bc.business-verification.${getBusinessType(businessType)}NameField"
         for {
-          form <- businessRegCacheConnector
+          form <- businessRegCacheService
           .fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
           } yield form match {
             case Some(cachedData) =>
@@ -109,7 +109,7 @@ class BusinessNameController @Inject() (
             formWithErrors => Future.successful(
               BadRequest(genericBusinessName(formWithErrors, questionKey, authContext.isAgent, service, businessType, backlink))),
             nameData => {
-              val cacheAction = businessRegCacheConnector.cacheDetails(
+              val cacheAction = businessRegCacheService.cacheDetails(
                 s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType",
                 nameData
               )
@@ -129,7 +129,7 @@ class BusinessNameController @Inject() (
             formWithErrors => Future.successful(BadRequest(genericBusinessName(formWithErrors, header, authContext.isAgent, service, businessType, backlink))),
             businessNameData => {
               val cacheAction =
-                businessRegCacheConnector.cacheDetails(s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType", businessNameData)
+                businessRegCacheService.cacheDetails(s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType", businessNameData)
               cacheAction flatMap { _ =>
                 redirectWithBackLink(
                   businessUtrController.controllerId,

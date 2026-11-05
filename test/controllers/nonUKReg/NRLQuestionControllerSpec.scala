@@ -20,7 +20,7 @@ import java.util.UUID
 
 import builders.SessionBuilder
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import models.NRLQuestion
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -48,7 +48,7 @@ class NRLQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val mockBusRegController: BusinessRegController = mock[BusinessRegController]
   val service = "amls"
   val invalidService = "scooby-doo"
-  val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  val mockBusinessRegistrationCache: BusinessRegCacheService = mock[BusinessRegCacheService]
   val injectedViewInstance: nrl_question = inject[views.html.nonUkReg.nrl_question]
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]

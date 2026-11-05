@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.auth.AuthActions
 import forms.BusinessVerificationForms._
 import forms._
@@ -39,7 +39,7 @@ class BusinessUtrController @Inject() (
                                         val config: ApplicationConfig,
                                         val authConnector: AuthConnector,
                                         genericBusinessUtr: views.html.generic_business_utr,
-                                        businessRegCacheConnector: BusinessRegCacheConnector,
+                                        businessRegCacheService: BusinessRegCacheService,
                                         val backLinkCacheService: BackLinkCacheService,
                                         val businessMatchingService: BusinessMatchingService,
                                         val reviewDetailsController: ReviewDetailsController,
@@ -59,7 +59,7 @@ class BusinessUtrController @Inject() (
       val backlink = Some(routes.BusinessNameController.onPageLoad(service, businessType).url)
       if (selfAssessment.contains(businessType)) {
         for {
-          cachedUtr <- businessRegCacheConnector
+          cachedUtr <- businessRegCacheService
             .fetchAndGetCachedDetails[Utr](s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType")
         } yield {
           val utrFormFilled: Form[Utr] = cachedUtr.map(saUtr.fill).getOrElse(saUtr)
@@ -80,7 +80,7 @@ class BusinessUtrController @Inject() (
           val utrForm: Form[Utr] =
             if (partnerships.contains(businessType)) psaUtr else cotaxUtr
           for {
-            cachedUtr <- businessRegCacheConnector
+            cachedUtr <- businessRegCacheService
               .fetchAndGetCachedDetails[Utr](s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType")
           } yield {
             val utrFormFilled: Form[Utr] = cachedUtr.map(utrForm.fill).getOrElse(utrForm)
@@ -108,7 +108,7 @@ class BusinessUtrController @Inject() (
       } else { psaUtr }
       if (businessType == "SOP") {
         for {
-          name <- businessRegCacheConnector
+          name <- businessRegCacheService
             .fetchAndGetCachedDetails[SoleTraderName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
             .map(_.getOrElse(throw new RuntimeException("Sole Trader name not found in cache")))
           result <- handleSubmitUtrFormSoleTrader( SoleTraderName(name.firstName, name.lastName), service, businessType, setBackLink)
@@ -118,7 +118,7 @@ class BusinessUtrController @Inject() (
         InternalServerError("[BusinessUtrController][submit] An error occurred while retrieving name details")
       } else {
           for {
-            cachedBusinessName <- businessRegCacheConnector
+            cachedBusinessName <- businessRegCacheService
               .fetchAndGetCachedDetails[BusinessName](s"$CacheBusinessNameDataRegistrationDetails${service}_$businessType")
               .map(_.getOrElse(throw new RuntimeException("Business name not found in cache")))
             result <- handleSubmitUtrForm(utrForm, cachedBusinessName.businessName, businessType, service, setBackLink)
@@ -155,7 +155,7 @@ class BusinessUtrController @Inject() (
             )
           ),
         utrFormData => {
-          businessRegCacheConnector.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
+          businessRegCacheService.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
           val organisationType = getOrganisationType(businessType)
           val organisation = Organisation(businessName, organisationType)
           businessMatchingService
@@ -184,9 +184,9 @@ class BusinessUtrController @Inject() (
     setBacklink: Option[String]
   )(implicit request: Request[AnyContent]): Future[Result] = {
     val countryCode = reviewDetails.businessAddress.country
-    businessRegCacheConnector.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
+    businessRegCacheService.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
     if (config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
-      businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
+      businessRegCacheService.cacheDetails(UpdateNotRegisterId, true)
       redirectWithBackLink(
         reviewDetailsController.controllerId,
         controllers.nonUKReg.routes.BusinessRegController.register(service, businessType),
@@ -225,7 +225,7 @@ class BusinessUtrController @Inject() (
       utrData => {
         val individual = Individual(soleName.firstName, soleName.lastName, None)
         val utrValue   = utrData.utr.trim
-        businessRegCacheConnector.cacheDetails(
+        businessRegCacheService.cacheDetails(
           s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType",
           utrData
         )

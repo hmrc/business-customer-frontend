@@ -25,7 +25,7 @@ import utils.BusinessCustomerConstants.{BusinessDetailsFormPayloadId, BusinessDe
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessDetailsCacheService @Inject()(sessionCacheRepository: SessionCacheRepository) {
+class BusinessCustomerDataCacheService @Inject()(sessionCacheRepository: SessionCacheRepository) {
 
   def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
     sessionCacheRepository.getFromSession[ReviewDetails](DataKey(BusinessDetailsSourceId))

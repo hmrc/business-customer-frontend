@@ -20,7 +20,7 @@ import java.util.UUID
 
 import builders.SessionBuilder
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.BusinessVerificationController
 import javax.inject.Provider
 import models.PaySAQuestion
@@ -51,7 +51,7 @@ class PaySAQuestionControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val mockBusinessVerificationController: BusinessVerificationController = mock[BusinessVerificationController]
   val service = "amls"
   val invalidService = "scooby-doo"
-  val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  val mockBusinessRegistrationCache: BusinessRegCacheService = mock[BusinessRegCacheService]
   val injectedViewInstance: paySAQuestion = inject[views.html.nonUkReg.paySAQuestion]
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]

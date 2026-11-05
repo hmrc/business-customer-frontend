@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{BusinessCustomerConnector, BusinessDetailsCacheService}
+import connectors.{BusinessCustomerConnector, BusinessCustomerDataCacheService}
 
 import javax.inject.Inject
 import models._
@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 class BusinessRegistrationService @Inject()(val businessCustomerConnector: BusinessCustomerConnector,
-                                            val businessDetailsCacheService: BusinessDetailsCacheService){
+                                            val businessCustomerDataCacheService: BusinessCustomerDataCacheService){
 
   val nonUKBusinessType = "Non UK-based Company"
   def registerBusiness(registerData: BusinessRegistration,
@@ -45,8 +45,8 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
       reviewDetailsCache <- {
         val reviewDetails = createReviewDetails(registerResponse.sapNumber,
           registerResponse.safeId, registerResponse.agentReferenceNumber, isGroup, registerData, overseasCompany, isBusinessDetailsEditable)
-        businessDetailsCacheService.saveBusinessRegistrationDetails(registerData)
-        businessDetailsCacheService.saveReviewDetails(reviewDetails)
+        businessCustomerDataCacheService.saveBusinessRegistrationDetails(registerData)
+        businessCustomerDataCacheService.saveReviewDetails(reviewDetails)
       }
     } yield {
       reviewDetailsCache.getOrElse(throw new InternalServerException("Registration failed"))
@@ -65,7 +65,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
     val updateRegisterDetails = createUpdateBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
 
     for {
-      oldReviewDetailsLookup <- businessDetailsCacheService.fetchAndGetBusinessDetailsForSession
+      oldReviewDetailsLookup <- businessCustomerDataCacheService.fetchAndGetBusinessDetailsForSession
       oldReviewDetails       <- oldReviewDetailsLookup match {
         case Some(reviewDetails) => Future.successful(reviewDetails)
         case _ => throw new InternalServerException("Update registration failed")}
@@ -78,7 +78,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
           registerData,
           overseasCompany,
           isBusinessDetailsEditable)
-        businessDetailsCacheService.saveReviewDetails(updatedReviewDetails)
+        businessCustomerDataCacheService.saveReviewDetails(updatedReviewDetails)
       }
     } yield {
       reviewDetailsCache.getOrElse(throw new InternalServerException("Registration failed"))
@@ -103,7 +103,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
         }
       )
     }
-    businessDetailsCacheService.fetchAndGetBusinessDetailsForSession map createBusinessRegistration
+    businessCustomerDataCacheService.fetchAndGetBusinessDetailsForSession map createBusinessRegistration
   }
 
 

@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BusinessDetailsCacheService}
+import connectors.BusinessCustomerDataCacheService
 import controllers.auth.AuthActions
 import javax.inject.Inject
 import play.api.Logging
@@ -36,7 +36,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
                                         templateNonUkAgent: views.html.review_details_non_uk_agent,
                                         templateReviewDetails: views.html.review_details,
                                         templateError: views.html.global_error,
-                                        val businessDetailsCacheService: BusinessDetailsCacheService,
+                                        val businessCustomerDataCacheService: BusinessCustomerDataCacheService,
                                         agentRegistrationService: AgentRegistrationService,
                                         mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with BackLinkController with AuthActions with Logging {
@@ -53,7 +53,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
 
   def businessDetails(serviceName: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(serviceName) { implicit authContext =>
-      businessDetailsCacheService.fetchAndGetBusinessDetailsForSession flatMap {
+      businessCustomerDataCacheService.fetchAndGetBusinessDetailsForSession flatMap {
         case Some(businessDetails) =>
           currentBackLink.map(backLink =>
             if (authContext.isAgent && businessDetails.isBusinessDetailsEditable) {

@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BusinessDetailsCacheService}
+import connectors.BusinessCustomerDataCacheService
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
@@ -38,7 +38,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
                                         businessRegistrationService: BusinessRegistrationService,
                                         reviewDetailsController: ReviewDetailsController,
                                         mcc: MessagesControllerComponents,
-                                        val businessDetailsCacheService: BusinessDetailsCacheService)
+                                        val businessCustomerDataCacheService: BusinessCustomerDataCacheService)
   extends FrontendController(mcc) with BackLinkController with AuthActions {
 
   implicit val appConfig: ApplicationConfig = config
@@ -49,7 +49,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service) { implicit authContext =>
       for {
         backLink <- currentBackLink
-        businessRegistrationDetails <- businessDetailsCacheService.fetchAndGetBusinessRegistrationDetailsForSession
+        businessRegistrationDetails <- businessCustomerDataCacheService.fetchAndGetBusinessRegistrationDetailsForSession
       } yield {
         val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
         businessRegistrationDetails match {

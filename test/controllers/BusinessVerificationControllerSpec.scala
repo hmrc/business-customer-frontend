@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import forms._
 import org.jsoup.Jsoup
@@ -50,8 +50,8 @@ class BusinessVerificationControllerSpec
   val mockBusinessMatchingService: BusinessMatchingService =
     mock[BusinessMatchingService]
   val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
-  val mockBusinessRegCacheConnector: BusinessRegCacheConnector =
-    mock[BusinessRegCacheConnector]
+  val mockBusinessRegCacheService: BusinessRegCacheService =
+    mock[BusinessRegCacheService]
   val service = "ATED"
   val invalidService = "scooby-doo"
 
@@ -83,7 +83,7 @@ class BusinessVerificationControllerSpec
         mockAuthConnector,
         injectedViewInstance,
         injectedViewInstanceDetailsNotFound,
-        mockBusinessRegCacheConnector,
+        mockBusinessRegCacheService,
         mockBackLinkCache,
         mockBusinessMatchingService,
         businessRegUKController,
@@ -105,7 +105,7 @@ class BusinessVerificationControllerSpec
 
         "respond with OK" in new Setup {
           when(
-            mockBusinessRegCacheConnector
+            mockBusinessRegCacheService
               .fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
@@ -120,7 +120,7 @@ class BusinessVerificationControllerSpec
 
         "respond with OK for cached data" in new Setup {
           when(
-            mockBusinessRegCacheConnector
+            mockBusinessRegCacheService
               .fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
@@ -156,7 +156,7 @@ class BusinessVerificationControllerSpec
         "return Business Verification view for a user" in new Setup {
 
           when(
-            mockBusinessRegCacheConnector
+            mockBusinessRegCacheService
               .fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
@@ -225,7 +225,7 @@ class BusinessVerificationControllerSpec
             "LLP" -> "bc.business-verification.LLP", "LP" -> "bc.business-verification.LP",
             "SOP" -> "bc.business-verification.SOP", "UIB" -> "bc.business-verification.UIB"
           ))
-          when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
+          when(mockBusinessRegCacheService.fetchAndGetCachedDetails[BusinessType](ArgumentMatchers.any())(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any())).thenReturn(Future.successful(None))
@@ -235,7 +235,7 @@ class BusinessVerificationControllerSpec
             mockAuthConnector,
             injectedViewInstance,
             injectedViewInstanceDetailsNotFound,
-            mockBusinessRegCacheConnector,
+            mockBusinessRegCacheService,
             mockBackLinkCache,
             mockBusinessMatchingService,
             businessRegUKController,

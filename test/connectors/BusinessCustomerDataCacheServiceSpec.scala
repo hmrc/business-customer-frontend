@@ -29,7 +29,7 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessDetailsCacheServiceSpec extends PlaySpec with MockitoSugar {
+class BusinessCustomerDataCacheServiceSpec extends PlaySpec with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -40,17 +40,17 @@ class BusinessDetailsCacheServiceSpec extends PlaySpec with MockitoSugar {
 
   class Setup {
     val mockSessionCacheRepository: SessionCacheRepository = mock[SessionCacheRepository]
-    val connector: BusinessDetailsCacheService = new BusinessDetailsCacheService(mockSessionCacheRepository)
+    val businessCustomerDataCacheService: BusinessCustomerDataCacheService = new BusinessCustomerDataCacheService(mockSessionCacheRepository)
   }
 
-  "DataCacheConnector" must {
+  "BusinessCustomerDataCacheService" must {
 
     "fetchAndGetBusinessDetailsForSession" must {
       "fetch saved BusinessDetails from the session cache" in new Setup {
         when(mockSessionCacheRepository.getFromSession[ReviewDetails](DataKey[ReviewDetails](eqTo("BC_Business_Details")))(any(), any()))
           .thenReturn(Future.successful(Some(reviewDetails)))
 
-        await(connector.fetchAndGetBusinessDetailsForSession) must be(Some(reviewDetails))
+        await(businessCustomerDataCacheService.fetchAndGetBusinessDetailsForSession) must be(Some(reviewDetails))
       }
     }
 
@@ -59,7 +59,7 @@ class BusinessDetailsCacheServiceSpec extends PlaySpec with MockitoSugar {
         when(mockSessionCacheRepository.getFromSession[BusinessRegistration](DataKey[BusinessRegistration](eqTo("BC_Business_Details_form_payload")))(any(), any()))
           .thenReturn(Future.successful(Some(registrationDetails)))
 
-        await(connector.fetchAndGetBusinessRegistrationDetailsForSession) must be(Some(registrationDetails))
+        await(businessCustomerDataCacheService.fetchAndGetBusinessRegistrationDetailsForSession) must be(Some(registrationDetails))
       }
     }
 
@@ -68,7 +68,7 @@ class BusinessDetailsCacheServiceSpec extends PlaySpec with MockitoSugar {
         when(mockSessionCacheRepository.putSession[ReviewDetails](DataKey[ReviewDetails](eqTo("BC_Business_Details")), eqTo(reviewDetails))(any(), any()))
           .thenReturn(Future.successful(reviewDetails))
 
-        await(connector.saveReviewDetails(reviewDetails)) must be(Some(reviewDetails))
+        await(businessCustomerDataCacheService.saveReviewDetails(reviewDetails)) must be(Some(reviewDetails))
       }
     }
 
@@ -77,7 +77,7 @@ class BusinessDetailsCacheServiceSpec extends PlaySpec with MockitoSugar {
         when(mockSessionCacheRepository.putSession[BusinessRegistration](DataKey[BusinessRegistration](eqTo("BC_Business_Details_form_payload")), eqTo(registrationDetails))(any(), any()))
           .thenReturn(Future.successful(registrationDetails))
 
-        await(connector.saveBusinessRegistrationDetails(registrationDetails)) must be(Some(registrationDetails))
+        await(businessCustomerDataCacheService.saveBusinessRegistrationDetails(registrationDetails)) must be(Some(registrationDetails))
       }
     }
 
@@ -85,7 +85,7 @@ class BusinessDetailsCacheServiceSpec extends PlaySpec with MockitoSugar {
       "clear the cache for the session" in new Setup {
         when(mockSessionCacheRepository.deleteFromSession(any())).thenReturn(Future.successful(()))
 
-        await(connector.clearCache) must be(())
+        await(businessCustomerDataCacheService.clearCache) must be(())
         verify(mockSessionCacheRepository).deleteFromSession(any())
       }
     }

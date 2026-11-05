@@ -29,7 +29,7 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegCacheConnectorSpec extends PlaySpec with MockitoSugar {
+class BusinessRegCacheServiceSpec extends PlaySpec with MockitoSugar {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -45,24 +45,24 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with MockitoSugar {
 
   class Setup {
     val mockSessionCacheRepository: SessionCacheRepository = mock[SessionCacheRepository]
-    val connector: BusinessRegCacheConnector = new BusinessRegCacheConnector(mockSessionCacheRepository)
+    val businessRegCacheService: BusinessRegCacheService = new BusinessRegCacheService(mockSessionCacheRepository)
   }
 
-  "BusinessRegCacheConnector" must {
+  "BusinessRegCacheService" must {
 
     "fetchAndGetCachedDetails" must {
       "return the cached form data for the form id" in new Setup {
         when(mockSessionCacheRepository.getFromSession[FormData](DataKey[FormData](eqTo(formId)))(any(), any()))
           .thenReturn(Future.successful(Some(formData)))
 
-        await(connector.fetchAndGetCachedDetails[FormData](formId)) must be(Some(formData))
+        await(businessRegCacheService.fetchAndGetCachedDetails[FormData](formId)) must be(Some(formData))
       }
 
       "return None when nothing is cached for the form id" in new Setup {
         when(mockSessionCacheRepository.getFromSession[FormData](DataKey[FormData](eqTo(formId)))(any(), any()))
           .thenReturn(Future.successful(None))
 
-        await(connector.fetchAndGetCachedDetails[FormData](formId)) must be(None)
+        await(businessRegCacheService.fetchAndGetCachedDetails[FormData](formId)) must be(None)
       }
     }
 
@@ -71,7 +71,7 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with MockitoSugar {
         when(mockSessionCacheRepository.putSession[FormData](DataKey[FormData](eqTo(formId)), eqTo(formData))(any(), any()))
           .thenReturn(Future.successful(formData))
 
-        await(connector.cacheDetails[FormData](formId, formData)) must be(formData)
+        await(businessRegCacheService.cacheDetails[FormData](formId, formData)) must be(formData)
       }
     }
   }

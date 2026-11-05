@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.auth.AuthActions
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import forms.BusinessVerificationForms._
@@ -38,7 +38,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                                                val authConnector: AuthConnector,
                                                template: views.html.business_verification,
                                                templateDetailsNotFound: views.html.details_not_found,
-                                               businessRegCacheConnector: BusinessRegCacheConnector,
+                                               businessRegCacheService: BusinessRegCacheService,
                                                val backLinkCacheService: BackLinkCacheService,
                                                val businessMatchingService: BusinessMatchingService,
                                                val businessRegUKController: BusinessRegUKController,
@@ -64,7 +64,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
             case _      => rawBackLink
           }
         }
-        businessTypeDetails <- businessRegCacheConnector.fetchAndGetCachedDetails[BusinessType](s"$CacheRegistrationDetails$service")
+        businessTypeDetails <- businessRegCacheService.fetchAndGetCachedDetails[BusinessType](s"$CacheRegistrationDetails$service")
       } yield {
         businessTypeDetails match {
           case Some(businessTypeData) =>
@@ -83,7 +83,7 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
         .fold(
           formWithErrors => currentBackLink map (backLink => BadRequest(template(formWithErrors, authContext.isAgent, service, authContext.isSa, authContext.isOrg, backLink))),
           value => {
-            if (services.exists(_.equalsIgnoreCase(service))) businessRegCacheConnector.cacheDetails(s"$CacheRegistrationDetails$service", value)
+            if (services.exists(_.equalsIgnoreCase(service))) businessRegCacheService.cacheDetails(s"$CacheRegistrationDetails$service", value)
             val returnCall = Some(routes.BusinessVerificationController.businessVerification(service).url)
             value.businessType match {
               case Some("NUK") if service.equals("ATED") && !authContext.isAgent =>

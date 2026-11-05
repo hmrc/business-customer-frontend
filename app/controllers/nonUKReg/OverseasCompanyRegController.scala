@@ -17,7 +17,7 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.auth.AuthActions
 import controllers.{BackLinkController, ReviewDetailsController}
 import forms.BusinessRegistrationForms
@@ -41,7 +41,7 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
                                              config: ApplicationConfig,
                                              template: views.html.nonUkReg.overseas_company,
                                              businessRegistrationService: BusinessRegistrationService,
-                                             businessRegistrationCache: BusinessRegCacheConnector,
+                                             businessRegistrationCache: BusinessRegCacheService,
                                              reviewDetailsController: ReviewDetailsController,
                                              overseasCompanyRegDetailsController: OverseasCompanyRegDetailsController,
                                              mcc: MessagesControllerComponents)

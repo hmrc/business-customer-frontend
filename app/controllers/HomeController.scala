@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.auth.AuthActions
 import models.ReviewDetails
 import play.api.libs.json.{JsError, JsSuccess}
@@ -39,7 +39,7 @@ class HomeController @Inject()(val authConnector: AuthConnector,
                                businessMatchService: BusinessMatchingService,
                                businessVerificationController: Provider[BusinessVerificationController],
                                reviewDetailsController: ReviewDetailsController,
-                               businessRegCacheConnector: BusinessRegCacheConnector,
+                               businessRegCacheService: BusinessRegCacheService,
                                mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with BackLinkController with AuthActions {
 
@@ -57,7 +57,7 @@ class HomeController @Inject()(val authConnector: AuthConnector,
                 case details: JsSuccess[ReviewDetails] =>
                   val countryCode = details.get.businessAddress.country
                   if(config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
-                    businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
+                    businessRegCacheService.cacheDetails(UpdateNotRegisterId, true)
                     redirectWithBackLink(
                       businessVerificationController.get.controllerId,
                       controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)

@@ -33,7 +33,7 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.ReviewDetailsController
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
@@ -65,7 +65,7 @@ class OverseasCompanyRegDetailsControllerSpec extends PlaySpec with GuiceOneServ
   val service = "ATED"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
-  val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  val mockBusinessRegistrationCache: BusinessRegCacheService = mock[BusinessRegCacheService]
   val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   val injectedViewInstance: overseas_company_registration = inject[views.html.nonUkReg.overseas_company_registration]
 
