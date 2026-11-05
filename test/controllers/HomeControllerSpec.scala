@@ -19,7 +19,7 @@ package controllers
 import java.util.UUID
 import builders.{AuthBuilder, SessionBuilder}
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 
 import javax.inject.Provider
 import models.{Address, ReviewDetails}
@@ -33,7 +33,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
@@ -48,11 +48,11 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
 
   val mockAuthConnector = mock[AuthConnector]
   val mockBusinessMatchingService = mock[BusinessMatchingService]
-  val mockBackLinkCache = mock[BackLinkCacheConnector]
+  val mockBackLinkCache = mock[BackLinkCacheService]
   val mockBusinessVerificationControllerProv = mock[Provider[BusinessVerificationController]]
   val mockBusinessVerificationController = mock[BusinessVerificationController]
   val mockReviewDetailsController = mock[ReviewDetailsController]
-  val mockBusinessRegCacheConnector: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
+  val mockBusinessRegCacheService: BusinessRegCacheService = mock[BusinessRegCacheService]
 
   val testAddress = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "GB")
   val testAddressNoCountry = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "")
@@ -69,7 +69,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
     mockBusinessMatchingService,
     mockBusinessVerificationControllerProv,
     mockReviewDetailsController,
-    mockBusinessRegCacheConnector,
+    mockBusinessRegCacheService,
     mcc
   ) {
     override val controllerId = "test"
@@ -128,7 +128,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
                 status(result) must be(SEE_OTHER)
                 redirectLocation(result).get must include(s"/business-customer/business-verification/$service")
                 verify(mockBusinessMatchingService, times(1)).matchBusinessWithUTR(ArgumentMatchers.eq(false), ArgumentMatchers.eq(service))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-                verify(mockBusinessRegCacheConnector, times(1)).cacheDetails(ArgumentMatchers.eq("Update_No_Register"), ArgumentMatchers.eq(true))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+                verify(mockBusinessRegCacheService, times(1)).cacheDetails(ArgumentMatchers.eq("Update_No_Register"), ArgumentMatchers.eq(true))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
             }
           }
 

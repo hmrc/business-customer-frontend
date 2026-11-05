@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import forms.{BusinessName, SoleTraderName, Utr}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
@@ -29,7 +29,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsFormUrlEncoded, Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import views.html._
 
@@ -42,9 +42,9 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
   val mockBusinessMatchingService: BusinessMatchingService =
     mock[BusinessMatchingService]
   val mockAuthConnector: AuthConnector                         = mock[AuthConnector]
-  val mockBackLinkCache: BackLinkCacheConnector                = mock[BackLinkCacheConnector]
-  val mockBusinessRegCacheConnector: BusinessRegCacheConnector =
-    mock[BusinessRegCacheConnector]
+  val mockBackLinkCache: BackLinkCacheService                = mock[BackLinkCacheService]
+  val mockBusinessRegCacheService: BusinessRegCacheService =
+    mock[BusinessRegCacheService]
   val service = "ATED"
 
   val mockReviewDetailsController: ReviewDetailsController =
@@ -64,7 +64,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
         appConfig,
         mockAuthConnector,
         injectedViewInstanceBusinessUtr,
-        mockBusinessRegCacheConnector,
+        mockBusinessRegCacheService,
         mockBackLinkCache,
         mockBusinessMatchingService,
         mockReviewDetailsController,
@@ -241,7 +241,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
     "CO Tax UTR must not be empty" in new Setup {
       when(
-        mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
+        mockBusinessRegCacheService.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -260,7 +260,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
     }
     "SA Tax UTR must not be empty" in new Setup {
       when(
-        mockBusinessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderName](ArgumentMatchers.any())(
+        mockBusinessRegCacheService.fetchAndGetCachedDetails[SoleTraderName](ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -604,7 +604,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
           redirectLocation(result).get must include(
             s"/business-customer/register/$service/NRL"
           )
-          verify(mockBusinessRegCacheConnector, times(1)).cacheDetails(
+          verify(mockBusinessRegCacheService, times(1)).cacheDetails(
             ArgumentMatchers.eq("Update_No_Register"),
             ArgumentMatchers.eq(true)
           )(
@@ -824,7 +824,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
 
       builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
       when(
-        mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
+        mockBusinessRegCacheService.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -839,7 +839,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
         )(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
       ).thenReturn(Future.successful(matchSuccessResponse(businessType)))
       when(
-        mockBusinessRegCacheConnector.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
+        mockBusinessRegCacheService.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -873,7 +873,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
       when(
-        mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
+        mockBusinessRegCacheService.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -888,7 +888,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
         )(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
       ).thenReturn(Future.successful(matchSuccessResponse(businessType)))
       when(
-        mockBusinessRegCacheConnector.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
+        mockBusinessRegCacheService.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -921,7 +921,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
       when(
-        mockBusinessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderName](ArgumentMatchers.any())(
+        mockBusinessRegCacheService.fetchAndGetCachedDetails[SoleTraderName](ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -936,7 +936,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
         )(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
       ).thenReturn(Future.successful(matchSuccessResponse(businessType)))
       when(
-        mockBusinessRegCacheConnector.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
+        mockBusinessRegCacheService.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -971,7 +971,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
         )
       ).thenReturn(Future.successful(None))
       when(
-        mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
+        mockBusinessRegCacheService.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -1037,7 +1037,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
         )
       ).thenReturn(Future.successful(None))
       when(
-        mockBusinessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderName](ArgumentMatchers.any())(
+        mockBusinessRegCacheService.fetchAndGetCachedDetails[SoleTraderName](ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -1053,7 +1053,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       )
         .thenReturn(Future.successful(matchSuccessResponseSOP))
       when(
-        mockBusinessRegCacheConnector.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
+        mockBusinessRegCacheService.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -1132,7 +1132,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
         )
       ).thenReturn(Future.successful(None))
       when(
-        mockBusinessRegCacheConnector.fetchAndGetCachedDetails[SoleTraderName](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        mockBusinessRegCacheService.fetchAndGetCachedDetails[SoleTraderName](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
       ).thenReturn(Future.successful(Some(SoleTraderName("John", "Doe"))))
       when(
         mockBusinessMatchingService.matchBusinessWithIndividualName(
@@ -1185,7 +1185,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
       when(
-        mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
+        mockBusinessRegCacheService.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -1201,7 +1201,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       )
         .thenReturn(Future.successful(matchSuccessResponse(businessType)))
       when(
-        mockBusinessRegCacheConnector.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
+        mockBusinessRegCacheService.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()
@@ -1241,7 +1241,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
       )
         .thenReturn(Future.successful(matchSuccessResponseSOP))
       when(
-        mockBusinessRegCacheConnector.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
+        mockBusinessRegCacheService.cacheDetails[Utr](ArgumentMatchers.any(), ArgumentMatchers.any())(
           ArgumentMatchers.any(),
           ArgumentMatchers.any(),
           ArgumentMatchers.any()

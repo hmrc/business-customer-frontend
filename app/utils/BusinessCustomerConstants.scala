@@ -24,9 +24,9 @@ object BusinessCustomerConstants {
   val Partnership = "Partnership"
   val SoleTrader = "Sole Trader"
 
-  val IdentifierArn = "arn"
-  val IdentifierUtr = "utr"
-  val IdentifierSafeId = "safeid"
+  val BacklinkId: String = "BC_Back_Link"
+  val BusinessDetailsSourceId: String = "BC_Business_Details"
+  val BusinessDetailsFormPayloadId: String = "BC_Business_Details_form_payload"
   val BusinessRegDetailsId = "BC_NonUK_Business_Details"
   val OverseasId = "Overseas_Business"
   val OverseasRegDetailsId = "Overseas_Business_Details"

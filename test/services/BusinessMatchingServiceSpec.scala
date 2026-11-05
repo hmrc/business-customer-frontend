@@ -17,7 +17,7 @@
 package services
 
 import builders.AuthBuilder
-import connectors.{BusinessMatchingConnector, DataCacheConnector}
+import connectors.{BusinessMatchingConnector, BusinessCustomerDataCacheService}
 import models._
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -164,16 +164,16 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
   val service = "ated"
 
   val mockBusinessMatchingConnector = mock[BusinessMatchingConnector]
-  val mockDataCacheConnector = mock[DataCacheConnector]
+  val mockBusinessCustomerDataCacheService: BusinessCustomerDataCacheService = mock[BusinessCustomerDataCacheService]
 
   object TestBusinessMatchingService extends BusinessMatchingService(
     mockBusinessMatchingConnector,
-    mockDataCacheConnector
+    mockBusinessCustomerDataCacheService
   )
 
   override def beforeEach() = {
     reset(mockBusinessMatchingConnector)
-    reset(mockDataCacheConnector)
+    reset(mockBusinessCustomerDataCacheService)
   }
 
   "BusinessMatchingService" must {
@@ -185,11 +185,11 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
 
         when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successIndividualJson))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockBusinessCustomerDataCacheService.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         await(result.get) must be(successIndReviewDetailsJsonDirect)
         verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match Not found with SA user, return Reasons as JsValue" in {
@@ -200,7 +200,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         await(result.get) must be(matchFailureResponseJson)
         verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match Not found with SA user and invalid service, return Reasons as JsValue" in {
@@ -211,7 +211,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, "service")
         await(result.get) must be(matchFailureResponseJson)
         verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match found with CT user, return Review details as JsValue" in {
@@ -219,11 +219,11 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
 
         when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successOrgJson))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockBusinessCustomerDataCacheService.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         await(result.get) must be(successOrgReviewDetailsJsonDirect)
         verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match Not found with CT user, return Reasons as JsValue" in {
@@ -234,7 +234,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         await(result.get) must be(matchFailureResponseJson)
         verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for ORG user, return None as JsValue" in {
@@ -242,7 +242,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         result must be(None)
         verify(mockBusinessMatchingConnector, times(0)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for user with Both SA & CT, return None as JsValue" in {
@@ -250,7 +250,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         result must be(None)
         verify(mockBusinessMatchingConnector, times(0)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
     }
@@ -262,11 +262,11 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
 
         when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successIndividualJson))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockBusinessCustomerDataCacheService.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithIndividualName(false, testIndividual, utr, service)
         await(result) must be(successIndReviewDetailsJson)
         verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match Not found with SA user, return Reasons as JsValue" in {
@@ -277,7 +277,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
         val result = TestBusinessMatchingService.matchBusinessWithIndividualName(false, testIndividual, utr, service)
         await(result) must be(matchFailureResponseJson)
         verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
     }
@@ -289,11 +289,11 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
 
         when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successIndividualJson))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockBusinessCustomerDataCacheService.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         await(result) must be(successIndReviewDetailsJson)
         verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match Not found with SA user, return Reasons as JsValue" in {
@@ -304,7 +304,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         await(result) must be(matchFailureResponseJson)
         verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match found with SA user, throw an exception when no Safe Id Number" in {
@@ -337,7 +337,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
 
         when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successNoSapNo))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockBusinessCustomerDataCacheService.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         val thrown = the[RuntimeException] thrownBy await(result)
         thrown.getMessage must include("No Safe Id returned from ETMP")
@@ -368,7 +368,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
 
         when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successNoSapNo))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockBusinessCustomerDataCacheService.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         val thrown = the[RuntimeException] thrownBy await(result)
         thrown.getMessage must include("No Address returned from ETMP")
@@ -380,11 +380,11 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
 
         when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successOrgJsonNoOrgType))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockBusinessCustomerDataCacheService.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         await(result) must be(Json.toJson(successOrgReviewDetailsForNoOrgType))
         verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessCustomerDataCacheService, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
     }

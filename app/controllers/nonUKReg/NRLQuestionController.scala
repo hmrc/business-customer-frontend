@@ -17,7 +17,7 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.BackLinkController
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms._
@@ -25,6 +25,7 @@ import forms.BusinessRegistrationForms._
 import javax.inject.Inject
 import models.NRLQuestion
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.NrlFormId
@@ -32,13 +33,13 @@ import utils.BusinessCustomerConstants.NrlFormId
 import scala.concurrent.{ExecutionContext, Future}
 
 class NRLQuestionController @Inject()(val authConnector: AuthConnector,
-                                      val backLinkCacheConnector: BackLinkCacheConnector,
+                                      val backLinkCacheService: BackLinkCacheService,
                                       config: ApplicationConfig,
                                       template: views.html.nonUkReg.nrl_question,
                                       businessRegController: BusinessRegController,
                                       mcc: MessagesControllerComponents,
                                       paySAQuestionController: PaySAQuestionController,
-                                      businessRegistrationCache: BusinessRegCacheConnector)
+                                      businessRegistrationCache: BusinessRegCacheService)
   extends FrontendController(mcc) with AuthActions with BackLinkController {
 
   implicit val appConfig: ApplicationConfig = config

@@ -17,14 +17,14 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, DataCacheConnector}
+import connectors.BusinessCustomerDataCacheService
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._
 import javax.inject.Inject
 import models.{BusinessRegistrationDisplayDetails, OverseasCompany}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.BusinessRegistrationService
+import services.{BackLinkCacheService, BusinessRegistrationService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
@@ -32,13 +32,13 @@ import scala.concurrent.ExecutionContext
 
 
 class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
-                                        val backLinkCacheConnector: BackLinkCacheConnector,
+                                        val backLinkCacheService: BackLinkCacheService,
                                         config: ApplicationConfig,
                                         template: views.html.business_group_registration,
                                         businessRegistrationService: BusinessRegistrationService,
                                         reviewDetailsController: ReviewDetailsController,
                                         mcc: MessagesControllerComponents,
-                                        val dataCacheConnector: DataCacheConnector)
+                                        val businessCustomerDataCacheService: BusinessCustomerDataCacheService)
   extends FrontendController(mcc) with BackLinkController with AuthActions {
 
   implicit val appConfig: ApplicationConfig = config
@@ -49,7 +49,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
     authorisedFor(service) { implicit authContext =>
       for {
         backLink <- currentBackLink
-        businessRegistrationDetails <- dataCacheConnector.fetchAndGetBusinessRegistrationDetailsForSession
+        businessRegistrationDetails <- businessCustomerDataCacheService.fetchAndGetBusinessRegistrationDetailsForSession
       } yield {
         val newMapping = businessRegistrationForm.data + ("businessAddress.country" -> "GB")
         businessRegistrationDetails match {

@@ -17,12 +17,12 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import controllers.auth.AuthActions
 import models.ReviewDetails
 import play.api.libs.json.{JsError, JsSuccess}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -34,12 +34,12 @@ import scala.concurrent.ExecutionContext
 
 
 class HomeController @Inject()(val authConnector: AuthConnector,
-                               val backLinkCacheConnector: BackLinkCacheConnector,
+                               val backLinkCacheService: BackLinkCacheService,
                                config: ApplicationConfig,
                                businessMatchService: BusinessMatchingService,
                                businessVerificationController: Provider[BusinessVerificationController],
                                reviewDetailsController: ReviewDetailsController,
-                               businessRegCacheConnector: BusinessRegCacheConnector,
+                               businessRegCacheService: BusinessRegCacheService,
                                mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with BackLinkController with AuthActions {
 
@@ -57,7 +57,7 @@ class HomeController @Inject()(val authConnector: AuthConnector,
                 case details: JsSuccess[ReviewDetails] =>
                   val countryCode = details.get.businessAddress.country
                   if(config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
-                    businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
+                    businessRegCacheService.cacheDetails(UpdateNotRegisterId, true)
                     redirectWithBackLink(
                       businessVerificationController.get.controllerId,
                       controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)

@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import forms._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -31,7 +31,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
-import services.BusinessMatchingService
+import services.{BackLinkCacheService, BusinessMatchingService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html._
@@ -41,18 +41,13 @@ import scala.concurrent.Future
 
 class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
 
-  val request: FakeRequest[_]                              = FakeRequest()
-  val mockBusinessMatchingService: BusinessMatchingService =
-    mock[BusinessMatchingService]
-  val mockAuthConnector: AuthConnector                         = mock[AuthConnector]
-  val mockBackLinkCache: BackLinkCacheConnector                = mock[BackLinkCacheConnector]
-  val mockBusinessRegCacheConnector: BusinessRegCacheConnector =
-    mock[BusinessRegCacheConnector]
-
-  val mockReviewDetailsController: ReviewDetailsController =
-    mock[ReviewDetailsController]
-  val injectedViewInstanceBusinessUtr: generic_business_utr =
-    inject[views.html.generic_business_utr]
+  val request: FakeRequest[_]                               = FakeRequest()
+  val mockBusinessMatchingService: BusinessMatchingService  = mock[BusinessMatchingService]
+  val mockAuthConnector: AuthConnector                      = mock[AuthConnector]
+  val mockBackLinkCache: BackLinkCacheService               = mock[BackLinkCacheService]
+  val mockBusinessRegCacheService: BusinessRegCacheService  =    mock[BusinessRegCacheService]
+  val mockReviewDetailsController: ReviewDetailsController  = mock[ReviewDetailsController]
+  val injectedViewInstanceBusinessUtr: generic_business_utr = inject[views.html.generic_business_utr]
 
   val mockBusinessVerificationController: BusinessVerificationController = mock[BusinessVerificationController]
 
@@ -68,7 +63,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         appConfig,
         mockAuthConnector,
         injectedViewInstanceBusinessUtr,
-        mockBusinessRegCacheConnector,
+        mockBusinessRegCacheService,
         mockBackLinkCache,
         mockBusinessMatchingService,
         mockReviewDetailsController,
@@ -150,7 +145,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
                 )
               ) {
                 when(
-                  mockBusinessRegCacheConnector
+                  mockBusinessRegCacheService
                     .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any(),
@@ -182,7 +177,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
                 )
               ) {
                 when(
-                  mockBusinessRegCacheConnector
+                  mockBusinessRegCacheService
                     .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any(),
@@ -234,7 +229,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
                 )
               ) {
                 when(
-                  mockBusinessRegCacheConnector
+                  mockBusinessRegCacheService
                     .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any(),
@@ -286,7 +281,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
                 )
               ) {
                 when(
-                  mockBusinessRegCacheConnector
+                  mockBusinessRegCacheService
                     .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any(),
@@ -317,7 +312,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
               )
             ) {
               when(
-                mockBusinessRegCacheConnector
+                mockBusinessRegCacheService
                   .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
                     ArgumentMatchers.any(),
                     ArgumentMatchers.any(),
@@ -369,7 +364,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
               )
             ) {
               when(
-                mockBusinessRegCacheConnector
+                mockBusinessRegCacheService
                   .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
                     ArgumentMatchers.any(),
                     ArgumentMatchers.any(),
@@ -400,7 +395,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
             )
           ) {
             when(
-              mockBusinessRegCacheConnector
+              mockBusinessRegCacheService
                 .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
                   ArgumentMatchers.any(),
                   ArgumentMatchers.any(),
@@ -451,7 +446,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           )
         ) {
           when(
-            mockBusinessRegCacheConnector
+            mockBusinessRegCacheService
               .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
@@ -495,7 +490,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         forAll(services) { (service) =>
           val businessType = "SOP"
           when(
-            mockBusinessRegCacheConnector
+            mockBusinessRegCacheService
               .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
@@ -535,7 +530,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
               _.equalsIgnoreCase(businessType) && corporations.contains(businessType)
             )
           ) {
-            when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[Utr](
+            when(mockBusinessRegCacheService.fetchAndGetCachedDetails[Utr](
               ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
               .thenReturn(Future.successful(None))
             businessLookupWithAuthorisedAgent(controller, businessType, service) { result =>

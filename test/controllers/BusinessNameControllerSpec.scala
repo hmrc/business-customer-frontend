@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import connectors.BusinessRegCacheService
 import forms._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
@@ -31,6 +31,7 @@ import play.api.i18n.{Lang, Messages}
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html._
@@ -40,11 +41,10 @@ import scala.concurrent.Future
 
 class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting with BusinessMatchTestObjects {
 
-  val request: FakeRequest[AnyContentAsEmpty.type]             = FakeRequest()
-  val mockAuthConnector: AuthConnector                         = mock[AuthConnector]
-  val mockBackLinkCache: BackLinkCacheConnector                = mock[BackLinkCacheConnector]
-  val mockBusinessRegCacheConnector: BusinessRegCacheConnector =
-    mock[BusinessRegCacheConnector]
+  val request: FakeRequest[AnyContentAsEmpty.type]         = FakeRequest()
+  val mockAuthConnector: AuthConnector                     = mock[AuthConnector]
+  val mockBackLinkCache: BackLinkCacheService              = mock[BackLinkCacheService]
+  val mockBusinessRegCacheService: BusinessRegCacheService = mock[BusinessRegCacheService]
 
   val appConfig: ApplicationConfig               = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents =
@@ -62,7 +62,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
         appConfig,
         mockAuthConnector,
         injectedViewInstanceGenericName,
-        mockBusinessRegCacheConnector,
+        mockBusinessRegCacheService,
         mockBackLinkCache,
         mockBusinessUtrController,
         mcc
@@ -101,7 +101,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
                 )
               ) {
                 when(
-                  mockBusinessRegCacheConnector
+                  mockBusinessRegCacheService
                     .fetchAndGetCachedDetails[BusinessType](
                       ArgumentMatchers.any()
                     )(
@@ -146,7 +146,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
                 )
               ) {
                 when(
-                  mockBusinessRegCacheConnector
+                  mockBusinessRegCacheService
                     .fetchAndGetCachedDetails[BusinessType](
                       ArgumentMatchers.any()
                     )(
@@ -229,7 +229,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
                 )
               ) {
                 when(
-                  mockBusinessRegCacheConnector
+                  mockBusinessRegCacheService
                     .fetchAndGetCachedDetails[BusinessType](
                       ArgumentMatchers.any()
                     )(
@@ -307,7 +307,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
             forAll(businessTypes) { (businessType) =>
               forAll(services) { (service) =>
                 when(
-                  mockBusinessRegCacheConnector
+                  mockBusinessRegCacheService
                     .fetchAndGetCachedDetails[BusinessType](
                       ArgumentMatchers.any()
                     )(
@@ -361,7 +361,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
                 )
               ) {
                 when(
-                  mockBusinessRegCacheConnector
+                  mockBusinessRegCacheService
                     .fetchAndGetCachedDetails[BusinessType](
                       ArgumentMatchers.any()
                     )(
@@ -403,7 +403,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
                 )
               ) {
                 when(
-                  mockBusinessRegCacheConnector
+                  mockBusinessRegCacheService
                     .fetchAndGetCachedDetails[BusinessType](
                       ArgumentMatchers.any()
                     )(
@@ -481,7 +481,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
               )
             ) {
               when(
-                mockBusinessRegCacheConnector
+                mockBusinessRegCacheService
                   .fetchAndGetCachedDetails[BusinessName](
                     ArgumentMatchers.any()
                   )(
@@ -511,7 +511,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
         forAll(services.tail) { (service) =>
           val businessType = "SOP"
           when(
-            mockBusinessRegCacheConnector
+            mockBusinessRegCacheService
               .fetchAndGetCachedDetails[SoleTraderName](
                 ArgumentMatchers.any()
               )(
@@ -534,7 +534,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
 
       "return successful response for Limited Partnership business type during AWRS journey without previous cached data" in new Setup {
         when(
-          mockBusinessRegCacheConnector
+          mockBusinessRegCacheService
             .fetchAndGetCachedDetails[BusinessName](
               ArgumentMatchers.any()
             )(
@@ -563,7 +563,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
 
       "return successful response for Ordinary Business Partnership business type during AWRS journey with previously cached data" in new Setup {
         when(
-          mockBusinessRegCacheConnector
+          mockBusinessRegCacheService
             .fetchAndGetCachedDetails[BusinessName](
               ArgumentMatchers.any()
             )(
@@ -588,7 +588,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
 
       "return successful response for Limited Liability Partnership business type during AWRS journey without previous cached data" in new Setup {
         when(
-          mockBusinessRegCacheConnector
+          mockBusinessRegCacheService
             .fetchAndGetCachedDetails[BusinessName](
               ArgumentMatchers.any()
             )(
@@ -611,7 +611,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
 
       "return successful response for Limited Liability Partnership business type during AWRS journey with previously cached data" in new Setup {
         when(
-          mockBusinessRegCacheConnector
+          mockBusinessRegCacheService
             .fetchAndGetCachedDetails[BusinessName](
               ArgumentMatchers.any()
             )(
@@ -636,7 +636,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
 
       "return successful response for Limited Partnership business type during AWRS journey with previously cached data" in new Setup {
         when(
-          mockBusinessRegCacheConnector
+          mockBusinessRegCacheService
             .fetchAndGetCachedDetails[BusinessName](
               ArgumentMatchers.any()
             )(
@@ -672,7 +672,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
               when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(Future.successful(None))
               when(
-                mockBusinessRegCacheConnector
+                mockBusinessRegCacheService
                   .cacheDetails[BusinessName](
                     ArgumentMatchers.any(),
                     ArgumentMatchers.any()
@@ -707,7 +707,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
           when(mockBackLinkCache.saveBackLink(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
             .thenReturn(Future.successful(None))
           when(
-            mockBusinessRegCacheConnector
+            mockBusinessRegCacheService
               .cacheDetails[SoleTraderName](
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any()
@@ -847,7 +847,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
-      mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
+      mockBusinessRegCacheService.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
         ArgumentMatchers.any(),
         ArgumentMatchers.any(),
         ArgumentMatchers.any()
@@ -877,7 +877,7 @@ class BusinessNameControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
 
     builders.AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
-      mockBusinessRegCacheConnector.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
+      mockBusinessRegCacheService.fetchAndGetCachedDetails[BusinessName](ArgumentMatchers.any())(
         ArgumentMatchers.any(),
         ArgumentMatchers.any(),
         ArgumentMatchers.any()

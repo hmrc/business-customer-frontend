@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{BusinessMatchingConnector, DataCacheConnector}
+import connectors.{BusinessMatchingConnector, BusinessCustomerDataCacheService}
 import models._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -27,7 +27,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessMatchingConnector,
-                                        val dataCacheConnector: DataCacheConnector) {
+                                        val businessCustomerDataCacheService: BusinessCustomerDataCacheService) {
 
   def matchBusinessWithUTR(isAnAgent: Boolean, service: String)
                           (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Option[Future[JsValue]] = {
@@ -114,7 +114,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
       utr = utr
     )
 
-    dataCacheConnector.saveReviewDetails(reviewDetails) map { _ =>
+    businessCustomerDataCacheService.saveReviewDetails(reviewDetails) map { _ =>
       Json.toJson(reviewDetails)
     }
   }
@@ -147,7 +147,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
       utr = utr
     )
 
-    dataCacheConnector.saveReviewDetails(reviewDetails) map { _ =>
+    businessCustomerDataCacheService.saveReviewDetails(reviewDetails) map { _ =>
       Json.toJson(reviewDetails)
     }
   }
