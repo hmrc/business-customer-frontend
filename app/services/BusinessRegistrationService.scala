@@ -19,10 +19,11 @@ package services
 import connectors.{BusinessCustomerConnector, DataCacheConnector}
 
 import javax.inject.Inject
-import models._
+import models.*
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import utils.SessionUtils
 
+import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -36,7 +37,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
                        isNonUKClientRegisteredByAgent: Boolean = false,
                        service: String,
                        isBusinessDetailsEditable: Boolean = false)
-                      (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[ReviewDetails] = {
+                      (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[ReviewDetails] = {
 
     val businessRegisterDetails = createBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
 
@@ -58,9 +59,9 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
                              overseasCompany: OverseasCompany,
                              isGroup: Boolean,
                              isNonUKClientRegisteredByAgent: Boolean = false,
-                             service: String,
+                             @unused service: String,
                              isBusinessDetailsEditable: Boolean = false)
-                            (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[ReviewDetails] = {
+                            (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[ReviewDetails] = {
 
     val updateRegisterDetails = createUpdateBusinessRegistrationRequest(registerData, overseasCompany, isGroup, isNonUKClientRegisteredByAgent)
 
@@ -86,7 +87,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
   }
 
 
-  def getDetails()(implicit authContext: StandardAuthRetrievals,
+  def getDetails()(using @unused authContext: StandardAuthRetrievals,
                    hc: HeaderCarrier,
                    ec: ExecutionContext): Future[Option[(String, BusinessRegistration, OverseasCompany)]] = {
 
@@ -113,7 +114,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
                                                       overseasCompany: OverseasCompany,
                                                       isGroup: Boolean,
                                                       isNonUKClientRegisteredByAgent: Boolean)
-                                                     (implicit authContext: StandardAuthRetrievals): UpdateRegistrationDetailsRequest = {
+                                                     (using authContext: StandardAuthRetrievals): UpdateRegistrationDetailsRequest = {
 
     UpdateRegistrationDetailsRequest(
       acknowledgementReference = SessionUtils.getUniqueAckNo,
@@ -132,7 +133,7 @@ class BusinessRegistrationService @Inject()(val businessCustomerConnector: Busin
                                                 overseasCompany: OverseasCompany,
                                                 isGroup: Boolean,
                                                 isNonUKClientRegisteredByAgent: Boolean)
-                                               (implicit authContext: StandardAuthRetrievals): BusinessRegistrationRequest = {
+                                               (using authContext: StandardAuthRetrievals): BusinessRegistrationRequest = {
 
     BusinessRegistrationRequest(
       acknowledgementReference = SessionUtils.getUniqueAckNo,

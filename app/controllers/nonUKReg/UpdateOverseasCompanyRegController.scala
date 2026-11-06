@@ -19,7 +19,7 @@ package controllers.nonUKReg
 import config.ApplicationConfig
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
-import forms.BusinessRegistrationForms._
+import forms.BusinessRegistrationForms.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -38,8 +38,8 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
                                                    mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with AuthActions with OverseasCompanyUtils {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
 
   private def getBackLink(service: String, redirectUrl: Option[String]): Some[String] = {
     Some(redirectUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
@@ -69,9 +69,9 @@ class UpdateOverseasCompanyRegController @Inject()(val authConnector: AuthConnec
     authorisedFor(service) { implicit authContext =>
       BusinessRegistrationForms.overseasCompanyForm.bindFromRequest().fold(
         formWithErrors => {
-            val backLink = getBackLink(service, redirectUrl.map(redirectUrlGetRelativeOrDev(_).url))
+          val backLink = getBackLink(service, redirectUrl.map(redirectUrlGetRelativeOrDev(_).url))
           Future.successful(BadRequest(template(formWithErrors, service, displayDetails(authContext.isAgent, addClient, service), redirectUrl.map(redirectUrlGetRelativeOrDev(_).url), backLink)))
-          },
+        },
         overseasCompany =>
             overseasCompany.hasBusinessUniqueId match {
               case Some(true) =>

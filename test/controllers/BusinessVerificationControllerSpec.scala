@@ -20,21 +20,21 @@ import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
-import forms._
+import forms.*
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, Messages}
-import play.api.mvc._
-import play.api.test.Helpers._
+import play.api.mvc.*
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
-import views.html._
+import views.html.*
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -56,9 +56,9 @@ class BusinessVerificationControllerSpec
   val invalidService = "scooby-doo"
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents =
+  given mcc: MessagesControllerComponents =
     inject[MessagesControllerComponents]
-  implicit val messages: Messages =
+  given messages: Messages =
     mcc.messagesApi.preferred(Seq(Lang.defaultLang))
 
   val businessRegUKController: BusinessRegUKController =

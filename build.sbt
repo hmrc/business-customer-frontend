@@ -21,6 +21,15 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 
 val appName: String = "business-customer-frontend"
 
+ThisBuild / majorVersion := 3
+ThisBuild / scalaVersion := "3.3.7"
+ThisBuild / scalacOptions ++= Seq(
+  "-Wconf:src=target/.*:s",
+  "-Wconf:id=E198:s",
+  "-Wconf:msg=WithUnsafeDefaultFormBinding:s",
+  "-Wconf:msg=set repeatedly:s"
+)
+
 lazy val plugins: Seq[Plugins] = Seq(play.sbt.PlayScala, SbtDistributablesPlugin)
 lazy val playSettings: Seq[Setting[?]] = Seq.empty
 lazy val scoverageSettings = {
@@ -43,7 +52,7 @@ lazy val microservice: Project = Project(appName, file("."))
     defaultSettings(),
     scoverageSettings,
     scalacOptions += "-Ywarn-unused:-explicits,-implicits",
-    scalaVersion := "2.13.18",
+    scalaVersion := "3.3.7",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
     retrieveManaged := true,
@@ -58,10 +67,10 @@ lazy val microservice: Project = Project(appName, file("."))
   .settings(
 
     TwirlKeys.templateImports ++= Seq(
-      "uk.gov.hmrc.govukfrontend.views.html.components._",
-      "uk.gov.hmrc.hmrcfrontend.views.html.components._",
-      "uk.gov.hmrc.hmrcfrontend.views.html.components.implicits._",
-      "uk.gov.hmrc.hmrcfrontend.views.html.helpers._"
+      "uk.gov.hmrc.govukfrontend.views.html.components.*",
+      "uk.gov.hmrc.hmrcfrontend.views.html.components.*",
+      "uk.gov.hmrc.hmrcfrontend.views.html.components.implicits.*",
+      "uk.gov.hmrc.hmrcfrontend.views.html.helpers.*"
     )
   )
   .disablePlugins(JUnitXmlReportPlugin)

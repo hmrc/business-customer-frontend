@@ -20,15 +20,15 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
-import forms.BusinessVerificationForms._
-import forms._
+import forms.*
+import forms.BusinessVerificationForms.*
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Format.GenericFormat
-import play.api.mvc._
+import play.api.mvc.*
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.BusinessCustomerConstants._
+import utils.BusinessCustomerConstants.*
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,8 +49,8 @@ class BusinessVerificationController @Inject()(val config: ApplicationConfig,
                                                val mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with AuthActions with BackLinkController with I18nSupport {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "BusinessVerificationController"
   val services: Seq[String] = Seq("awrs", "ated", "amls")
 

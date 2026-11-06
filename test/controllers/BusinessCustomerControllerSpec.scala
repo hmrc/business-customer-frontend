@@ -21,13 +21,13 @@ import config.ApplicationConfig
 import connectors.DataCacheConnector
 import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.{Headers, MessagesControllerComponents}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
@@ -48,7 +48,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
   }
 
   val appConfig = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+  given mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestBusinessCustomerController extends BusinessCustomerController(
     mockAuthConnector,

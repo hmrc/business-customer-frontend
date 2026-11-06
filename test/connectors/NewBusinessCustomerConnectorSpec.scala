@@ -18,13 +18,13 @@ package connectors
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import models._
-import org.mockito.Mockito._
+import models.*
+import org.mockito.Mockito.*
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
-import uk.gov.hmrc.http._
+import play.api.test.Helpers.*
+import uk.gov.hmrc.http.*
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,16 +33,16 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSu
 
   val appConfig = app.injector.instanceOf[ApplicationConfig]
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  given ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  given hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
   class Setup extends ConnectorTest {
     val connector: NewBusinessCustomerConnector = new NewBusinessCustomerConnector(appConfig, mockAuditable, mockHttpClient)
   }
 
 
-  implicit val user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
+  given user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
   val service = "ATED"
 
   "NewBusinessCustomerConnector" must {
@@ -128,7 +128,7 @@ class NewBusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSu
           agentReferenceNumber = Some("AREF123123"))
         val successResponse = Json.toJson(businessResponseData)
 
-        implicit val hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val inputBody: JsValue = Json.toJson(businessRequestDataNonUK)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))

@@ -17,7 +17,7 @@
 package services
 
 import connectors.{BusinessMatchingConnector, DataCacheConnector}
-import models._
+import models.*
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.BusinessCustomerConstants.{CorporateBody, Partnership, SoleTrader}
@@ -30,7 +30,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
                                         val dataCacheConnector: DataCacheConnector) {
 
   def matchBusinessWithUTR(isAnAgent: Boolean, service: String)
-                          (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Option[Future[JsValue]] = {
+                          (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Option[Future[JsValue]] = {
     getUserUtrAndType map { userUtrAndType =>
       val (userUTR, userType) = userUtrAndType
       val trimmedUtr = userUTR.replaceAll(" ", "")
@@ -47,7 +47,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
   }
 
   def matchBusinessWithIndividualName(isAnAgent: Boolean, individual: Individual, saUTR: String, service: String)
-                                     (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+                                     (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
 
     val trimmedUtr = saUTR.replaceAll(" ", "")
     val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
@@ -59,7 +59,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
   }
 
   def matchBusinessWithOrganisationName(isAnAgent: Boolean, organisation: Organisation, utr: String, service: String)
-                                       (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+                                       (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     val trimmedUtr = utr.replaceAll(" ", "")
     val searchData = MatchBusinessData(acknowledgementReference = SessionUtils.getUniqueAckNo,
       utr = trimmedUtr, requiresNameMatch = true, isAnAgent = isAnAgent, individual = None, organisation = Some(organisation))
@@ -79,7 +79,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
   }
 
   private def validateAndCache(dataReturned: JsValue, directMatch: Boolean, utr: Option[String],
-                               orgType : Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+                               orgType : Option[String])(using hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     val isFailureResponse = dataReturned.validate[MatchFailureResponse].isSuccess
     if (isFailureResponse) Future.successful(dataReturned)
     else {
@@ -91,7 +91,7 @@ class BusinessMatchingService @Inject()(val businessMatchingConnector: BusinessM
 
   private def cacheIndividual(dataReturned: JsValue,
                               directMatch: Boolean,
-                              utr: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+                              utr: Option[String])(using hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     val businessType = SoleTrader
     val individual = (dataReturned \ "individual").as[Individual]
     val addressReturned = getAddress(dataReturned)

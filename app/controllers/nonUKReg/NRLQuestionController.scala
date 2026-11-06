@@ -20,15 +20,14 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.BackLinkController
 import controllers.auth.AuthActions
-import forms.BusinessRegistrationForms._
-
-import javax.inject.Inject
+import forms.BusinessRegistrationForms.*
 import models.NRLQuestion
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.NrlFormId
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class NRLQuestionController @Inject()(val authConnector: AuthConnector,

@@ -18,10 +18,10 @@ package builders
 
 import models.StandardAuthRetrievals
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
-import uk.gov.hmrc.auth.core._
+import org.mockito.Mockito.*
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
-import uk.gov.hmrc.domain._
+import uk.gov.hmrc.domain.*
 
 import scala.concurrent.Future
 

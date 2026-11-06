@@ -23,13 +23,13 @@ import play.api.libs.json.{Format, Json}
 case class KnownFact(`type`: String, value: String)
 
 object KnownFact {
-  implicit val formats: Format[KnownFact] = Json.format[KnownFact]
+  given formats: Format[KnownFact] = Json.format[KnownFact]
 }
 
 case class KnownFactsForService(facts: List[KnownFact])
 
 object KnownFactsForService {
-  implicit val formats: Format[KnownFactsForService] = Json.format[KnownFactsForService]
+  given formats: Format[KnownFactsForService] = Json.format[KnownFactsForService]
 }
 
 //TODO - used by GG - need to be removed END
@@ -37,11 +37,11 @@ object KnownFactsForService {
 case class Verifier(key: String, value: String)
 
 object Verifier {
-  implicit val formats: Format[Verifier] = Json.format[Verifier]
+  given formats: Format[Verifier] = Json.format[Verifier]
 }
 
 case class Verifiers(verifiers: List[Verifier])
 
 object Verifiers {
-  implicit val formats: Format[Verifiers] = Json.format[Verifiers]
+  given formats: Format[Verifiers] = Json.format[Verifiers]
 }

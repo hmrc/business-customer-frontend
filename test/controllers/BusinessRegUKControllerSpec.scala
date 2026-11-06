@@ -16,24 +16,23 @@
 
 package controllers
 
-import java.util.UUID
-
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import models.{Address, BusinessRegistration, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.mvc._
-import play.api.test.Helpers._
+import play.api.mvc.*
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import views.html.business_group_registration
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with Injecting {
@@ -47,7 +46,7 @@ class BusinessRegUKControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val injectedViewInstance: business_group_registration = inject[views.html.business_group_registration]
   val mockDataCacheConnector: DataCacheConnector = mock[DataCacheConnector]
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+  given mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestBusinessRegController extends BusinessRegUKController(
     mockAuthConnector,

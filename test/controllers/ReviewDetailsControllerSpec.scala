@@ -21,16 +21,16 @@ import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Headers, MessagesControllerComponents, Result}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
-import play.api.i18n.{Lang, Messages, MessagesApi}
 import services.AgentRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -43,8 +43,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach with Injecting {
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
-  implicit val messages: Messages = inject[MessagesApi].preferred(Seq(Lang.defaultLang))
+  given ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  given messages: Messages = inject[MessagesApi].preferred(Seq(Lang.defaultLang))
 
   val service = "ATED"
 
@@ -56,8 +56,8 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
   val injectedViewInstanceReviewDetails: review_details = inject[views.html.review_details]
   val injectedViewInstanceError: global_error = inject[views.html.global_error]
 
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+  given appConfig: ApplicationConfig = inject[ApplicationConfig]
+  given mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   val address: Address = Address("line 1", "line 2", Some("line 3"), Some("line 4"), Some("AA1 1AA"), "UK")
 
@@ -77,7 +77,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       var reads: Int = 0
 
-      override def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Some[ReviewDetails]] = {
+      override def fetchAndGetBusinessDetailsForSession(using hc: HeaderCarrier, ec: ExecutionContext): Future[Some[ReviewDetails]] = {
         reads = reads + 1
         Future.successful(Some(reviewDetails))
       }
@@ -106,7 +106,7 @@ class ReviewDetailsControllerSpec extends PlaySpec with GuiceOneServerPerSuite w
 
       var reads: Int = 0
 
-      override def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[None.type] = {
+      override def fetchAndGetBusinessDetailsForSession(using hc: HeaderCarrier, ec: ExecutionContext): Future[None.type] = {
         reads = reads + 1
         Future.successful(None)
       }

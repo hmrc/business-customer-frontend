@@ -18,15 +18,15 @@ package services
 
 import builders.AuthBuilder
 import connectors.{BusinessCustomerConnector, DataCacheConnector}
-import models._
+import models.*
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException}
 
 import java.util.UUID
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
-  implicit val user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
+  given user: StandardAuthRetrievals = AuthBuilder.createUserAuthContext("userId", "joe bloggs")
   val mockDataCacheConnector = mock[DataCacheConnector]
   val service = "ATED"
 
@@ -55,7 +55,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
 
   "getDetails" must {
 
-    implicit val hc = new HeaderCarrier()
+    given hc = new HeaderCarrier()
 
     case class Identification(idNumber: String, issuingInstitution: String, issuingCountryCode: String)
 
@@ -102,7 +102,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
               agentReferenceNumber = Some("AREF123123"))
 
     "save the response from the registration" in {
-      implicit val hc = new HeaderCarrier()
+      given hc = new HeaderCarrier()
 
       when(mockBusinessCustomerConnector.register(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future(nonUKResponse))
 
@@ -130,7 +130,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
     }
 
     "save the response from the registration, when an agent registers non-uk based client" in {
-      implicit val hc = new HeaderCarrier()
+      given hc = new HeaderCarrier()
 
       when(mockBusinessCustomerConnector.register(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future(nonUKResponse))
       val busRegData = BusinessRegistration(businessName = "testName",
@@ -156,7 +156,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
     }
 
     "save the response from the registration when we have no businessUniqueId or issuingInstitution" in {
-      implicit val hc = new HeaderCarrier()
+      given hc = new HeaderCarrier()
       when(mockBusinessCustomerConnector.register(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future(nonUKResponse))
       val busRegData = BusinessRegistration(businessName = "testName",
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country")
@@ -179,7 +179,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
     }
 
     "throw exception when registration fails" in {
-      implicit val hc = new HeaderCarrier()
+      given hc = new HeaderCarrier()
       when(mockBusinessCustomerConnector.register(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future(nonUKResponse))
       val busRegData = BusinessRegistration(businessName = "testName",
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country")
@@ -211,7 +211,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
     )
 
     "save the response from the update" in {
-      implicit val hc = new HeaderCarrier()
+      given hc = new HeaderCarrier()
 
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(cachedReviewDetails)))
       when(mockBusinessCustomerConnector.updateRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
@@ -239,7 +239,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
     }
 
     "save the response from the registration, when an agent registers non-uk based client" in {
-      implicit val hc = new HeaderCarrier()
+      given hc = new HeaderCarrier()
 
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(cachedReviewDetails)))
       when(mockBusinessCustomerConnector.updateRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
@@ -266,7 +266,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
     }
 
     "save the response from the registration when we have no businessUniqueId or issuingInstitution" in {
-      implicit val hc = new HeaderCarrier()
+      given hc = new HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(cachedReviewDetails)))
       when(mockBusinessCustomerConnector.updateRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, successResponse.toString)))
       val busRegData = BusinessRegistration(businessName = "testName",
@@ -290,7 +290,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
     }
 
     "throw an exception if no data is found" in {
-      implicit val hc = new HeaderCarrier()
+      given hc = new HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
       val busRegData = BusinessRegistration(businessName = "testName",
         businessAddress = Address("line1", "line2", Some("line3"), Some("line4"), Some("postCode"), "country")
@@ -308,7 +308,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
     }
 
     "throw exception when registration fails" in {
-      implicit val hc = new HeaderCarrier()
+      given hc = new HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
       when(mockBusinessCustomerConnector.updateRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -331,7 +331,7 @@ class BusinessRegistrationServiceSpec extends PlaySpec with GuiceOneServerPerSui
     }
 
     "throw exception when failure to retrieve from Review Details Cache" in {
-      implicit val hc = new HeaderCarrier()
+      given hc = new HeaderCarrier()
       when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(cachedReviewDetails)))
       when(mockBusinessCustomerConnector.updateRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))

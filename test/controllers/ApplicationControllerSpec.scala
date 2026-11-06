@@ -22,7 +22,7 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.MessagesControllerComponents
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
 
 class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
@@ -30,8 +30,8 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val injectedViewInstanceUnauthorised = inject[views.html.unauthorised]
   val injectedViewInstanceLogout = inject[views.html.logout]
 
-  implicit val lang: Lang = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  given lang: Lang = Lang.defaultLang
+  given appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   trait Setup {
     val controller = new ApplicationController(
@@ -53,7 +53,7 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
       "load the unauthorised page" in new Setup {
         val messagesApi: MessagesApi = inject[MessagesApi]
-        implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+        given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
         val result = controller.unauthorised().apply(FakeRequest())
         val content = contentAsString(result)
         val doc = Jsoup.parse(content)

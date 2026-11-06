@@ -19,8 +19,6 @@ package controllers
 import config.ApplicationConfig
 import connectors.DataCacheConnector
 import controllers.auth.AuthActions
-
-import javax.inject.Inject
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
@@ -28,6 +26,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
@@ -35,8 +34,8 @@ class BusinessCustomerController @Inject()(val authConnector: AuthConnector,
                                            dataCacheConnector: DataCacheConnector,
                                            mcc: MessagesControllerComponents) extends FrontendController(mcc) with AuthActions with I18nSupport with Logging {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
 
   def clearCache(service: String): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>

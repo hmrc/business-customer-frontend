@@ -21,14 +21,15 @@ import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.BackLinkController
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
-import forms.BusinessRegistrationForms._
-import javax.inject.Inject
+import forms.BusinessRegistrationForms.*
 import models.{BusinessRegistration, BusinessRegistrationDisplayDetails, StandardAuthRetrievals}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.BusinessRegDetailsId
 
+import javax.inject.Inject
+import scala.annotation.unused
 import scala.concurrent.ExecutionContext
 
 class BusinessRegController @Inject()(val authConnector: AuthConnector,
@@ -40,8 +41,8 @@ class BusinessRegController @Inject()(val authConnector: AuthConnector,
                                       mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with AuthActions with BackLinkController {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "BusinessRegController"
 
 
@@ -92,7 +93,7 @@ class BusinessRegController @Inject()(val authConnector: AuthConnector,
     }
   }
 
-  private def displayDetails(businessType: String, service: String)(implicit authContext: StandardAuthRetrievals) = {
+  private def displayDetails(businessType: String,@unused service: String)(using authContext: StandardAuthRetrievals) = {
     if (authContext.isAgent) {
       BusinessRegistrationDisplayDetails(
         businessType,

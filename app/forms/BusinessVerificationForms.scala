@@ -19,34 +19,35 @@ package forms
 
 import config.BCUtils
 import play.api.Environment
-import play.api.data.Forms._
-import play.api.data._
+import play.api.data.Forms.*
+import play.api.data.*
 import play.api.libs.json.{Format, Json}
 
+import scala.annotation.unused
 import scala.util.matching.Regex
 
 case class BusinessName(businessName: String)
 
 object BusinessName {
-  implicit val formats: Format[BusinessName] = Json.format[BusinessName]
+  given formats: Format[BusinessName] = Json.format[BusinessName]
 }
 
 case class SoleTraderName(firstName: String, lastName: String)
 
 object SoleTraderName {
-  implicit val formats: Format[SoleTraderName] = Json.format[SoleTraderName]
+  given formats: Format[SoleTraderName] = Json.format[SoleTraderName]
 }
 
 case class Utr(utr: String)
 
 object Utr {
-  implicit val formats: Format[Utr] = Json.format[Utr]
+  given formats: Format[Utr] = Json.format[Utr]
 }
 
 case class BusinessType(businessType: Option[String] = None, isSaAccount: Boolean, isOrgAccount: Boolean)
 
 object BusinessType {
-  implicit val formats: Format[BusinessType] = Json.format[BusinessType]
+  given formats: Format[BusinessType] = Json.format[BusinessType]
 }
 
 object BusinessVerificationForms extends BCUtils {
@@ -89,16 +90,16 @@ object BusinessVerificationForms extends BCUtils {
     "businessType" -> optional(text).verifying("bc.business-verification-error.not-selected", x => x.isDefined),
     "isSaAccount" -> boolean,
     "isOrgAccount" -> boolean
-  )(BusinessType.apply)(BusinessType.unapply)
+  )(BusinessType.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 }
 
-  def businessName(businessType: String): Form[BusinessName] ={
+  def businessName(@unused businessType: String): Form[BusinessName] ={
     Form(mapping(
       "businessName" -> text
         .verifying(s"bc.business-verification-error.businessName", x => x.trim.length > length0)
         .verifying(s"bc.business-verification-error.businessName.length", x => x.isEmpty || (x.nonEmpty && x.length <= length105))
-    )(BusinessName.apply)(BusinessName.unapply))}
+    )(BusinessName.apply)(x => Some(x.businessName)))}
 
   val soleTraderNameForm: Form[SoleTraderName] = Form(mapping(
     "firstName" -> text
@@ -107,7 +108,7 @@ object BusinessVerificationForms extends BCUtils {
     "lastName" -> text
       .verifying("bc.business-verification-error.surname", x => x.trim.length > length0)
       .verifying("bc.business-verification-error.surname.length", x => x.isEmpty || (x.nonEmpty && x.length <= length40))
-  )(SoleTraderName.apply)(SoleTraderName.unapply))
+  )(SoleTraderName.apply)(x => Some(Tuple.fromProductTyped(x))))
 
   val saUtr: Form[Utr] = Form(mapping(
     "utr" -> text
@@ -120,7 +121,7 @@ object BusinessVerificationForms extends BCUtils {
         val trimmedString = x.replaceAll(" ", "")
         trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches(utrRegex.regex))
       })
-  )(Utr.apply)(Utr.unapply))
+  )(Utr.apply)(x => Some(x.utr)))
 
   val cotaxUtr: Form[Utr] = Form(mapping(
     "utr" -> text
@@ -133,7 +134,7 @@ object BusinessVerificationForms extends BCUtils {
           val trimmedString = x.replaceAll(" ", "")
           trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches(utrRegex.regex))
         })
-  )(Utr.apply)(Utr.unapply))
+  )(Utr.apply)(x => Some(x.utr)))
 
   val psaUtr: Form[Utr] = Form(mapping(
     "utr" -> text
@@ -146,6 +147,6 @@ object BusinessVerificationForms extends BCUtils {
         val trimmedString = x.replaceAll(" ", "")
         trimmedString.isEmpty || (validateUTR(trimmedString) || !trimmedString.matches(utrRegex.regex))
       })
-  )(Utr.apply)(Utr.unapply))
+  )(Utr.apply)(x => Some(x.utr)))
 
 }

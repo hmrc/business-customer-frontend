@@ -23,13 +23,13 @@ import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc._
-import play.api.test.Helpers._
+import play.api.mvc.*
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -54,7 +54,7 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
   val injectedViewInstance: overseas_company = inject[views.html.nonUkReg.overseas_company]
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+  given mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   val mockReviewDetailsController: ReviewDetailsController = mock[ReviewDetailsController]
   val mockOverseasCompanyRegDetailsController: OverseasCompanyRegDetailsController = mock[OverseasCompanyRegDetailsController]

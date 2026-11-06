@@ -16,8 +16,8 @@
 
 package config
 
-import controllers._
-import controllers.nonUKReg._
+import controllers.*
+import controllers.nonUKReg.*
 import play.api.inject.{Binding, Module}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.auth.core.AuthConnector

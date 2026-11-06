@@ -18,9 +18,11 @@ package utils
 
 import models.OverseasCompanyRegDisplayDetails
 
+import scala.annotation.unused
+
 trait OverseasCompanyRegUtils {
 
-  def displayDetails(isAgent: Boolean, addClient: Boolean, service: String): OverseasCompanyRegDisplayDetails = {
+  def displayDetails(isAgent: Boolean, addClient: Boolean,@unused service: String): OverseasCompanyRegDisplayDetails = {
     (isAgent, addClient) match {
       case (true, true) =>
         OverseasCompanyRegDisplayDetails(

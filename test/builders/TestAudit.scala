@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.audit.model.Audit._
+import uk.gov.hmrc.play.audit.model.Audit.*
 import uk.gov.hmrc.play.audit.model.{Audit, AuditAsMagnet, DataEvent}
 
 class TestAudit(auditConnector: AuditConnector) extends Audit("test", auditConnector) {

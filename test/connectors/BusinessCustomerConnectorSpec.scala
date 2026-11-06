@@ -18,13 +18,13 @@ package connectors
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import models._
-import org.mockito.Mockito._
+import models.*
+import org.mockito.Mockito.*
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
-import uk.gov.hmrc.http._
+import play.api.test.Helpers.*
+import uk.gov.hmrc.http.*
 import uk.gov.hmrc.play.audit.DefaultAuditConnector
 
 import java.util.UUID
@@ -33,10 +33,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite  {
 
   val service = "ATED"
-  implicit val authData: StandardAuthRetrievals = AuthBuilder.createSaUser()
+  given authData: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  given ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   val mockAppConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
   val mockAuditConnector: DefaultAuditConnector = app.injector.instanceOf[DefaultAuditConnector]
@@ -205,7 +205,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       val successResponse = HttpResponse(OK, """{"processingDate": "2014-12-17T09:30:47Z"}""")
 
       "for successful save, return Response as Json" in new Setup {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val inputBody: JsValue = Json.toJson(updateRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(successResponse))
@@ -216,7 +216,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
       "for successful save with non-uk address, return Response as Json" in new Setup {
 
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val inputBody: JsValue = Json.toJson(updateRequestDataNonUk)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(successResponse))
@@ -227,7 +227,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
       "for successful registration of NON-UK based client by an agent, return Response as Json" in new Setup {
 
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val inputBody: JsValue = Json.toJson(updateRequestDataNonUk)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(successResponse))
@@ -239,7 +239,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       "for Service Unavailable, throw an exception" in new Setup {
         val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val inputBody: JsValue = Json.toJson(updateRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, matchFailureResponse.toString)))
@@ -252,7 +252,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
       "for Not Found, throw an exception" in new Setup {
         val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
 
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val inputBody: JsValue = Json.toJson(updateRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(NOT_FOUND, matchFailureResponse.toString)))
@@ -264,7 +264,7 @@ class BusinessCustomerConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
 
       "for Unknown Error, throw an exception" in new Setup {
         val matchFailureResponse: JsValue = Json.parse( """{"error": "Sorry. Business details not found."}""")
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+        given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
         val inputBody: JsValue = Json.toJson(updateRequestData)
 
         when(executePost[HttpResponse](inputBody)).thenReturn(Future.successful(HttpResponse(999, matchFailureResponse.toString)))

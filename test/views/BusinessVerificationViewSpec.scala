@@ -31,8 +31,8 @@ import views.html.business_verification
 class BusinessVerificationViewSpec extends AnyWordSpec with GuiceOneAppPerSuite {
     private val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
     private val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-    private implicit val messages: Messages = messagesApi.preferred(fakeRequest)
-    private implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+    private given messages: Messages = messagesApi.preferred(fakeRequest)
+    private given appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
     private val view: business_verification = app.injector.instanceOf[business_verification]
     private val defaultIsAgent = false
     private val agentCaption = "agency set up"

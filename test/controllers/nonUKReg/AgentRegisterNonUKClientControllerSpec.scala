@@ -21,13 +21,13 @@ import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import models.{Address, BusinessRegistration}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.mvc._
-import play.api.test.Helpers._
+import play.api.mvc.*
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
@@ -44,7 +44,7 @@ class AgentRegisterNonUKClientControllerSpec extends PlaySpec with GuiceOneServe
   val invalidService = "scooby-doo"
   val injectedViewInstance: nonuk_business_registration = inject[views.html.nonUkReg.nonuk_business_registration]
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  given hc: HeaderCarrier = HeaderCarrier()
   private val mockAuthConnector: DefaultAuthConnector = mock[DefaultAuthConnector]
   private val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
   private val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]

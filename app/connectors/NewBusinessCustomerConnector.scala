@@ -18,17 +18,17 @@ package connectors
 
 import audit.Auditable
 import config.ApplicationConfig
-
-import javax.inject.Inject
-import models._
+import models.*
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.audit.model.EventTypes
+import play.api.libs.ws.writeableOf_JsValue
+import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.play.audit.model.EventTypes
 import utils.GovernmentGatewayConstants
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class NewBusinessCustomerConnector @Inject()(config: ApplicationConfig,
@@ -40,7 +40,7 @@ class NewBusinessCustomerConnector @Inject()(config: ApplicationConfig,
   val knownFactsUri = "known-facts"
   val updateRegistrationDetailsURI = "update"
 
-  def addKnownFacts(knownFacts: Verifiers, arn: String)(implicit authContext: StandardAuthRetrievals,
+  def addKnownFacts(knownFacts: Verifiers, arn: String)(using authContext: StandardAuthRetrievals,
                                                         hc: HeaderCarrier,
                                                         ec: ExecutionContext): Future[HttpResponse] = {
     val authLink = authContext.authLink
@@ -51,7 +51,7 @@ class NewBusinessCustomerConnector @Inject()(config: ApplicationConfig,
   }
 
   def auditRegisterCall(input: BusinessRegistrationRequest, response: HttpResponse, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
-                       (implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
+                       (using hc: HeaderCarrier, ec: ExecutionContext): Unit = {
     val eventType = response.status match {
       case OK => EventTypes.Succeeded
       case _ => EventTypes.Failed
@@ -92,7 +92,7 @@ class NewBusinessCustomerConnector @Inject()(config: ApplicationConfig,
   }
 
   def register(registerData: BusinessRegistrationRequest, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
-              (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[BusinessRegistrationResponse] = {
+              (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[BusinessRegistrationResponse] = {
 
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$registerUri"""
@@ -116,7 +116,7 @@ class NewBusinessCustomerConnector @Inject()(config: ApplicationConfig,
   }
 
   def updateRegistrationDetails(safeId: String, updateRegistrationDetails: UpdateRegistrationDetailsRequest)
-                               (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+                               (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$updateRegistrationDetailsURI/$safeId"""
     val jsonData = Json.toJson(updateRegistrationDetails)

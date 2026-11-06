@@ -16,27 +16,26 @@
 
 package controllers
 
-import java.util.UUID
 import builders.{AuthBuilder, SessionBuilder}
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
-
-import javax.inject.Provider
 import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
 import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
+import java.util.UUID
+import javax.inject.Provider
 import scala.concurrent.Future
 
 
@@ -60,7 +59,7 @@ class HomeControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Mocki
   val testReviewDetails = (address: Address) => ReviewDetails("ACME", Some("Limited"), address, "sap123", "safe123", isAGroup = false, directMatch = false, Some("agent123"))
 
   val appConfig = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+  given mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestHomeController extends HomeController(
     mockAuthConnector,

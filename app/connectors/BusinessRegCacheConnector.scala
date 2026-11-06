@@ -35,10 +35,10 @@ class BusinessRegCacheConnector @Inject()(val http: HttpClientV2,
 
   val sourceId: String = "BC_NonUK_Business_Details"
 
-  def fetchAndGetCachedDetails[T](formId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[Option[T]] =
+  def fetchAndGetCachedDetails[T](formId: String)(using hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[Option[T]] =
     fetchAndGetEntry[T](key = formId)
 
-  def cacheDetails[T](formId: String, formData: T)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[T] = {
+  def cacheDetails[T](formId: String, formData: T)(using hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[T] = {
     cache[T](formId, formData).map(_ => formData)
   }
 

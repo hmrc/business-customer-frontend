@@ -18,16 +18,16 @@ package connectors
 
 import audit.Auditable
 import config.ApplicationConfig
-
-import javax.inject.Inject
 import models.{MatchBusinessData, StandardAuthRetrievals}
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http._
+import play.api.libs.ws.writeableOf_JsValue
+import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.audit.model.EventTypes
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
@@ -39,7 +39,7 @@ class BusinessMatchingConnector @Inject()(val audit: Auditable,
   val lookupUri = "business-lookup"
 
   def lookup(lookupData: MatchBusinessData, userType: String, service: String)
-            (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
+            (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     val authLink = authContext.authLink
     val url = s"""${conf.businessMatching}/$authLink/$baseUri/$lookupUri/${lookupData.utr}/$userType"""
     http.post(url"${url}").withBody(Json.toJson(lookupData)).execute map { response =>
@@ -77,7 +77,7 @@ class BusinessMatchingConnector @Inject()(val audit: Auditable,
   }
 
   private def auditMatchCall(input: MatchBusinessData, userType: String, response: HttpResponse, service: String)
-                            (implicit hc: HeaderCarrier, ec: ExecutionContext): Any = {
+                            (using hc: HeaderCarrier, ec: ExecutionContext): Any = {
     val eventType = response.status match {
       case OK | NOT_FOUND => EventTypes.Succeeded
       case _ => EventTypes.Failed

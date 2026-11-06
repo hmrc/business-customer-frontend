@@ -19,7 +19,7 @@ package utils
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
-import utils.ErrorMessageUtils._
+import utils.ErrorMessageUtils.*
 
 import scala.xml._
 

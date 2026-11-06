@@ -36,11 +36,11 @@ class BackLinkCacheConnector @Inject()(val http: HttpClientV2,
 
   private def getKey(pageId: String) = s"$sourceId:$pageId"
 
-  def fetchAndGetBackLink(pageId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
+  def fetchAndGetBackLink(pageId: String)(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
     fetchAndGetEntry[BackLinkModel](getKey(pageId)).map(_.flatMap(_.backLink))
   }
 
-  def saveBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
+  def saveBackLink(pageId: String, returnUrl: Option[String])(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
     cache[BackLinkModel](getKey(pageId), BackLinkModel(returnUrl)).map(_ => returnUrl)
   }
 
