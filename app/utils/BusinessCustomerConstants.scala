@@ -16,7 +16,7 @@
 
 package utils
 
-object BusinessCustomerConstants {
+  object BusinessCustomerConstants {
 
   val CorporateBody = "Corporate Body"
   val UnincorporatedBody = "Unincorporated Body"
@@ -24,9 +24,7 @@ object BusinessCustomerConstants {
   val Partnership = "Partnership"
   val SoleTrader = "Sole Trader"
 
-  val IdentifierArn = "arn"
-  val IdentifierUtr = "utr"
-  val IdentifierSafeId = "safeid"
+ 
   val BusinessRegDetailsId = "BC_NonUK_Business_Details"
   val OverseasId = "Overseas_Business"
   val OverseasRegDetailsId = "Overseas_Business_Details"
@@ -36,5 +34,14 @@ object BusinessCustomerConstants {
   val CacheRegistrationDetails = "Cache_Registration_Details_"
   val CacheBusinessNameDataRegistrationDetails = "Cache_Business_Name_Data_Registration_Details_"
   val CacheBusinessUtrDataRegistrationDetails = "Cache_Business_Utr_Data_Registration_Details_"
-
+  val MapBusinessTypeToOrganisationType:Map[String, String] = Map(
+      "UIB" -> UnincorporatedBody,
+      "LLP" -> Llp,
+      "LP" -> Partnership,
+      "OBP" -> Partnership,
+      "LTD" -> CorporateBody,
+      "ULTD" -> CorporateBody,
+      "UT" -> CorporateBody,
+      "NRL" -> CorporateBody
+    )
 }

@@ -21,7 +21,7 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import forms._
 import org.jsoup.Jsoup
-import org.mockito.ArgumentMatchers
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mockito.Mockito._
 import org.scalatest.Inspectors.forAll
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,6 +35,8 @@ import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html._
+import models.Organisation
+import utils.BusinessCustomerConstants.MapBusinessTypeToOrganisationType
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -582,7 +584,24 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         }
       }
     }
-  }}
+  }
+    "OnSubmit" must {
+      val organisationArgument: ArgumentCaptor[Organisation] = ArgumentCaptor.forClass(classOf[Organisation])
+      MapBusinessTypeToOrganisationType.keys.foreach { businessType =>
+        s"Appropriate organisationType for businessType in parameter for matchBusinessWithOrganisationName ${businessType}" in new Setup{
+          controller.submit(ArgumentMatchers.anyString(),businessType)
+
+          verify(mockBusinessMatchingService.matchBusinessWithOrganisationName(ArgumentMatchers.any(),
+            organisationArgument.capture(),
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+
+          assert(organisationArgument.getValue.organisationType == MapBusinessTypeToOrganisationType(businessType))
+        }
+
+      }
+    }
+  }
   private def businessUtrWithAuthorisedUser(
     controller: BusinessUtrController,
     businessType: String,
