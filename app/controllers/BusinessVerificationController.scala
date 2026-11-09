@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.BusinessRegCacheService
+import services.BusinessRegCacheService
 import controllers.auth.AuthActions
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import forms.BusinessVerificationForms._

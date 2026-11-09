@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{BusinessCustomerConnector, BusinessCustomerDataCacheService}
+import connectors.BusinessCustomerConnector
 
 import javax.inject.Inject
 import models._

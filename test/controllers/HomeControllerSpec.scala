@@ -19,7 +19,7 @@ package controllers
 import java.util.UUID
 import builders.{AuthBuilder, SessionBuilder}
 import config.ApplicationConfig
-import connectors.BusinessRegCacheService
+import services.BusinessRegCacheService
 
 import javax.inject.Provider
 import models.{Address, ReviewDetails}

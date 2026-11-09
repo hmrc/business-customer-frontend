@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.BusinessRegCacheService
+import services.BusinessRegCacheService
 import forms._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers

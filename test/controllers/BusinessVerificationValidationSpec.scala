@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.BusinessRegCacheService
+import services.BusinessRegCacheService
 import forms.{BusinessName, SoleTraderName, Utr}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._

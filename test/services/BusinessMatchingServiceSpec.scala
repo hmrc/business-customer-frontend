@@ -17,7 +17,7 @@
 package services
 
 import builders.AuthBuilder
-import connectors.{BusinessMatchingConnector, BusinessCustomerDataCacheService}
+import connectors.BusinessMatchingConnector
 import models._
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar

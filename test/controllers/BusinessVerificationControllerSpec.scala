@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.BusinessRegCacheService
+import services.BusinessRegCacheService
 import controllers.nonUKReg.{BusinessRegController, NRLQuestionController}
 import forms._
 import org.jsoup.Jsoup

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors
+package services
 
 import models.{Address, BusinessRegistration, ReviewDetails}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}

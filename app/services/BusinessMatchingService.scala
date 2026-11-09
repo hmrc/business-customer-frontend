@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{BusinessMatchingConnector, BusinessCustomerDataCacheService}
+import connectors.BusinessMatchingConnector
 import models._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier

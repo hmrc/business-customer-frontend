@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors
+package services
 
 import models.{BusinessRegistration, ReviewDetails}
 import repositories.SessionCacheRepository

@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.BusinessCustomerDataCacheService
+import services.BusinessCustomerDataCacheService
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
 import forms.BusinessRegistrationForms._

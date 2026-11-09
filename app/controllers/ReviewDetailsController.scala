@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.BusinessCustomerDataCacheService
+import services.BusinessCustomerDataCacheService
 import controllers.auth.AuthActions
 import javax.inject.Inject
 import play.api.Logging

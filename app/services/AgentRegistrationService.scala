@@ -18,7 +18,7 @@ package services
 
 import audit.Auditable
 import config.ApplicationConfig
-import connectors.{BusinessCustomerDataCacheService, NewBusinessCustomerConnector, TaxEnrolmentsConnector}
+import connectors.{NewBusinessCustomerConnector, TaxEnrolmentsConnector}
 
 import javax.inject.Inject
 import models._
