@@ -17,7 +17,7 @@
 package connectors
 
 import config.ApplicationConfig
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json, OFormat}
@@ -30,12 +30,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
   case class FormData(name: String)
 
   object FormData {
-    implicit val formats: OFormat[FormData] = Json.format[FormData]
+    given formats: OFormat[FormData] = Json.format[FormData]
   }
 
   val formId = "form-id"
@@ -48,14 +48,14 @@ class BusinessRegCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite
   val cacheMap = CacheMap(id = formId, Map("date" -> formDataJson))
 
   val appConfig = app.injector.instanceOf[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  given mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
   class Setup extends ConnectorTest {
     val connector: BusinessRegCacheConnector = new BusinessRegCacheConnector(mockHttpClient, appConfig)
   }
 
 
-  implicit val ec: ExecutionContext = mcc.executionContext
+  given ec: ExecutionContext = mcc.executionContext
 
   "BusinessRegCacheConnector" must {
 

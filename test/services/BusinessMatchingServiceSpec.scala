@@ -18,22 +18,22 @@ package services
 
 import builders.AuthBuilder
 import connectors.{BusinessMatchingConnector, DataCacheConnector}
-import models._
+import models.*
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite with MockitoSugar with BeforeAndAfterEach {
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  given ec: ExecutionContext = scala.concurrent.ExecutionContext.global
   val utr = "1234567890"
   val testAddress = Address("address line 1", "address line 2", Some("address line 3"), Some("address line 4"), Some("AA1 1AA"), "UK")
   val testReviewDetails = ReviewDetails(businessName = "ACME",
@@ -159,7 +159,7 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
 
   val testOrganisation = Organisation("org name", "org type")
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  given hc: HeaderCarrier = HeaderCarrier()
 
   val service = "ated"
 
@@ -181,76 +181,76 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
     "matchBusinessWithUTR" must {
 
       "for match found with SA user, return Review details as JsValue" in {
-        implicit val saUser = AuthBuilder.createSaUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successIndividualJson))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         await(result.get) must be(successIndReviewDetailsJsonDirect)
-        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match Not found with SA user, return Reasons as JsValue" in {
-        implicit val saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(matchFailureResponseJson))
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         await(result.get) must be(matchFailureResponseJson)
-        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match Not found with SA user and invalid service, return Reasons as JsValue" in {
-        implicit val saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(matchFailureResponseJson))
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, "service")
         await(result.get) must be(matchFailureResponseJson)
-        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match found with CT user, return Review details as JsValue" in {
-        implicit val saUser: StandardAuthRetrievals = AuthBuilder.createCtUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createCtUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successOrgJson))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         await(result.get) must be(successOrgReviewDetailsJsonDirect)
-        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match Not found with CT user, return Reasons as JsValue" in {
-        implicit val saUser: StandardAuthRetrievals = AuthBuilder.createCtUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createCtUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(matchFailureResponseJson))
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         await(result.get) must be(matchFailureResponseJson)
-        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for ORG user, return None as JsValue" in {
-        implicit val saUse: StandardAuthRetrievals = AuthBuilder.createOrgUser()
+        given saUse: StandardAuthRetrievals = AuthBuilder.createOrgUser()
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         result must be(None)
-        verify(mockBusinessMatchingConnector, times(0)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(0)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for user with Both SA & CT, return None as JsValue" in {
-        implicit val saUser = AuthBuilder.mergeAuthRetrievals(AuthBuilder.createSaUser(), AuthBuilder.createCtUser())
+        given saUser: StandardAuthRetrievals = AuthBuilder.mergeAuthRetrievals(AuthBuilder.createSaUser(), AuthBuilder.createCtUser())
         val result = TestBusinessMatchingService.matchBusinessWithUTR(false, service)
         result must be(None)
-        verify(mockBusinessMatchingConnector, times(0)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(0)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
     }
@@ -258,26 +258,26 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
     "matchBusinessWithIndividualName" must {
 
       "for match found with SA user, return Review details as JsValue" in {
-        implicit val saUser = AuthBuilder.createSaUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successIndividualJson))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithIndividualName(false, testIndividual, utr, service)
         await(result) must be(successIndReviewDetailsJson)
-        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match Not found with SA user, return Reasons as JsValue" in {
-        implicit val saUser = AuthBuilder.createSaUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(matchFailureResponseJson))
         val result = TestBusinessMatchingService.matchBusinessWithIndividualName(false, testIndividual, utr, service)
         await(result) must be(matchFailureResponseJson)
-        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
     }
@@ -285,26 +285,26 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
     "matchBusinessWithOrganisationName" must {
 
       "for match found with SA user, return Review details as JsValue" in {
-        implicit val saUser = AuthBuilder.createSaUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successIndividualJson))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         await(result) must be(successIndReviewDetailsJson)
-        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match Not found with SA user, return Reasons as JsValue" in {
-        implicit val saUser = AuthBuilder.createSaUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(matchFailureResponseJson))
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         await(result) must be(matchFailureResponseJson)
-        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(0)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
       "for match found with SA user, throw an exception when no Safe Id Number" in {
@@ -333,11 +333,11 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
             |}
           """.stripMargin)
 
-        implicit val saUser = AuthBuilder.createSaUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successNoSapNo))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         val thrown = the[RuntimeException] thrownBy await(result)
         thrown.getMessage must include("No Safe Id returned from ETMP")
@@ -364,11 +364,11 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
             |}
           """.stripMargin)
 
-        implicit val saUser = AuthBuilder.createSaUser()
+        given saUser: StandardAuthRetrievals = AuthBuilder.createSaUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successNoSapNo))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         val thrown = the[RuntimeException] thrownBy await(result)
         thrown.getMessage must include("No Address returned from ETMP")
@@ -376,15 +376,15 @@ class BusinessMatchingServiceSpec extends PlaySpec with GuiceOneServerPerSuite w
       }
 
       "for match found with CT user, return Review details as JsValue" in {
-        implicit val ctUser = AuthBuilder.createCtUser()
+        given ctUser: StandardAuthRetrievals = AuthBuilder.createCtUser()
 
-        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockBusinessMatchingConnector.lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(successOrgJsonNoOrgType))
-        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
+        when(mockDataCacheConnector.saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testReviewDetails)))
         val result = TestBusinessMatchingService.matchBusinessWithOrganisationName(false, testOrganisation, utr, service)
         await(result) must be(Json.toJson(successOrgReviewDetailsForNoOrgType))
-        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockBusinessMatchingConnector, times(1)).lookup(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        verify(mockDataCacheConnector, times(1)).saveReviewDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())
       }
 
     }

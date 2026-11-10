@@ -19,7 +19,6 @@ package controllers
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import controllers.auth.AuthActions
-import javax.inject.Inject
 import play.api.Logging
 import play.api.i18n.{Messages, MessagesProvider}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -28,6 +27,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionUtils
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
@@ -41,8 +41,8 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
                                         mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with BackLinkController with AuthActions with Logging {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
 
   val controllerId: String = "ReviewDetailsController"
   private val DuplicateUserError = "duplicate user error"
@@ -76,7 +76,7 @@ class ReviewDetailsController @Inject()(val authConnector: AuthConnector,
     }
   }
 
-  private def formatErrorMessage(str: String)(implicit messagesProvider: MessagesProvider): (String, String, String) = (str: @unchecked) match {
+  private def formatErrorMessage(str: String)(using messagesProvider: MessagesProvider): (String, String, String) = (str: @unchecked) match {
     case DuplicateUserError | BadRequestError =>
       (Messages("bc.business-registration-error.duplicate.identifier.header"),
         Messages("bc.business-registration-error.duplicate.identifier.title"),

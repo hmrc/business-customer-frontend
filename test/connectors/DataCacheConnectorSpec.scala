@@ -22,7 +22,7 @@ import org.mockito.Mockito.when
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 
@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
 
   val appConfig = app.injector.instanceOf[ApplicationConfig]
@@ -41,7 +41,7 @@ class DataCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite {
     val connector: DataCacheConnector = new DataCacheConnector(mockHttpClient, appConfig)
   }
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  given ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   "DataCacheConnector" must {
 

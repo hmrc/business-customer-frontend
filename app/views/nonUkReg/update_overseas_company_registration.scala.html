@@ -15,13 +15,11 @@
  *@
 
 @import config.ApplicationConfig
-@import views.html.helpers._
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import views.ViewUtils.titleBuilder
 @import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-@import views.html.helper.CSPNonce
 @import play.twirl.api.HtmlFormat
 
 @this(bcMain: bcMain,
@@ -38,7 +36,7 @@
     displayDetails: OverseasCompanyRegDisplayDetails,
     countryList: List[(String, String)],
     redirectUrl: Option[String],
-    backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+    backLink: Option[String])(using request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @backLinkHtml = {
     @if(backLink.isDefined) {

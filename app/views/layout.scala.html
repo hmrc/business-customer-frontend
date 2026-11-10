@@ -16,8 +16,8 @@
 
 @import _root_.utils.ReferrerUtils.getReferrer
 @import config.ApplicationConfig
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.*
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage.*
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteCss
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcAccessibleAutocompleteJavascript
@@ -35,7 +35,7 @@
   pageTitle: Option[String] = None,
   scripts: Option[Html],
   displaySignOut: Boolean = true,
-  service: String)(contentBlock: Html)(implicit request: RequestHeader, messages: Messages, appConfig: ApplicationConfig)
+  service: String)(contentBlock: Html)(using request: RequestHeader, messages: Messages, appConfig: ApplicationConfig)
 
 @beforeContentBlock = {
   @beforeContent

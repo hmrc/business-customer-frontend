@@ -17,12 +17,12 @@
 package connectors
 
 import config.ApplicationConfig
-import models._
-import org.mockito.Mockito._
+import models.*
+import org.mockito.Mockito.*
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.cache.client.CacheMap
 
 import java.util.UUID
@@ -30,8 +30,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class BackLinkCacheConnectorSpec extends PlaySpec with GuiceOneServerPerSuite  {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  given ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   val appConfig = app.injector.instanceOf[ApplicationConfig]
 

@@ -20,14 +20,14 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import controllers.{BackLinkController, BusinessVerificationController}
-import forms.BusinessRegistrationForms._
-import javax.inject.{Inject, Provider}
+import forms.BusinessRegistrationForms.*
 import models.PaySAQuestion
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.BusinessCustomerConstants.PaySaDetailsId
 
+import javax.inject.{Inject, Provider}
 import scala.concurrent.ExecutionContext
 
 class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
@@ -40,8 +40,8 @@ class PaySAQuestionController @Inject()(val authConnector: AuthConnector,
                                         businessRegistrationCache: BusinessRegCacheConnector)
   extends FrontendController(mcc) with AuthActions with BackLinkController {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "PaySAQuestionController"
 
   def view(service: String): Action[AnyContent] = Action.async { implicit request =>

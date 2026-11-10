@@ -22,7 +22,7 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.MessagesControllerComponents
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
 
 class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
@@ -30,8 +30,8 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val injectedViewInstanceUnauthorised = inject[views.html.unauthorised]
   val injectedViewInstanceLogout = inject[views.html.logout]
 
-  implicit val lang: Lang = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  given lang: Lang = Lang.defaultLang
+  given appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   trait Setup {
     val controller = new ApplicationController(
@@ -53,7 +53,7 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
       "load the unauthorised page" in new Setup {
         val messagesApi: MessagesApi = inject[MessagesApi]
-        implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+        given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
         val result = controller.unauthorised().apply(FakeRequest())
         val content = contentAsString(result)
         val doc = Jsoup.parse(content)
@@ -65,12 +65,12 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
     "Cancel" must {
 
       "respond with a redirect" in new Setup {
-        val result = controller.cancel().apply(FakeRequest())
+        val result = controller.cancel.apply(FakeRequest())
         status(result) must be(SEE_OTHER)
       }
 
       "be redirected to the login page" in new Setup {
-        val result = controller.cancel().apply(FakeRequest())
+        val result = controller.cancel.apply(FakeRequest())
         redirectLocation(result).get must include("https://www.gov.uk/")
       }
 
@@ -132,7 +132,7 @@ class ApplicationControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
       }
 
       "send to signed out page" in new Setup {
-        val result = controller.signedOut().apply(FakeRequest())
+        val result = controller.signedOut.apply(FakeRequest())
         status(result) must be(OK)
       }
 

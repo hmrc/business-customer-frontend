@@ -18,11 +18,12 @@ package builders
 
 import models.StandardAuthRetrievals
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
-import uk.gov.hmrc.auth.core._
+import org.mockito.Mockito.*
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
-import uk.gov.hmrc.domain._
+import uk.gov.hmrc.domain.*
 
+import scala.annotation.unused
 import scala.concurrent.Future
 
 object AuthBuilder {
@@ -48,7 +49,7 @@ object AuthBuilder {
     )
   }
 
-  def createUserAuthContext(userId: String, userName: String): StandardAuthRetrievals = {
+  def createUserAuthContext(@unused userId: String, @unused userName: String): StandardAuthRetrievals = {
     val authData: StandardAuthRetrievals = StandardAuthRetrievals(
       Set(),
       Some(AffinityGroup.Organisation),
@@ -59,11 +60,11 @@ object AuthBuilder {
     authData
   }
 
-  def createAgentAuthContext(userId: String, userName: String): StandardAuthRetrievals = {
+  def createAgentAuthContext(@unused userId: String, @unused userName: String): StandardAuthRetrievals = {
     createAgentAuthority(agentRefNo = Some("JARN1234567"))
   }
 
-  def createAgentAssistantAuthContext(userId: String, userName: String): StandardAuthRetrievals = {
+  def createAgentAssistantAuthContext(@unused userId: String, @unused userName: String): StandardAuthRetrievals = {
     createAgentAuthority(Assistant, agentRefNo = Some("JARN1234567"))
   }
 
@@ -100,7 +101,7 @@ object AuthBuilder {
     )
   }
 
-  def mockAuthorisedUser(userId:String, mockAuthConnector: AuthConnector): Unit = {
+  def mockAuthorisedUser(@unused userId:String, mockAuthConnector: AuthConnector): Unit = {
     val authData: StandardAuthRetrievals = StandardAuthRetrievals(
       Set(),
       Some(AffinityGroup.Organisation),
@@ -112,7 +113,7 @@ object AuthBuilder {
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
-  def mockAuthorisedSaUser(userId:String, mockAuthConnector: AuthConnector): Unit = {
+  def mockAuthorisedSaUser(@unused userId:String, mockAuthConnector: AuthConnector): Unit = {
     val authData: StandardAuthRetrievals = StandardAuthRetrievals(
       Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated")),
       Some(AffinityGroup.Individual),
@@ -124,7 +125,7 @@ object AuthBuilder {
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
-  def mockAuthorisedSaOrgUser(userId:String, mockAuthConnector: AuthConnector): Unit = {
+  def mockAuthorisedSaOrgUser(@unused userId:String, mockAuthConnector: AuthConnector): Unit = {
     val authData: StandardAuthRetrievals = StandardAuthRetrievals(
       Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated")),
       Some(AffinityGroup.Organisation),
@@ -136,14 +137,14 @@ object AuthBuilder {
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
-  def mockAuthorisedAgent(userId:String, mockAuthConnector: AuthConnector): Unit = {
+  def mockAuthorisedAgent(@unused userId:String, mockAuthConnector: AuthConnector): Unit = {
     val authData: StandardAuthRetrievals = createAgentAuthority(agentRefNo = Some("JARN1234567"))
 
     when(mockAuthConnector.authorise[RetrievalType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(buildRetrieval(authData)))
   }
 
-  def mockUnAuthorisedUser(userId:String, mockAuthConnector: AuthConnector): Unit = {
+  def mockUnAuthorisedUser(@unused userId:String, mockAuthConnector: AuthConnector): Unit = {
     when(mockAuthConnector.authorise[RetrievalType](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.failed(InsufficientEnrolments("message")))
   }
@@ -152,7 +153,7 @@ object AuthBuilder {
     Enrolment("HMRC-AGENT-AGENT", Seq(EnrolmentIdentifier("AgentRefNumber", agentRef)), "Activated")
   }
 
-  private def createAgentAuthority(agentRole: CredentialRole = User, agentRefNo: Option[String]): StandardAuthRetrievals = {
+  private def createAgentAuthority(@unused agentRole: CredentialRole = User, agentRefNo: Option[String]): StandardAuthRetrievals = {
 
     val agentEnrolment: Option[Enrolment] = agentRefNo.map { agentRef =>
       produceAgentEnrolment(agentRef)

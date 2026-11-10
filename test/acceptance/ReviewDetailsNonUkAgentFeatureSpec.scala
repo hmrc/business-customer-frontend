@@ -19,10 +19,10 @@ package acceptance
 import config.ApplicationConfig
 import models.{Address, Identification, ReviewDetails}
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
@@ -40,8 +40,8 @@ class ReviewDetailsNonUkAgentFeatureSpec extends AnyFeatureSpec with GuiceOneSer
     "OverseasAgentRegistration", Some("NonUKBusinessType"), addressOverseas, "sap123", "safe123", directMatch = true,
     agentReferenceNumber = Some("agent123"), identification = Some(Identification("id","inst", "CI")))
 
-  implicit val lang: Lang = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  given lang: Lang = Lang.defaultLang
+  given appConfig: ApplicationConfig = inject[ApplicationConfig]
   val injectedViewInstance: review_details_non_uk_agent = inject[views.html.review_details_non_uk_agent]
 
   Feature("The user can view the review details page for a non uk agent") {
@@ -52,9 +52,9 @@ class ReviewDetailsNonUkAgentFeatureSpec extends AnyFeatureSpec with GuiceOneSer
 
       Given("An agent has an editable business registration details")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance("ATED", reviewDetails.copy(directMatch = false), Some("backLinkUri"))
 
@@ -101,9 +101,9 @@ class ReviewDetailsNonUkAgentFeatureSpec extends AnyFeatureSpec with GuiceOneSer
 
       Given("An agent has editable overseas business registration details")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance("ATED", reviewDetailsOverseas.copy(directMatch = false), Some("backLinkUri"))
 

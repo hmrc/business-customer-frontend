@@ -17,7 +17,7 @@ GET         /business-verification/:service/detailsNotFound/:businessType       
 GET         /review-details/:service                                            controllers.ReviewDetailsController.businessDetails(service: String)
 GET         /review-details-continue/:service                                   controllers.ReviewDetailsController.continue(service: String)
 
-GET         /unauthorised                                                       controllers.ApplicationController.unauthorised
+GET         /unauthorised                                                       controllers.ApplicationController.unauthorised()
 
 GET         /register-gb/:service/:businessType                                 controllers.BusinessRegUKController.register(service: String, businessType: String)
 POST        /send-gb                                                            controllers.BusinessRegUKController.send(service: String, businessType: String)

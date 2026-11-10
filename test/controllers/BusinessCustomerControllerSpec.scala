@@ -21,16 +21,16 @@ import config.ApplicationConfig
 import connectors.DataCacheConnector
 import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers
-import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.{Headers, MessagesControllerComponents}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
+import uk.gov.hmrc.http.InternalServerException
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -48,7 +48,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
   }
 
   val appConfig = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
+  given mcc: MessagesControllerComponents = inject[MessagesControllerComponents]
 
   object TestBusinessCustomerController extends BusinessCustomerController(
     mockAuthConnector,
@@ -82,7 +82,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       "clearCache successfully" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(OK, ""))
+        when(mockDataCacheConnector.clearCache(using ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(())
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(OK)
       }
@@ -90,7 +90,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       "clearCache gives error" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn(Future.failed(new InternalServerException("Something went wrong.")))
+        when(mockDataCacheConnector.clearCache(using ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn(Future.failed(new InternalServerException("Something went wrong.")))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(INTERNAL_SERVER_ERROR)
       }
@@ -130,7 +130,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
           false
         )
 
-        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(Some(reviewDetails))
+        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(using ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(Some(reviewDetails))
         val result = TestBusinessCustomerController.getReviewDetails(service).apply(fakeRequestWithSession(userId))
         status(result) must be(OK)
       }
@@ -138,7 +138,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       "getReviewDetails cannot find details" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(None)
+        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(using ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(None)
         val result = TestBusinessCustomerController.getReviewDetails(service).apply(fakeRequestWithSession(userId))
         status(result) must be(NOT_FOUND)
       }

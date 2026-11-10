@@ -21,30 +21,30 @@ import play.api.libs.json.{Format, Json}
 case class EnrolRequest(portalId: String, serviceName: String, friendlyName: String, knownFacts: Seq[String])
 
 object EnrolRequest {
-  implicit val formats: Format[EnrolRequest] = Json.format[EnrolRequest]
+  given formats: Format[EnrolRequest] = Json.format[EnrolRequest]
 }
 
 case class Identifier(`type`: String, value: String)
 
 object Identifier {
-  implicit val formats: Format[Identifier] = Json.format[Identifier]
+  given formats: Format[Identifier] = Json.format[Identifier]
 }
 
 case class EnrolResponse(serviceName: String, state: String, identifiers: Seq[Identifier])
 
 object EnrolResponse {
-  implicit val formats: Format[EnrolResponse] = Json.format[EnrolResponse]
+  given formats: Format[EnrolResponse] = Json.format[EnrolResponse]
 }
 
 case class EnrolErrorResponse(statusCode: String, message: String)
 
 object EnrolErrorResponse {
-  implicit val formats: Format[EnrolErrorResponse] = Json.format[EnrolErrorResponse]
+  given formats: Format[EnrolErrorResponse] = Json.format[EnrolErrorResponse]
 }
 
 
 case class NewEnrolRequest(userId: String, friendlyName: String, `type`: String, verifiers: List[Verifier])
 
 object NewEnrolRequest {
-  implicit val formats: Format[NewEnrolRequest] = Json.format[NewEnrolRequest]
+  given formats: Format[NewEnrolRequest] = Json.format[NewEnrolRequest]
 }
