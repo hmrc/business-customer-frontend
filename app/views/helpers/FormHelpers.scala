@@ -16,7 +16,7 @@
 
 package views.helpers
 
-import play.api.data._
+import play.api.data.*
 
 object FormHelpers {
 
@@ -43,7 +43,7 @@ object FormHelpers {
   /*
    * This is a routing function to determine how to resolve the errors on a field depending on whether a parent field is passed or a form reference is in scope
    */
-  def getErrors(field: Field, parent: Option[Field] = None)(implicit form: Option[Form[_]] = None): Seq[FormError] = {
+  def getErrors(field: Field, parent: Option[Field] = None)(using form: Option[Form[_]] = None): Seq[FormError] = {
     parent match {
       case Some(p) => getErrors(field, p)
       case _ => form match {

@@ -29,21 +29,22 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class BCHandlerImpl @Inject()(val messagesApi: MessagesApi,
                               val templateError: views.html.global_error,
-                              config: ApplicationConfig)(implicit val ec: ExecutionContext) extends BCHandler {
+                              config: ApplicationConfig
+                             )(using val ec: ExecutionContext) extends BCHandler {
   lazy val appConfig: ApplicationConfig = config
 }
 
 trait BCHandler extends FrontendErrorHandler with I18nSupport {
-  implicit val appConfig: ApplicationConfig
-  implicit val templateError: views.html.global_error
+  given appConfig: ApplicationConfig
+  given templateError: views.html.global_error
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader): Future[Html] = {
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(using request: RequestHeader): Future[Html] = {
     val service = SessionUtils.findServiceInRequest(request)
 
     Future.successful(templateError(pageTitle, heading, message, service, URLEncoder.encode(request.uri, "UTF8")))
   }
 
-  override def internalServerErrorTemplate(implicit request: RequestHeader): Future[Html] = {
+  override def internalServerErrorTemplate(using request: RequestHeader): Future[Html] = {
     Future.successful(templateError(Messages("bc.generic.error.title"),
       Messages("bc.generic.error.header"),
       Messages("bc.generic.error.message"),
@@ -51,7 +52,7 @@ trait BCHandler extends FrontendErrorHandler with I18nSupport {
       URLEncoder.encode(request.uri, "UTF8")))
   }
 
-  override def notFoundTemplate(implicit request: RequestHeader): Future[Html] = {
+  override def notFoundTemplate(using request: RequestHeader): Future[Html] = {
     Future.successful(templateError(
       Messages("bc.notFound.error.title"),
       Messages("bc.notFound.error.header"),
@@ -63,7 +64,7 @@ trait BCHandler extends FrontendErrorHandler with I18nSupport {
 
   override def resolveError(rh: RequestHeader, ex: Throwable): Future[Result] = {
     ex.getMessage match {
-      case "Service name not found" => notFoundTemplate(Request.apply(rh, "")).map(NotFound(_))
+      case "Service name not found" => notFoundTemplate(using Request(rh, "")).map(NotFound(_))
 
       case _ => super.resolveError(rh, ex)
     }

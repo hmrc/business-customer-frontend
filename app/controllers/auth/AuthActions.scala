@@ -21,18 +21,19 @@ import models.StandardAuthRetrievals
 import play.api.Logging
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{AnyContent, Request, Result}
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
+import uk.gov.hmrc.auth.core.*
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.*
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{NoActiveSession, _}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import utils.ValidateUri
 
+import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}
 
 
 trait AuthActions extends AuthorisedFunctions with Logging {
 
-  implicit val appConfig: ApplicationConfig
+  given appConfig: ApplicationConfig
   lazy val loginURL: String = appConfig.loginURL
 
   def continueURL(serviceName: String): String = appConfig.continueURL(serviceName)
@@ -53,11 +54,11 @@ trait AuthActions extends AuthorisedFunctions with Logging {
       Redirect(loginURL, loginParams(serviceName))
     case e: AuthorisationException =>
       logger.error(s"[recoverAuthorisedCalls] Auth exception: $e")
-      Redirect(controllers.routes.ApplicationController.unauthorised)
+      Redirect(controllers.routes.ApplicationController.unauthorised())
   }
 
   def authorisedFor(serviceName: String)(body: StandardAuthRetrievals => Future[Result])
-                   (implicit req: Request[AnyContent], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+                   (using @unused req: Request[AnyContent], ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
     if (!isValidUrl(serviceName)) {
       logger.error(s"[authorisedFor] Given invalid service name of $serviceName")
       throw new NotFoundException("Service name not found")

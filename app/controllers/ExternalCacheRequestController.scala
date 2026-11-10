@@ -37,21 +37,17 @@ class ExternalCacheRequestController @Inject() (
 ) extends FrontendController(mcc)
     with AuthActions {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
 
   def fetchCachedBusinessReviewDetails(service: String): Action[AnyContent] = {
 
     Action.async { implicit request =>
-      implicit val transformedHeaderCarrier: HeaderCarrier =
+      given transformedHeaderCarrier: HeaderCarrier =
         HeaderCarrierConverter.fromRequest(request)
 
       authorisedFor(service) { implicit authContext =>
-        businessCustomerDataCacheService
-          .fetchAndGetBusinessDetailsForSession(
-            transformedHeaderCarrier,
-            executionContext
-          )
+        businessCustomerDataCacheService.fetchAndGetBusinessDetailsForSession
           .map {
             case Some(reviewDetails) => Ok(Json.toJson(reviewDetails))
             case _ =>
@@ -60,7 +56,7 @@ class ExternalCacheRequestController @Inject() (
               )
               NotFound
           }
-      }(hc = transformedHeaderCarrier, req = request, ec = executionContext)
+      }
     }
   }
 

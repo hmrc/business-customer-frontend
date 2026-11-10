@@ -14,19 +14,17 @@
  * limitations under the License.
  *@
 
-@import config._
-@import views.html.helper.form
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import config.*
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import views.ViewUtils.titleBuilder
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
-    govukTable : GovukTable,
     govukBackLink : GovukBackLink,
     govukButton : GovukButton,
     govukWarningText : GovukWarningText)
 
-@(service: String, businessDetails: models.ReviewDetails, backLink: Option[String])(implicit request: Request[AnyContent], messages: Messages, appConfig: ApplicationConfig)
+@(service: String, businessDetails: models.ReviewDetails, backLink: Option[String])(using request: Request[AnyContent], messages: Messages, appConfig: ApplicationConfig)
 
 @backLinkHtml = {
     @if(backLink.isDefined) {

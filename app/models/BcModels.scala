@@ -23,7 +23,7 @@ case class Individual(firstName: String,
                       dateOfBirth: Option[String])
 
 object Individual {
-  implicit val formats: Format[Individual] = Json.format[Individual]
+  given formats: Format[Individual] = Json.format[Individual]
 }
 
 
@@ -31,7 +31,7 @@ case class Organisation(organisationName: String,
                         organisationType: String)
 
 object Organisation {
-  implicit val formats: Format[Organisation] = Json.format[Organisation]
+  given formats: Format[Organisation] = Json.format[Organisation]
 }
 
 
@@ -40,7 +40,7 @@ case class OrganisationResponse(organisationName: String,
                                 organisationType: Option[String])
 
 object OrganisationResponse {
-  implicit val formats: Format[OrganisationResponse] = Json.format[OrganisationResponse]
+  given formats: Format[OrganisationResponse] = Json.format[OrganisationResponse]
 }
 
 
@@ -52,26 +52,26 @@ case class MatchBusinessData(acknowledgementReference: String,
                              organisation: Option[Organisation])
 
 object MatchBusinessData {
-  implicit val formats: Format[MatchBusinessData] = Json.format[MatchBusinessData]
+  given formats: Format[MatchBusinessData] = Json.format[MatchBusinessData]
 }
 
 
 case class MatchFailureResponse(reason: String)
 
 object MatchFailureResponse {
-  implicit val formats: Format[MatchFailureResponse] = Json.format[MatchFailureResponse]
+  given formats: Format[MatchFailureResponse] = Json.format[MatchFailureResponse]
 }
 
 
 case class NRLQuestion(paysSA: Option[Boolean] = None)
 
 object NRLQuestion {
-  implicit val formats: Format[NRLQuestion] = Json.format[NRLQuestion]
+  given formats: Format[NRLQuestion] = Json.format[NRLQuestion]
 }
 
 
 case class PaySAQuestion(paySA: Option[Boolean] = None)
 
 object PaySAQuestion {
-  implicit val formats: Format[PaySAQuestion] = Json.format[PaySAQuestion]
+  given formats: Format[PaySAQuestion] = Json.format[PaySAQuestion]
 }

@@ -31,7 +31,7 @@ object SessionUtils {
     randomChars + nanoTime
   }
 
-  def findServiceInRequest(request: RequestHeader)(implicit appConfig: ApplicationConfig): String = {
+  def findServiceInRequest(request: RequestHeader)(using appConfig: ApplicationConfig): String = {
     val requestParts = request.uri.split("/")
     val serviceList = appConfig.serviceList
 

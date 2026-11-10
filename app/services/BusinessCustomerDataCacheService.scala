@@ -23,24 +23,25 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import utils.BusinessCustomerConstants.{BusinessDetailsFormPayloadId, BusinessDetailsSourceId}
 
 import javax.inject.Inject
+import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessCustomerDataCacheService @Inject()(sessionCacheRepository: SessionCacheRepository) {
 
-  def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
+  def fetchAndGetBusinessDetailsForSession(using hc: HeaderCarrier, @unused ec: ExecutionContext): Future[Option[ReviewDetails]] =
     sessionCacheRepository.getFromSession[ReviewDetails](DataKey(BusinessDetailsSourceId))
 
-  def fetchAndGetBusinessRegistrationDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
+  def fetchAndGetBusinessRegistrationDetailsForSession(using hc: HeaderCarrier, @unused ec: ExecutionContext): Future[Option[BusinessRegistration]] =
     sessionCacheRepository.getFromSession[BusinessRegistration](DataKey(BusinessDetailsFormPayloadId))
 
-  def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
+  def saveReviewDetails(reviewDetails: ReviewDetails)(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
     sessionCacheRepository.putSession[ReviewDetails](DataKey(BusinessDetailsSourceId), reviewDetails).map(Some(_))
 
   def saveBusinessRegistrationDetails(businessRegistration: BusinessRegistration)
-                                     (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
+                                     (using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
     sessionCacheRepository.putSession[BusinessRegistration](DataKey(BusinessDetailsFormPayloadId), businessRegistration).map(Some(_))
 
-  def clearCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
+  def clearCache(using hc: HeaderCarrier, @unused ec: ExecutionContext): Future[Unit] =
     sessionCacheRepository.deleteFromSession
 
 }

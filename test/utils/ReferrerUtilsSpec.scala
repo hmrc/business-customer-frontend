@@ -17,8 +17,8 @@
 package utils
 
 import config.ApplicationConfig
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 import play.api.i18n.MessagesApi
@@ -28,12 +28,12 @@ import utils.ReferrerUtils.getReferrer
 
 class ReferrerUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerTest with Injecting {
 
-  implicit val appConfig: ApplicationConfig = mock[ApplicationConfig]
+  given appConfig: ApplicationConfig = mock[ApplicationConfig]
 
   "getReferrer" should {
 
     "return an encoded url containing a non defined platform host config val and request path" in {
-      implicit val request: MessagesRequest[AnyContent] =
+      given request: MessagesRequest[AnyContent] =
         new MessagesRequest[AnyContent](FakeRequest("GET", "/a-uri"), inject[MessagesApi])
 
       when(appConfig.platformHost).thenReturn("http://platformHost")
@@ -43,7 +43,7 @@ class ReferrerUtilsSpec extends PlaySpec with MockitoSugar with GuiceOneAppPerTe
 
 
     "return an encoded url containing a defined platform host config val and request path" in {
-      implicit val request: MessagesRequest[AnyContent] =
+      given request: MessagesRequest[AnyContent] =
         new MessagesRequest[AnyContent](FakeRequest("GET", "/a-uri"), inject[MessagesApi])
 
       when(appConfig.platformHost).thenReturn("http://localhost:9923")

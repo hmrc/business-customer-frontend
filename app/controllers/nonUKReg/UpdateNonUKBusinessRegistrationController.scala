@@ -19,7 +19,7 @@ package controllers.nonUKReg
 import config.ApplicationConfig
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
-import forms.BusinessRegistrationForms._
+import forms.BusinessRegistrationForms.*
 
 import javax.inject.Inject
 import models.{BusinessRegistrationDisplayDetails, StandardAuthRetrievals}
@@ -31,6 +31,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.RedirectUtils
 import utils.RedirectUtils.redirectUrlGetRelativeOrDev
 
+import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}
 
 class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: AuthConnector,
@@ -38,8 +39,8 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
                                                           template: views.html.nonUkReg.update_business_registration,
                                                           businessRegistrationService: BusinessRegistrationService,
                                                           mcc: MessagesControllerComponents) extends FrontendController(mcc) with AuthActions {
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
 
   private def getBackLink(service: String, redirectUrl: Option[RedirectUrl]): Some[String] = {
     redirectUrl match {
@@ -48,8 +49,8 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
     }
   }
 
-  private def displayDetails(service: String, isRegisterClient: Boolean)
-                            (implicit authContext: StandardAuthRetrievals): BusinessRegistrationDisplayDetails = {
+  private def displayDetails(@unused service: String, isRegisterClient: Boolean)
+                            (using authContext: StandardAuthRetrievals): BusinessRegistrationDisplayDetails = {
     (authContext.isAgent, isRegisterClient) match {
       case (true, true)  =>
         BusinessRegistrationDisplayDetails(
@@ -150,7 +151,7 @@ class UpdateNonUKBusinessRegistrationController @Inject()(val authConnector: Aut
                 logger.warn(s"[UpdateNonUKBusinessRegistrationController][update] - No registration details found to edit")
                 throw new RuntimeException("No registration details found")
             } recover {
-              case e: IllegalArgumentException =>
+              case _: IllegalArgumentException =>
                 BadRequest("The redirect url is not correctly formatted")
             }
           }

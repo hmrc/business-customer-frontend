@@ -18,6 +18,7 @@ package repositories
 
 import config.ApplicationConfig
 import org.mockito.Mockito.when
+import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.model.Filters
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar

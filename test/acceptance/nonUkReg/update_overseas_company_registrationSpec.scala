@@ -33,12 +33,12 @@
 package acceptance.nonUkReg
 
 import config.ApplicationConfig
-import forms.BusinessRegistrationForms._
+import forms.BusinessRegistrationForms.*
 import models.OverseasCompanyRegDisplayDetails
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
@@ -56,8 +56,8 @@ class update_overseas_company_registrationSpec extends AnyFeatureSpec with Guice
     "dynamicSubHeader",
     false)
 
-  implicit val lang: Lang = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  given lang: Lang = Lang.defaultLang
+  given appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   Feature("The user can view the overseas company registration question") {
 
@@ -67,9 +67,9 @@ class update_overseas_company_registrationSpec extends AnyFeatureSpec with Guice
 
       Given("the client has a non uk company and the arrive at the overseas company registration")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance(overseasCompanyRegForm, service, displayDetails, List(("UK", "UK")), None, Some("http://backLinkUrl"))
 

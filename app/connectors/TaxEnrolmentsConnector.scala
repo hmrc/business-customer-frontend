@@ -18,28 +18,28 @@ package connectors
 
 import audit.Auditable
 import config.ApplicationConfig
-
-import javax.inject.Inject
 import metrics.{MetricsEnum, MetricsService}
-import models._
+import models.*
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.audit.model.EventTypes
+import play.api.libs.ws.writeableOf_JsValue
+import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.play.audit.model.EventTypes
 import utils.GovernmentGatewayConstants
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
-                                       implicit val config: ApplicationConfig,
                                        val audit: Auditable,
-                                       val http: HttpClientV2) extends RawResponseReads with Logging {
+                                       val http: HttpClientV2)
+                                      (using config: ApplicationConfig)extends RawResponseReads with Logging {
 
   val enrolmentUrl = s"${config.taxEnrolments}/tax-enrolments"
 
-  def enrol(enrolRequest: NewEnrolRequest, groupId: String, arn: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  def enrol(enrolRequest: NewEnrolRequest, groupId: String, arn: String)(using hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val enrolmentKey = s"${GovernmentGatewayConstants.KnownFactsAgentServiceName}~${GovernmentGatewayConstants.KnownFactsAgentRefNo}~$arn"
     val postUrl = s"""$enrolmentUrl/groups/$groupId/enrolments/$enrolmentKey"""
     val jsonData = Json.toJson(enrolRequest)
@@ -70,7 +70,7 @@ class TaxEnrolmentsConnector @Inject()(val metrics: MetricsService,
     }
   }
 
-  private def auditEnrolCall(postUrl: String, input: NewEnrolRequest, response: HttpResponse)(implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
+  private def auditEnrolCall(postUrl: String, input: NewEnrolRequest, response: HttpResponse)(using hc: HeaderCarrier, ec: ExecutionContext): Unit = {
     val eventType = response.status match {
       case CREATED => EventTypes.Succeeded
       case _ => EventTypes.Failed

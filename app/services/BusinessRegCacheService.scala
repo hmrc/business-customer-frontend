@@ -22,13 +22,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.cache.DataKey
 
 import javax.inject.Inject
+import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessRegCacheService @Inject()(sessionCacheRepository: SessionCacheRepository) {
 
-  def fetchAndGetCachedDetails[T](formId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[Option[T]] =
+  def fetchAndGetCachedDetails[T](formId: String)(using hc: HeaderCarrier, @unused ec: ExecutionContext, formats: Format[T]): Future[Option[T]] =
     sessionCacheRepository.getFromSession[T](DataKey[T](formId))
 
-  def cacheDetails[T](formId: String, formData: T)(implicit hc: HeaderCarrier, ec: ExecutionContext, formats: Format[T]): Future[T] =
+  def cacheDetails[T](formId: String, formData: T)(using hc: HeaderCarrier, @unused ec: ExecutionContext, formats: Format[T]): Future[T] =
     sessionCacheRepository.putSession[T](DataKey[T](formId), formData)
 }
