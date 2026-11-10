@@ -42,26 +42,25 @@ lazy val microservice: Project = Project(appName, file("."))
     scalaSettings,
     defaultSettings(),
     scoverageSettings,
-    scalacOptions += "-Ywarn-unused:-explicits,-implicits",
-    scalaVersion := "2.13.18",
+    scalacOptions += "-Wunused:all",
+    scalaVersion := "3.3.7",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
     retrieveManaged := true,
     majorVersion := 4,
+    Compile / scalacOptions ~= (_.distinct),
     Compile/scalacOptions ++= Seq(
       "-Wconf:src=target/.*:s",
-      "-Wconf:src=routes/.*:s",
-      "-Wconf:cat=unused-imports&src=html/.*:s",
-      "-Wconf:cat=unused-imports&src=html/.*:s"
+      "-Wconf:src=routes/.*:s"
     )
   )
   .settings(
 
     TwirlKeys.templateImports ++= Seq(
-      "uk.gov.hmrc.govukfrontend.views.html.components._",
-      "uk.gov.hmrc.hmrcfrontend.views.html.components._",
-      "uk.gov.hmrc.hmrcfrontend.views.html.components.implicits._",
-      "uk.gov.hmrc.hmrcfrontend.views.html.helpers._"
+      "uk.gov.hmrc.govukfrontend.views.html.components.*",
+      "uk.gov.hmrc.hmrcfrontend.views.html.components.*",
+      "uk.gov.hmrc.hmrcfrontend.views.html.components.implicits.*",
+      "uk.gov.hmrc.hmrcfrontend.views.html.helpers.*"
     )
   )
   .disablePlugins(JUnitXmlReportPlugin)

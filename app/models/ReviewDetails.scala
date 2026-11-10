@@ -21,7 +21,7 @@ import play.api.libs.json.{Format, Json}
 case class Identification(idNumber: String, issuingInstitution: String, issuingCountryCode: String)
 
 object Identification {
-  implicit val formats: Format[Identification] = Json.format[Identification]
+  given formats: Format[Identification] = Json.format[Identification]
 }
 
 
@@ -40,5 +40,5 @@ case class ReviewDetails(businessName: String,
                          isBusinessDetailsEditable: Boolean = false)
 
 object ReviewDetails {
-  implicit val formats: Format[ReviewDetails] = Json.format[ReviewDetails]
+  given formats: Format[ReviewDetails] = Json.format[ReviewDetails]
 }

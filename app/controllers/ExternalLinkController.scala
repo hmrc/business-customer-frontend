@@ -33,8 +33,8 @@ class ExternalLinkController @Inject()(val authConnector: AuthConnector,
                                        mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with BackLinkController with AuthActions with I18nSupport {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "ExternalLinkController"
 
   def backLink(serviceName: String): Action[AnyContent] = Action.async { implicit request =>

@@ -20,14 +20,15 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, DataCacheConnector}
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
-import forms.BusinessRegistrationForms._
-import javax.inject.Inject
+import forms.BusinessRegistrationForms.*
 import models.{BusinessRegistrationDisplayDetails, OverseasCompany}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import javax.inject.Inject
+import scala.annotation.unused
 import scala.concurrent.ExecutionContext
 
 
@@ -41,8 +42,8 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
                                         val dataCacheConnector: DataCacheConnector)
   extends FrontendController(mcc) with BackLinkController with AuthActions {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "BusinessRegUKController"
 
   def register(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
@@ -90,7 +91,7 @@ class BusinessRegUKController @Inject()(val authConnector: AuthConnector,
 
   private def isGroup(businessType: String) = businessType equals "GROUP"
 
-  private def displayDetails(businessType: String, service: String) = {
+  private def displayDetails(businessType: String, @unused service: String) = {
     if (isGroup(businessType)) {
       BusinessRegistrationDisplayDetails(
         businessType,

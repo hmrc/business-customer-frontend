@@ -21,7 +21,7 @@ import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.BackLinkController
 import controllers.auth.AuthActions
 import forms.BusinessRegistrationForms
-import forms.BusinessRegistrationForms._
+import forms.BusinessRegistrationForms.*
 import models.{BusinessRegistration, BusinessRegistrationDisplayDetails}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -45,8 +45,8 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
                                                    mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with AuthActions with BackLinkController {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "AgentRegisterNonUKClientController"
 
   def view(service: String, backLinkUrl: Option[RedirectUrl]): Action[AnyContent] = Action.async { implicit request =>
@@ -61,18 +61,17 @@ class AgentRegisterNonUKClientController @Inject()(val authConnector: AuthConnec
           } else {
             fetchedBackLink.orElse(config.backToInformHMRCNrlUrl)
           }
-
-          businessRegistration match {
-            case Some(businessReg) =>
-              Ok(template(businessRegistrationForm.fill(businessReg), service, displayDetails, backLinkOption))
-            case None =>
-              Ok(template(businessRegistrationForm, service, displayDetails, backLinkOption))
-          }
+        businessRegistration match {
+          case Some(businessReg) =>
+            Ok(template(businessRegistrationForm.fill(businessReg), service, displayDetails, backLinkOption))
+          case None =>
+            Ok(template(businessRegistrationForm, service, displayDetails, backLinkOption))
+        }
       }
     }
   }
 
-  private def handleDefinedBacklink(backLinkUrl: Option[RedirectUrl], fetchedBackLink: Option[String])(implicit hc: HeaderCarrier) = {
+  private def handleDefinedBacklink(backLinkUrl: Option[RedirectUrl], fetchedBackLink: Option[String])(using hc: HeaderCarrier) = {
     val resolvedBacklink = Try(backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)) match {
       case Success(url) => url
       case Failure(_)   => fetchedBackLink

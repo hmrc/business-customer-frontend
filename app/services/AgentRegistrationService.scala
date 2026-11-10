@@ -19,26 +19,26 @@ package services
 import audit.Auditable
 import config.ApplicationConfig
 import connectors.{DataCacheConnector, NewBusinessCustomerConnector, TaxEnrolmentsConnector}
-
-import javax.inject.Inject
-import models._
+import models.*
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.model.EventTypes
 import utils.BusinessCustomerConstants.SoleTrader
 import utils.GovernmentGatewayConstants
 
+import javax.inject.Inject
+import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Success, Try}
 
 class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmentsConnector,
                                          val dataCacheConnector: DataCacheConnector,
                                          val audit: Auditable,
-                                         implicit val config: ApplicationConfig,
-                                         val businessCustomerConnector: NewBusinessCustomerConnector) extends Logging {
+                                         val businessCustomerConnector: NewBusinessCustomerConnector)
+                                        (using config: ApplicationConfig) extends Logging {
 
-  def enrolAgent(serviceName: String)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  def enrolAgent(serviceName: String)(using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
       case Some(businessDetails) => enrolAgent(serviceName, businessDetails)
       case _ =>
@@ -52,7 +52,7 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
   }
 
   private def enrolAgent(serviceName: String, businessDetails: ReviewDetails)
-                        (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+                        (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
 
     def failedEnrolment = throw new RuntimeException("Failed to enrol -  no details found for the agent (not a valid GG user)")
 
@@ -79,7 +79,7 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
   }
 
   private def createEnrolRequest(serviceName: String, knownFacts: Verifiers, ggCredId: String)
-                                (implicit authContext: StandardAuthRetrievals): NewEnrolRequest = {
+                                (using @unused authContext: StandardAuthRetrievals): NewEnrolRequest = {
     getServiceAgentEnrolmentType(serviceName) match {
       case Some(_) =>
         NewEnrolRequest(userId = ggCredId,
@@ -93,7 +93,7 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
     }
   }
 
-  private def createEnrolmentVerifiers(businessDetails: ReviewDetails, arn: String)(implicit authContext: StandardAuthRetrievals): Verifiers = {
+  private def createEnrolmentVerifiers(businessDetails: ReviewDetails, arn: String)(using @unused authContext: StandardAuthRetrievals): Verifiers = {
     val verifiers = businessDetails.utr match {
       case Some(utr) =>
         val ukPostCodeVerifier = Verifier(GovernmentGatewayConstants.KnownFactsUKPostCode,
@@ -112,7 +112,7 @@ class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmen
 
   private def auditEnrolAgent(businessDetails: ReviewDetails,
                               enrolResponse: HttpResponse,
-                              enrolReq: NewEnrolRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
+                              @unused enrolReq: NewEnrolRequest)(using hc: HeaderCarrier, ec: ExecutionContext): Unit = {
     val status = enrolResponse.status match {
       case CREATED => EventTypes.Succeeded
       case _ => EventTypes.Failed

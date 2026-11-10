@@ -43,9 +43,9 @@ class BusinessNameController @Inject() (
   with AuthActions
   with BackLinkController
   with I18nSupport {
-  override implicit val appConfig: ApplicationConfig = config
+  override given appConfig: ApplicationConfig = config
   override val controllerId: String                  = "BusinessNameController"
-  implicit val executionContext: ExecutionContext    = mcc.executionContext
+  given executionContext: ExecutionContext    = mcc.executionContext
   val services: Seq[String]                          = Seq("awrs", "ated", "amls", "fhdds")
 
   def onPageLoad(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>

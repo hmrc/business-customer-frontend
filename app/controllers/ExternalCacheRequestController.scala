@@ -37,31 +37,19 @@ class ExternalCacheRequestController @Inject() (
 ) extends FrontendController(mcc)
     with AuthActions {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
 
-  def fetchCachedBusinessReviewDetails(service: String): Action[AnyContent] = {
+  def fetchCachedBusinessReviewDetails(service: String): Action[AnyContent] = Action.async { implicit request =>
 
-    Action.async { implicit request =>
-      implicit val transformedHeaderCarrier: HeaderCarrier =
-        HeaderCarrierConverter.fromRequest(request)
-
-      authorisedFor(service) { implicit authContext =>
-        dataCacheConnector
-          .fetchAndGetBusinessDetailsForSession(
-            transformedHeaderCarrier,
-            executionContext
-          )
-          .map {
-            case Some(reviewDetails) => Ok(Json.toJson(reviewDetails))
-            case _ =>
-              logger.warn(
-                s"could not retrieve business details for external calling $service"
-              )
-              NotFound
-          }
-      }(hc = transformedHeaderCarrier, req = request, ec = executionContext)
+    given transformedHeaderCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+    authorisedFor(service) { implicit authContext =>
+      dataCacheConnector.fetchAndGetBusinessDetailsForSession.map {
+        case Some(reviewDetails) => Ok(Json.toJson(reviewDetails))
+        case _ =>
+          logger.warn(s"could not retrieve business details for external calling $service")
+          NotFound
+      }
     }
   }
-
 }

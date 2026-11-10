@@ -17,10 +17,11 @@
 package controllers
 
 import config.ApplicationConfig
-import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, DiscardingCookie, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import javax.inject.Inject
 
 class ApplicationController @Inject()(val config: ApplicationConfig,
                                       templateUnauthorised: views.html.unauthorised,
@@ -28,11 +29,10 @@ class ApplicationController @Inject()(val config: ApplicationConfig,
                                       mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with I18nSupport {
 
-  implicit val appConfig: ApplicationConfig = config
+  given appConfig: ApplicationConfig = config
   lazy val serviceRedirectUrl: String = appConfig.conf.getConfString("cancelRedirectUrl", "https://www.gov.uk/")
 
-  def unauthorised(): Action[AnyContent] = Action {
-    implicit request =>
+  def unauthorised(): Action[AnyContent] = Action { implicit request =>
       Ok(templateUnauthorised())
   }
 

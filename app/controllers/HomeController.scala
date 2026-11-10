@@ -43,8 +43,8 @@ class HomeController @Inject()(val authConnector: AuthConnector,
                                mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with BackLinkController with AuthActions {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "HomeController"
 
   def homePage(service: String, backLinkUrl: Option[RedirectUrl]): Action[AnyContent] = Action.async { implicit request =>
@@ -54,8 +54,8 @@ class HomeController @Inject()(val authConnector: AuthConnector,
           futureJsValue flatMap {
             jsValue =>
               jsValue.validate[ReviewDetails] match {
-                case details: JsSuccess[ReviewDetails] =>
-                  val countryCode = details.get.businessAddress.country
+                case JsSuccess(details, _) =>
+                  val countryCode = details.businessAddress.country
                   if(config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
                     businessRegCacheConnector.cacheDetails(UpdateNotRegisterId, true)
                     redirectWithBackLink(
@@ -68,7 +68,7 @@ class HomeController @Inject()(val authConnector: AuthConnector,
                       backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)
                     )
                   }
-                case _: JsError =>
+                case JsError(_) =>
                   redirectWithBackLink(
                     businessVerificationController.get.controllerId,
                     controllers.routes.BusinessVerificationController.businessVerification(service), backLinkUrl.map(redirectUrlGetRelativeOrDev(_).url)

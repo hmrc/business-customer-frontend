@@ -28,7 +28,7 @@ import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
 import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.Injecting
 import uk.gov.hmrc.auth.core.AuthConnector
 
@@ -89,7 +89,7 @@ class ExternalCacheRequestControllerSpec
           contentAsJson(result) mustBe Json.toJson(testReviewBusinessDetails)
 
           verify(mockDataCacheConnector, times(1))
-            .fetchAndGetBusinessDetailsForSession(any(), any())
+            .fetchAndGetBusinessDetailsForSession(using any(), any())
         }
       }
 
@@ -98,7 +98,7 @@ class ExternalCacheRequestControllerSpec
           status(result) mustBe NOT_FOUND
 
           verify(mockDataCacheConnector, times(1))
-            .fetchAndGetBusinessDetailsForSession(any(), any())
+            .fetchAndGetBusinessDetailsForSession(using any(), any())
         }
       }
 
@@ -128,7 +128,7 @@ class ExternalCacheRequestControllerSpec
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     when(
-      mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(any(), any())
+      mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(using any(), any())
     ).thenReturn(Future.successful(reviewDetails))
 
     val result =

@@ -17,15 +17,15 @@
 package connectors
 
 import config.ApplicationConfig
-import models._
-import org.mockito.Mockito._
+import models.*
+import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.Injecting
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.*
 import utils.GovernmentGatewayConstants
 
 import java.util.UUID
@@ -34,14 +34,16 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
   val appConfig =  app.injector.instanceOf[ApplicationConfig]
-
+  
+  given hc: HeaderCarrier  = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  given ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  
   class Setup extends ConnectorTest {
     val connector: TaxEnrolmentsConnector = new TaxEnrolmentsConnector(
       mockMetrics,
-      appConfig,
       mockAuditable,
       mockHttpClient
-    )
+    )(using appConfig)
   }
 
   lazy val groupId = "group-id"
@@ -55,8 +57,6 @@ class TaxEnrolmentsConnectorSpec extends PlaySpec with GuiceOneServerPerSuite wi
     val response = EnrolResponse(serviceName = "ATED", state = "NotYetActivated", identifiers = List(Identifier("ATED", "Ated_Ref_No")))
     val successfulSubscribeJson = Json.toJson(response)
     val subscribeFailureResponseJson = Json.parse( """{"reason" : "Error happened"}""")
-    implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-    implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
     "enrol user" must {
       "works for a user" in new Setup {

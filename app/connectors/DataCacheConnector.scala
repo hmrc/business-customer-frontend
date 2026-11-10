@@ -36,26 +36,26 @@ class DataCacheConnector @Inject()(val http: HttpClientV2,
   val sourceId: String = "BC_Business_Details"
   private val sourceIdForFormPayload: String = "BC_Business_Details_form_payload"
 
-  def fetchAndGetBusinessDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
+  def fetchAndGetBusinessDetailsForSession(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] =
    fetchAndGetEntry[ReviewDetails](sourceId)
 
-  def fetchAndGetBusinessRegistrationDetailsForSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
+  def fetchAndGetBusinessRegistrationDetailsForSession(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] =
     fetchAndGetEntry[BusinessRegistration](sourceIdForFormPayload)
 
-  def saveReviewDetails(reviewDetails: ReviewDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] = {
+  def saveReviewDetails(reviewDetails: ReviewDetails)(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ReviewDetails]] = {
     cache[ReviewDetails](sourceId, reviewDetails) map {
       _.getEntry[ReviewDetails](sourceId)
     }
   }
 
   def saveBusinessRegistrationDetails(businessRegistration: BusinessRegistration)
-                                     (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] = {
+                                     (using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[BusinessRegistration]] = {
     cache[BusinessRegistration](sourceIdForFormPayload, businessRegistration) map {
       _.getEntry[BusinessRegistration](sourceIdForFormPayload)
     }
   }
 
-  def clearCache(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] = remove()
+  def clearCache(using hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] = remove()
 
   def httpClientV2: HttpClientV2 = http
 

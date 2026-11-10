@@ -19,17 +19,17 @@ package controllers
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.auth.AuthActions
-import forms.BusinessVerificationForms._
-import forms._
+import forms.BusinessVerificationForms.*
+import forms.*
 import jakarta.inject.Singleton
 import models.{Individual, Organisation, ReviewDetails, StandardAuthRetrievals}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc._
+import play.api.mvc.*
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.BusinessCustomerConstants._
+import utils.BusinessCustomerConstants.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,9 +49,9 @@ class BusinessUtrController @Inject() (
   with AuthActions
   with BackLinkController
   with I18nSupport {
-  override implicit val appConfig: ApplicationConfig = config
+  override given appConfig: ApplicationConfig = config
   override val controllerId: String                  = "BusinessUtrController"
-  implicit val executionContext: ExecutionContext    = mcc.executionContext
+  given executionContext: ExecutionContext    = mcc.executionContext
   val services: Seq[String]                          = Seq("awrs", "ated", "amls")
 
   def onPageLoad(service: String, businessType: String): Action[AnyContent] = Action.async { implicit request =>
@@ -136,7 +136,7 @@ class BusinessUtrController @Inject() (
     businessType: String,
     service: String,
     setBackLink: Option[String]
-  )(implicit request: Request[AnyContent], authContext: StandardAuthRetrievals): Future[Result] = {
+  )(using request: Request[AnyContent], authContext: StandardAuthRetrievals): Future[Result] = {
     val heading = s"bc.business-verification.${getBusinessTypePrefix(businessType)}UTR"
     utrForm
       .bindFromRequest()
@@ -182,7 +182,7 @@ class BusinessUtrController @Inject() (
     businessType: String,
     utrFormData: Utr,
     setBacklink: Option[String]
-  )(implicit request: Request[AnyContent]): Future[Result] = {
+  )(using request: Request[AnyContent]): Future[Result] = {
     val countryCode = reviewDetails.businessAddress.country
     businessRegCacheConnector.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
     if (config.getSelectedCountry(countryCode) == countryCode && service == "ATED") {
@@ -206,7 +206,7 @@ class BusinessUtrController @Inject() (
     service: String,
     businessType: String,
     setBackLink: Option[String]
-  )(implicit request: Request[AnyContent], authContext: StandardAuthRetrievals): Future[Result] = {
+  )(using request: Request[AnyContent], authContext: StandardAuthRetrievals): Future[Result] = {
     val headingKey = "bc.business-verification.saUTR"
     saUtr.bindFromRequest().fold(
       formWithErrors =>

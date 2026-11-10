@@ -38,14 +38,14 @@ class UpdateOverseasCompanyRegDetailsController @Inject()(val authConnector: Aut
                                                           mcc: MessagesControllerComponents
                                                          ) extends FrontendController(mcc) with AuthActions with OverseasCompanyRegUtils {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
 
   private def getBackLink(service: String, redirectUrl: Option[String]): Some[String] = {
     Some(redirectUrl.getOrElse(controllers.routes.ReviewDetailsController.businessDetails(service).url))
   }
 
-def viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] = None): Action[AnyContent] = Action.async { implicit request =>
+  def viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] = None): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service){ implicit authContext =>
       RedirectUtils.getRelativeOrBadRequestOpt(redirectUrl) { newUrl =>
         val backLink = getBackLink(service, newUrl)
@@ -101,5 +101,4 @@ def viewForUpdate(service: String, addClient: Boolean, redirectUrl: Option[Redir
       )
     }
   }
-
 }

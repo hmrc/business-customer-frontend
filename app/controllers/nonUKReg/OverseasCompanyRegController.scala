@@ -21,7 +21,7 @@ import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import controllers.auth.AuthActions
 import controllers.{BackLinkController, ReviewDetailsController}
 import forms.BusinessRegistrationForms
-import forms.BusinessRegistrationForms._
+import forms.BusinessRegistrationForms.*
 import models.{BusinessRegistration, OverseasCompany}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.BusinessRegistrationService
@@ -33,7 +33,6 @@ import utils.RedirectUtils.redirectUrlGetRelativeOrDev
 import utils.{OverseasCompanyUtils, RedirectUtils}
 
 import javax.inject.Inject
-
 import scala.concurrent.ExecutionContext
 
 class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
@@ -47,8 +46,8 @@ class OverseasCompanyRegController @Inject()(val authConnector: AuthConnector,
                                              mcc: MessagesControllerComponents)
   extends FrontendController(mcc) with AuthActions with BackLinkController with OverseasCompanyUtils {
 
-  implicit val appConfig: ApplicationConfig = config
-  implicit val executionContext: ExecutionContext = mcc.executionContext
+  given appConfig: ApplicationConfig = config
+  given executionContext: ExecutionContext = mcc.executionContext
   val controllerId: String = "OverseasCompanyRegController"
   def view(service: String, addClient: Boolean, redirectUrl: Option[RedirectUrl] = None): Action[AnyContent] = Action.async { implicit request =>
     authorisedFor(service) { implicit authContext =>
