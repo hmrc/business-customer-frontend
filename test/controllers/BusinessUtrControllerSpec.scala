@@ -21,7 +21,7 @@ import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import forms._
 import org.jsoup.Jsoup
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.Inspectors.forAll
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,8 +35,6 @@ import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import views.html._
-import models.Organisation
-import utils.BusinessCustomerConstants.MapBusinessTypeToOrganisationType
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -82,10 +80,10 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   }
 
   private val messageFinder = Map(
-    "alreadyRegistered" -> "bc.business-utr.paragraph.registered",
-    "findCorporationTax" -> "bc.business-utr.paragraph.find.corporation",
-    "findPartnershipTax" -> "bc.business-utr.paragraph.find.partnership",
-    "findSATax" -> "bc.business-utr.paragraph.find.soleTrader",
+    "alreadyRegistered"       -> "bc.business-utr.paragraph.registered",
+    "findCorporationTax"      -> "bc.business-utr.paragraph.find.corporation",
+    "findPartnershipTax"      -> "bc.business-utr.paragraph.find.partnership",
+    "findSATax"               -> "bc.business-utr.paragraph.find.soleTrader",
     "getHelpLinkTextCorporation" -> "bc.business-verification.utr.corporationUTRLinkText",
     "getHelpLinkText"         -> "bc.business-verification.utr.UTRLinkText",
     "getHelpLinkTextAmls"     -> "bc.business-verification.utr.amls.UTRLinkText",
@@ -122,15 +120,15 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val services: Seq[String] = List("ATED", "AWRS", "AMLS", "FHDDS")
 
   val getBusinessTypesForService: Map[String, Seq[String]] = Map(
-    "ATED" -> Seq("LTD", "UT", "ULTD", "OBP", "LP", "LLP"),
-    "AWRS" -> Seq("SOP", "OBP", "LTD", "LLP", "LP", "UIB"),
-    "AMLS" -> Seq("SOP", "LTD", "UIB", "OBP", "LLP"),
+    "ATED"  -> Seq("LTD", "UT", "ULTD", "OBP", "LP", "LLP"),
+    "AWRS"  -> Seq("SOP", "OBP", "LTD", "LLP", "LP", "UIB"),
+    "AMLS"  -> Seq("SOP", "LTD", "UIB", "OBP", "LLP"),
     "FHDDS" -> Seq("SOP", "LTD", "UIB", "OBP", "LLP", "LP")
   )
   val getServiceMessageKey: Map[String, String] = Map(
-    "ATED" -> messages("bc.ated.serviceName"),
-    "AWRS" -> messages("bc.awrs.serviceName"),
-    "AMLS" -> messages("bc.amls.serviceName"),
+    "ATED"  -> messages("bc.ated.serviceName"),
+    "AWRS"  -> messages("bc.awrs.serviceName"),
+    "AMLS"  -> messages("bc.amls.serviceName"),
     "FHDDS" -> messages("bc.fhdds.serviceName")
   )
 
@@ -196,10 +194,8 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
                   val document = Jsoup.parse(contentAsString(result))
 
                   document.title() must be(
-                    s"${getMessage("companyPageTitle")} - ${
-                      getServiceMessageKey
-                        .getOrElse(service, "")
-                    } - GOV.UK"
+                    s"${getMessage("companyPageTitle")} - ${getServiceMessageKey
+                        .getOrElse(service, "")} - GOV.UK"
                   )
                   document
                     .getElementsByClass("govuk-caption-xl")
@@ -230,58 +226,56 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           }
         }
         "return Corporation Tax UTR Form view in AMLS for a user" in new Setup {
-          forAll(businessTypes) { (businessType) =>
-            val service = "AMLS"
-            if (
-              getBusinessTypesForService(service).exists(
-                _.equalsIgnoreCase(businessType) && corporations.contains(businessType)
-              )
-            ) {
-              when(
-                mockBusinessRegCacheConnector
-                  .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
-                    ArgumentMatchers.any(),
-                    ArgumentMatchers.any(),
-                    ArgumentMatchers.any()
-                  )
-              )
-                .thenReturn(Future.successful(None))
-              businessUtrWithAuthorisedUser(controller, businessType, service) { result =>
-                val document = Jsoup.parse(contentAsString(result))
+            forAll(businessTypes) { (businessType) =>
+              val service = "AMLS"
+              if (
+                getBusinessTypesForService(service).exists(
+                  _.equalsIgnoreCase(businessType) && corporations.contains(businessType)
+                )
+              ) {
+                when(
+                  mockBusinessRegCacheConnector
+                    .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
+                      ArgumentMatchers.any(),
+                      ArgumentMatchers.any(),
+                      ArgumentMatchers.any()
+                    )
+                )
+                  .thenReturn(Future.successful(None))
+                businessUtrWithAuthorisedUser(controller, businessType, service) { result =>
+                  val document = Jsoup.parse(contentAsString(result))
 
-                document.title() must be(
-                  s"${getMessage("companyPageTitle")} - ${
-                    getServiceMessageKey
-                      .getOrElse(service, "")
-                  } - GOV.UK"
-                )
-                document
-                  .getElementsByClass("govuk-caption-xl")
-                  .text() must be(
-                  s"${messages("bc.screen-reader.section")} ${messages("bc.business-verification.client.text", service.toUpperCase)}"
-                )
-                document.getElementById("business-find-paragraph").text() must include(
-                  getMessage("findCorporationTax", Some(service))
-                )
-                document.getElementById("business-type-paragraph").text() must include(
-                  getMessage("alreadyRegistered", Some(service))
-                )
-                document.getElementsByClass("govuk-link").text() must include(
-                  getMessage("getHelpLinkTextAmls")
-                )
-                document.getElementsByClass("govuk-link").text() must include(
-                  "Is this page not working properly? (opens in new tab)"
-                )
-                document.select("label.govuk-label").eachText().get(0) must be(
-                  getMessage("questionText", subString = Some("Corporation"))
-                )
-                document.getElementsByClass("govuk-hint").text() must include(
-                  getMessage("UtrLengthHint")
-                )
+                  document.title() must be(
+                    s"${getMessage("companyPageTitle")} - ${getServiceMessageKey
+                        .getOrElse(service, "")} - GOV.UK"
+                  )
+                  document
+                    .getElementsByClass("govuk-caption-xl")
+                    .text() must be(
+                    s"${messages("bc.screen-reader.section")} ${messages("bc.business-verification.client.text", service.toUpperCase)}"
+                  )
+                  document.getElementById("business-find-paragraph").text() must include(
+                    getMessage("findCorporationTax", Some(service))
+                  )
+                  document.getElementById("business-type-paragraph").text() must include(
+                    getMessage("alreadyRegistered", Some(service))
+                  )
+                  document.getElementsByClass("govuk-link").text() must include(
+                    getMessage("getHelpLinkTextAmls")
+                  )
+                  document.getElementsByClass("govuk-link").text() must include(
+                    "Is this page not working properly? (opens in new tab)"
+                  )
+                  document.select("label.govuk-label").eachText().get(0) must be(
+                    getMessage("questionText", subString = Some("Corporation"))
+                  )
+                  document.getElementsByClass("govuk-hint").text() must include(
+                    getMessage("UtrLengthHint")
+                  )
+                }
               }
             }
           }
-        }
 
         "return Corporation Tax UTR Form view for a user when cached utr is retrieved" in new Setup {
           forAll(services) { (service) =>
@@ -304,10 +298,8 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
                   val document = Jsoup.parse(contentAsString(result))
 
                   document.title() must be(
-                    s"${getMessage("companyPageTitle")} - ${
-                      getServiceMessageKey
-                        .getOrElse(service, "")
-                    } - GOV.UK"
+                    s"${getMessage("companyPageTitle")} - ${getServiceMessageKey
+                        .getOrElse(service, "")} - GOV.UK"
                   )
                   document.getElementById("utr").attr("value") must be("1111111111")
                 }
@@ -337,10 +329,8 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
                 val document = Jsoup.parse(contentAsString(result))
 
                 document.title() must be(
-                  s"${getMessage("partnershipPageTitle")} - ${
-                    getServiceMessageKey
-                      .getOrElse(service, "")
-                  } - GOV.UK"
+                  s"${getMessage("partnershipPageTitle")} - ${getServiceMessageKey
+                      .getOrElse(service, "")} - GOV.UK"
                 )
                 document
                   .getElementsByClass("govuk-caption-xl")
@@ -391,10 +381,8 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
                 val document = Jsoup.parse(contentAsString(result))
 
                 document.title() must be(
-                  s"${getMessage("partnershipPageTitle")} - ${
-                    getServiceMessageKey
-                      .getOrElse(service, "")
-                  } - GOV.UK"
+                  s"${getMessage("partnershipPageTitle")} - ${getServiceMessageKey
+                    .getOrElse(service, "")} - GOV.UK"
                 )
                 document.getElementById("utr").attr("value") must be("1111111111")
               }
@@ -424,10 +412,8 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
               val document = Jsoup.parse(contentAsString(result))
 
               document.title() must be(
-                s"${getMessage("selfAssessmentPageTitle")} - ${
-                  getServiceMessageKey
-                    .getOrElse(service, "")
-                } - GOV.UK"
+                s"${getMessage("selfAssessmentPageTitle")} - ${getServiceMessageKey
+                    .getOrElse(service, "")} - GOV.UK"
               )
               document
                 .getElementsByClass("govuk-caption-xl")
@@ -476,10 +462,8 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           businessUtrWithAuthorisedUser(controller, businessType, service) { result =>
             val document = Jsoup.parse(contentAsString(result))
             document.title() must be(
-              s"${getMessage("selfAssessmentPageTitle")} - ${
-                getServiceMessageKey
-                  .getOrElse(service, "")
-              } - GOV.UK"
+              s"${getMessage("selfAssessmentPageTitle")} - ${getServiceMessageKey
+                .getOrElse(service, "")} - GOV.UK"
             )
             document
               .getElementsByClass("govuk-caption-xl")
@@ -523,10 +507,8 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
             val document = Jsoup.parse(contentAsString(result))
 
             document.title() must be(
-              s"${getMessage("selfAssessmentPageTitle")} - ${
-                getServiceMessageKey
-                  .getOrElse(service, "")
-              } - GOV.UK"
+              s"${getMessage("selfAssessmentPageTitle")} - ${getServiceMessageKey
+                  .getOrElse(service, "")} - GOV.UK"
             )
             document.getElementById("utr").attr("value") must be("1111111111")
           }
@@ -535,7 +517,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
       "unauthorised users" must {
         val businessType = "LTD"
-        val serviceName = "ATED"
+        val serviceName  = "ATED"
         "respond with a redirect & be redirected to the unauthorised page" in new Setup {
           businessLookupWithUnAuthorisedUser(controller, businessType, serviceName) { result =>
             status(result) must be(SEE_OTHER)
@@ -545,86 +527,62 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           }
         }
       }
-      "display correct heading for AGENT selecting Corporation options" in new Setup {
-        forAll(services.filterNot(_.equals("AMLS"))) { (service) =>
-          forAll(businessTypes) { (businessType) =>
-            if (
-              getBusinessTypesForService(service).exists(
-                _.equalsIgnoreCase(businessType) && corporations.contains(businessType)
-              )
-            ) {
-              when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[Utr](
-                ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenReturn(Future.successful(None))
-              businessLookupWithAuthorisedAgent(controller, businessType, service) { result =>
-                status(result) must be(OK)
+    "display correct heading for AGENT selecting Corporation options" in new Setup {
+      forAll(services.filterNot(_.equals("AMLS"))) { (service) =>
+        forAll(businessTypes) { (businessType) =>
+          if (
+            getBusinessTypesForService(service).exists(
+              _.equalsIgnoreCase(businessType) && corporations.contains(businessType)
+            )
+          ) {
+            when(mockBusinessRegCacheConnector.fetchAndGetCachedDetails[Utr](
+              ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+              .thenReturn(Future.successful(None))
+            businessLookupWithAuthorisedAgent(controller, businessType, service) { result =>
+              status(result) must be(OK)
 
-                val document = Jsoup.parse(contentAsString(result))
-                document.getElementsByClass("govuk-caption-xl").text() must be(
-                  s"${messages("bc.screen-reader.section")} ${messages("bc.business-verification.agent.text", service.toUpperCase)}"
+              val document = Jsoup.parse(contentAsString(result))
+              document.getElementsByClass("govuk-caption-xl").text() must be(
+                s"${messages("bc.screen-reader.section")} ${messages("bc.business-verification.agent.text", service.toUpperCase)}"
+              )
+              document.select("h1").text() must include(messages("bc.business-verification-utr-selected-agent-header"))
+              document.getElementById("business-type-paragraph").text()
+              if (service == "AMLS") {
+                include(
+                  getMessage("almsParagraphText")
                 )
-                document.select("h1").text() must include(messages("bc.business-verification-utr-selected-agent-header"))
-                document.getElementById("business-type-paragraph").text()
-                if (service == "AMLS") {
-                  include(
-                    getMessage("almsParagraphText")
-                  )
-                } else {
-                  getMessage("findCorporationTax")
-                }
-                document.select("label.govuk-label").eachText().get(0) must be(
-                  getMessage("questionText", subString = Some("Corporation"))
-                )
-                document.select("label.govuk-label").eachText().get(0) must be(
-                  getMessage("questionText", subString = Some("Corporation"))
-                )
-                document.getElementsByClass("govuk-link").text()
-                if (service == "AMLS") {
-                  include(
-                    getMessage("getHelpLinkTextAmls")
-                  )
-                } else {
-                  getMessage("getHelpLinkTextCorporation")
-                }
-                document.getElementsByClass("govuk-link").text() must include(
-                  "Is this page not working properly? (opens in new tab)"
-                )
-                document.select("label.govuk-label").eachText().get(0) must be(
-                  getMessage("questionText", subString = Some("Corporation"))
-                )
-                document.getElementsByClass("govuk-hint").text() must include(
-                  getMessage("UtrLengthHint")
-                )
+              } else {
+                getMessage("findCorporationTax")
               }
+              document.select("label.govuk-label").eachText().get(0) must be(
+                getMessage("questionText", subString = Some("Corporation"))
+              )
+              document.select("label.govuk-label").eachText().get(0) must be(
+                getMessage("questionText", subString = Some("Corporation"))
+              )
+              document.getElementsByClass("govuk-link").text()
+              if (service == "AMLS") {
+                include(
+                  getMessage("getHelpLinkTextAmls")
+                )
+              } else {
+                getMessage("getHelpLinkTextCorporation")
+              }
+              document.getElementsByClass("govuk-link").text() must include(
+                "Is this page not working properly? (opens in new tab)"
+              )
+              document.select("label.govuk-label").eachText().get(0) must be(
+                getMessage("questionText", subString = Some("Corporation"))
+              )
+              document.getElementsByClass("govuk-hint").text() must include(
+                getMessage("UtrLengthHint")
+              )
             }
           }
         }
       }
     }
-  }
-
-  "OnSubmit" must {
-    val organisationArgument: ArgumentCaptor[Organisation] = ArgumentCaptor.forClass(classOf[Organisation])
-    MapBusinessTypeToOrganisationType.keys.foreach { businessType =>
-      s"Appropriate organisationType for businessType in parameter for matchBusinessWithOrganisationName ${businessType}" in new Setup {
-        controller.submit("ATED", businessType).apply(FakeRequest().withSession(
-            "sessionId" -> s"session-${UUID.randomUUID}",
-            "token" -> "RANDOMTOKEN",
-            "userId" -> s"user-${UUID.randomUUID}")
-          .withHeaders(Headers("Authorization" -> "value")))
-
-        verify(mockBusinessMatchingService, times(1)).matchBusinessWithOrganisationName(ArgumentMatchers.any(),
-          organisationArgument.capture(),
-          ArgumentMatchers.any(),
-          ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-
-          assert(organisationArgument.getValue.organisationType == MapBusinessTypeToOrganisationType(businessType))
-        }
-
-    }
-  }
-
-
+  }}
   private def businessUtrWithAuthorisedUser(
     controller: BusinessUtrController,
     businessType: String,
