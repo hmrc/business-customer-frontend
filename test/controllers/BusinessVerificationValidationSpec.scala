@@ -837,11 +837,11 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
           clearInvocations(mockBusinessMatchingService)
           controller.submit(service, businessType).apply(fullReq)
 
-          verify(mockBusinessMatchingService,timeout(OneSecondTimeoutMs).atLeastOnce()).matchBusinessWithOrganisationName(ArgumentMatchers.any(),
+          verify(mockBusinessMatchingService,timeout(OneSecondTimeoutMs).times(1)).matchBusinessWithOrganisationName(ArgumentMatchers.any(),
             organisationArgument.capture(),
             ArgumentMatchers.any(),
             ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-          assert(organisationArgument.getValue.organisationType == MapBusinessTypeToOrganisationType(businessType))
+          assert(MapBusinessTypeToOrganisationType.get(businessType).contains(organisationArgument.getValue.organisationType))
         }
       }
 

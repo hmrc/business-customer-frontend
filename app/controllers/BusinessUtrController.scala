@@ -156,7 +156,7 @@ class BusinessUtrController @Inject() (
           ),
         utrFormData => {
           businessRegCacheConnector.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
-          val organisationType = MapBusinessTypeToOrganisationType(businessType)
+          val organisationType = MapBusinessTypeToOrganisationType.getOrElse(businessType,"")
           val organisation = Organisation(businessName, organisationType)
           businessMatchingService
             .matchBusinessWithOrganisationName(
