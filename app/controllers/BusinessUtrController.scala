@@ -156,7 +156,9 @@ class BusinessUtrController @Inject() (
           ),
         utrFormData => {
           businessRegCacheConnector.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
-          val organisationType = MapBusinessTypeToOrganisationType.getOrElse(businessType,"")
+
+          val organisationType: String = MapBusinessTypeToOrganisationType.
+            getOrElse(businessType, throw new NoSuchElementException("The business type sent is not in the list available"))
           val organisation = Organisation(businessName, organisationType)
           businessMatchingService
             .matchBusinessWithOrganisationName(
@@ -173,7 +175,10 @@ class BusinessUtrController @Inject() (
             }
           }
         }
-      )
+      ).recover { case _: NoSuchElementException =>
+        logger.error("[BusinessUtrController][handleSubmitUtrForm] An error occurred while matching organisationype name details")
+        InternalServerError("[BusinessUtrController][handleSubmitUtrForm] An error occurred while retrieving name details")
+      }
   }
 
   private def handleNrlRedirect(

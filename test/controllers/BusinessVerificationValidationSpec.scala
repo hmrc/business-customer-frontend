@@ -841,7 +841,7 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
             organisationArgument.capture(),
             ArgumentMatchers.any(),
             ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
-          assert(MapBusinessTypeToOrganisationType.get(businessType).contains(organisationArgument.getValue.organisationType))
+          assert(MapBusinessTypeToOrganisationType(businessType) ==( organisationArgument.getValue.organisationType))
         }
       }
 
