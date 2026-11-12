@@ -20,7 +20,8 @@ import builders.AuthBuilder
 import config.ApplicationConfig
 import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
 import forms.{BusinessName, SoleTraderName, Utr}
-import org.mockito.ArgumentMatchers
+import models.Organisation
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -31,6 +32,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import services.BusinessMatchingService
 import uk.gov.hmrc.auth.core.AuthConnector
+import utils.BusinessCustomerConstants.MapBusinessTypeToOrganisationType
 import views.html._
 
 import java.util.UUID
@@ -811,6 +813,38 @@ class BusinessVerificationValidationSpec extends PlaySpec with GuiceOneServerPer
           )
         }
       }
+    }
+    "OnSubmit" must {
+      MapBusinessTypeToOrganisationType.keys.foreach { businessType =>
+        s"Appropriate organisationType for businessType in parameter for matchBusinessWithOrganisationName ${businessType}" in new Setup {
+          val organisationArgument: ArgumentCaptor[Organisation] = ArgumentCaptor.forClass(classOf[Organisation])
+          private val OneSecondTimeoutMs = 1000
+
+          val sessionId = s"session-${UUID.randomUUID}"
+          val userId = s"user-${UUID.randomUUID}"
+          val service = "AWRS"
+          val fullReq = FakeRequest("POST", "/")
+            .withFormUrlEncodedBody(
+              "utr" -> s"1111111111"
+            )
+            .withSession(
+              "sessionId" -> sessionId,
+              "token" -> "RANDOMTOKEN",
+              "userId" -> userId
+            )
+            .withHeaders(Headers("Authorization" -> "value"))
+
+          clearInvocations(mockBusinessMatchingService)
+          controller.submit(service, businessType).apply(fullReq)
+
+          verify(mockBusinessMatchingService,timeout(OneSecondTimeoutMs).times(1)).matchBusinessWithOrganisationName(ArgumentMatchers.any(),
+            organisationArgument.capture(),
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
+          assert(MapBusinessTypeToOrganisationType.get(businessType).contains(organisationArgument.getValue.organisationType))
+        }
+      }
+
     }
 
     def submitWithAuthorisedUserSuccessOrg(

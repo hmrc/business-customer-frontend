@@ -156,7 +156,7 @@ class BusinessUtrController @Inject() (
           ),
         utrFormData => {
           businessRegCacheConnector.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
-          val organisationType = getOrganisationType(businessType)
+          val organisationType = MapBusinessTypeToOrganisationType.getOrElse(businessType,"")
           val organisation = Organisation(businessName, organisationType)
           businessMatchingService
             .matchBusinessWithOrganisationName(
@@ -249,14 +249,4 @@ class BusinessUtrController @Inject() (
   }
   private def getBusinessTypePrefix(businessType: String): String = if (partnerships.contains(businessType)) "psa" else "co"
 
-  private val getOrganisationType:Map[String, String] = Map(
-    "UIB" -> UnincorporatedBody,
-    "LLP" -> Llp,
-    "LP" -> Partnership,
-    "OBP" -> Partnership,
-    "LTD" -> CorporateBody,
-    "ULTD" -> CorporateBody,
-    "UT" -> CorporateBody,
-    "NRL" -> CorporateBody
-  )
 }
