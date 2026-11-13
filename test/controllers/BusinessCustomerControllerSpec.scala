@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.ApplicationConfig
-import connectors.DataCacheConnector
+import services.BusinessCustomerDataCacheService
 import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -40,10 +40,10 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
   val request = FakeRequest()
   val service = "ATED"
   val mockAuthConnector = mock[AuthConnector]
-  val mockDataCacheConnector = mock[DataCacheConnector]
+  val mockBusinessCustomerDataCacheService: BusinessCustomerDataCacheService = mock[BusinessCustomerDataCacheService]
 
   override def beforeEach() = {
-    reset(mockDataCacheConnector)
+    reset(mockBusinessCustomerDataCacheService)
     reset(mockAuthConnector)
   }
 
@@ -53,7 +53,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
   object TestBusinessCustomerController extends BusinessCustomerController(
     mockAuthConnector,
     appConfig,
-    mockDataCacheConnector,
+    mockBusinessCustomerDataCacheService,
     mcc
   )
 
@@ -82,7 +82,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       "clearCache successfully" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(OK, ""))
+        when(mockBusinessCustomerDataCacheService.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(HttpResponse(OK, ""))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(OK)
       }
@@ -90,7 +90,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       "clearCache gives error" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn(Future.failed(new InternalServerException("Something went wrong.")))
+        when(mockBusinessCustomerDataCacheService.clearCache(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn(Future.failed(new InternalServerException("Something went wrong.")))
         val result = TestBusinessCustomerController.clearCache(service).apply(fakeRequestWithSession(userId))
         status(result) must be(INTERNAL_SERVER_ERROR)
       }
@@ -130,7 +130,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
           false
         )
 
-        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(Some(reviewDetails))
+        when(mockBusinessCustomerDataCacheService.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(Some(reviewDetails))
         val result = TestBusinessCustomerController.getReviewDetails(service).apply(fakeRequestWithSession(userId))
         status(result) must be(OK)
       }
@@ -138,7 +138,7 @@ class BusinessCustomerControllerSpec extends PlaySpec with GuiceOneServerPerSuit
       "getReviewDetails cannot find details" in {
         val userId = s"user-${UUID.randomUUID}"
         AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
-        when(mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(None)
+        when(mockBusinessCustomerDataCacheService.fetchAndGetBusinessDetailsForSession(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn Future.successful(None)
         val result = TestBusinessCustomerController.getReviewDetails(service).apply(fakeRequestWithSession(userId))
         status(result) must be(NOT_FOUND)
       }
