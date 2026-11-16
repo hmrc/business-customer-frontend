@@ -178,7 +178,7 @@ class BusinessUtrController @Inject() (
         }
       ).recover { case _: NoSuchElementException =>
         logger.error("[BusinessUtrController][handleSubmitUtrForm] An error occurred while matching businesstype name details")
-        InternalServerError("[BusinessUtrController][handleSubmitUtrForm] An error occurred while retrieving name details")
+        InternalServerError("[BusinessUtrController][handleSubmitUtrForm] An error occurred while retrieving businesstype name details")
       }
   }
 
