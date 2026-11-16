@@ -23,7 +23,6 @@ package utils
   val Llp = "LLP"
   val Partnership = "Partnership"
   val SoleTrader = "Sole Trader"
-
  
   val BusinessRegDetailsId = "BC_NonUK_Business_Details"
   val OverseasId = "Overseas_Business"

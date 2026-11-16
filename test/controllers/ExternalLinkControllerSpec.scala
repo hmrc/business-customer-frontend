@@ -17,7 +17,6 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.BackLinkCacheConnector
 import org.mockito.ArgumentMatchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito._
@@ -27,6 +26,7 @@ import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.{Headers, MessagesControllerComponents, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
+import services.BackLinkCacheService
 import uk.gov.hmrc.auth.core.AuthConnector
 
 import java.util.UUID
@@ -38,7 +38,7 @@ class ExternalLinkControllerSpec extends PlaySpec with GuiceOneServerPerSuite wi
   val service = "ATED"
 
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]
   implicit val mcc: MessagesControllerComponents = inject[MessagesControllerComponents]

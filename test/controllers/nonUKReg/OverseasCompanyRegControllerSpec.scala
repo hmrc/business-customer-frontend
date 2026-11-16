@@ -17,7 +17,7 @@
 package controllers.nonUKReg
 
 import config.ApplicationConfig
-import connectors.{BackLinkCacheConnector, BusinessRegCacheConnector}
+import services.BusinessRegCacheService
 import controllers.ReviewDetailsController
 import models.{Address, BusinessRegistration, OverseasCompany, ReviewDetails}
 import org.jsoup.Jsoup
@@ -31,7 +31,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
-import services.BusinessRegistrationService
+import services.{BackLinkCacheService, BusinessRegistrationService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import views.html.nonUkReg.overseas_company
@@ -49,8 +49,8 @@ class OverseasCompanyRegControllerSpec extends PlaySpec with GuiceOneServerPerSu
   val service = "ATED"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockBusinessRegistrationService: BusinessRegistrationService = mock[BusinessRegistrationService]
-  val mockBusinessRegistrationCache: BusinessRegCacheConnector = mock[BusinessRegCacheConnector]
-  val mockBackLinkCache: BackLinkCacheConnector = mock[BackLinkCacheConnector]
+  val mockBusinessRegistrationCache: BusinessRegCacheService = mock[BusinessRegCacheService]
+  val mockBackLinkCache: BackLinkCacheService = mock[BackLinkCacheService]
   val injectedViewInstance: overseas_company = inject[views.html.nonUkReg.overseas_company]
 
   val appConfig: ApplicationConfig = inject[ApplicationConfig]

@@ -17,7 +17,7 @@
 package controllers
 
 import config.ApplicationConfig
-import connectors.DataCacheConnector
+import services.BusinessCustomerDataCacheService
 import controllers.auth.AuthActions
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -33,7 +33,7 @@ class ExternalCacheRequestController @Inject() (
     config: ApplicationConfig,
     mcc: MessagesControllerComponents,
     val authConnector: AuthConnector,
-    val dataCacheConnector: DataCacheConnector
+    val businessCustomerDataCacheService: BusinessCustomerDataCacheService
 ) extends FrontendController(mcc)
     with AuthActions {
 
@@ -47,7 +47,7 @@ class ExternalCacheRequestController @Inject() (
         HeaderCarrierConverter.fromRequest(request)
 
       authorisedFor(service) { implicit authContext =>
-        dataCacheConnector
+        businessCustomerDataCacheService
           .fetchAndGetBusinessDetailsForSession(
             transformedHeaderCarrier,
             executionContext

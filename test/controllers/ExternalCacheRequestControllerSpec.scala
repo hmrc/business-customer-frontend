@@ -18,7 +18,7 @@ package controllers
 
 import builders.{AuthBuilder, SessionBuilder}
 import config.ApplicationConfig
-import connectors.DataCacheConnector
+import services.BusinessCustomerDataCacheService
 import models.{Address, ReviewDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -44,7 +44,7 @@ class ExternalCacheRequestControllerSpec
 
   val service = "awrs"
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  val mockDataCacheConnector: DataCacheConnector = mock[DataCacheConnector]
+  val mockBusinessCustomerDataCacheService: BusinessCustomerDataCacheService = mock[BusinessCustomerDataCacheService]
   lazy val appConfig: ApplicationConfig = inject[ApplicationConfig]
   lazy val mcc: MessagesControllerComponents =
     inject[MessagesControllerComponents]
@@ -71,12 +71,12 @@ class ExternalCacheRequestControllerSpec
         appConfig,
         mcc,
         mockAuthConnector,
-        mockDataCacheConnector
+        mockBusinessCustomerDataCacheService
       )
 
   override def beforeEach(): Unit = {
     reset(mockAuthConnector)
-    reset(mockDataCacheConnector)
+    reset(mockBusinessCustomerDataCacheService)
   }
 
   "ExternalCacheRequestController" must {
@@ -88,7 +88,7 @@ class ExternalCacheRequestControllerSpec
           status(result) mustBe OK
           contentAsJson(result) mustBe Json.toJson(testReviewBusinessDetails)
 
-          verify(mockDataCacheConnector, times(1))
+          verify(mockBusinessCustomerDataCacheService, times(1))
             .fetchAndGetBusinessDetailsForSession(any(), any())
         }
       }
@@ -97,7 +97,7 @@ class ExternalCacheRequestControllerSpec
         getWithAuthorisedUser(None) { result =>
           status(result) mustBe NOT_FOUND
 
-          verify(mockDataCacheConnector, times(1))
+          verify(mockBusinessCustomerDataCacheService, times(1))
             .fetchAndGetBusinessDetailsForSession(any(), any())
         }
       }
@@ -128,7 +128,7 @@ class ExternalCacheRequestControllerSpec
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
 
     when(
-      mockDataCacheConnector.fetchAndGetBusinessDetailsForSession(any(), any())
+      mockBusinessCustomerDataCacheService.fetchAndGetBusinessDetailsForSession(any(), any())
     ).thenReturn(Future.successful(reviewDetails))
 
     val result =

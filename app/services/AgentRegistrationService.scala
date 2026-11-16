@@ -18,7 +18,7 @@ package services
 
 import audit.Auditable
 import config.ApplicationConfig
-import connectors.{DataCacheConnector, NewBusinessCustomerConnector, TaxEnrolmentsConnector}
+import connectors.{NewBusinessCustomerConnector, TaxEnrolmentsConnector}
 
 import javax.inject.Inject
 import models._
@@ -33,13 +33,13 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Success, Try}
 
 class AgentRegistrationService @Inject()(val taxEnrolmentsConnector: TaxEnrolmentsConnector,
-                                         val dataCacheConnector: DataCacheConnector,
+                                         val businessCustomerDataCacheService: BusinessCustomerDataCacheService,
                                          val audit: Auditable,
                                          implicit val config: ApplicationConfig,
                                          val businessCustomerConnector: NewBusinessCustomerConnector) extends Logging {
 
   def enrolAgent(serviceName: String)(implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
-    dataCacheConnector.fetchAndGetBusinessDetailsForSession flatMap {
+    businessCustomerDataCacheService.fetchAndGetBusinessDetailsForSession flatMap {
       case Some(businessDetails) => enrolAgent(serviceName, businessDetails)
       case _ =>
         logger.warn(s"[AgentRegistrationService][enrolAgent] - No Service details found in DataCache for")
