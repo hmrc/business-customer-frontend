@@ -16,14 +16,17 @@
 
 package utils
 
-  object BusinessCustomerConstants {
+object BusinessCustomerConstants {
 
   val CorporateBody = "Corporate Body"
   val UnincorporatedBody = "Unincorporated Body"
   val Llp = "LLP"
   val Partnership = "Partnership"
   val SoleTrader = "Sole Trader"
- 
+
+  val BacklinkId: String = "BC_Back_Link"
+  val BusinessDetailsSourceId: String = "BC_Business_Details"
+  val BusinessDetailsFormPayloadId: String = "BC_Business_Details_form_payload"
   val BusinessRegDetailsId = "BC_NonUK_Business_Details"
   val OverseasId = "Overseas_Business"
   val OverseasRegDetailsId = "Overseas_Business_Details"

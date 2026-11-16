@@ -156,7 +156,7 @@ class BusinessUtrController @Inject() (
           ),
         utrFormData => {
 
-          businessRegCacheConnector.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
+          businessRegCacheService.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
 
           val organisationType: String = MapBusinessTypeToOrganisationType.
             getOrElse(businessType, throw new NoSuchElementException("The business type sent is not in the list available"))
