@@ -36,5 +36,14 @@ object BusinessCustomerConstants {
   val CacheRegistrationDetails = "Cache_Registration_Details_"
   val CacheBusinessNameDataRegistrationDetails = "Cache_Business_Name_Data_Registration_Details_"
   val CacheBusinessUtrDataRegistrationDetails = "Cache_Business_Utr_Data_Registration_Details_"
-
+  val MapBusinessTypeToOrganisationType:Map[String, String] = Map(
+      "UIB" -> UnincorporatedBody,
+      "LLP" -> Llp,
+      "LP" -> Partnership,
+      "OBP" -> Partnership,
+      "LTD" -> CorporateBody,
+      "ULTD" -> CorporateBody,
+      "UT" -> CorporateBody,
+      "NRL" -> CorporateBody
+    )
 }

@@ -155,8 +155,11 @@ class BusinessUtrController @Inject() (
             )
           ),
         utrFormData => {
+
           businessRegCacheService.cacheDetails(s"$CacheBusinessUtrDataRegistrationDetails${service}_$businessType", utrFormData)
-          val organisationType = getOrganisationType(businessType)
+
+          val organisationType: String = MapBusinessTypeToOrganisationType.
+            getOrElse(businessType, throw new NoSuchElementException("The business type sent is not in the list available"))
           val organisation = Organisation(businessName, organisationType)
           businessMatchingService
             .matchBusinessWithOrganisationName(
@@ -173,7 +176,10 @@ class BusinessUtrController @Inject() (
             }
           }
         }
-      )
+      ).recover { case _: NoSuchElementException =>
+        logger.error("[BusinessUtrController][handleSubmitUtrForm] An error occurred while matching businesstype name details")
+        InternalServerError("[BusinessUtrController][handleSubmitUtrForm] An error occurred while retrieving businesstype name details")
+      }
   }
 
   private def handleNrlRedirect(
@@ -249,14 +255,4 @@ class BusinessUtrController @Inject() (
   }
   private def getBusinessTypePrefix(businessType: String): String = if (partnerships.contains(businessType)) "psa" else "co"
 
-  private val getOrganisationType:Map[String, String] = Map(
-    "UIB" -> UnincorporatedBody,
-    "LLP" -> Llp,
-    "LP" -> Partnership,
-    "OBP" -> Partnership,
-    "LTD" -> CorporateBody,
-    "ULTD" -> CorporateBody,
-    "UT" -> CorporateBody,
-    "NRL" -> CorporateBody
-  )
 }
