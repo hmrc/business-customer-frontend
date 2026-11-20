@@ -49,14 +49,14 @@ case class Address(line_1: String,
 }
 
 object Address {
-  implicit val formats: Format[Address] = Json.format[Address]
+  given formats: Format[Address] = Json.format[Address]
 }
 
 case class BusinessRegistration(businessName: String,
                                 businessAddress: Address)
 
 object BusinessRegistration {
-  implicit val formats: Format[BusinessRegistration] = Json.format[BusinessRegistration]
+  given formats: Format[BusinessRegistration] = Json.format[BusinessRegistration]
 }
 
 
@@ -66,5 +66,5 @@ case class OverseasCompany(hasBusinessUniqueId: Option[Boolean] = Some(false),
                            issuingCountry: Option[String] = None)
 
 object OverseasCompany {
-  implicit val formats: Format[OverseasCompany] = Json.format[OverseasCompany]
+  given formats: Format[OverseasCompany] = Json.format[OverseasCompany]
 }

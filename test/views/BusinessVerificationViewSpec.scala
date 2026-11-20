@@ -19,7 +19,7 @@ package views
 import config.ApplicationConfig
 import forms.BusinessVerificationForms.businessTypeForm
 import org.jsoup.Jsoup
-import org.scalatest.matchers.must.Matchers.{contain, convertToAnyMustWrapper, include}
+import org.scalatest.matchers.must.Matchers.*
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Messages, MessagesApi}
@@ -31,8 +31,8 @@ import views.html.business_verification
 class BusinessVerificationViewSpec extends AnyWordSpec with GuiceOneAppPerSuite {
     private val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
     private val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-    private implicit val messages: Messages = messagesApi.preferred(fakeRequest)
-    private implicit val appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
+    private given messages: Messages = messagesApi.preferred(fakeRequest)
+    private given appConfig: ApplicationConfig = app.injector.instanceOf[ApplicationConfig]
     private val view: business_verification = app.injector.instanceOf[business_verification]
     private val defaultIsAgent = false
     private val agentCaption = "agency set up"
@@ -49,7 +49,7 @@ class BusinessVerificationViewSpec extends AnyWordSpec with GuiceOneAppPerSuite 
         isSaAccount = false,
         isOrgAccount = false,
         backLink = None
-      )(fakeRequest, messages, appConfig)
+      )(using fakeRequest, messages, appConfig)
     }
     "BusinessVerification view for user" should {
       val html = renderView(defaultIsAgent).body

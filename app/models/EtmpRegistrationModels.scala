@@ -27,13 +27,13 @@ case class EtmpAddress(addressLine1: String,
                        countryCode: String)
 
 object EtmpAddress {
-  implicit val formats: Format[EtmpAddress] = Json.format[EtmpAddress]
+  given formats: Format[EtmpAddress] = Json.format[EtmpAddress]
 }
 
 case class EtmpOrganisation(organisationName: String)
 
 object EtmpOrganisation {
-  implicit val formats: Format[EtmpOrganisation] = Json.format[EtmpOrganisation]
+  given formats: Format[EtmpOrganisation] = Json.format[EtmpOrganisation]
 }
 
 case class EtmpIndividual(firstName: String,
@@ -42,7 +42,7 @@ case class EtmpIndividual(firstName: String,
                           dateOfBirth: LocalDate)
 
 object EtmpIndividual {
-  implicit val formats: Format[EtmpIndividual] = Json.format[EtmpIndividual]
+  given formats: Format[EtmpIndividual] = Json.format[EtmpIndividual]
 }
 
 case class EtmpContactDetails(phoneNumber: Option[String] = None,
@@ -51,13 +51,13 @@ case class EtmpContactDetails(phoneNumber: Option[String] = None,
                               emailAddress: Option[String] = None)
 
 object EtmpContactDetails {
-  implicit val formats: Format[EtmpContactDetails] = Json.format[EtmpContactDetails]
+  given formats: Format[EtmpContactDetails] = Json.format[EtmpContactDetails]
 }
 
 case class EtmpIdentification(idNumber: String, issuingInstitution: String, issuingCountryCode: String)
 
 object EtmpIdentification {
-  implicit val formats: Format[EtmpIdentification] = Json.format[EtmpIdentification]
+  given formats: Format[EtmpIdentification] = Json.format[EtmpIdentification]
 }
 
 case class BusinessRegistrationRequest(acknowledgementReference: String,
@@ -69,7 +69,7 @@ case class BusinessRegistrationRequest(acknowledgementReference: String,
                                        contactDetails: EtmpContactDetails)
 
 object BusinessRegistrationRequest {
-  implicit val formats: Format[BusinessRegistrationRequest] = Json.format[BusinessRegistrationRequest]
+  given formats: Format[BusinessRegistrationRequest] = Json.format[BusinessRegistrationRequest]
 }
 
 
@@ -79,7 +79,7 @@ case class BusinessRegistrationResponse(processingDate: String,
                                         agentReferenceNumber: Option[String])
 
 object BusinessRegistrationResponse {
-  implicit val formats: Format[BusinessRegistrationResponse] = Json.format[BusinessRegistrationResponse]
+  given formats: Format[BusinessRegistrationResponse] = Json.format[BusinessRegistrationResponse]
 }
 
 
@@ -95,5 +95,5 @@ case class UpdateRegistrationDetailsRequest(acknowledgementReference: String,
 }
 
 object UpdateRegistrationDetailsRequest {
-  implicit val formats: Format[UpdateRegistrationDetailsRequest] = Json.format[UpdateRegistrationDetailsRequest]
+  given formats: Format[UpdateRegistrationDetailsRequest] = Json.format[UpdateRegistrationDetailsRequest]
 }

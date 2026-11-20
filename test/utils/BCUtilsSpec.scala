@@ -27,7 +27,7 @@ class BCUtilsSpec extends PlaySpec with GuiceOneServerPerSuite with Injecting {
 
   val bcUtils: BCUtils = inject[ApplicationConfig]
 
-  implicit val lang: Lang = Lang.defaultLang
+  given lang: Lang = Lang.defaultLang
 
   "BCUtils" must {
 

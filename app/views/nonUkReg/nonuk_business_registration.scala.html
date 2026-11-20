@@ -15,13 +15,10 @@
  *@
 
 @import config.ApplicationConfig
-@import views.html.helpers._
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
-@import uk.gov.hmrc.govukfrontend.views.html.components._
-@import views.html.helper.form
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import views.ViewUtils.titleBuilder
-@import views.html.helper.CSPNonce
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
@@ -31,7 +28,7 @@
     govukErrorSummary: GovukErrorSummary,
     govukButton : GovukButton)
 
-@(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+@(businessRegistrationForm: Form[models.BusinessRegistration], service: String, displayDetails: models.BusinessRegistrationDisplayDetails, backLink: Option[String])(using request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
 @backLinkHtml = {
     @if(backLink.isDefined) {

@@ -17,11 +17,11 @@
 package acceptance.nonUkReg
 
 import config.ApplicationConfig
-import forms.BusinessRegistrationForms._
+import forms.BusinessRegistrationForms.*
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
@@ -32,8 +32,8 @@ class paySAQuestionSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with 
 
   val service = "ATED"
   val injectedViewInstance: paySAQuestion = inject[views.html.nonUkReg.paySAQuestion]
-  implicit val lang: Lang = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  given lang: Lang = Lang.defaultLang
+  given appConfig: ApplicationConfig = inject[ApplicationConfig]
 
   Feature("The user can the pay SA question") {
 
@@ -43,9 +43,9 @@ class paySAQuestionSpec extends AnyFeatureSpec with GuiceOneServerPerSuite with 
 
       Given("client has directly matched a business registration")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance(paySAQuestionForm, service, Some("backLinkUri"))
 

@@ -29,11 +29,11 @@ class BackLinkCacheService @Inject()(sessionCacheRepository: SessionCacheReposit
 
   private def getKey(pageId: String): DataKey[BackLinkModel] = DataKey[BackLinkModel](s"$BacklinkId:$pageId")
 
-  def fetchAndGetBackLink(pageId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
+  def fetchAndGetBackLink(pageId: String)(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
     sessionCacheRepository.getFromSession[BackLinkModel](getKey(pageId)).map(_.flatMap(_.backLink))
   }
 
-  def saveBackLink(pageId: String, returnUrl: Option[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
+  def saveBackLink(pageId: String, returnUrl: Option[String])(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
     sessionCacheRepository.putSession[BackLinkModel](getKey(pageId), BackLinkModel(returnUrl)).map(_ => returnUrl)
   }
 }

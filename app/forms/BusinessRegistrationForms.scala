@@ -17,9 +17,9 @@
 package forms
 
 import config.ApplicationConfig
-import models._
+import models.*
 import play.api.data.Form
-import play.api.data.Forms._
+import play.api.data.Forms.*
 
 object BusinessRegistrationForms {
 
@@ -61,8 +61,8 @@ object BusinessRegistrationForms {
         "country" -> text.
           verifying("bc.business-registration-error.country", _.length > length0)
 
-      )(Address.apply)(Address.unapply)
-    )(BusinessRegistration.apply)(BusinessRegistration.unapply)
+      )(Address.apply)(x => Some(Tuple.fromProductTyped(x)))
+    )(BusinessRegistration.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
   val overseasCompanyForm: Form[OverseasCompany] = Form(
@@ -71,7 +71,7 @@ object BusinessRegistrationForms {
       "businessUniqueId" -> optional(text),
       "issuingInstitution" -> optional(text),
       "issuingCountry" -> optional(text)
-    )(OverseasCompany.apply)(OverseasCompany.unapply)
+    )(OverseasCompany.apply)(x => Some(Tuple.fromProductTyped(x)))
   )
 
   val overseasCompanyRegForm: Form[OverseasCompany] = Form(
@@ -255,13 +255,13 @@ object BusinessRegistrationForms {
   val nrlQuestionForm: Form[NRLQuestion] = Form(
     mapping(
       "paysSA" -> optional(boolean).verifying("bc.nrl.paysSA.not-selected.error", a => a.isDefined)
-    )(NRLQuestion.apply)(NRLQuestion.unapply)
+    )(NRLQuestion.apply)(x => Some(x.paysSA))
   )
 
   val paySAQuestionForm: Form[PaySAQuestion] = Form(
     mapping(
       "paySA" -> optional(boolean).verifying("bc.nonuk.paySA.not-selected.error", a => a.isDefined)
-    )(PaySAQuestion.apply)(PaySAQuestion.unapply)
+    )(PaySAQuestion.apply)(x => Some(x.paySA))
   )
 
 }

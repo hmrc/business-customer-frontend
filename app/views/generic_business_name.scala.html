@@ -14,17 +14,16 @@
  * limitations under the License.
  *@
 
-@import config._
-@import views.html.helpers._
+@import config.*
+@import views.html.helpers.*
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
-@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
-@import views.html.helper.form
 @import views.ViewUtils.titleBuilder
+@import scala.annotation.unused
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
     govukInput: GovukInput,
-    govukDetails : GovukDetails,
+    @unused govukDetails : GovukDetails,
     govukBackLink : GovukBackLink,
     govukErrorSummary: GovukErrorSummary,
     govukButton : GovukButton)
@@ -34,9 +33,9 @@
  isAgent: Boolean,
  service: String,
  businessType: String,
- backLink: Option[String])(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+ backLink: Option[String])(using request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@implicitFormInstance = @{ Some(nameForm) }
+@givenFormInstance = @{ Some(nameForm) }
 
 @headingText = @{
     isAgent match {

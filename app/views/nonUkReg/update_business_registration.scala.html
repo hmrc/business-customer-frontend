@@ -15,19 +15,17 @@
  *@
 
 @import config.ApplicationConfig
-@import views.html.helpers._
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichInput
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
-@import uk.gov.hmrc.govukfrontend.views.html.components._
-@import views.html.helper.form
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import views.ViewUtils.titleBuilder
-@import views.html.helper.CSPNonce
 @import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+@import scala.annotation.unused
 
 @this(bcMain: bcMain,
     formHelper: FormWithCSRF,
     govukInput: GovukInput,
-    govukDetails : GovukDetails,
+    @unused govukDetails : GovukDetails,
     govukSelect: GovukSelect,
     govukBackLink : GovukBackLink,
     govukErrorSummary: GovukErrorSummary,
@@ -39,9 +37,9 @@
   redirectUrl: Option[String],
   isRegisterClient: Boolean,
   backLink: Option[String],
-  isAgent: Boolean)(implicit request: Request[_], messages: Messages, appConfig: ApplicationConfig)
+  isAgent: Boolean)(using request: Request[_], messages: Messages, appConfig: ApplicationConfig)
 
-@implicitFormInstance = @{ Some(businessRegistrationForm) }
+@givenFormInstance = @{ Some(businessRegistrationForm) }
 
 @backLinkHtml = {
     @if(backLink.isDefined) {

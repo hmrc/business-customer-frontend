@@ -18,14 +18,14 @@ package controllers.auth
 
 import config.ApplicationConfig
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, Result, Results}
 import play.api.test.{DefaultAwaitTimeout, FakeRequest, FutureAwaits, Injecting}
-import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -39,7 +39,7 @@ class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerS
 
   class Setup {
     val authActionsHarness: AuthActions = new AuthActions {
-      override implicit val appConfig: ApplicationConfig = mockAppConfig
+      override given appConfig: ApplicationConfig = mockAppConfig
 
       override def authConnector: AuthConnector = mockAuthConnector
     }
@@ -63,9 +63,9 @@ class AuthActionsSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerS
       Some("groupId")
     )
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit val fq: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages: Messages = mock[Messages]
+  given hc: HeaderCarrier = HeaderCarrier()
+  given fq: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  given messages: Messages = mock[Messages]
 
   "authorisedFor" should {
     "authorise for a user" when {

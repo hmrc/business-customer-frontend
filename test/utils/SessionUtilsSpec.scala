@@ -18,7 +18,7 @@ package utils
 
 import config.ApplicationConfig
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.play.PlaySpec
 import play.api.test.FakeRequest
 
@@ -30,7 +30,7 @@ class SessionUtilsSpec extends PlaySpec with MockitoSugar {
       SessionUtils.getUniqueAckNo.length must be(32)
     }
   }
-  implicit val mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
+  given mockAppConfig: ApplicationConfig = mock[ApplicationConfig]
 
   "findServiceInRequest" should {
     "find a service in a request" when {

@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import config._
+@import config.*
 
 @this(layout: layout)
 
@@ -22,7 +22,7 @@
     heading: String,
     message: String,
     service: String = "",
-    referrer: String = "global-error")(implicit request: RequestHeader, messages: Messages, appConfig: ApplicationConfig)
+    referrer: String = "global-error")(using request: RequestHeader, messages: Messages, appConfig: ApplicationConfig)
 
 @contentHeader = {
     <h1 class="govuk-heading-xl">@heading</h1>

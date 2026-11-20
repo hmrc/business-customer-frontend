@@ -19,22 +19,22 @@ package controllers
 import builders.AuthBuilder
 import config.ApplicationConfig
 import services.BusinessRegCacheService
-import forms._
+import forms.*
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.Inspectors.forAll
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, Messages}
-import play.api.mvc._
-import play.api.test.Helpers._
+import play.api.mvc.*
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Injecting}
 import services.{BackLinkCacheService, BusinessMatchingService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.NotFoundException
-import views.html._
+import views.html.*
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -52,9 +52,9 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
   val mockBusinessVerificationController: BusinessVerificationController = mock[BusinessVerificationController]
 
   val appConfig: ApplicationConfig               = inject[ApplicationConfig]
-  implicit val mcc: MessagesControllerComponents =
+  given mcc: MessagesControllerComponents =
     inject[MessagesControllerComponents]
-  implicit val messages: Messages =
+  given messages: Messages =
     mcc.messagesApi.preferred(Seq(Lang.defaultLang))
 
   class Setup {
@@ -146,7 +146,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
               ) {
                 when(
                   mockBusinessRegCacheService
-                    .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
+                    .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(using
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any()
@@ -178,7 +178,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
               ) {
                 when(
                   mockBusinessRegCacheService
-                    .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
+                    .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(using
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any()
@@ -230,7 +230,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
               ) {
                 when(
                   mockBusinessRegCacheService
-                    .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
+                    .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(using
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any()
@@ -282,7 +282,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
               ) {
                 when(
                   mockBusinessRegCacheService
-                    .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
+                    .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(using
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any(),
                       ArgumentMatchers.any()
@@ -313,7 +313,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
             ) {
               when(
                 mockBusinessRegCacheService
-                  .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
+                  .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(using
                     ArgumentMatchers.any(),
                     ArgumentMatchers.any(),
                     ArgumentMatchers.any()
@@ -365,7 +365,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
             ) {
               when(
                 mockBusinessRegCacheService
-                  .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
+                  .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(using
                     ArgumentMatchers.any(),
                     ArgumentMatchers.any(),
                     ArgumentMatchers.any()
@@ -396,7 +396,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           ) {
             when(
               mockBusinessRegCacheService
-                .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
+                .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(using
                   ArgumentMatchers.any(),
                   ArgumentMatchers.any(),
                   ArgumentMatchers.any()
@@ -447,7 +447,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
         ) {
           when(
             mockBusinessRegCacheService
-              .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
+              .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(using
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any()
@@ -491,7 +491,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           val businessType = "SOP"
           when(
             mockBusinessRegCacheService
-              .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(
+              .fetchAndGetCachedDetails[Utr](ArgumentMatchers.any())(using
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any()
@@ -522,61 +522,61 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
           }
         }
       }
-    "display correct heading for AGENT selecting Corporation options" in new Setup {
-      forAll(services.filterNot(_.equals("AMLS"))) { (service) =>
-        forAll(businessTypes) { (businessType) =>
-          if (
-            getBusinessTypesForService(service).exists(
-              _.equalsIgnoreCase(businessType) && corporations.contains(businessType)
-            )
-          ) {
-            when(mockBusinessRegCacheService.fetchAndGetCachedDetails[Utr](
-              ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-              .thenReturn(Future.successful(None))
-            businessLookupWithAuthorisedAgent(controller, businessType, service) { result =>
-              status(result) must be(OK)
+      "display correct heading for AGENT selecting Corporation options" in new Setup {
+        forAll(services.filterNot(_.equals("AMLS"))) { (service) =>
+          forAll(businessTypes) { (businessType) =>
+            if (
+              getBusinessTypesForService(service).exists(
+                _.equalsIgnoreCase(businessType) && corporations.contains(businessType)
+              )
+            ) {
+              when(mockBusinessRegCacheService.fetchAndGetCachedDetails[Utr](
+                ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(Future.successful(None))
+              businessLookupWithAuthorisedAgent(controller, businessType, service) { result =>
+                status(result) must be(OK)
 
-              val document = Jsoup.parse(contentAsString(result))
-              document.getElementsByClass("govuk-caption-xl").text() must be(
-                s"${messages("bc.screen-reader.section")} ${messages("bc.business-verification.agent.text", service.toUpperCase)}"
-              )
-              document.select("h1").text() must include(messages("bc.business-verification-utr-selected-agent-header"))
-              document.getElementById("business-type-paragraph").text()
-              if (service == "AMLS") {
-                include(
-                  getMessage("almsParagraphText")
+                val document = Jsoup.parse(contentAsString(result))
+                document.getElementsByClass("govuk-caption-xl").text() must be(
+                  s"${messages("bc.screen-reader.section")} ${messages("bc.business-verification.agent.text", service.toUpperCase)}"
                 )
-              } else {
-                getMessage("findCorporationTax")
-              }
-              document.select("label.govuk-label").eachText().get(0) must be(
-                getMessage("questionText", subString = Some("Corporation"))
-              )
-              document.select("label.govuk-label").eachText().get(0) must be(
-                getMessage("questionText", subString = Some("Corporation"))
-              )
-              document.getElementsByClass("govuk-link").text()
-              if (service == "AMLS") {
-                include(
-                  getMessage("getHelpLinkTextAmls")
+                document.select("h1").text() must include(messages("bc.business-verification-utr-selected-agent-header"))
+                document.getElementById("business-type-paragraph").text()
+                if (service == "AMLS") {
+                  include(
+                    getMessage("almsParagraphText")
+                  )
+                } else {
+                  getMessage("findCorporationTax")
+                }
+                document.select("label.govuk-label").eachText().get(0) must be(
+                  getMessage("questionText", subString = Some("Corporation"))
                 )
-              } else {
-                getMessage("getHelpLinkTextCorporation")
+                document.select("label.govuk-label").eachText().get(0) must be(
+                  getMessage("questionText", subString = Some("Corporation"))
+                )
+                document.getElementsByClass("govuk-link").text()
+                if (service == "AMLS") {
+                  include(
+                    getMessage("getHelpLinkTextAmls")
+                  )
+                } else {
+                  getMessage("getHelpLinkTextCorporation")
+                }
+                document.getElementsByClass("govuk-link").text() must include(
+                  "Is this page not working properly? (opens in new tab)"
+                )
+                document.select("label.govuk-label").eachText().get(0) must be(
+                  getMessage("questionText", subString = Some("Corporation"))
+                )
+                document.getElementsByClass("govuk-hint").text() must include(
+                  getMessage("UtrLengthHint")
+                )
               }
-              document.getElementsByClass("govuk-link").text() must include(
-                "Is this page not working properly? (opens in new tab)"
-              )
-              document.select("label.govuk-label").eachText().get(0) must be(
-                getMessage("questionText", subString = Some("Corporation"))
-              )
-              document.getElementsByClass("govuk-hint").text() must include(
-                getMessage("UtrLengthHint")
-              )
             }
           }
         }
       }
-    }
   }}
   private def businessUtrWithAuthorisedUser(
     controller: BusinessUtrController,
@@ -588,7 +588,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
     AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
     when(
-      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(using
         ArgumentMatchers.any(),
         ArgumentMatchers.any()
       )
@@ -619,7 +619,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
     AuthBuilder.mockUnAuthorisedUser(userId, mockAuthConnector)
     when(
-      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(using
         ArgumentMatchers.any(),
         ArgumentMatchers.any()
       )
@@ -649,7 +649,7 @@ class BusinessUtrControllerSpec extends PlaySpec with GuiceOneServerPerSuite wit
 
     AuthBuilder.mockAuthorisedAgent(userId, mockAuthConnector)
     when(
-      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(
+      mockBackLinkCache.fetchAndGetBackLink(ArgumentMatchers.any())(using
         ArgumentMatchers.any(),
         ArgumentMatchers.any()
       )

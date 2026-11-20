@@ -29,12 +29,12 @@ import scala.util.{Failure, Success, Try}
 object RedirectUtils {
 
   def redirectUrlGetRelativeOrDev(redirectUrl: RedirectUrl)
-                                 (implicit applicationConfig: ApplicationConfig): Id[SafeRedirectUrl] = {
+                                 (using applicationConfig: ApplicationConfig): Id[SafeRedirectUrl] = {
     redirectUrl.get(OnlyRelative | AbsoluteWithHostnameFromAllowlist(applicationConfig.allowedHosts: _*))
   }
 
   def getRelativeOrBadRequest(redirectUrl: RedirectUrl)(action: String => Future[Result])
-                             (implicit applicationConfig: ApplicationConfig): Future[Result] = {
+                             (using applicationConfig: ApplicationConfig): Future[Result] = {
     Try(redirectUrlGetRelativeOrDev(redirectUrl).url) match {
       case Success(value) =>
         action(value)
@@ -44,7 +44,7 @@ object RedirectUtils {
   }
 
   def getRelativeOrBadRequestOpt(redirectUrl: Option[RedirectUrl])(action: Option[String] => Future[Result])
-                                (implicit applicationConfig: ApplicationConfig): Future[Result] = {
+                                (using applicationConfig: ApplicationConfig): Future[Result] = {
     Try(redirectUrl.map(redirectUrlGetRelativeOrDev(_).url)) match {
       case Success(value) =>
         action(value)

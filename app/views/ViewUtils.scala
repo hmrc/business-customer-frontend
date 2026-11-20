@@ -21,7 +21,7 @@ import play.api.i18n.Messages
 
 object ViewUtils {
 
-  def titleBuilder(title: String, form: Option[Form[_]] = None, service: Option[String] = None)(implicit messages: Messages): String = {
+  def titleBuilder(title: String, form: Option[Form[_]] = None, service: Option[String] = None)(using messages: Messages): String = {
     val serviceKey = service.map(s => s"bc.${s.toLowerCase()}.serviceName").getOrElse("")
     val serviceName = 
       if (messages.isDefinedAt(serviceKey)) s" - ${messages(serviceKey)}"

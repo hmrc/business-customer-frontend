@@ -21,5 +21,5 @@ import play.api.libs.json.{Format, Json}
 case class BackLinkModel(backLink: Option[String])
 
 object BackLinkModel {
-  implicit val formats: Format[BackLinkModel] = Json.format[BackLinkModel]
+  given formats: Format[BackLinkModel] = Json.format[BackLinkModel]
 }

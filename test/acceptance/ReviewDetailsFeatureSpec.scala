@@ -19,9 +19,9 @@ package acceptance
 import config.ApplicationConfig
 import models.{Address, ReviewDetails}
 import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.{BeforeAndAfterEach, GivenWhenThen}
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
@@ -37,8 +37,8 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
   val reviewDetailsOverseas: ReviewDetails = ReviewDetails(
     "ACME", Some("NonUKBusinessType"), addressOverseas, "sap123", "safe123", isAGroup = false, directMatch = true, Some("agent123"))
 
-  implicit val lang: Lang = Lang.defaultLang
-  implicit val appConfig: ApplicationConfig = inject[ApplicationConfig]
+  given lang: Lang = Lang.defaultLang
+  given appConfig: ApplicationConfig = inject[ApplicationConfig]
   val injectedViewInstance: review_details = inject[views.html.review_details]
 
   Feature("The user can view the review details page") {
@@ -49,9 +49,9 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       Given("client has directly matched a business registration")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance("ATED", isAgent = false, reviewDetails, Some("backLinkUri"))
 
@@ -85,9 +85,9 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       Given("client has directly matched an overseas business registration")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance("ATED", isAgent = false, reviewDetailsOverseas, Some("backLinkUri"))
 
@@ -111,9 +111,9 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       Given("An agent has editable business registration details")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance("ATED", isAgent = false, reviewDetails.copy(directMatch = false), Some("backLinkUri"))
 
@@ -147,9 +147,9 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       Given("An agent has editable business registration details")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance("ATED", isAgent = true, reviewDetails.copy(directMatch = true), Some("backLinkUri"))
 
@@ -178,9 +178,9 @@ class ReviewDetailsFeatureSpec extends AnyFeatureSpec with GuiceOneServerPerSuit
 
       Given("An agent has editable overseas business registration details")
       When("The user views the page")
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val messagesApi: MessagesApi = inject[MessagesApi]
-      implicit val messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
+      given messages : play.api.i18n.Messages = play.api.i18n.MessagesImpl(Lang.defaultLang, messagesApi)
 
       val html = injectedViewInstance("ATED", isAgent = true, reviewDetailsOverseas.copy(directMatch = true), Some("backLinkUri"))
 

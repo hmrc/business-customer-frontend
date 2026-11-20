@@ -18,29 +18,29 @@ package connectors
 
 import audit.Auditable
 import config.ApplicationConfig
-
-import javax.inject.Inject
-import models._
+import models.*
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
-import uk.gov.hmrc.http._
+import play.api.libs.ws.writeableOf_JsValue
+import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.audit.model.EventTypes
 import utils.GovernmentGatewayConstants
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessCustomerConnector @Inject()(val http: HttpClientV2,
-                                          val audit: Auditable,
-                                          implicit val config: ApplicationConfig) extends RawResponseReads with Logging {
+                                          val audit: Auditable)
+                                         (using config: ApplicationConfig) extends RawResponseReads with Logging {
 
   val baseUri = "business-customer"
   val registerUri = "register"
   val knownFactsUri = "known-facts"
   val updateRegistrationDetailsURI = "update"
 
-  def addKnownFacts(knownFacts: KnownFactsForService)(implicit authContext: StandardAuthRetrievals,
+  def addKnownFacts(knownFacts: KnownFactsForService)(using authContext: StandardAuthRetrievals,
                                                       hc: HeaderCarrier,
                                                       ec: ExecutionContext): Future[HttpResponse] = {
     val authLink = authContext.authLink
@@ -50,7 +50,7 @@ class BusinessCustomerConnector @Inject()(val http: HttpClientV2,
   }
 
   def auditRegisterCall(input: BusinessRegistrationRequest, response: HttpResponse, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
-                       (implicit hc: HeaderCarrier, ec: ExecutionContext): Unit = {
+                       (using hc: HeaderCarrier, ec: ExecutionContext): Unit = {
     val eventType = response.status match {
       case OK => EventTypes.Succeeded
       case _ => EventTypes.Failed
@@ -87,7 +87,7 @@ class BusinessCustomerConnector @Inject()(val http: HttpClientV2,
 
 
   def register(registerData: BusinessRegistrationRequest, service: String, isNonUKClientRegisteredByAgent: Boolean = false)
-              (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[BusinessRegistrationResponse] = {
+              (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[BusinessRegistrationResponse] = {
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$registerUri"""
     val jsonData = Json.toJson(registerData)
@@ -109,7 +109,7 @@ class BusinessCustomerConnector @Inject()(val http: HttpClientV2,
   }
 
   def updateRegistrationDetails(safeId: String, updateRegistrationDetails: UpdateRegistrationDetailsRequest)
-                               (implicit authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+                               (using authContext: StandardAuthRetrievals, hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val authLink = authContext.authLink
     val postUrl = s"""${config.businessCustomer}/$authLink/$baseUri/$updateRegistrationDetailsURI/$safeId"""
     val jsonData = Json.toJson(updateRegistrationDetails)

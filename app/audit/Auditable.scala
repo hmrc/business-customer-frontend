@@ -31,7 +31,7 @@ class Auditable @Inject()(@Named("appName") val appName: String,
   def sendDataEvent(transactionName: String,
                     path: String = "N/A",
                     tags: Map[String, String] = Map.empty[String, String],
-                    detail: Map[String, String])(implicit hc: HeaderCarrier,
+                    detail: Map[String, String])(using hc: HeaderCarrier,
                     ec: ExecutionContext): Unit =
     audit.sendDataEvent(
       DataEvent(
