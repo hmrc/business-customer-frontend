@@ -29,7 +29,7 @@ import scala.concurrent.Future
 object AuthBuilder {
 
   val saUtr = new SaUtrGenerator().nextSaUtr
-  val nino = new Generator().nextNino
+  val nino = NinoGenerator().nextNino
 
   type RetrievalType = Enrolments ~
     Option[AffinityGroup] ~
